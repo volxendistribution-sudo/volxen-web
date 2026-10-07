@@ -2,154 +2,1335 @@
 <html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0c0c0d">
+
 <title>VOLXEN — Tecnología y energía en La Habana</title>
-<meta name="description" content="VOLXEN: comercialización de tecnología y energía en La Habana. Transparencia y confianza en cada venta.">
+
+<meta name="description"
+content="VOLXEN: comercialización de tecnología y energía en La Habana. Transparencia y confianza en cada venta.">
+
 <link rel="icon" href="logo.svg">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400&family=Inter:wght@300;400;500&display=swap"
+rel="stylesheet">
+
 <style>
-:root{--bg:#0c0c0d;--sf:#1e1d1b;--s2:#141414;--fg:#ede7da;--mu:#a09a8f;--g:#a9824a;--gl:rgba(169,130,74,.25);--bd:rgba(237,231,218,.12);--ox:#4a1518;--d:'Fraunces',Georgia,serif;--s:'Inter',system-ui,sans-serif;--e:cubic-bezier(.22,1,.36,1)}
-*{box-sizing:border-box;margin:0;padding:0;border-radius:0}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-body{background:var(--bg);color:var(--mu);font:300 14px/1.7 var(--s);overflow-x:hidden}
-h1,h2,h3{font-family:var(--d);font-weight:400;color:var(--fg);line-height:1.15}
-a{color:inherit;text-decoration:none}button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;text-align:inherit}
-img{display:block;max-width:100%}
-:focus-visible{outline:1px solid var(--g);outline-offset:3px}
-.c{width:100%;margin:auto;padding-inline:clamp(1.5rem,5vw,3rem);max-width:78rem}
-.ey{display:block;font:500 10px var(--s);letter-spacing:.28em;text-transform:uppercase;color:var(--g)}
-.lb{font:500 10px var(--s);letter-spacing:.28em;text-transform:uppercase;color:var(--mu)}
-.hl{display:block;height:1px;background:rgba(169,130,74,.35)}
-h2{font-size:clamp(1.9rem,4vw,2.4rem);margin-top:1.5rem}
-.sec{padding:clamp(5rem,10vw,11rem) 0;border-top:1px solid var(--gl)}
-.bt{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:16px 32px;border:1px solid rgba(169,130,74,.45);color:var(--g);font:500 10px var(--s);letter-spacing:.28em;text-transform:uppercase;text-align:center;transition:.3s}
-.bt:hover{border-color:var(--g);background:rgba(169,130,74,.07)}
-.bt.h{border-color:var(--bd);color:var(--fg)}.bt.h:hover{border-color:rgba(169,130,74,.6);color:var(--g);background:none}
-.rv{opacity:0;transform:translateY(16px);transition:opacity .6s var(--e),transform .6s var(--e)}
-.rv.in{opacity:1;transform:none}
-header{position:sticky;top:0;z-index:40;border-bottom:1px solid transparent;transition:.5s}
-header.sc{border-color:var(--gl);background:rgba(12,12,13,.9);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
-.hd{height:80px;display:flex;align-items:center;justify-content:space-between;gap:16px}
-.br{display:flex;align-items:center;gap:12px}.br img{width:34px;height:34px}
-.wm{font:400 20px/1 var(--d);letter-spacing:.03em;color:var(--fg)}
-.nv{display:flex;align-items:center;gap:28px}
-.nv a.l{display:none;font:500 10px var(--s);letter-spacing:.28em;text-transform:uppercase;transition:color .3s}
-.nv a.l:hover{color:var(--g)}
-@media(min-width:760px){.nv a.l{display:inline}}
-.cb{position:relative;width:44px;height:44px;border:1px solid var(--bd);display:grid;place-items:center;color:var(--fg);transition:.3s}
-.cb:hover{border-color:rgba(169,130,74,.6);color:var(--g)}
-.cb svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.4}
-.cb i{position:absolute;top:-8px;right:-8px;min-width:20px;padding:0 4px;border:1px solid rgba(169,130,74,.5);background:var(--bg);color:var(--g);font:400 10px/18px var(--s);text-align:center;font-style:normal;display:none}
-.hero{position:relative;overflow:hidden}
-.hero::before,.cie::before{content:"";position:absolute;inset:0;background:url(texture-stone.jpg) center/cover;opacity:.18}
-.hero::after{content:"";position:absolute;inset:0;background:radial-gradient(70% 55% at 50% 38%,rgba(169,130,74,.1),transparent 70%),linear-gradient(to bottom,rgba(12,12,13,.6),transparent,var(--bg))}
-.hero .c{position:relative;z-index:1;min-height:86vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding-block:7rem}
-.hx{perspective:900px}
-.hx img{width:clamp(7rem,28vw,9rem);height:auto;animation:sp 9s cubic-bezier(.45,0,.55,1) infinite}
-@keyframes sp{0%,100%{transform:rotateY(-26deg) rotateX(8deg)}50%{transform:rotateY(26deg) rotateX(-8deg)}}
-.hero h1{font-size:clamp(2.9rem,13vw,8.5rem);letter-spacing:.03em;line-height:1;margin-top:3.5rem}
-.hero p{max-width:28rem;margin-top:3rem}
-.hero .bt{margin-top:4rem}
-.hero .vv{margin-top:4rem;font:500 10px var(--s);letter-spacing:.28em;text-transform:uppercase}
-.hero .vv:hover{color:var(--g)}
-.hero .b{position:absolute;left:0;right:0;bottom:0;height:1px;background:rgba(169,130,74,.35);z-index:1}
-.cd{position:relative;background:var(--sf);border:1px solid var(--bd);isolation:isolate;transition:transform .32s var(--e),border-color .32s,box-shadow .32s,opacity .6s var(--e)}
-.cd::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .32s;background:linear-gradient(115deg,transparent 30%,rgba(169,130,74,.16) 50%,transparent 70%)}
-@media(hover:hover){.cd:hover{transform:perspective(1000px) translateY(-6px) rotateX(3deg) rotateY(-3deg) scale(1.008);border-color:rgba(169,130,74,.55);box-shadow:0 40px 70px -40px rgba(0,0,0,.85),0 0 0 1px rgba(169,130,74,.14)}.cd:hover::after{opacity:1}}
-.cats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:4rem}
-@media(min-width:640px){.cats{grid-template-columns:repeat(3,1fr)}}@media(min-width:1024px){.cats{grid-template-columns:repeat(5,1fr)}}
-.ct{padding:2rem;display:block;width:100%}
-.ct svg{width:20px;height:20px;stroke:var(--g);fill:none;stroke-width:1.25}
-.ct b{display:block;margin-top:2rem;font:400 16px var(--d);color:var(--fg)}
-.ct span{display:block;margin-top:.75rem}
-.chs{display:flex;flex-wrap:wrap;gap:12px 28px;margin-top:3.5rem;padding-bottom:1.25rem;border-bottom:1px solid var(--gl)}
-.chs button{padding:6px 0;border-bottom:1px solid transparent;font:500 10px var(--s);letter-spacing:.28em;text-transform:uppercase;transition:color .3s}
-.chs button:hover{color:var(--fg)}.chs .on{border-color:var(--g);color:var(--g)}
-.grid{display:grid;gap:2rem;margin-top:4rem}
-@media(min-width:640px){.grid{grid-template-columns:repeat(2,1fr)}}@media(min-width:1024px){.grid{grid-template-columns:repeat(3,1fr);gap:3rem}}
-.pcd{display:flex;flex-direction:column}
-.im{aspect-ratio:4/3;border-bottom:1px solid var(--bd);background:var(--sf);overflow:hidden}
-.im img{width:100%;height:100%;object-fit:contain;padding:1rem}
-.tx{display:block;width:100%;flex:1;padding:2.5rem 2rem 1rem}
-@media(min-width:640px){.tx{padding:2.5rem 2.5rem 1rem}}
-.tx h3{margin-top:1.25rem;font-size:20px;transition:color .3s}.pcd:hover .tx h3{color:var(--g)}
-.tx .hl{width:2rem;margin-top:1.5rem;transition:width .5s}.pcd:hover .tx .hl{width:4rem}
-.pc{margin-top:1.5rem;letter-spacing:.03em;font-size:14px}
-.pc s{color:#6f6a5f;margin-right:8px}.pc b{font-weight:400;color:var(--g)}
-.ag{display:inline-block;margin-top:1.25rem;padding:4px 8px;border:1px solid var(--ox);color:#a8383d;font:500 10px var(--s);letter-spacing:.28em;text-transform:uppercase}
-.ad{padding:2rem}.ad .bt{width:100%}
-.emp{margin-top:4rem;padding:3.5rem 2rem;text-align:center}.emp p{max-width:28rem;margin:0 auto 2rem}
-.faq{display:grid;gap:5rem}@media(min-width:1024px){.faq{grid-template-columns:.75fr 1.25fr}}
-.faq .hl{width:5rem;margin:2.5rem 0}
-dl>div{border-top:1px solid var(--gl);padding:2.5rem 0}dl>div:last-child{border-bottom:1px solid var(--gl)}
-dt{font:400 18px/1.3 var(--d);color:var(--fg)}dd{margin-top:1rem;max-width:42rem}
-.cie{position:relative;overflow:hidden;text-align:center}.cie::before{opacity:.14}
-.cie::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(12,12,13,.7),transparent,var(--bg))}
-.cie .c{position:relative;z-index:1}
-.cie h2{max-width:40rem;margin:2rem auto 0;font-size:clamp(2.2rem,5vw,3rem)}
-.cie .hl{width:6rem;margin:2.5rem auto}
-.qs{max-width:600px;margin:auto}.qs .hl{width:5rem;margin:2.5rem 0}.qs p+p{margin-top:2rem}
-footer{border-top:1px solid var(--gl)}
-.fg{display:grid;gap:4rem;padding-block:5rem}@media(min-width:760px){.fg{grid-template-columns:repeat(3,1fr)}}
-.fg a.t{display:block;margin-top:1.5rem;transition:color .3s}.fg a:hover{color:var(--g)}
-.fg .sc2{display:flex;gap:1.5rem;margin-top:2rem}
-.fd{display:flex;flex-direction:column;gap:12px;padding-block:1.5rem;font-size:13px}
-@media(min-width:760px){.fd{flex-direction:row;flex-wrap:wrap;gap:12px 40px}}
-.fd span::before{content:"◆";color:var(--g);font-size:7px;margin-right:12px;vertical-align:middle}
-.cp{padding-block:1.5rem;font-size:12px}
-.ov{display:none;position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.8);overflow:auto;opacity:0;transition:opacity .3s}
-.ov.on{opacity:1}
-.bx{position:relative;max-width:32rem;margin:max(16px,env(safe-area-inset-top)) auto 24px;background:var(--s2);border:1px solid var(--gl);padding:2rem}
-.xb{position:absolute;top:8px;right:8px;width:44px;height:44px;font-size:24px;color:var(--mu);text-align:center;z-index:2}
-.bx .im{border:1px solid var(--bd)}
-.bx h3{font-size:24px;margin-top:1rem}.bx p{margin-top:1.25rem}.bx ul{margin:1rem 0 0 1.1rem}
-.bx .row{display:flex;gap:1px;margin-top:2.5rem}.bx .row .bt{flex:1}
-.q{display:flex;align-items:center;border:1px solid var(--bd)}
-.q button{width:44px;height:48px;text-align:center;font-size:18px;color:var(--mu)}.q button:hover{color:var(--g)}
-.q i{min-width:28px;text-align:center;font-style:normal;color:var(--fg)}
-.sl{display:block;margin-top:2rem;text-align:center;font-size:12px}.sl:hover{color:var(--g)}
-.sh{margin:0 0 0 auto;min-height:100%;width:min(92vw,26rem);border:0;border-left:1px solid var(--gl);transform:translateX(30px);transition:transform .35s var(--e)}
-.ov.on .sh{transform:none}
-.li{display:flex;gap:16px;padding:1.25rem 0;border-bottom:1px solid var(--bd);align-items:center}
-.li img{width:64px;height:64px;object-fit:contain;background:var(--sf);flex:none}
-.li div{flex:1}.li b{display:block;font:400 15px/1.3 var(--d);color:var(--fg);margin-bottom:6px}
-.tt{margin-top:1.5rem;text-align:right;color:var(--fg)}.tt b{color:var(--g);font-weight:400}
-.sh input,.sh textarea{width:100%;min-height:50px;margin-top:10px;padding:12px;background:var(--sf);border:1px solid var(--bd);color:var(--fg);font:300 16px var(--s)}
-.sh textarea{min-height:76px}.sh input:focus,.sh textarea:focus{outline:0;border-color:var(--g)}
-#er{color:#d98080;min-height:20px;margin-top:8px;font-size:13px}
-#ts{position:fixed;left:50%;bottom:calc(28px + env(safe-area-inset-bottom));transform:translate(-50%,14px);z-index:80;background:var(--s2);border:1px solid rgba(169,130,74,.5);color:var(--fg);padding:12px 20px;font-size:13px;opacity:0;pointer-events:none;transition:.3s;white-space:nowrap}
-#ts.on{opacity:1;transform:translate(-50%,0)}
+
+:root{
+--bg:#0c0c0d;
+--sf:#1e1d1b;
+--s2:#141414;
+--fg:#ede7da;
+--mu:#a09a8f;
+--g:#a9824a;
+--gl:rgba(169,130,74,.25);
+--bd:rgba(237,231,218,.12);
+--ox:#4a1518;
+--d:'Fraunces',Georgia,serif;
+--s:'Inter',system-ui,sans-serif;
+--e:cubic-bezier(.22,1,.36,1)
+}
+
+*{
+box-sizing:border-box;
+margin:0;
+padding:0;
+border-radius:0
+}
+
+html{
+scroll-behavior:smooth;
+-webkit-text-size-adjust:100%
+}
+
+body{
+background:var(--bg);
+color:var(--mu);
+font:300 14px/1.7 var(--s);
+overflow-x:hidden
+}
+
+h1,h2,h3{
+font-family:var(--d);
+font-weight:400;
+color:var(--fg);
+line-height:1.15
+}
+
+a{
+color:inherit;
+text-decoration:none
+}
+
+button{
+font:inherit;
+color:inherit;
+background:none;
+border:0;
+cursor:pointer;
+text-align:inherit
+}
+
+img{
+display:block;
+max-width:100%
+}
+
+:focus-visible{
+outline:1px solid var(--g);
+outline-offset:3px
+}
+
+.c{
+width:100%;
+margin:auto;
+padding-inline:clamp(1.5rem,5vw,3rem);
+max-width:78rem
+}
+
+.ey{
+display:block;
+font:500 10px var(--s);
+letter-spacing:.28em;
+text-transform:uppercase;
+color:var(--g)
+}
+
+.lb{
+font:500 10px var(--s);
+letter-spacing:.28em;
+text-transform:uppercase;
+color:var(--mu)
+}
+
+.hl{
+display:block;
+height:1px;
+background:rgba(169,130,74,.35)
+}
+
+h2{
+font-size:clamp(1.9rem,4vw,2.4rem);
+margin-top:1.5rem
+}
+
+.sec{
+padding:clamp(5rem,10vw,11rem) 0;
+border-top:1px solid var(--gl)
+}
+
+.bt{
+display:inline-flex;
+align-items:center;
+justify-content:center;
+min-height:48px;
+padding:16px 32px;
+border:1px solid rgba(169,130,74,.45);
+color:var(--g);
+font:500 10px var(--s);
+letter-spacing:.28em;
+text-transform:uppercase;
+text-align:center;
+transition:.3s
+}
+
+.bt:hover{
+border-color:var(--g);
+background:rgba(169,130,74,.07)
+}
+
+.bt.h{
+border-color:var(--bd);
+color:var(--fg)
+}
+
+.bt.h:hover{
+border-color:rgba(169,130,74,.6);
+color:var(--g);
+background:none
+}
+
+.rv{
+opacity:0;
+transform:translateY(16px);
+transition:opacity .6s var(--e),transform .6s var(--e)
+}
+
+.rv.in{
+opacity:1;
+transform:none
+}
+
+header{
+position:sticky;
+top:0;
+z-index:40;
+border-bottom:1px solid transparent;
+transition:.5s
+}
+
+header.sc{
+border-color:var(--gl);
+background:rgba(12,12,13,.9);
+-webkit-backdrop-filter:blur(12px);
+backdrop-filter:blur(12px)
+}
+
+.hd{
+height:80px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:16px
+}
+
+.br{
+display:flex;
+align-items:center;
+gap:12px
+}
+
+.br img{
+width:34px;
+height:34px
+}
+
+.wm{
+font:400 20px/1 var(--d);
+letter-spacing:.03em;
+color:var(--fg)
+}
+
+.nv{
+display:flex;
+align-items:center;
+gap:28px
+}
+
+.nv a.l{
+display:none;
+font:500 10px var(--s);
+letter-spacing:.28em;
+text-transform:uppercase;
+transition:color .3s
+}
+
+.nv a.l:hover{
+color:var(--g)
+}
+
+@media(min-width:760px){
+.nv a.l{
+display:inline
+}
+}
+
+.cb{
+position:relative;
+width:44px;
+height:44px;
+border:1px solid var(--bd);
+display:grid;
+place-items:center;
+color:var(--fg);
+transition:.3s
+}
+
+.cb:hover{
+border-color:rgba(169,130,74,.6);
+color:var(--g)
+}
+
+.cb svg{
+width:17px;
+height:17px;
+stroke:currentColor;
+fill:none;
+stroke-width:1.4
+}
+
+.cb i{
+position:absolute;
+top:-8px;
+right:-8px;
+min-width:20px;
+padding:0 4px;
+border:1px solid rgba(169,130,74,.5);
+background:var(--bg);
+color:var(--g);
+font:400 10px/18px var(--s);
+text-align:center;
+font-style:normal;
+display:none
+}
+
+.hero{
+position:relative;
+overflow:hidden
+}
+
+.hero::before,
+.cie::before{
+content:"";
+position:absolute;
+inset:0;
+background:url(texture-stone.jpg) center/cover;
+opacity:.18
+}
+
+.hero::after{
+content:"";
+position:absolute;
+inset:0;
+background:
+radial-gradient(
+70% 55% at 50% 38%,
+rgba(169,130,74,.1),
+transparent 70%
+),
+linear-gradient(
+to bottom,
+rgba(12,12,13,.6),
+transparent,
+var(--bg)
+)
+}
+
+.hero .c{
+position:relative;
+z-index:1;
+min-height:86vh;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+text-align:center;
+padding-block:7rem
+}
+
+.hx{
+perspective:900px
+}
+
+.hx img{
+width:clamp(7rem,28vw,9rem);
+height:auto;
+animation:sp 9s cubic-bezier(.45,0,.55,1) infinite
+}
+
+@keyframes sp{
+0%,100%{
+transform:rotateY(-26deg) rotateX(8deg)
+}
+50%{
+transform:rotateY(26deg) rotateX(-8deg)
+}
+}
+
+.hero h1{
+font-size:clamp(2.9rem,13vw,8.5rem);
+letter-spacing:.03em;
+line-height:1;
+margin-top:3.5rem
+}
+
+.hero p{
+max-width:28rem;
+margin-top:3rem
+}
+
+.hero .bt{
+margin-top:4rem
+}
+
+.hero .vv{
+margin-top:4rem;
+font:500 10px var(--s);
+letter-spacing:.28em;
+text-transform:uppercase
+}
+
+.hero .vv:hover{
+color:var(--g)
+}
+
+.hero .b{
+position:absolute;
+left:0;
+right:0;
+bottom:0;
+height:1px;
+background:rgba(169,130,74,.35);
+z-index:1
+}
+
+.cd{
+position:relative;
+background:var(--sf);
+border:1px solid var(--bd);
+isolation:isolate;
+transition:
+transform .32s var(--e),
+border-color .32s,
+box-shadow .32s,
+opacity .6s var(--e)
+}
+
+.cd::after{
+content:"";
+position:absolute;
+inset:0;
+pointer-events:none;
+opacity:0;
+transition:opacity .32s;
+background:
+linear-gradient(
+115deg,
+transparent 30%,
+rgba(169,130,74,.16) 50%,
+transparent 70%
+)
+}
+
+@media(hover:hover){
+
+.cd:hover{
+transform:
+perspective(1000px)
+translateY(-6px)
+rotateX(3deg)
+rotateY(-3deg)
+scale(1.008);
+
+border-color:rgba(169,130,74,.55);
+
+box-shadow:
+0 40px 70px -40px rgba(0,0,0,.85),
+0 0 0 1px rgba(169,130,74,.14)
+}
+
+.cd:hover::after{
+opacity:1
+}
+
+}
+
+.cats{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:12px;
+margin-top:4rem
+}
+
+@media(min-width:640px){
+.cats{
+grid-template-columns:repeat(3,1fr)
+}
+}
+
+@media(min-width:1024px){
+.cats{
+grid-template-columns:repeat(5,1fr)
+}
+}
+
+.ct{
+padding:2rem;
+display:block;
+width:100%
+}
+
+.ct svg{
+width:20px;
+height:20px;
+stroke:var(--g);
+fill:none;
+stroke-width:1.25
+}
+
+.ct b{
+display:block;
+margin-top:2rem;
+font:400 16px var(--d);
+color:var(--fg)
+}
+
+.ct span{
+display:block;
+margin-top:.75rem
+}
+
+.chs{
+display:flex;
+flex-wrap:wrap;
+gap:12px 28px;
+margin-top:3.5rem;
+padding-bottom:1.25rem;
+border-bottom:1px solid var(--gl)
+}
+
+.chs button{
+padding:6px 0;
+border-bottom:1px solid transparent;
+font:500 10px var(--s);
+letter-spacing:.28em;
+text-transform:uppercase;
+transition:color .3s
+}
+
+.chs button:hover{
+color:var(--fg)
+}
+
+.chs .on{
+border-color:var(--g);
+color:var(--g)
+}
+
+.grid{
+display:grid;
+gap:2rem;
+margin-top:4rem
+}
+
+@media(min-width:640px){
+.grid{
+grid-template-columns:repeat(2,1fr)
+}
+}
+
+@media(min-width:1024px){
+.grid{
+grid-template-columns:repeat(3,1fr);
+gap:3rem
+}
+}
+
+.pcd{
+display:flex;
+flex-direction:column
+}
+
+.im{
+aspect-ratio:4/3;
+border-bottom:1px solid var(--bd);
+background:var(--sf);
+overflow:hidden
+}
+
+.im img{
+width:100%;
+height:100%;
+object-fit:contain;
+padding:1rem
+}
+
+.tx{
+display:block;
+width:100%;
+flex:1;
+padding:2.5rem 2rem 1rem
+}
+
+@media(min-width:640px){
+.tx{
+padding:2.5rem 2.5rem 1rem
+}
+}
+
+.tx h3{
+margin-top:1.25rem;
+font-size:20px;
+transition:color .3s
+}
+
+.pcd:hover .tx h3{
+color:var(--g)
+}
+
+.tx .hl{
+width:2rem;
+margin-top:1.5rem;
+transition:width .5s
+}
+
+.pcd:hover .tx .hl{
+width:4rem
+}
+
+.pc{
+margin-top:1.5rem;
+letter-spacing:.03em;
+font-size:14px
+}
+
+.pc s{
+color:#6f6a5f;
+margin-right:8px
+}
+
+.pc b{
+font-weight:400;
+color:var(--g)
+}
+
+.ag{
+display:inline-block;
+margin-top:1.25rem;
+padding:4px 8px;
+border:1px solid var(--ox);
+color:#a8383d;
+font:500 10px var(--s);
+letter-spacing:.28em;
+text-transform:uppercase
+}
+
+.ad{
+padding:2rem
+}
+
+.ad .bt{
+width:100%
+}
+
+.emp{
+margin-top:4rem;
+padding:3.5rem 2rem;
+text-align:center
+}
+
+.emp p{
+max-width:28rem;
+margin:0 auto 2rem
+}
+
+.faq{
+display:grid;
+gap:5rem
+}
+
+@media(min-width:1024px){
+.faq{
+grid-template-columns:.75fr 1.25fr
+}
+}
+
+.faq .hl{
+width:5rem;
+margin:2.5rem 0
+}
+
+dl>div{
+border-top:1px solid var(--gl);
+padding:2.5rem 0
+}
+
+dl>div:last-child{
+border-bottom:1px solid var(--gl)
+}
+
+dt{
+font:400 18px/1.3 var(--d);
+color:var(--fg)
+}
+
+dd{
+margin-top:1rem;
+max-width:42rem
+}
+
+.cie{
+position:relative;
+overflow:hidden;
+text-align:center
+}
+
+.cie::before{
+opacity:.14
+}
+
+.cie::after{
+content:"";
+position:absolute;
+inset:0;
+background:
+linear-gradient(
+to bottom,
+rgba(12,12,13,.7),
+transparent,
+var(--bg)
+)
+}
+
+.cie .c{
+position:relative;
+z-index:1
+}
+
+.cie h2{
+max-width:40rem;
+margin:2rem auto 0;
+font-size:clamp(2.2rem,5vw,3rem)
+}
+
+.cie .hl{
+width:6rem;
+margin:2.5rem auto
+}
+
+.qs{
+max-width:600px;
+margin:auto
+}
+
+.qs .hl{
+width:5rem;
+margin:2.5rem 0
+}
+
+.qs p+p{
+margin-top:2rem
+}
+
+footer{
+border-top:1px solid var(--gl)
+}
+
+.fg{
+display:grid;
+gap:4rem;
+padding-block:5rem
+}
+
+@media(min-width:760px){
+.fg{
+grid-template-columns:repeat(3,1fr)
+}
+}
+
+.fg a.t{
+display:block;
+margin-top:1.5rem;
+transition:color .3s
+}
+
+.fg a:hover{
+color:var(--g)
+}
+
+.fg .sc2{
+display:flex;
+gap:1.5rem;
+margin-top:2rem
+}
+
+.fd{
+display:flex;
+flex-direction:column;
+gap:12px;
+padding-block:1.5rem;
+font-size:13px
+}
+
+@media(min-width:760px){
+.fd{
+flex-direction:row;
+flex-wrap:wrap;
+gap:12px 40px
+}
+}
+
+.fd span::before{
+content:"◆";
+color:var(--g);
+font-size:7px;
+margin-right:12px;
+vertical-align:middle
+}
+
+.cp{
+padding-block:1.5rem;
+font-size:12px
+}
+
+.ov{
+display:none;
+position:fixed;
+inset:0;
+z-index:60;
+background:rgba(0,0,0,.8);
+overflow:auto;
+opacity:0;
+transition:opacity .3s
+}
+
+.ov.on{
+opacity:1
+}
+
+.bx{
+position:relative;
+max-width:32rem;
+margin:max(16px,env(safe-area-inset-top)) auto 24px;
+background:var(--s2);
+border:1px solid var(--gl);
+padding:2rem
+}
+
+.xb{
+position:absolute;
+top:8px;
+right:8px;
+width:44px;
+height:44px;
+font-size:24px;
+color:var(--mu);
+text-align:center;
+z-index:2
+}
+
+.bx .im{
+border:1px solid var(--bd)
+}
+
+.bx h3{
+font-size:24px;
+margin-top:1rem
+}
+
+.bx p{
+margin-top:1.25rem
+}
+
+.bx ul{
+margin:1rem 0 0 1.1rem
+}
+
+.bx .row{
+display:flex;
+gap:1px;
+margin-top:2.5rem
+}
+
+.bx .row .bt{
+flex:1
+}
+
+.q{
+display:flex;
+align-items:center;
+border:1px solid var(--bd)
+}
+
+.q button{
+width:44px;
+height:48px;
+text-align:center;
+font-size:18px;
+color:var(--mu)
+}
+
+.q button:hover{
+color:var(--g)
+}
+
+.q i{
+min-width:28px;
+text-align:center;
+font-style:normal;
+color:var(--fg)
+}
+
+.sl{
+display:block;
+margin-top:2rem;
+text-align:center;
+font-size:12px
+}
+
+.sl:hover{
+color:var(--g)
+}
+
+.sh{
+margin:0 0 0 auto;
+min-height:100%;
+width:min(92vw,26rem);
+border:0;
+border-left:1px solid var(--gl);
+transform:translateX(30px);
+transition:transform .35s var(--e)
+}
+
+.ov.on .sh{
+transform:none
+}
+
+.li{
+display:flex;
+gap:16px;
+padding:1.25rem 0;
+border-bottom:1px solid var(--bd);
+align-items:center
+}
+
+.li img{
+width:64px;
+height:64px;
+object-fit:contain;
+background:var(--sf);
+flex:none
+}
+
+.li div{
+flex:1
+}
+
+.li b{
+display:block;
+font:400 15px/1.3 var(--d);
+color:var(--fg);
+margin-bottom:6px
+}
+
+.tt{
+margin-top:1.5rem;
+text-align:right;
+color:var(--fg)
+}
+
+.tt b{
+color:var(--g);
+font-weight:400
+}
+
+.sh input,
+.sh textarea{
+width:100%;
+min-height:50px;
+margin-top:10px;
+padding:12px;
+background:var(--sf);
+border:1px solid var(--bd);
+color:var(--fg);
+font:300 16px var(--s)
+}
+
+.sh textarea{
+min-height:76px
+}
+
+.sh input:focus,
+.sh textarea:focus{
+outline:0;
+border-color:var(--g)
+}
+
+#er{
+color:#d98080;
+min-height:20px;
+margin-top:8px;
+font-size:13px
+}
+
+#ts{
+position:fixed;
+left:50%;
+bottom:calc(28px + env(safe-area-inset-bottom));
+transform:translate(-50%,14px);
+z-index:80;
+background:var(--s2);
+border:1px solid rgba(169,130,74,.5);
+color:var(--fg);
+padding:12px 20px;
+font-size:13px;
+opacity:0;
+pointer-events:none;
+transition:.3s;
+white-space:nowrap
+}
+
+#ts.on{
+opacity:1;
+transform:translate(-50%,0)
+}
+
 /* Fase 1 */
-#of:not([hidden])+#catalogo{border-top:1px solid var(--gl)!important}
-.sh label.lb{display:block;margin-top:16px}
-.sh select{width:100%;min-height:50px;margin-top:6px;padding:12px 40px 12px 12px;background:var(--sf) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a9824a' stroke-width='1.25'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center/16px;border:1px solid var(--bd);color:var(--fg);font:300 16px var(--s);-webkit-appearance:none;appearance:none}
-.sh select:focus{outline:0;border-color:var(--g)}
-.sh select option{background:var(--s2);color:var(--fg)}
-.sh #fc{margin-top:6px}
-.sh .nt{margin-top:6px;font-size:12px;line-height:1.5}
+
+#of:not([hidden])+#catalogo{
+border-top:1px solid var(--gl)!important
+}
+
+.sh label.lb{
+display:block;
+margin-top:16px
+}
+
+.sh select{
+width:100%;
+min-height:50px;
+margin-top:6px;
+padding:12px 40px 12px 12px;
+background:
+var(--sf)
+url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a9824a' stroke-width='1.25'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")
+no-repeat right 12px center/16px;
+border:1px solid var(--bd);
+color:var(--fg);
+font:300 16px var(--s);
+-webkit-appearance:none;
+appearance:none
+}
+
+.sh select:focus{
+outline:0;
+border-color:var(--g)
+}
+
+.sh select option{
+background:var(--s2);
+color:var(--fg)
+}
+
+.sh #fc{
+margin-top:6px
+}
+
+.sh .nt{
+margin-top:6px;
+font-size:12px;
+line-height:1.5
+}
+
 /* Fase 2 */
-.sh.lf{margin:0 auto 0 0;border-left:0;border-right:1px solid var(--gl);transform:translateX(-30px)}
-.mn{margin-top:2rem;border-top:1px solid var(--gl)}
-.mn a,.mn button{display:flex;align-items:center;width:100%;min-height:52px;border-bottom:1px solid var(--bd);color:var(--fg);font:500 10px var(--s);letter-spacing:.28em;text-transform:uppercase;transition:color .3s}
-.mn a:hover,.mn button:hover{color:var(--g)}
-.im.gv{position:relative}
-.gl{display:flex;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
-.gl::-webkit-scrollbar{display:none}
-.gl img{flex:0 0 100%;scroll-snap-align:center}
-.dt{position:absolute;left:0;right:0;bottom:10px;display:flex;justify-content:center;gap:6px;pointer-events:none}
-.dt i{width:6px;height:6px;border:1px solid rgba(169,130,74,.6)}
-.dt i.on{background:var(--g)}
-#ts{display:flex;align-items:center;gap:16px;max-width:92vw;white-space:normal}
-#ts.on{pointer-events:auto}
-.vp{flex:none;min-height:44px;padding:0 14px;border:1px solid rgba(169,130,74,.45);color:var(--g);font:500 10px var(--s);letter-spacing:.28em;text-transform:uppercase}
-.so{width:44px;height:44px;border:1px solid var(--bd);display:grid;place-items:center;color:var(--fg);transition:.3s}
-.so:hover{border-color:rgba(169,130,74,.6);color:var(--g)}
-.so svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.25}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.rv{opacity:1;transform:none}}
-</style></head><body><header id="hd"><div class="c hd">
-<a class="br" href="#top" aria-label="VOLXEN — inicio"><img src="logo.svg" alt="" width="34" height="34"><span class="wm">VOLXEN</span></a>
-<nav class="nv"><a class="l" href="#catalogo">Colección</a><a class="l" href="#faq">Información</a><a class="l" href="#quienes-somos">Quiénes somos</a>
-<button class="cb" data-a="menu" aria-label="Abrir menú"><svg viewBox="0 0 24 24"><path d="M4 8h16M4 16h16"/></svg></button><button class="cb" data-a="cart" aria-label="Ver su pedido"><svg viewBox="0 0 24 24"><path d="M6 7h12l1 13H5L6 7z"/><path d="M9 7a3 3 0 016 0"/></svg><i id="bd">0</i></button></nav>
+
+.sh.lf{
+margin:0 auto 0 0;
+border-left:0;
+border-right:1px solid var(--gl);
+transform:translateX(-30px)
+}
+
+.mn{
+margin-top:2rem;
+border-top:1px solid var(--gl)
+}
+
+.mn a,
+.mn button{
+display:flex;
+align-items:center;
+width:100%;
+min-height:52px;
+border-bottom:1px solid var(--bd);
+color:var(--fg);
+font:500 10px var(--s);
+letter-spacing:.28em;
+text-transform:uppercase;
+transition:color .3s
+}
+
+.mn a:hover,
+.mn button:hover{
+color:var(--g)
+}
+
+.im.gv{
+position:relative
+}
+
+.gl{
+display:flex;
+height:100%;
+overflow-x:auto;
+scroll-snap-type:x mandatory;
+scrollbar-width:none
+}
+
+.gl::-webkit-scrollbar{
+display:none
+}
+
+.gl img{
+flex:0 0 100%;
+scroll-snap-align:center
+}
+
+.dt{
+position:absolute;
+left:0;
+right:0;
+bottom:10px;
+display:flex;
+justify-content:center;
+gap:6px;
+pointer-events:none
+}
+
+.dt i{
+width:6px;
+height:6px;
+border:1px solid rgba(169,130,74,.6)
+}
+
+.dt i.on{
+background:var(--g)
+}
+
+#ts{
+display:flex;
+align-items:center;
+gap:16px;
+max-width:92vw;
+white-space:normal
+}
+
+#ts.on{
+pointer-events:auto
+}
+
+.vp{
+flex:none;
+min-height:44px;
+padding:0 14px;
+border:1px solid rgba(169,130,74,.45);
+color:var(--g);
+font:500 10px var(--s);
+letter-spacing:.28em;
+text-transform:uppercase
+}
+
+.so{
+width:44px;
+height:44px;
+border:1px solid var(--bd);
+display:grid;
+place-items:center;
+color:var(--fg);
+transition:.3s
+}
+
+.so:hover{
+border-color:rgba(169,130,74,.6);
+color:var(--g)
+}
+
+.so svg{
+width:18px;
+height:18px;
+stroke:currentColor;
+fill:none;
+stroke-width:1.25
+}
+
+@media(prefers-reduced-motion:reduce){
+*,
+*::before,
+*::after{
+animation:none!important;
+transition:none!important;
+scroll-behavior:auto!important
+}
+
+.rv{
+opacity:1;
+transform:none
+}
+}
+
+/* =========================================
+   VOLXEN
+   Seguimiento / Cuenta / Reclamaciones
+========================================= */
+
+.vx-panel{
+max-width:44rem!important
+}
+
+.vx-panel h3{
+margin-top:0
+}
+
+.vx-form{
+margin-top:1.5rem
+}
+
+.vx-form input,
+.vx-form textarea,
+.vx-form select{
+width:100%;
+min-height:50px;
+margin-top:10px;
+padding:12px;
+background:var(--sf);
+border:1px solid var(--bd);
+color:var(--fg);
+font:300 16px var(--s)
+}
+
+.vx-form textarea{
+min-height:120px;
+resize:vertical
+}
+
+.vx-form input:focus,
+.vx-form textarea:focus,
+.vx-form select:focus{
+outline:0;
+border-color:var(--g)
+}
+
+.vx-actions{
+display:flex;
+gap:8px;
+flex-wrap:wrap;
+margin-top:1rem
+}
+
+.vx-actions .bt{
+flex:1;
+min-width:150px
+}
+
+.vx-result{
+margin-top:2rem;
+border-top:1px solid var(--gl);
+padding-top:1.5rem
+}
+
+.vx-kv{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:12px 20px;
+margin-top:1rem
+}
+
+.vx-kv div{
+border-bottom:1px solid var(--bd);
+padding:10px 0
+}
+
+.vx-kv span{
+display:block;
+font-size:11px;
+color:var(--mu);
+text-transform:uppercase;
+letter-spacing:.12em
+}
+
+.vx-kv b{
+display:block;
+color:var(--fg);
+font-weight:400;
+margin-top:4px
+}
+
+.vx-status{
+display:inline-block;
+margin-top:1rem;
+padding:7px 10px;
+border:1px solid rgba(169,130,74,.5);
+color:var(--g);
+font-size:11px;
+letter-spacing:.14em;
+text-transform:uppercase
+}
+
+.vx-list{
+margin-top:1rem;
+border-top:1px solid var(--gl)
+}
+
+.vx-item{
+padding:1rem 0;
+border-bottom:1px solid var(--bd)
+}
+
+.vx-item b{
+color:var(--fg);
+font-weight:400
+}
+
+.vx-item p{
+margin-top:.4rem
+}
+
+.vx-msg{
+margin-top:.75rem;
+padding:1rem;
+background:var(--sf);
+border-left:1px solid var(--g)
+}
+
+.vx-tabs{
+display:flex;
+gap:18px;
+border-bottom:1px solid var(--gl);
+margin-top:1.5rem
+}
+
+.vx-tabs button{
+padding:10px 0;
+border-bottom:1px solid transparent;
+font:500 10px var(--s);
+letter-spacing:.2em;
+text-transform:uppercase
+}
+
+.vx-tabs button.on{
+color:var(--g);
+border-color:var(--g)
+}
+
+.vx-note{
+font-size:12px;
+margin-top:8px
+}
+
+.vx-error{
+color:#d98080;
+min-height:20px;
+margin-top:8px;
+font-size:13px
+}
+
+.vx-ok{
+color:var(--g);
+min-height:20px;
+margin-top:8px;
+font-size:13px
+}
+
+.vx-account{
+display:flex;
+align-items:center;
+gap:8px;
+color:var(--fg);
+font-size:12px
+}
+
+.vx-code{
+font-family:var(--s);
+letter-spacing:.08em;
+color:var(--g)
+}
+
+@media(max-width:520px){
+
+.vx-kv{
+grid-template-columns:1fr
+}
+
+.vx-panel{
+padding:1.5rem!important
+}
+
+}
+
+  </style><nav class="nv"><a class="l" href="#catalogo">Colección</a><a class="l" href="#faq">Información</a><a class="l" href="#quienes-somos">Quiénes somos</a><a class="l" href="#" data-a="track">Seguimiento</a>
+<button class="cb" data-a="track" aria-label="Seguimiento de pedidos" title="Seguimiento"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h7"/><circle cx="18" cy="16" r="3"/><path d="M18 14v2l1 1"/></svg></button><button class="cb" data-a="menu" aria-label="Abrir menú"><svg viewBox="0 0 24 24"><path d="M4 8h16M4 16h16"/></svg></button><button class="cb" data-a="cart" aria-label="Ver su pedido"><svg viewBox="0 0 24 24"><path d="M6 7h12l1 13H5L6 7z"/><path d="M9 7a3 3 0 016 0"/></svg><i id="bd">0</i></button></nav>
 </div></header>
 
 <main>
@@ -194,21 +1375,87 @@ footer{border-top:1px solid var(--gl)}
 </div><span class="hl"></span>
 <div class="c fd"><span>Entrega: La Habana</span><span>Garantía por escrito</span><span>Sin pago en línea</span><span>USD · EUR · CUP · Zelle</span></div><span class="hl"></span>
 <div class="c cp">© <span id="yr"></span> VOLXEN. La Habana, Cuba.</div></footer><div class="ov" id="pm"><button class="xb" data-a="close" aria-label="Cerrar" style="position:fixed;z-index:70;top:max(8px,env(safe-area-inset-top));right:8px;background:var(--s2);border:1px solid var(--gl)">×</button><div class="bx" id="pb"></div></div>
+
 <div class="ov" id="ctv"><div class="bx sh"><button class="xb" data-a="close" aria-label="Cerrar">×</button>
 <h3 style="margin-top:0">Su pedido</h3><div id="cl"></div><div class="tt" id="tt"></div>
 <div id="cf" style="display:none;margin-top:1.5rem"><p class="ey">Vale de pedido</p><input id="fn" placeholder="Nombre y apellidos *" autocomplete="name"><input id="fd" placeholder="Dirección completa (calle, número, entre calles) *" autocomplete="street-address"><label class="lb" for="fp">Municipio</label><select id="fp"><option value="" selected disabled>Seleccione su municipio</option><option>Playa</option><option>Plaza de la Revolución</option><option>Centro Habana</option><option>La Habana Vieja</option><option>Regla</option><option>La Habana del Este</option><option>Guanabacoa</option><option>San Miguel del Padrón</option><option>Diez de Octubre</option><option>Cerro</option><option>Marianao</option><option>La Lisa</option><option>Boyeros</option><option>Arroyo Naranjo</option><option>Cotorro</option></select><p class="nt">Por ahora solo entregamos en La Habana.</p>
 <label class="lb" for="fc">Carnet de identidad (opcional)</label><input id="fc" inputmode="numeric" maxlength="13" autocomplete="off" placeholder="11 dígitos"><p class="nt">Opcional. Solo viaja en el mensaje de WhatsApp a su asesor; el sitio no lo guarda.</p>
 <textarea id="fo" placeholder="Notas (opcional)"></textarea><p id="er"></p>
 <button class="bt" style="width:100%" data-a="send">Enviar pedido por WhatsApp</button></div></div></div>
+
 <div class="ov" id="mnv"><div class="bx sh lf"><button class="xb" data-a="close" aria-label="Cerrar">×</button>
 <span class="ey" style="margin-top:.5rem">Menú</span><nav class="mn" aria-label="Menú principal">
 <a href="#catalogo" data-a="close">Colección</a>
 <a href="#faq" data-a="close">Información</a>
 <a href="#quienes-somos" data-a="close">Quiénes somos</a>
 <button data-a="mcart">Carrito</button>
+<a href="#" data-a="track">Seguimiento de pedidos</a>
+<a href="#" data-a="claim">Reportes y reclamaciones</a>
+<a href="#" data-a="account">Mi cuenta</a>
 <a class="wl" data-m="Buenas, deseo hacer una consulta general." href="#" target="_blank" rel="noopener" data-a="close">Consulta general</a>
 <a class="wl" data-m="Buenas, deseo reportar una incidencia." href="#" target="_blank" rel="noopener" data-a="close">Reportar incidencia</a>
 <a href="admin.html">Acceso al panel</a></nav></div></div>
+
+<!-- VOLXEN · Centro de seguimiento -->
+<div class="ov" id="trk">
+  <div class="bx sh vx-panel">
+    <button class="xb" data-a="close" aria-label="Cerrar">×</button>
+    <span class="ey">Postventa</span>
+    <h3>Seguimiento de mis pedidos</h3>
+    <p>Introduzca el código de seguimiento que recibió al confirmar su compra.</p>
+    <form class="vx-form" id="trackForm">
+      <input id="vxTrackCode" autocomplete="off" placeholder="VX-2026-000184" aria-label="Código de seguimiento">
+      <p class="vx-error" id="trackErr"></p>
+      <button class="bt" style="width:100%" type="submit">Consultar pedido</button>
+    </form>
+    <div class="vx-result" id="trackResult" hidden></div>
+  </div>
+</div>
+
+<!-- VOLXEN · Reclamaciones -->
+<div class="ov" id="clm">
+  <div class="bx sh vx-panel">
+    <button class="xb" data-a="close" aria-label="Cerrar">×</button>
+    <span class="ey">Atención posventa</span>
+    <h3>Reportes y reclamaciones</h3>
+    <div class="vx-tabs">
+      <button class="on" type="button" data-a="claimTab" data-tab="new">Nueva reclamación</button>
+      <button type="button" data-a="claimTab" data-tab="answers">Respuestas</button>
+    </div>
+    <section id="claimNew" class="vx-form">
+      <input id="clmCode" placeholder="Número de pedido · VX-2026-000184" autocomplete="off">
+      <label class="lb" for="clmReason" style="display:block;margin-top:16px">Motivo</label>
+      <select id="clmReason">
+        <option value="" selected disabled>Seleccione un motivo</option>
+        <option>Producto defectuoso</option><option>Producto incorrecto</option>
+        <option>Problema con entrega</option><option>Garantía</option>
+        <option>Cobro/pago</option><option>Otro</option>
+      </select>
+      <textarea id="clmDesc" placeholder="Describa lo ocurrido"></textarea>
+      <input id="clmEvidence" type="file" accept="image/*,.pdf" multiple>
+      <p class="vx-note">Las evidencias se enviarán al almacenamiento configurado para VOLXEN.</p>
+      <p class="vx-error" id="claimErr"></p><p class="vx-ok" id="claimOk"></p>
+      <button class="bt" style="width:100%" data-a="submitClaim">Enviar reclamación</button>
+    </section>
+    <section id="claimAnswers" class="vx-form" hidden>
+      <input id="ansCode" placeholder="Número de pedido · VX-2026-000184" autocomplete="off">
+      <button class="bt" style="width:100%;margin-top:10px" data-a="loadClaims">Consultar reclamaciones</button>
+      <p class="vx-error" id="ansErr"></p>
+      <div class="vx-list" id="claimsList"></div>
+    </section>
+  </div>
+</div>
+
+<!-- VOLXEN · Cuenta -->
+<div class="ov" id="acc">
+  <div class="bx sh vx-panel">
+    <button class="xb" data-a="close" aria-label="Cerrar">×</button>
+    <span class="ey">Área del cliente</span>
+    <h3>Mi cuenta</h3>
+    <div id="accBody"></div>
+  </div>
+</div>
+
 <div id="ts"></div>
 <script src="config.js"></script><script>
 const C=window.VOLXEN_CONFIG,H={apikey:C.SUPABASE_KEY},$=i=>document.getElementById(i);
@@ -217,96 +1464,1755 @@ const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",
 const wa=t=>"https://wa.me/"+(C.WHATSAPP||"")+"?text="+encodeURIComponent(t);
 const fm=n=>"$"+Math.round(n*100)/100+" USD";
 let P=[],Cs=[],O={},cat="",K={},mq=1,cur=null;
+
 try{K=JSON.parse(localStorage.getItem("vx_k")||"{}")}catch(e){}
+
 const ft=p=>(p.imagenes&&p.imagenes.length)?p.imagenes:(p.imagen_principal?[p.imagen_principal]:[]);
 const pr=p=>Number(O[p.id]||p.precio_usd)||0;
 const ag=p=>p.disponibilidad==="agotado";
 const cn=id=>(Cs.find(c=>c.id===id)||{}).nombre||"Volxen";
 const price=p=>ag(p)?"Consultar disponibilidad":(O[p.id]?"<s>"+fm(p.precio_usd)+"</s><b>"+fm(O[p.id])+"</b>":fm(p.precio_usd));
-function toast(t){const e=$("ts");e.textContent=t;e.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove("on"),2000)}
-function bd(){const n=Object.values(K).reduce((a,b)=>a+b,0),b=$("bd");b.textContent=n;b.style.display=n?"block":"none"}
-function sv(){try{localStorage.setItem("vx_k",JSON.stringify(K))}catch(e){}bd()}
-function obs(){const l=document.querySelectorAll(".rv:not(.in)");if(!("IntersectionObserver"in window)){l.forEach(e=>e.classList.add("in"));return}
-const o=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");o.unobserve(e.target)}}),{rootMargin:"0px 0px -40px"});l.forEach(e=>o.observe(e))}
-function pcard(p){const im=ft(p)[0];
-return '<article class="cd pcd rv"><div class="im">'+(im?'<img src="'+esc(im)+'" alt="'+esc(p.nombre)+'" loading="lazy">':'')+'</div><button class="tx" data-a="open" data-id="'+esc(p.id)+'"><span class="ey">'+esc(cn(p.categoria_id))+'</span><h3>'+esc(p.nombre)+'</h3><i class="hl"></i><p class="pc">'+price(p)+'</p>'+(ag(p)?'<span class="ag">Agotado</span>':'')+'</button><div class="ad"><button class="bt h" data-a="add1" data-id="'+esc(p.id)+'">Añadir al pedido</button></div></article>'}
+
+function toast(t){
+const e=$("ts");
+e.textContent=t;
+e.classList.add("on");
+clearTimeout(toast.t);
+toast.t=setTimeout(()=>e.classList.remove("on"),2000)
+}
+
+function bd(){
+const n=Object.values(K).reduce((a,b)=>a+b,0),b=$("bd");
+b.textContent=n;
+b.style.display=n?"block":"none"
+}
+
+function sv(){
+try{localStorage.setItem("vx_k",JSON.stringify(K))}catch(e){}
+bd()
+}
+
+function obs(){
+const l=document.querySelectorAll(".rv:not(.in)");
+if(!("IntersectionObserver"in window)){
+l.forEach(e=>e.classList.add("in"));
+return
+}
+const o=new IntersectionObserver(es=>es.forEach(e=>{
+if(e.isIntersecting){
+e.target.classList.add("in");
+o.unobserve(e.target)
+}}),{rootMargin:"0px 0px -40px"});
+l.forEach(e=>o.observe(e))
+}
+
+function pcard(p){
+const im=ft(p)[0];
+return '<article class="cd pcd rv"><div class="im">'+
+(im?'<img src="'+esc(im)+'" alt="'+esc(p.nombre)+'" loading="lazy">':'')+
+'</div><button class="tx" data-a="open" data-id="'+esc(p.id)+'"><span class="ey">'+
+esc(cn(p.categoria_id))+'</span><h3>'+esc(p.nombre)+'</h3><i class="hl"></i><p class="pc">'+
+price(p)+'</p>'+(ag(p)?'<span class="ag">Agotado</span>':'')+
+'</button><div class="ad"><button class="bt h" data-a="add1" data-id="'+esc(p.id)+'">Añadir al pedido</button></div></article>'
+}
+
 function draw(){
 const ic='<svg viewBox="0 0 24 24"><path d="M12 3l9 9-9 9-9-9z"/></svg>';
 $("cats").hidden=!Cs.length;
-$("cg").innerHTML=Cs.map(c=>{const n=P.filter(p=>p.categoria_id===c.id).length;return '<button class="cd ct rv" data-a="pick" data-id="'+esc(c.id)+'">'+ic+'<b>'+esc(c.nombre)+'</b><span class="lb">'+(n?n+(n>1?" piezas":" pieza"):"Consultar")+'</span></button>'}).join("");
-$("ch").innerHTML=[{id:"",nombre:"Todas"}].concat(Cs).map(c=>'<button class="'+(c.id===cat?"on":"")+'" data-a="cat" data-id="'+esc(c.id)+'">'+esc(c.nombre)+'</button>').join("");
+
+$("cg").innerHTML=Cs.map(c=>{
+const n=P.filter(p=>p.categoria_id===c.id).length;
+return '<button class="cd ct rv" data-a="pick" data-id="'+esc(c.id)+'">'+
+ic+'<b>'+esc(c.nombre)+'</b><span class="lb">'+
+(n?n+(n>1?" piezas":" pieza"):"Consultar")+
+'</span></button>'
+}).join("");
+
+$("ch").innerHTML=[{id:"",nombre:"Todas"}].concat(Cs).map(c=>
+'<button class="'+(c.id===cat?"on":"")+'" data-a="cat" data-id="'+esc(c.id)+'">'+
+esc(c.nombre)+'</button>').join("");
+
 const v=P.filter(p=>!cat||p.categoria_id===cat);
-$("gr").innerHTML=v.length?v.map(pcard).join(""):'<div class="cd emp" style="grid-column:1/-1"><p>Aún no hay piezas publicadas en esta categoría. Consulte con su asesor la disponibilidad actual.</p><a class="bt h" href="'+wa("Buenas, deseo consultar la disponibilidad actual.")+'" target="_blank" rel="noopener">Consultar disponibilidad</a></div>';
-obs()}
-function show(id){const o=$(id);o.style.display="block";document.body.style.overflow="hidden";o.scrollTop=0;requestAnimationFrame(()=>o.classList.add("on"))}
-function hide(){document.querySelectorAll(".ov.on").forEach(o=>{o.classList.remove("on");setTimeout(()=>{if(!o.classList.contains("on"))o.style.display="none"},300)});document.body.style.overflow=""}
-function open(id){const p=P.find(x=>x.id===id);if(!p)return;cur=p;mq=1;const ims=ft(p);
+
+$("gr").innerHTML=v.length?v.map(pcard).join(""):
+'<div class="cd emp" style="grid-column:1/-1"><p>Aún no hay piezas publicadas en esta categoría. Consulte con su asesor la disponibilidad actual.</p><a class="bt h" href="'+
+wa("Buenas, deseo consultar la disponibilidad actual.")+
+'" target="_blank" rel="noopener">Consultar disponibilidad</a></div>';
+
+obs()
+}
+
+function show(id){
+const o=$(id);
+o.style.display="block";
+document.body.style.overflow="hidden";
+o.scrollTop=0;
+requestAnimationFrame(()=>o.classList.add("on"))
+}
+
+function hide(){
+document.querySelectorAll(".ov.on").forEach(o=>{
+o.classList.remove("on");
+setTimeout(()=>{
+if(!o.classList.contains("on"))o.style.display="none"
+},300)
+});
+document.body.style.overflow=""
+}
+
+function open(id){
+const p=P.find(x=>x.id===id);
+if(!p)return;
+cur=p;
+mq=1;
+const ims=ft(p);
+
 const f=(p.caracteristicas||[]).map(x=>"<li>"+esc(x)+"</li>").join("");
-$("pb").innerHTML='<div class="im">'+(ims[0]?'<img id="gi" src="'+esc(ims[0])+'" alt="'+esc(p.nombre)+'">':'')+'</div>'+(ims.length>1?'<div style="display:flex;gap:8px;margin-top:8px;overflow-x:auto">'+ims.map(u=>'<img data-a="thumb" data-u="'+esc(u)+'" src="'+esc(u)+'" alt="" style="width:56px;height:56px;object-fit:contain;background:var(--sf);border:1px solid var(--bd);cursor:pointer;flex:none">').join("")+'</div>':'')+'<span class="ey" style="margin-top:2rem">'+esc(cn(p.categoria_id))+'</span><h3>'+esc(p.nombre)+'</h3><p class="pc" style="margin-top:.75rem">'+price(p)+'</p>'+(p.descripcion?'<p>'+esc(p.descripcion)+'</p>':'')+(f?'<ul>'+f+'</ul>':'')+(p.garantia?'<p><span style="color:var(--fg)">Garantía:</span> '+esc(p.garantia)+'</p>':'')+(p.transporte?'<p><span style="color:var(--fg)">Transporte:</span> '+esc(p.transporte)+'</p>':'')+'<div class="row"><div class="q"><button data-a="mm" aria-label="Menos cantidad">−</button><i id="mq">1</i><button data-a="mp" aria-label="Más cantidad">+</button></div></div><div class="row" style="margin-top:1rem"><button class="bt h" style="padding:16px 12px" data-a="addm">Añadir al carrito</button><button class="bt" style="padding:16px 12px" data-a="buy">Comprar</button></div><a class="sl" target="_blank" rel="noopener" href="'+wa('Buenas, deseo consultar por la pieza "'+p.nombre+'" ('+fm(pr(p))+').')+'">O consultar solo esta pieza con su asesor</a>';
-show("pm")}
-function add(id,n){K[id]=(K[id]||0)+n;sv();const p=P.find(x=>x.id===id);toast((p?p.nombre+" — ":"")+"añadido a su pedido")}
-function cart(){const it=Object.keys(K).map(id=>P.find(x=>x.id===id)).filter(Boolean);
-$("cl").innerHTML=it.length?it.map(p=>'<div class="li"><img src="'+esc(ft(p)[0]||"")+'" alt=""><div><b>'+esc(p.nombre)+'</b><span>'+fm(pr(p))+'</span><div class="q" style="width:fit-content;margin-top:8px"><button data-a="qm" data-id="'+esc(p.id)+'" aria-label="Menos">−</button><i>'+K[p.id]+'</i><button data-a="qp" data-id="'+esc(p.id)+'" aria-label="Más">+</button></div></div><button data-a="rm" data-id="'+esc(p.id)+'" aria-label="Quitar" style="width:44px;height:44px;text-align:center;font-size:22px">×</button></div>').join(""):'<p style="margin-top:1.5rem">Su pedido está vacío.</p>';
-const t=it.reduce((a,p)=>a+pr(p)*K[p.id],0);$("tt").innerHTML=it.length?'Total estimado: <b>'+fm(t)+'</b>':"";$("cf").style.display=it.length?"block":"none"}
-function chg(id,d){K[id]=(K[id]||0)+d;if(K[id]<=0)delete K[id];sv();cart()}
-function go(u){const a=document.createElement("a");a.href=u;a.target="_blank";a.rel="noopener";document.body.appendChild(a);a.click();a.remove()}
-function send(){const n=$("fn").value.trim(),d=$("fd").value.trim(),pv=$("fp").value,ci=$("fc").value.replace(/\D/g,"");
-if(!n||!d){$("er").textContent="Complete su nombre y la dirección.";return}
-if(!pv){$("er").textContent="Seleccione su municipio.";return}
-if(ci&&ci.length!==11){$("er").textContent="El carnet de identidad tiene 11 dígitos. Complételo o déjelo en blanco.";return}
+
+$("pb").innerHTML=
+'<div class="im">'+
+(ims[0]?'<img id="gi" src="'+esc(ims[0])+'" alt="'+esc(p.nombre)+'">':'')+
+'</div>'+
+(ims.length>1?'<div style="display:flex;gap:8px;margin-top:8px;overflow-x:auto">'+
+ims.map(u=>'<img data-a="thumb" data-u="'+esc(u)+'" src="'+esc(u)+'" alt="" style="width:56px;height:56px;object-fit:contain;background:var(--sf);border:1px solid var(--bd);cursor:pointer;flex:none">').join("")+
+'</div>':'')+
+'<span class="ey" style="margin-top:2rem">'+esc(cn(p.categoria_id))+'</span>'+
+'<h3>'+esc(p.nombre)+'</h3>'+
+'<p class="pc" style="margin-top:.75rem">'+price(p)+'</p>'+
+(p.descripcion?'<p>'+esc(p.descripcion)+'</p>':'')+
+(f?'<ul>'+f+'</ul>':'')+
+(p.garantia?'<p><span style="color:var(--fg)">Garantía:</span> '+esc(p.garantia)+'</p>':'')+
+(p.transporte?'<p><span style="color:var(--fg)">Transporte:</span> '+esc(p.transporte)+'</p>':'')+
+'<div class="row"><div class="q"><button data-a="mm" aria-label="Menos cantidad">−</button><i id="mq">1</i><button data-a="mp" aria-label="Más cantidad">+</button></div></div>'+
+'<div class="row" style="margin-top:1rem"><button class="bt h" style="padding:16px 12px" data-a="addm">Añadir al carrito</button><button class="bt" style="padding:16px 12px" data-a="buy">Comprar</button></div>'+
+'<a class="sl" target="_blank" rel="noopener" href="'+
+wa('Buenas, deseo consultar por la pieza "'+p.nombre+'" ('+fm(pr(p))+').')+
+'">O consultar solo esta pieza con su asesor</a>';
+
+show("pm")
+}
+
+function add(id,n){
+K[id]=(K[id]||0)+n;
+sv();
+const p=P.find(x=>x.id===id);
+toast((p?p.nombre+" — ":"")+"añadido a su pedido")
+}
+
+function cart(){
+const it=Object.keys(K).map(id=>P.find(x=>x.id===id)).filter(Boolean);
+
+$("cl").innerHTML=it.length?it.map(p=>
+'<div class="li"><img src="'+esc(ft(p)[0]||"")+'" alt=""><div><b>'+
+esc(p.nombre)+'</b><span>'+fm(pr(p))+'</span><div class="q" style="width:fit-content;margin-top:8px">'+
+'<button data-a="qm" data-id="'+esc(p.id)+'" aria-label="Menos">−</button><i>'+
+K[p.id]+'</i><button data-a="qp" data-id="'+esc(p.id)+'" aria-label="Más">+</button></div></div>'+
+'<button data-a="rm" data-id="'+esc(p.id)+'" aria-label="Quitar" style="width:44px;height:44px;text-align:center;font-size:22px">×</button></div>'
+).join(""):'<p style="margin-top:1.5rem">Su pedido está vacío.</p>';
+
+const t=it.reduce((a,p)=>a+pr(p)*K[p.id],0);
+$("tt").innerHTML=it.length?'Total estimado: <b>'+fm(t)+'</b>':"";
+$("cf").style.display=it.length?"block":"none"
+}
+
+function chg(id,d){
+K[id]=(K[id]||0)+d;
+if(K[id]<=0)delete K[id];
+sv();
+cart()
+}
+
+function go(u){
+const a=document.createElement("a");
+a.href=u;
+a.target="_blank";
+a.rel="noopener";
+document.body.appendChild(a);
+a.click();
+a.remove()
+}
+
+function send(){
+const n=$("fn").value.trim(),
+d=$("fd").value.trim(),
+pv=$("fp").value,
+ci=$("fc").value.replace(/\D/g,"");
+
+if(!n||!d){
+$("er").textContent="Complete su nombre y la dirección.";
+return
+}
+
+if(!pv){
+$("er").textContent="Seleccione su municipio.";
+return
+}
+
+if(ci&&ci.length!==11){
+$("er").textContent="El carnet de identidad tiene 11 dígitos. Complételo o déjelo en blanco.";
+return
+}
+
 $("er").textContent="";
-const it=Object.keys(K).map(id=>P.find(x=>x.id===id)).filter(Boolean),t=it.reduce((a,p)=>a+pr(p)*K[p.id],0);
-let m="Buenas, deseo hacer este pedido:\n"+it.map(p=>"- "+K[p.id]+" x "+p.nombre+" ("+fm(pr(p))+")").join("\n")+"\nTotal estimado: "+fm(t)+"\n\nNombre: "+n+"\nDirección: "+d+"\nMunicipio: "+pv+", La Habana";
+
+const it=Object.keys(K).map(id=>P.find(x=>x.id===id)).filter(Boolean),
+t=it.reduce((a,p)=>a+pr(p)*K[p.id],0);
+
+let m="Buenas, deseo hacer este pedido:\n"+
+it.map(p=>"- "+K[p.id]+" x "+p.nombre+" ("+fm(pr(p))+")").join("\n")+
+"\nTotal estimado: "+fm(t)+
+"\n\nNombre: "+n+
+"\nDirección: "+d+
+"\nMunicipio: "+pv+", La Habana";
+
 if(ci)m+="\nCarnet de identidad: "+ci;
-const o=$("fo").value.trim();if(o)m+="\nNotas: "+o;go(wa(m))}
-document.addEventListener("click",e=>{const t=e.target.closest("[data-a]");if(!t)return;const a=t.dataset.a,id=t.dataset.id;
-if(a==="open")open(id);else if(a==="add1")add(id,1);else if(a==="cat"){cat=id;draw()}
-else if(a==="pick"){cat=id;draw();$("catalogo").scrollIntoView({behavior:"smooth"})}
-else if(a==="cart"){cart();show("ctv")}else if(a==="close")hide();
-else if(a==="mm"){mq=Math.max(1,mq-1);$("mq").textContent=mq}else if(a==="mp"){mq++;$("mq").textContent=mq}
-else if(a==="addm"){add(cur.id,mq);hide()}else if(a==="thumb")$("gi").src=t.dataset.u;
-else if(a==="qm")chg(id,-1);else if(a==="qp")chg(id,1);else if(a==="rm")chg(id,-999);else if(a==="send")send()});
-document.querySelectorAll(".ov").forEach(o=>o.addEventListener("click",e=>{if(e.target===o)hide()}));
-document.addEventListener("keydown",e=>{if(e.key==="Escape")hide()});
-addEventListener("scroll",()=>$("hd").classList.toggle("sc",scrollY>12),{passive:true});
-document.querySelectorAll(".wl").forEach(a=>a.href=wa(a.dataset.m));
-$("yr").textContent=new Date().getFullYear();bd();
+
+const o=$("fo").value.trim();
+if(o)m+="\nNotas: "+o;
+
+go(wa(m))
+}function vxTrackRender(p){
+  const r=$("trackResult");
+  if(!p){
+    r.hidden=false;
+    r.innerHTML='<p>No encontramos ese código. Verifique que esté escrito correctamente.</p>';
+    return
+  }
+
+  const prods=Array.isArray(p.productos)?p.productos:(p.productos?[p.productos]:[]);
+  const qs=Array.isArray(p.cantidades)?p.cantidades:[];
+
+  r.hidden=false;
+  r.innerHTML=
+    '<div class="vx-code">'+vxEsc(p.codigo)+'</div>'+
+    '<span class="vx-status">'+vxEsc(p.estado||"Pedido recibido")+'</span>'+
+    '<div class="vx-kv">'+
+      '<div><span>Fecha</span><b>'+vxDate(p.fecha||p.created_at)+'</b></div>'+
+      '<div><span>Última actualización</span><b>'+vxDate(p.ultima_actualizacion||p.updated_at)+'</b></div>'+
+      '<div><span>Total</span><b>'+
+        (p.total!=null?fm(Number(p.total)):"—")+
+      '</b></div>'+
+      '<div><span>Teléfono</span><b>'+vxEsc(p.telefono||"—")+'</b></div>'+
+    '</div>'+
+    (
+      prods.length?
+      '<div class="vx-list"><p class="lb">Productos</p>'+
+        prods.map((x,i)=>
+          '<div class="vx-item"><b>'+
+          vxEsc(typeof x==="string"?x:(x.nombre||x.producto||"Producto"))+
+          '</b>'+
+          (qs[i]!=null?' · '+vxEsc(qs[i])+' ud.':'')+
+          '</div>'
+        ).join("")+
+      '</div>':''
+    )+
+    (
+      p.datos_entrega?
+      '<div class="vx-item"><b>Datos de entrega</b><p>'+
+      vxEsc(typeof p.datos_entrega==="string"?p.datos_entrega:JSON.stringify(p.datos_entrega))+
+      '</p></div>':''
+    )+
+    (
+      p.garantia?
+      '<div class="vx-item"><b>Garantía</b><p>'+
+      vxEsc(p.garantia)+
+      '</p></div>':''
+    )+
+    '<div class="vx-actions">'+
+      '<button class="bt h" data-a="claimFromTrack" data-code="'+vxEsc(p.codigo)+'">Reportar incidencia</button>'+
+      '<button class="bt" data-a="claimAnswersFromTrack" data-code="'+vxEsc(p.codigo)+'">Ver respuestas</button>'+
+    '</div>';
+}
+
+async function vxTrack(){
+  const code=$("vxTrackCode").value.trim().toUpperCase();
+  const err=$("trackErr");
+
+  err.textContent="";
+  $("trackResult").hidden=true;
+
+  if(!code){
+    err.textContent="Introduzca su código de seguimiento.";
+    return
+  }
+
+  try{
+    const d=await vxFetch(
+      "pedidos?select=*&codigo=eq."+encodeURIComponent(code)+"&limit=1"
+    );
+
+    vxTrackRender(Array.isArray(d)&&d.length?d[0]:null);
+
+  }catch(e){
+    err.textContent=e.message||"No se pudo consultar el pedido.";
+  }
+}
+
+function vxClaimTab(tab){
+  const n=$("claimNew");
+  const a=$("claimAnswers");
+
+  document.querySelectorAll("[data-a='claimTab']").forEach(b=>{
+    b.classList.toggle("on",b.dataset.tab===tab)
+  });
+
+  n.hidden=tab!=="new";
+  a.hidden=tab!=="answers";
+}
+
+async function vxSubmitClaim(){
+  const code=$("clmCode").value.trim().toUpperCase();
+  const reason=$("clmReason").value;
+  const desc=$("clmDesc").value.trim();
+  const err=$("claimErr");
+  const ok=$("claimOk");
+
+  err.textContent="";
+  ok.textContent="";
+
+  if(!code){
+    err.textContent="Introduzca el número de pedido.";
+    return
+  }
+
+  if(!reason){
+    err.textContent="Seleccione el motivo.";
+    return
+  }
+
+  if(!desc){
+    err.textContent="Describa lo ocurrido.";
+    return
+  }
+
+  try{
+    const pedidos=await vxFetch(
+      "pedidos?select=codigo,cliente_id,email,telefono&codigo=eq."+
+      encodeURIComponent(code)+"&limit=1"
+    );
+
+    if(!Array.isArray(pedidos)||!pedidos.length){
+      err.textContent="No encontramos ese pedido.";
+      return
+    }
+
+    const pedido=pedidos[0];
+    const files=$("clmEvidence").files;
+    const evidencias=[];
+
+    /*
+      Las evidencias requieren que exista un bucket de Supabase
+      configurado para reclamaciones.
+    */
+    for(const file of files){
+      const safeName=file.name.replace(/[^a-zA-Z0-9._-]/g,"_");
+      const path=
+        code+"/"+Date.now()+"-"+safeName;
+
+      const up=await fetch(
+        C.SUPABASE_URL+
+        "/storage/v1/object/reclamaciones/"+
+        encodeURIComponent(path),
+        {
+          method:"POST",
+          headers:{
+            "apikey":C.SUPABASE_KEY,
+            "Authorization":VXAUTH.token?
+              "Bearer "+VXAUTH.token:
+              "Bearer "+C.SUPABASE_KEY,
+            "Content-Type":file.type||"application/octet-stream",
+            "x-upsert":"false"
+          },
+          body:file
+        }
+      );
+
+      if(!up.ok){
+        throw new Error("No se pudo guardar una de las evidencias.");
+      }
+
+      evidencias.push(path);
+    }
+
+    const payload={
+      pedido_codigo:pedido.codigo,
+      cliente_id:pedido.cliente_id||null,
+      motivo:reason,
+      descripcion:desc,
+      evidencias:evidencias,
+      estado:"Pendiente"
+    };
+
+    const result=await vxFetch("reclamaciones",{
+      method:"POST",
+      headers:{
+        "Prefer":"return=representation"
+      },
+      body:JSON.stringify(payload)
+    });
+
+    const claim=Array.isArray(result)?result[0]:result;
+
+    ok.textContent=
+      "Reclamación creada correctamente"+
+      (claim&&claim.codigo?
+        ". Número de reclamación: "+claim.codigo:
+        ".");
+
+    $("clmDesc").value="";
+    $("clmEvidence").value="";
+
+  }catch(e){
+    err.textContent=
+      e.message||
+      "No se pudo registrar la reclamación.";
+  }
+}
+
+async function vxLoadClaims(){
+  const code=$("ansCode").value.trim().toUpperCase();
+  const err=$("ansErr");
+  const list=$("claimsList");
+
+  err.textContent="";
+  list.innerHTML="";
+
+  if(!code){
+    err.textContent="Introduzca el número de pedido.";
+    return
+  }
+
+  try{
+    const claims=await vxFetch(
+      "reclamaciones?select=*&pedido_codigo=eq."+
+      encodeURIComponent(code)+
+      "&order=fecha.desc"
+    );
+
+    if(!Array.isArray(claims)||!claims.length){
+      list.innerHTML="<p>No hay reclamaciones registradas para este pedido.</p>";
+      return
+    }
+
+    const ids=claims
+      .map(x=>x.id)
+      .filter(Boolean);
+
+    let answers=[];
+
+    if(ids.length){
+      answers=await vxFetch(
+        "respuestas?select=*&reclamacion_id=in.("+
+        ids.join(",")+
+        ")&order=fecha.asc"
+      );
+    }
+
+    list.innerHTML=claims.map(c=>{
+      const rr=Array.isArray(answers)?
+        answers.filter(x=>String(x.reclamacion_id)===String(c.id)):
+        [];
+
+      return '<div class="vx-item">'+
+        '<div class="vx-code">'+
+          vxEsc(c.codigo||("Reclamación #"+c.id))+
+        '</div>'+
+        '<span class="vx-status">'+
+          vxEsc(c.estado||"Pendiente")+
+        '</span>'+
+        '<p><b>Motivo:</b> '+vxEsc(c.motivo)+'</p>'+
+        '<p>'+vxEsc(c.descripcion)+'</p>'+
+        (
+          rr.length?
+          '<div class="vx-msg"><b>Respuestas de VOLXEN</b>'+
+          rr.map(x=>
+            '<p>'+vxEsc(x.mensaje)+'</p>'+
+            '<small>'+vxDate(x.fecha)+'</small>'
+          ).join("")+
+          '</div>':
+          '<p class="vx-note">Aún no hay una respuesta registrada.</p>'
+        )+
+      '</div>';
+    }).join("");
+
+  }catch(e){
+    err.textContent=
+      e.message||
+      "No se pudieron consultar las reclamaciones.";
+  }
+}
+
+function vxAccount(){
+  const b=$("accBody");
+
+  if(VXAUTH.token){
+    b.innerHTML=
+      '<p>Sesión iniciada como <b>'+
+      vxEsc(VXAUTH.email)+
+      '</b></p>'+
+      '<div class="vx-actions">'+
+        '<button class="bt h" data-a="accountOrders">Mis pedidos</button>'+
+        '<button class="bt" data-a="accountClaims">Reportes y reclamaciones</button>'+
+        '<button class="bt" data-a="accountLogout">Cerrar sesión</button>'+
+      '</div>';
+
+    return
+  }
+
+  b.innerHTML=
+    '<div class="vx-form">'+
+      '<input id="accEmail" type="email" autocomplete="email" placeholder="Correo electrónico">'+
+      '<input id="accPass" type="password" autocomplete="current-password" placeholder="Contraseña">'+
+      '<p class="vx-error" id="accErr"></p>'+
+      '<button class="bt" style="width:100%" data-a="login">Iniciar sesión</button>'+
+      '<button class="bt h" style="width:100%;margin-top:10px" data-a="signup">Crear cuenta</button>'+
+      '<button class="bt" style="width:100%;margin-top:10px" data-a="google">Continuar con Google</button>'+
+    '</div>';
+
+  /*
+    El botón login se conecta en la siguiente sección
+    de eventos de cuenta.
+  */
+}
+
+async function vxSignup(){
+  const email=$("accEmail")?.value.trim();
+  const pass=$("accPass")?.value||"";
+  const err=$("accErr");
+
+  if(!email||!pass){
+    if(err)err.textContent="Complete correo y contraseña.";
+    return
+  }
+
+  try{
+    await vxAuth("signup",{
+      email:email,
+      password:pass
+    });
+
+    vxAccount();
+
+  }catch(e){
+    if(err)err.textContent=
+      e.message||"No se pudo crear la cuenta.";
+  }
+}
+
+async function vxLogin(){
+  const email=$("accEmail")?.value.trim();
+  const pass=$("accPass")?.value||"";
+  const err=$("accErr");
+
+  if(!email||!pass){
+    if(err)err.textContent="Complete correo y contraseña.";
+    return
+  }
+
+  try{
+    await vxAuth("token?grant_type=password",{
+      email:email,
+      password:pass
+    });
+
+    vxAccount();
+
+  }catch(e){
+    if(err)err.textContent=
+      e.message||"No se pudo iniciar sesión.";
+  }
+}
+
+async function vxGoogle(){
+  const url=
+    C.SUPABASE_URL+
+    "/auth/v1/authorize?provider=google&redirect_to="+
+    encodeURIComponent(location.href);
+
+  location.href=url;
+}
+
+function vxLogout(){
+  VXAUTH.token="";
+  VXAUTH.email="";
+  vxAccount();
+}
+
+document.addEventListener("click",e=>{
+  const t=e.target.closest("[data-a]");
+  if(!t)return;
+
+  const a=t.dataset.a;
+
+  if(a==="login"){
+    vxLogin();
+  }
+});
+</script>
+</body>
+</html>else if(a==="qm")chg(id,-1);
+else if(a==="qp")chg(id,1);
+else if(a==="rm")chg(id,-999);
+else if(a==="send")send()
+});
+
+document.querySelectorAll(".ov").forEach(o=>
+  o.addEventListener("click",e=>{
+    if(e.target===o)hide()
+  })
+);
+
+$("trackForm").addEventListener("submit",e=>{
+  e.preventDefault();
+  vxTrack()
+});
+
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape")hide()
+});
+
+addEventListener("scroll",()=>
+  $("hd").classList.toggle("sc",scrollY>12),
+  {passive:true}
+);
+
+document.querySelectorAll(".wl").forEach(a=>
+  a.href=wa(a.dataset.m)
+);
+
+$("yr").textContent=new Date().getFullYear();
+bd();
+
 /* Fase 1 · Ofertas */
+
 let ofk="";
-function drOf(){const s=$("of");if(!s)return;
-const l=P.filter(p=>Number(O[p.id])>0&&Number(O[p.id])<Number(p.precio_usd)&&!ag(p));
-s.hidden=!l.length;const k=l.map(p=>p.id).join();if(k===ofk)return;ofk=k;
-$("og").innerHTML=l.map(pcard).join("");obs()}
-const dr0=draw;draw=function(){dr0();drOf()};
+
+function drOf(){
+  const s=$("of");
+  if(!s)return;
+
+  const l=P.filter(p=>
+    Number(O[p.id])>0 &&
+    Number(O[p.id])<Number(p.precio_usd) &&
+    !ag(p)
+  );
+
+  s.hidden=!l.length;
+
+  const k=l.map(p=>p.id).join();
+
+  if(k===ofk)return;
+
+  ofk=k;
+
+  $("og").innerHTML=l.map(pcard).join("");
+
+  obs()
+}
+
+const dr0=draw;
+
+draw=function(){
+  dr0();
+  drOf()
+};
+
 /* Fase 2 */
-function ico(n){n=String(n).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
-const m=[[/clima|aire|split/,'<rect x="3" y="5" width="18" height="7"/><path d="M7 15v2M12 15v4M17 15v2"/>'],
-[/nevera|refriger|congel/,'<rect x="6" y="3" width="12" height="18"/><path d="M6 10h12M9 6v2M9 13v3"/>'],
-[/lava/,'<rect x="4" y="3" width="16" height="18"/><circle cx="12" cy="13" r="4"/><path d="M7 6.5h2"/>'],
-[/panel|solar/,'<path d="M4 8h16l-2 9H6z"/><path d="M9.5 8l-1 9M14.5 8l1 9M5 12.5h14M12 17v4M9 21h6"/>'],
-[/energ|generador|bateria/,'<path d="M13 3L6 13h5l-1 8 7-10h-5z"/>'],
-[/\btv\b|televis|audio|entreten/,'<rect x="3" y="5" width="18" height="12"/><path d="M9 21h6M12 17v4"/>'],
-[/cocin|batidor/,'<rect x="4" y="3" width="16" height="18"/><circle cx="9" cy="8" r="1.5"/><circle cx="15" cy="8" r="1.5"/><path d="M4 13h16"/>'],
-[/moto|triciclo|movilidad|vehicul|bici/,'<circle cx="6" cy="16" r="3"/><circle cx="18" cy="16" r="3"/><path d="M6 16l4-7h5l3 7M9 9H7"/>'],
-[/ventilad/,'<circle cx="12" cy="12" r="1.5"/><path d="M12 10.5C12 6 14 4 16 5s1 4-4 5.5M13.5 12c4.5 0 6.5 2 5.5 4s-4 1-5.5-4M12 13.5c0 4.5-2 6.5-4 5.5s-1-4 4-5.5M10.5 12C6 12 4 10 5 8s4-1 5.5 4"/>']];
-for(const r of m)if(r[0].test(n))return r[1];
-return '<path d="M12 3l9 9-9 9-9-9z"/>'}
-function gal(el,p){const ims=ft(p);if(!el||ims.length<2)return;el.classList.add("gv");
-el.innerHTML='<div class="gl">'+ims.map((u,i)=>'<img src="'+esc(u)+'" alt="'+esc(p.nombre)+'"'+(i?' loading="lazy"':'')+'>').join("")+'</div><div class="dt">'+ims.map((u,i)=>'<i'+(i?'':' class="on"')+'></i>').join("")+'</div>';
-const g=el.firstChild,d=el.lastChild.children;
-g.addEventListener("scroll",()=>{const n=Math.round(g.scrollLeft/g.clientWidth);for(let i=0;i<d.length;i++)d[i].classList.toggle("on",i===n)},{passive:true})}
-function fx(){document.querySelectorAll("#cg .ct svg").forEach((s,i)=>{if(Cs[i])s.innerHTML=ico(Cs[i].nombre)});
-document.querySelectorAll(".pcd").forEach(a=>{if(a.dataset.g)return;a.dataset.g=1;const p=P.find(x=>String(x.id)===a.querySelector(".tx").dataset.id);if(p)gal(a.querySelector(".im"),p)})}
-const dr1=draw;draw=function(){dr1();fx()};
-const op0=open;open=function(id){op0(id);const p=P.find(x=>x.id===id);if(!p||ft(p).length<2)return;
-gal($("pb").querySelector(".im"),p);const t=$("pb").querySelector('[data-a="thumb"]');if(t)t.parentNode.remove()};
-const ad0=add;add=function(id,n){ad0(id,n);const e=$("ts");e.insertAdjacentHTML("beforeend",'<button class="vp" data-a="vp">Ver pedido</button>');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove("on"),4000)};
-function vale(){cart();show("ctv");setTimeout(()=>{const f=$("cf");if(f)f.scrollIntoView({behavior:"smooth",block:"start"})},350)}
-document.addEventListener("click",e=>{const t=e.target.closest("[data-a]");if(!t)return;const a=t.dataset.a;
-if(a==="menu")show("mnv");
-else if(a==="mcart"){hide();setTimeout(()=>{cart();show("ctv")},320)}
-else if(a==="vp"){$("ts").classList.remove("on");cart();show("ctv")}
-else if(a==="buy"&&cur){K[cur.id]=(K[cur.id]||0)+mq;sv();hide();setTimeout(vale,320)}});
-(async()=>{const[c,p,o]=await Promise.all([q("categorias?order=orden"),q("productos?activo=eq.true&order=created_at.desc"),q("ofertas?activa=eq.true")]);
-Cs=Array.isArray(c)?c:[];P=Array.isArray(p)?p:[];(Array.isArray(o)?o:[]).forEach(x=>O[x.producto_id]=x.precio_oferta_usd);draw()})();
-</script></body></html>
+
+function ico(n){
+  n=String(n)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g,"")
+    .toLowerCase();
+
+  const m=[
+    [
+      /clima|aire|split/,
+      '<rect x="3" y="5" width="18" height="7"/><path d="M7 15v2M12 15v4M17 15v2"/>'
+    ],
+    [
+      /nevera|refriger|congel/,
+      '<rect x="6" y="3" width="12" height="18"/><path d="M6 10h12M9 6v2M9 13v3"/>'
+    ],
+    [
+      /lava/,
+      '<rect x="4" y="3" width="16" height="18"/><circle cx="12" cy="13" r="4"/><path d="M7 6.5h2"/>'
+    ],
+    [
+      /panel|solar/,
+      '<path d="M4 8h16l-2 9H6z"/><path d="M9.5 8l-1 9M14.5 8l1 9M5 12.5h14M12 17v4M9 21h6"/>'
+    ],
+    [
+      /energ|generador|bateria/,
+      '<path d="M13 3L6 13h5l-1 8 7-10h-5z"/>'
+    ],
+    [
+      /\btv\b|televis|audio|entreten/,
+      '<rect x="3" y="5" width="18" height="12"/><path d="M9 21h6M12 17v4"/>'
+    ],
+    [
+      /cocin|batidor/,
+      '<rect x="4" y="3" width="16" height="18"/><circle cx="9" cy="8" r="1.5"/><circle cx="15" cy="8" r="1.5"/><path d="M4 13h16"/>'
+    ],
+    [
+      /moto|triciclo|movilidad|vehicul|bici/,
+      '<circle cx="6" cy="16" r="3"/><circle cx="18" cy="16" r="3"/><path d="M6 16l4-7h5l3 7M9 9H7"/>'
+    ],
+    [
+      /ventilad/,
+      '<circle cx="12" cy="12" r="1.5"/><path d="M12 10.5C12 6 14 4 16 5s1 4-4 5.5M13.5 12c4.5 0 6.5 2 5.5 4s-4 1-5.5-4M12 13.5c0 4.5-2 6.5-4 5.5s-1-4 4-5.5M10.5 12C6 12 4 10 5 8s4-1 5.5 4"/>'
+    ]
+  ];
+
+  for(const r of m)
+    if(r[0].test(n))
+      return r[1];
+
+  return '<path d="M12 3l9 9-9 9-9-9z"/>'
+}
+
+function gal(el,p){
+  const ims=ft(p);
+
+  if(!el||ims.length<2)return;
+
+  el.classList.add("gv");
+
+  el.innerHTML=
+    '<div class="gl">'+
+    ims.map((u,i)=>
+      '<img src="'+esc(u)+'" alt="'+esc(p.nombre)+'"'+
+      (i?' loading="lazy"':'')+
+      '>'
+    ).join("")+
+    '</div>'+
+    '<div class="dt">'+
+    ims.map((u,i)=>
+      '<i'+(i?'':' class="on"')+'></i>'
+    ).join("")+
+    '</div>';
+
+  const g=el.firstChild;
+  const d=el.lastChild.children;
+
+  g.addEventListener("scroll",()=>{
+    const n=Math.round(
+      g.scrollLeft/g.clientWidth
+    );
+
+    for(let i=0;i<d.length;i++)
+      d[i].classList.toggle(
+        "on",
+        i===n
+      )
+  },{passive:true})
+}
+
+function fx(){
+
+  document
+    .querySelectorAll("#cg .ct svg")
+    .forEach((s,i)=>{
+      if(Cs[i])
+        s.innerHTML=ico(Cs[i].nombre)
+    });
+
+  document
+    .querySelectorAll(".pcd")
+    .forEach(a=>{
+      if(a.dataset.g)return;
+
+      a.dataset.g=1;
+
+      const p=P.find(
+        x=>String(x.id)===
+        a.querySelector(".tx").dataset.id
+      );
+
+      if(p)
+        gal(
+          a.querySelector(".im"),
+          p
+        )
+    })
+}
+
+const dr1=draw;
+
+draw=function(){
+  dr1();
+  fx()
+};
+
+const op0=open;
+
+open=function(id){
+  op0(id);
+
+  const p=P.find(
+    x=>x.id===id
+  );
+
+  if(!p||ft(p).length<2)return;
+
+  gal(
+    $("pb").querySelector(".im"),
+    p
+  );
+
+  const t=
+    $("pb").querySelector(
+      '[data-a="thumb"]'
+    );
+
+  if(t)
+    t.parentNode.remove()
+};
+
+const ad0=add;
+
+add=function(id,n){
+  ad0(id,n);
+
+  const e=$("ts");
+
+  e.insertAdjacentHTML(
+    "beforeend",
+    '<button class="vp" data-a="vp">Ver pedido</button>'
+  );
+
+  clearTimeout(toast.t);
+
+  toast.t=setTimeout(()=>{
+    e.classList.remove("on")
+  },4000)
+};
+
+function vale(){
+  cart();
+
+  show("ctv");
+
+  setTimeout(()=>{
+    const f=$("cf");
+
+    if(f)
+      f.scrollIntoView({
+        behavior:"smooth",
+        block:"start"
+      })
+  },350)
+}
+
+document.addEventListener("click",e=>{
+  const t=e.target.closest("[data-a]");
+  if(!t)return;
+
+  const a=t.dataset.a;
+
+  if(a==="menu")
+    show("mnv");
+
+  else if(a==="mcart"){
+    hide();
+
+    setTimeout(()=>{
+      cart();
+      show("ctv")
+    },320)
+  }
+
+  else if(a==="vp"){
+    $("ts").classList.remove("on");
+    cart();
+    show("ctv")
+  }
+
+  else if(a==="buy"&&cur){
+    K[cur.id]=(K[cur.id]||0)+mq;
+    sv();
+    hide();
+
+    setTimeout(
+      vale,
+      320
+    )
+  }
+
+  else if(a==="track")
+    vxOpen("trk");
+
+  else if(a==="claim"){
+    vxOpen("clm");
+    vxClaimTab("new")
+  }
+
+  else if(a==="account"){
+    vxOpen("acc");
+    vxAccount()
+  }
+
+  else if(a==="claimTab")
+    vxClaimTab(t.dataset.tab);
+
+  else if(a==="submitClaim")
+    vxSubmitClaim();
+
+  else if(a==="loadClaims")
+    vxLoadClaims();
+
+  else if(a==="claimFromTrack"){
+    hide();
+
+    setTimeout(()=>{
+      vxOpen("clm");
+      $("clmCode").value=t.dataset.code;
+      vxClaimTab("new")
+    },320)
+  }
+
+  else if(a==="claimAnswersFromTrack"){
+    hide();
+
+    setTimeout(()=>{
+      vxOpen("clm");
+      $("ansCode").value=t.dataset.code;
+      vxClaimTab("answers");
+      vxLoadClaims()
+    },320)
+  }
+
+  else if(a==="signup")
+    vxSignup();
+
+  else if(a==="google")
+    vxGoogle();
+
+  else if(a==="accountLogout")
+    vxLogout();
+
+  else if(a==="accountOrders"){
+    hide();
+
+    setTimeout(()=>{
+      vxOpen("trk")
+    },320)
+  }
+
+  else if(a==="accountClaims"){
+    hide();
+
+    setTimeout(()=>{
+      vxOpen("clm");
+      vxClaimTab("answers")
+    },320)
+  }
+});
+
+(async()=>{
+  const[c,p,o]=await Promise.all([
+    q("categorias?order=orden"),
+    q("productos?activo=eq.true&order=created_at.desc"),
+    q("ofertas?activa=eq.true")
+  ]);
+
+  Cs=Array.isArray(c)?c:[];
+  P=Array.isArray(p)?p:[];
+
+  (Array.isArray(o)?o:[]).forEach(x=>
+    O[x.producto_id]=x.precio_oferta_usd
+  );
+
+  draw()
+})();
+
+/* VOLXEN · Seguimiento / reclamaciones / cuenta
+
+   Requiere estas tablas/API en Supabase:
+
+   pedidos(
+     codigo,
+     cliente_id,
+     fecha,
+     productos,
+     cantidades,
+     total,
+     datos_entrega,
+     telefono,
+     estado,
+     ultima_actualizacion,
+     garantia,
+     email
+   )
+
+   reclamaciones(
+     id/codigo,
+     pedido_codigo,
+     cliente_id,
+     motivo,
+     descripcion,
+     evidencias,
+     estado,
+     responsable,
+     fecha
+   )
+
+   respuestas(
+     id,
+     reclamacion_id,
+     autor,
+     mensaje,
+     fecha
+   )
+
+   La generación de codigo único debe hacerse
+   en PostgreSQL, nunca en el navegador.
+*/
+
+const VXAUTH={
+  get token(){
+    try{
+      return localStorage.getItem(
+        "vx_access_token"
+      )||""
+    }catch(e){
+      return""
+    }
+  },
+
+  set token(v){
+    try{
+      localStorage.setItem(
+        "vx_access_token",
+        v||""
+      )
+    }catch(e){}
+  },
+
+  get email(){
+    try{
+      return localStorage.getItem(
+        "vx_email"
+      )||""
+    }catch(e){
+      return""
+    }
+  },
+
+  set email(v){
+    try{
+      localStorage.setItem(
+        "vx_email",
+        v||""
+      )
+    }catch(e){}
+  }
+};
+
+async function vxFetch(
+  path,
+  opts={}
+){
+  const h=Object.assign(
+    {
+      "apikey":C.SUPABASE_KEY,
+      "Content-Type":"application/json"
+    },
+    opts.headers||{}
+  );
+
+  if(VXAUTH.token)
+    h.Authorization=
+      "Bearer "+VXAUTH.token;
+
+  const r=await fetch(
+    C.SUPABASE_URL+
+    "/rest/v1/"+
+    path,
+    Object.assign(
+      {},
+      opts,
+      {headers:h}
+    )
+  );
+
+  const text=await r.text();
+
+  let data=null;
+
+  try{
+    data=text?
+      JSON.parse(text):
+      null
+  }catch(e){
+    data=text
+  }
+
+  if(!r.ok)
+    throw new Error(
+      (data&&data.message)||
+      "No se pudo completar la operación."
+    );
+
+  return data
+}
+
+async function vxAuth(
+  path,
+  body
+){
+  const r=await fetch(
+    C.SUPABASE_URL+
+    "/auth/v1/"+
+    path,
+    {
+      method:"POST",
+      headers:{
+        "apikey":C.SUPABASE_KEY,
+        "Content-Type":
+          "application/json"
+      },
+      body:JSON.stringify(body)
+    }
+  );
+
+  const d=await r.json();
+
+  if(!r.ok)
+    throw new Error(
+      d.error_description||
+      d.msg||
+      d.message||
+      "No se pudo iniciar sesión."
+    );
+
+  if(d.access_token)
+    VXAUTH.token=d.access_token;
+
+  if(d.user&&d.user.email)
+    VXAUTH.email=d.user.email;
+
+  return d
+}
+
+function vxEsc(v){
+  return esc(
+    v==null?"":v
+  )
+}
+
+function vxDate(v){
+  if(!v)return"—";
+
+  const d=new Date(v);
+
+  return isNaN(d)?
+    "—":
+    d.toLocaleString(
+      "es-CU",
+      {
+        dateStyle:"medium",
+        timeStyle:"short"
+      }
+    )
+}
+
+function vxOpen(id){
+  show(id)
+}
+
+function vxTrackRender(p){
+
+  const r=$("trackResult");
+
+  if(!p){
+    r.hidden=false;
+
+    r.innerHTML=
+      '<p>No encontramos ese código. '+
+      'Verifique que esté escrito correctamente.</p>';
+
+    return
+  }
+
+  const prods=
+    Array.isArray(p.productos)?
+      p.productos:
+      (p.productos?[p.productos]:[]);
+
+  const qs=
+    Array.isArray(p.cantidades)?
+      p.cantidades:
+      [];
+
+  r.hidden=false;
+
+  r.innerHTML=
+    '<div class="vx-code">'+
+      vxEsc(p.codigo)+
+    '</div>'+
+
+    '<span class="vx-status">'+
+      vxEsc(
+        p.estado||
+        "Pedido recibido"
+      )+
+    '</span>'+
+
+    '<div class="vx-kv">'+
+
+      '<div>'+
+        '<span>Fecha</span>'+
+        '<b>'+
+          vxDate(
+            p.fecha||
+            p.created_at
+          )+
+        '</b>'+
+      '</div>'+
+
+      '<div>'+
+        '<span>Última actualización</span>'+
+        '<b>'+
+          vxDate(
+            p.ultima_actualizacion||
+            p.updated_at
+          )+
+        '</b>'+
+      '</div>'+
+
+      '<div>'+
+        '<span>Total</span>'+
+        '<b>'+
+          (
+            p.total!=null?
+            fm(Number(p.total)):
+            "—"
+          )+
+        '</b>'+
+      '</div>'+
+
+      '<div>'+
+        '<span>Teléfono</span>'+
+        '<b>'+
+          vxEsc(
+            p.telefono||
+            "—"
+          )+
+        '</b>'+
+      '</div>'+
+
+    '</div>'+
+
+    (
+      prods.length?
+      '<div class="vx-list">'+
+        '<p class="lb">Productos</p>'+
+
+        prods.map((x,i)=>
+          '<div class="vx-item">'+
+            '<b>'+
+              vxEsc(
+                typeof x==="string"?
+                  x:
+                  (
+                    x.nombre||
+                    x.producto||
+                    "Producto"
+                  )
+              )+
+            '</b>'+
+
+            (
+              qs[i]!=null?
+              ' · '+
+              vxEsc(qs[i])+
+              ' ud.':
+              ''
+            )+
+
+          '</div>'
+        ).join("")+
+
+      '</div>':
+      ''
+    )+
+
+    (
+      p.datos_entrega?
+      '<div class="vx-item">'+
+        '<b>Datos de entrega</b>'+
+        '<p>'+
+          vxEsc(
+            typeof p.datos_entrega==="string"?
+              p.datos_entrega:
+              JSON.stringify(
+                p.datos_entrega
+              )
+          )+
+        '</p>'+
+      '</div>':
+      ''
+    )+
+
+    (
+      p.garantia?
+      '<div class="vx-item">'+
+        '<b>Garantía</b>'+
+        '<p>'+
+          vxEsc(p.garantia)+
+        '</p>'+
+      '</div>':
+      ''
+    )+
+
+    '<div class="vx-actions">'+
+
+      '<button class="bt h" '+
+        'data-a="claimFromTrack" '+
+        'data-code="'+
+        vxEsc(p.codigo)+
+        '">'+
+        'Reportar incidencia'+
+      '</button>'+
+
+      '<button class="bt" '+
+        'data-a="claimAnswersFromTrack" '+
+        'data-code="'+
+        vxEsc(p.codigo)+
+        '">'+
+        'Ver respuestas'+
+      '</button>'+
+
+    '</div>'
+}
+
+async function vxTrack(){
+
+  const code=
+    $("vxTrackCode")
+      .value
+      .trim()
+      .toUpperCase();
+
+  const err=$("trackErr");
+
+  err.textContent="";
+  $("trackResult").hidden=true;
+
+  if(
+    !/^VX-\d{4}-\d{6}$/.test(code)
+  ){
+    err.textContent=
+      "Use un código como VX-2026-000184.";
+
+    return
+  }
+
+  try{
+
+    const d=
+      await vxFetch(
+        "pedidos?codigo=eq."+
+        encodeURIComponent(code)+
+        "&limit=1"
+      );
+
+    vxTrackRender(
+      Array.isArray(d)?
+        d[0]:
+        null
+    );
+
+  }catch(e){
+
+    err.textContent=e.message
+
+  }
+}
+
+function vxClaimTab(tab){
+
+  $("claimNew").hidden=
+    tab!=="new";
+
+  $("claimAnswers").hidden=
+    tab!=="answers";
+
+  document
+    .querySelectorAll(
+      "[data-a=claimTab]"
+    )
+    .forEach(b=>
+      b.classList.toggle(
+        "on",
+        b.dataset.tab===tab
+      )
+    )
+}
+
+async function vxSubmitClaim(){
+
+  const code=
+    $("clmCode")
+      .value
+      .trim()
+      .toUpperCase();
+
+  const reason=
+    $("clmReason").value;
+
+  const desc=
+    $("clmDesc")
+      .value
+      .trim();
+
+  const err=$("claimErr");
+  const ok=$("claimOk");
+
+  err.textContent="";
+  ok.textContent="";
+
+  if(
+    !/^VX-\d{4}-\d{6}$/.test(code)
+  ){
+    err.textContent=
+      "Introduzca un código de pedido válido.";
+
+    return
+  }
+
+  if(!reason||!desc){
+    err.textContent=
+      "Complete el motivo y la descripción.";
+
+    return
+  }
+
+  try{
+
+    /*
+      Evidencias: este bloque espera
+      que el backend acepte nombres/URLs
+      ya subidos.
+
+      La subida real debe apuntar al bucket
+      privado de Supabase y generar URLs
+      firmadas.
+    */
+
+    const files=
+      [...$("clmEvidence").files]
+      .map(f=>f.name);
+
+    const body={
+      pedido_codigo:code,
+      motivo:reason,
+      descripcion:desc,
+      evidencias:files,
+      estado:"Pendiente",
+      email:
+        VXAUTH.email||
+        null
+    };
+
+    const d=
+      await vxFetch(
+        "reclamaciones",
+        {
+          method:"POST",
+
+          headers:{
+            "Prefer":
+              "return=representation"
+          },
+
+          body:
+            JSON.stringify(body)
+        }
+      );
+
+    const id=
+      Array.isArray(d)&&d[0]?
+        (
+          d[0].codigo||
+          d[0].id
+        ):
+        "";
+
+    ok.textContent=
+      "Reclamación registrada correctamente"+
+      (
+        id?
+        " · Nº "+id:
+        ""
+      )+
+      ". Quedará guardada en VOLXEN.";
+
+    $("clmDesc").value="";
+    $("clmEvidence").value="";
+
+  }catch(e){
+
+    err.textContent=e.message
+
+  }
+}
+
+async function vxLoadClaims(){
+
+  const code=
+    $("ansCode")
+      .value
+      .trim()
+      .toUpperCase();
+
+  const err=$("ansErr");
+  const list=$("claimsList");
+
+  err.textContent="";
+  list.innerHTML="";
+
+  if(
+    !/^VX-\d{4}-\d{6}$/.test(code)
+  ){
+    err.textContent=
+      "Introduzca un código de pedido válido.";
+
+    return
+  }
+
+  try{
+
+    const d=
+      await vxFetch(
+        "reclamaciones?pedido_codigo=eq."+
+        encodeURIComponent(code)+
+        "&order=created_at.desc"
+      );
+
+    if(
+      !Array.isArray(d)||
+      !d.length
+    ){
+      list.innerHTML=
+        '<p style="padding:1rem 0">'+
+        'No hay reclamaciones asociadas a este pedido.'+
+        '</p>';
+
+      return
+    }
+
+    list.innerHTML=
+      d.map(x=>
+        '<div class="vx-item">'+
+
+          '<b>'+
+            'Reclamación #'+
+            vxEsc(
+              x.codigo||
+              x.id
+            )+
+          '</b>'+
+
+          '<span class="vx-status">'+
+            vxEsc(
+              x.estado||
+              "Pendiente"
+            )+
+          '</span>'+
+
+          '<p>'+
+            vxEsc(
+              x.motivo||
+              ""
+            )+
+          '</p>'+
+
+          '<p>'+
+            vxEsc(
+              x.descripcion||
+              ""
+            )+
+          '</p>'+
+
+        '</div>'
+      ).join("");
+
+  }catch(e){
+
+    err.textContent=e.message
+
+  }
+}
+
+function vxAccount(){
+
+  const b=$("accBody");
+
+  if(VXAUTH.token){
+
+    b.innerHTML=
+      '<p>Sesión iniciada como '+
+      '<span class="vx-code">'+
+        vxEsc(VXAUTH.email)+
+      '</span></p>'+
+
+      '<nav class="mn">'+
+
+        '<button data-a="accountOrders">'+
+          'Mis pedidos'+
+        '</button>'+
+
+        '<button data-a="accountClaims">'+
+          'Reportes y reclamaciones'+
+        '</button>'+
+
+        '<button data-a="accountLogout">'+
+          'Cerrar sesión'+
+        '</button>'+
+
+      '</nav>'+
+
+      '<div id="accExtra"></div>';
+
+  }else{
+
+    b.innerHTML=
+      '<form class="vx-form" id="loginForm">'+
+
+        '<input id="accEmail" '+
+          'type="email" '+
+          'autocomplete="email" '+
+          'placeholder="Correo electrónico">'+
+
+        '<input id="accPass" '+
+          'type="password" '+
+          'autocomplete="current-password" '+
+          'placeholder="Contraseña">'+
+
+        '<p class="vx-error" id="accErr"></p>'+
+
+        '<button class="bt" '+
+          'style="width:100%" '+
+          'type="submit">'+
+          'Iniciar sesión'+
+        '</button>'+
+
+      '</form>'+
+
+      '<div class="vx-actions">'+
+
+        '<button class="bt h" data-a="signup">'+
+          'Crear cuenta'+
+        '</button>'+
+
+        '<button class="bt h" data-a="google">'+
+          'Continuar con Google'+
+        '</button>'+
+
+      '</div>'+
+
+      '<p class="vx-note">'+
+        'La cuenta permite consultar los pedidos '+
+        'y comunicaciones vinculados al correo registrado.'+
+      '</p>';
+
+    $("loginForm").addEventListener(
+      "submit",
+      async e=>{
+        e.preventDefault();
+
+        try{
+
+          await vxAuth(
+            "token?grant_type=password",
+            {
+              email:
+                $("accEmail")
+                  .value
+                  .trim(),
+
+              password:
+                $("accPass").value
+            }
+          );
+
+          vxAccount();
+
+        }catch(x){
+
+          $("accErr").textContent=
+            x.message
+
+        }
+      }
+    );
+  }
+}
+
+async function vxSignup(){
+
+  const e=
+    prompt(
+      "Correo electrónico"
+    );
+
+  if(!e)return;
+
+  const p=
+    prompt(
+      "Cree una contraseña (mínimo 6 caracteres)"
+    );
+
+  if(!p)return;
+
+  try{
+
+    await vxAuth(
+      "signup",
+      {
+        email:e.trim(),
+        password:p
+      }
+    );
+
+    toast(
+      "Cuenta creada. Revise su correo si se solicita confirmación."
+    );
+
+    vxAccount();
+
+  }catch(x){
+
+    alert(x.message)
+
+  }
+}
+
+async function vxGoogle(){
+
+  location.href=
+    C.SUPABASE_URL+
+    "/auth/v1/authorize?provider=google&redirect_to="+
+    encodeURIComponent(
+      location.href
+    )
+}
+
+function vxLogout(){
+
+  VXAUTH.token="";
+  VXAUTH.email="";
+
+  vxAccount();
+
+  toast(
+    "Sesión cerrada"
+  )
+}
+
+</script>
+
+</body>
+      </html>
