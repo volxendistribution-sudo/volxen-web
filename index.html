@@ -118,7 +118,8 @@ footer{border-top:1px solid var(--gl)}
 .sh textarea{min-height:76px}.sh input:focus,.sh textarea:focus{outline:0;border-color:var(--g)}
 #er{color:#d98080;min-height:20px;margin-top:8px;font-size:13px}
 #ts{position:fixed;left:50%;bottom:calc(28px + env(safe-area-inset-bottom));transform:translate(-50%,14px);z-index:80;background:var(--s2);border:1px solid rgba(169,130,74,.5);color:var(--fg);padding:12px 20px;font-size:13px;opacity:0;pointer-events:none;transition:.3s;white-space:nowrap}
-#ts.on{opacity:1;transform:translate(-50%,0)}/* Fase 1 */
+#ts.on{opacity:1;transform:translate(-50%,0)}
+/* Fase 1 */
 #of:not([hidden])+#catalogo{border-top:1px solid var(--gl)!important}
 .sh label.lb{display:block;margin-top:16px}
 .sh select{width:100%;min-height:50px;margin-top:6px;padding:12px 40px 12px 12px;background:var(--sf) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a9824a' stroke-width='1.25'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center/16px;border:1px solid var(--bd);color:var(--fg);font:300 16px var(--s);-webkit-appearance:none;appearance:none}
@@ -127,9 +128,7 @@ footer{border-top:1px solid var(--gl)}
 .sh #fc{margin-top:6px}
 .sh .nt{margin-top:6px;font-size:12px;line-height:1.5}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.rv{opacity:1;transform:none}}
-</style></head><body>
-
-<header id="hd"><div class="c hd">
+</style></head><body><header id="hd"><div class="c hd">
 <a class="br" href="#top" aria-label="VOLXEN — inicio"><img src="logo.svg" alt="" width="34" height="34"><span class="wm">VOLXEN</span></a>
 <nav class="nv"><a class="l" href="#catalogo">Colección</a><a class="l" href="#faq">Información</a><a class="l" href="#quienes-somos">Quiénes somos</a>
 <button class="cb" data-a="cart" aria-label="Ver su pedido"><svg viewBox="0 0 24 24"><path d="M6 7h12l1 13H5L6 7z"/><path d="M9 7a3 3 0 016 0"/></svg><i id="bd">0</i></button></nav>
@@ -145,6 +144,8 @@ footer{border-top:1px solid var(--gl)}
 </div><i class="b"></i></section>
 
 <section class="sec" id="cats" hidden><div class="c"><p class="ey">Categorías</p><h2>La colección</h2><div class="cats" id="cg"></div></div></section>
+
+<section class="sec" id="of" hidden><div class="c"><p class="ey">Ofertas</p><h2>Precios especiales</h2><div class="grid" id="og"></div></div></section>
 
 <section class="sec" id="catalogo" style="border-top:0"><div class="c"><p class="ey">Colección</p><h2>Piezas disponibles</h2>
 <div class="chs" id="ch"></div><div class="grid" id="gr"></div></div></section>
@@ -179,7 +180,9 @@ footer{border-top:1px solid var(--gl)}
 <div class="ov" id="pm"><button class="xb" data-a="close" aria-label="Cerrar" style="position:fixed;z-index:70;top:max(8px,env(safe-area-inset-top));right:8px;background:var(--s2);border:1px solid var(--gl)">×</button><div class="bx" id="pb"></div></div>
 <div class="ov" id="ctv"><div class="bx sh"><button class="xb" data-a="close" aria-label="Cerrar">×</button>
 <h3 style="margin-top:0">Su pedido</h3><div id="cl"></div><div class="tt" id="tt"></div>
-<div id="cf" style="display:none;margin-top:1.5rem"><input id="fn" placeholder="Nombre y apellidos *" autocomplete="name"><input id="fd" placeholder="Localidad y dirección *" autocomplete="street-address"><textarea id="fo" placeholder="Notas (opcional)"></textarea><p id="er"></p>
+<div id="cf" style="display:none;margin-top:1.5rem"><input id="fn" placeholder="Nombre y apellidos *" autocomplete="name"><input id="fd" placeholder="Localidad y dirección *" autocomplete="street-address"><label class="lb" for="fp">Provincia</label><select id="fp"><option>Pinar del Río</option><option>Artemisa</option><option selected>La Habana</option><option>Mayabeque</option><option>Matanzas</option><option>Cienfuegos</option><option>Villa Clara</option><option>Sancti Spíritus</option><option>Ciego de Ávila</option><option>Camagüey</option><option>Las Tunas</option><option>Holguín</option><option>Granma</option><option>Santiago de Cuba</option><option>Guantánamo</option><option>Isla de la Juventud</option></select>
+<label class="lb" for="fc">Carnet de identidad (opcional)</label><input id="fc" inputmode="numeric" maxlength="13" autocomplete="off" placeholder="11 dígitos"><p class="nt">Opcional. Solo viaja en el mensaje de WhatsApp a su asesor; el sitio no lo guarda.</p>
+<textarea id="fo" placeholder="Notas (opcional)"></textarea><p id="er"></p>
 <button class="bt" style="width:100%" data-a="send">Enviar pedido por WhatsApp</button></div></div></div>
 <div id="ts"></div>
 <script src="config.js"></script><script>
@@ -221,9 +224,14 @@ function cart(){const it=Object.keys(K).map(id=>P.find(x=>x.id===id)).filter(Boo
 $("cl").innerHTML=it.length?it.map(p=>'<div class="li"><img src="'+esc(ft(p)[0]||"")+'" alt=""><div><b>'+esc(p.nombre)+'</b><span>'+fm(pr(p))+'</span><div class="q" style="width:fit-content;margin-top:8px"><button data-a="qm" data-id="'+esc(p.id)+'" aria-label="Menos">−</button><i>'+K[p.id]+'</i><button data-a="qp" data-id="'+esc(p.id)+'" aria-label="Más">+</button></div></div><button data-a="rm" data-id="'+esc(p.id)+'" aria-label="Quitar" style="width:44px;height:44px;text-align:center;font-size:22px">×</button></div>').join(""):'<p style="margin-top:1.5rem">Su pedido está vacío.</p>';
 const t=it.reduce((a,p)=>a+pr(p)*K[p.id],0);$("tt").innerHTML=it.length?'Total estimado: <b>'+fm(t)+'</b>':"";$("cf").style.display=it.length?"block":"none"}
 function chg(id,d){K[id]=(K[id]||0)+d;if(K[id]<=0)delete K[id];sv();cart()}
-function send(){const n=$("fn").value.trim(),d=$("fd").value.trim();if(!n||!d){$("er").textContent="Complete su nombre y la dirección.";return}$("er").textContent="";
+function send(){const n=$("fn").value.trim(),d=$("fd").value.trim(),pv=$("fp").value,ci=$("fc").value.replace(/\D/g,"");
+if(!n||!d){$("er").textContent="Complete su nombre y la dirección.";return}
+if(ci&&ci.length!==11){$("er").textContent="El carnet de identidad tiene 11 dígitos. Complételo o déjelo en blanco.";return}
+$("er").textContent="";
 const it=Object.keys(K).map(id=>P.find(x=>x.id===id)).filter(Boolean),t=it.reduce((a,p)=>a+pr(p)*K[p.id],0);
-let m="Buenas, deseo hacer este pedido:\n"+it.map(p=>"- "+K[p.id]+" x "+p.nombre+" ("+fm(pr(p))+")").join("\n")+"\nTotal estimado: "+fm(t)+"\n\nNombre: "+n+"\nDirección: "+d;const o=$("fo").value.trim();if(o)m+="\nNotas: "+o;window.open(wa(m),"_blank")}
+let m="Buenas, deseo hacer este pedido:\n"+it.map(p=>"- "+K[p.id]+" x "+p.nombre+" ("+fm(pr(p))+")").join("\n")+"\nTotal estimado: "+fm(t)+"\n\nNombre: "+n+"\nDirección: "+d+"\nProvincia: "+pv;
+if(ci)m+="\nCarnet de identidad: "+ci;
+const o=$("fo").value.trim();if(o)m+="\nNotas: "+o;window.open(wa(m),"_blank")}
 document.addEventListener("click",e=>{const t=e.target.closest("[data-a]");if(!t)return;const a=t.dataset.a,id=t.dataset.id;
 if(a==="open")open(id);else if(a==="add1")add(id,1);else if(a==="cat"){cat=id;draw()}
 else if(a==="pick"){cat=id;draw();$("catalogo").scrollIntoView({behavior:"smooth"})}
@@ -236,6 +244,13 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")hide()});
 addEventListener("scroll",()=>$("hd").classList.toggle("sc",scrollY>12),{passive:true});
 document.querySelectorAll(".wl").forEach(a=>a.href=wa(a.dataset.m));
 $("yr").textContent=new Date().getFullYear();bd();
+/* Fase 1 · Ofertas */
+let ofk="";
+function drOf(){const s=$("of");if(!s)return;
+const l=P.filter(p=>Number(O[p.id])>0&&Number(O[p.id])<Number(p.precio_usd)&&!ag(p));
+s.hidden=!l.length;const k=l.map(p=>p.id).join();if(k===ofk)return;ofk=k;
+$("og").innerHTML=l.map(pcard).join("");obs()}
+const dr0=draw;draw=function(){dr0();drOf()};
 (async()=>{const[c,p,o]=await Promise.all([q("categorias?order=orden"),q("productos?activo=eq.true&order=created_at.desc"),q("ofertas?activa=eq.true")]);
 Cs=Array.isArray(c)?c:[];P=Array.isArray(p)?p:[];(Array.isArray(o)?o:[]).forEach(x=>O[x.producto_id]=x.precio_oferta_usd);draw()})();
 </script></body></html>
