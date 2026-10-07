@@ -25,7 +25,34 @@ h2{font-size:clamp(1.9rem,4vw,2.4rem);margin-top:1.5rem}
 .bt{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:16px 32px;border:1px solid rgba(169,130,74,.45);color:var(--g);font:500 10px var(--s);letter-spacing:.28em;text-transform:uppercase;text-align:center;transition:.3s}
 .bt:hover{border-color:var(--g);background:rgba(169,130,74,.07)}
 .bt.h{border-color:var(--bd);color:var(--fg)}.bt.h:hover{border-color:rgba(169,130,74,.6);color:var(--g);background:none}
-.rv{opacity:0;transform:translateY(16px);transition:opacity .6s var(--e),transform .6s var(--e)}
+.rv{opacity:0;transform:translateY(16px);transition:opacity .6s var(--e),transform .6s var(--e)}/* VOLXEN - seguimiento de pedido, contactos y menu */
+(function(){
+document.querySelectorAll('a[href="admin.html"]').forEach(a=>a.remove());
+const OP=["56581114","56193681","52405395","63990666","52842030","55500209"];
+const CH=[["Grupo de soporte y gestión (WhatsApp)","https://chat.whatsapp.com/EpzOGv9qyTP8t7ei79PlYL"],["Catálogo en Telegram","https://t.me/volxen_catalogo"],["Facebook","https://www.facebook.com/share/1M1HdetBFY/"],["Instagram","https://www.instagram.com/volxen__tecnologia_cuba"]];
+const li=(h,t)=>'<a class="bt h" style="width:100%;margin-top:10px" href="'+h+'" target="_blank" rel="noopener">'+t+'</a>';
+document.body.insertAdjacentHTML("beforeend",
+'<div class="ov" id="sgv"><div class="bx sh"><button class="xb" data-a="close" aria-label="Cerrar">×</button><h3 style="margin-top:0">Seguimiento de su pedido</h3><p class="nt" style="margin-top:1rem">Escriba el código del pedido y el código de seguimiento que recibió al registrarlo.</p><input id="sc" placeholder="Código del pedido (VX-2026-000001)" autocomplete="off" autocapitalize="characters"><input id="st" placeholder="Código de seguimiento" autocomplete="off"><p id="se" style="color:#d98080;min-height:20px;margin-top:8px;font-size:13px"></p><button class="bt" style="width:100%" id="sb">Consultar pedido</button><div id="sr"></div></div></div>'+
+'<div class="ov" id="ctc"><div class="bx sh"><button class="xb" data-a="close" aria-label="Cerrar">×</button><h3 style="margin-top:0">Contacto</h3><p class="lb" style="margin-top:1.5rem">Canales oficiales</p>'+CH.map(c=>li(c[1],c[0])).join("")+'<p class="lb" style="margin-top:2rem">Atención por WhatsApp</p>'+OP.map((n,i)=>li("https://wa.me/53"+n,"Asesor "+(i+1)+" · +53 "+n)).join("")+'</div></div>');
+const mn=document.querySelector("#mnv .mn"),w=mn&&mn.querySelector(".wl");
+if(mn){const add=(a,t)=>{const b=document.createElement("button");b.dataset.a=a;b.textContent=t;mn.insertBefore(b,w||null)};add("seg","Seguimiento de mi pedido");add("ctc","Contactos y canales")}
+["sgv","ctc"].forEach(id=>$(id).addEventListener("click",e=>{if(e.target.id===id)hide()}));
+document.addEventListener("click",e=>{const t=e.target.closest("[data-a]");if(!t)return;const a=t.dataset.a;if(a==="seg"||a==="ctc"){hide();setTimeout(()=>show(a==="seg"?"sgv":"ctc"),320)}});
+const fa=(x,k)=>{if(Array.isArray(x))return x.length&&x.every(o=>o&&typeof o==="object"&&k in o)?x:null;if(x&&typeof x==="object"){for(const v of Object.values(x)){const r=fa(v,k);if(r)return r}}return null};
+const g=(x,k)=>x&&typeof x==="object"?(k in x?x[k]:Object.values(x).map(v=>g(v,k)).find(v=>v!=null)):undefined;
+function pinta(j){const c=g(j,"codigo"),e=g(j,"estado"),n=g(j,"nombre_cliente"),t=g(j,"total_usd"),it=fa(j,"producto_nombre")||[],hs=fa(j,"estado")||[];
+$("sr").innerHTML='<div style="margin-top:1.5rem"><p class="ey">Pedido</p><h3 style="margin:.5rem 0">'+esc(c||"")+'</h3>'+(e?'<p>Estado actual: <b style="color:var(--g);font-weight:400">'+esc(e)+'</b></p>':'')+(n?'<p>Cliente: '+esc(n)+'</p>':'')+
+it.map(p=>'<p>'+esc(p.cantidad)+' × '+esc(p.producto_nombre)+(p.subtotal!=null?' — '+fm(Number(p.subtotal)):'')+'</p>').join("")+(t!=null?'<p style="margin-top:1rem">Total: <b>'+fm(Number(t))+'</b></p>':'')+
+(hs.length?'<p class="lb" style="margin-top:2rem">Historial</p>'+hs.map(h=>'<p>'+esc(h.estado)+(h.created_at?' · '+esc(new Date(h.created_at).toLocaleString("es")):'')+(h.comentario?'<br><span class="nt">'+esc(h.comentario)+'</span>':'')+'</p>').join(""):'')+'</div>'}
+$("sb").onclick=async()=>{const c=$("sc").value.trim().toUpperCase(),t=$("st").value.trim(),b=$("sb");
+if(!c||!t){$("se").textContent="Escriba ambos códigos.";return}
+$("se").textContent="";$("sr").innerHTML="";b.disabled=true;b.textContent="Consultando…";
+try{const r=await fetch(C.SUPABASE_URL+"/rest/v1/rpc/consultar_pedido_tracking",{method:"POST",headers:{apikey:C.SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify({p_codigo:c,p_tracking_token:t})});
+const j=await r.json();if(!r.ok)throw new Error((j&&j.message)||"No se pudo consultar el pedido.");
+if(!j||!g(j,"codigo"))throw new Error("No encontramos un pedido con esos códigos.");pinta(j)}
+catch(x){$("se").textContent=x.message||"No se pudo consultar el pedido."}
+b.disabled=false;b.textContent="Consultar pedido"};
+})();
 .rv.in{opacity:1;transform:none}
 header{position:sticky;top:0;z-index:40;border-bottom:1px solid transparent;transition:.5s}
 header.sc{border-color:var(--gl);background:rgba(12,12,13,.9);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
