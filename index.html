@@ -28,6 +28,8 @@ h2{font-weight:400;letter-spacing:.15em;font-size:19px;margin-bottom:16px;text-t
 #m{display:none;position:fixed;inset:0;background:#000c;z-index:9;overflow:auto}
 #m .box{background:var(--k);max-width:520px;margin:20px auto;padding:18px}
 #m img{width:100%;margin-bottom:12px}
+#m .th{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto}
+#m .th img{width:64px;height:64px;object-fit:cover;margin:0;cursor:pointer;border:1px solid #e4dccb;flex:none}
 #m p{font:14px/1.5 sans-serif;margin:8px 0}
 footer{background:var(--c);color:var(--k);text-align:center;padding:30px 18px;font:13px sans-serif}
 footer i{display:block;color:var(--g);margin-bottom:10px;font:italic 15px Georgia}
@@ -47,14 +49,17 @@ const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",
 const D={disponible:"Disponible",bajo_pedido:"Bajo pedido",agotado:"Agotado"};
 const wa=t=>"https://wa.me/"+(C.WHATSAPP||"")+"?text="+encodeURIComponent(t);
 let P=[],O={},cat="";
+const fotos=p=>(p.imagenes&&p.imagenes.length)?p.imagenes:(p.imagen_principal?[p.imagen_principal]:[]);
 function card(p){const o=O[p.id];const pr=o?'<span class="old">$'+p.precio_usd+'</span>$'+o:'$'+p.precio_usd;
-return '<div class="card" onclick="ver(\''+p.id+'\')"><img src="'+esc(p.imagen_principal)+'" alt=""><div><b>'+esc(p.nombre)+'</b><span class="p">'+pr+' USD</span><br><span class="tag">'+(D[p.disponibilidad]||"")+'</span></div></div>'}
+return '<div class="card" onclick="ver(\''+p.id+'\')"><img src="'+esc(fotos(p)[0])+'" alt=""><div><b>'+esc(p.nombre)+'</b><span class="p">'+pr+' USD</span><br><span class="tag">'+(D[p.disponibilidad]||"")+'</span></div></div>'}
 function draw(){
 document.getElementById("gr").innerHTML=P.filter(p=>!cat||p.categoria_id===cat).map(card).join("")||"<p>Próximamente.</p>";
 document.getElementById("of").innerHTML=P.filter(p=>O[p.id]).map(card).join("")||"<p>Pronto nuevas ofertas.</p>"}
 function ver(id){const p=P.find(x=>x.id===id),o=O[id];
 const f=(p.caracteristicas||[]).map(x=>"<li>"+esc(x)+"</li>").join("");
-document.getElementById("mb").innerHTML='<img src="'+esc(p.imagen_principal)+'" alt=""><h2>'+esc(p.nombre)+'</h2><p class="p">'+(o?'<span class="old">$'+p.precio_usd+'</span>$'+o:'$'+p.precio_usd)+' USD</p><p>'+esc(p.descripcion)+'</p><ul style="font:14px sans-serif;margin-left:18px">'+f+'</ul><p><b>Disponibilidad:</b> '+(D[p.disponibilidad]||"")+'</p><p><b>Garantía:</b> '+esc(p.garantia)+'</p><p><b>Transporte:</b> '+esc(p.transporte)+'</p><a class="btn" target="_blank" href="'+wa("Hola VOLXEN, me interesa: "+p.nombre)+'">PEDIR POR WHATSAPP</a>';
+const im=fotos(p);
+const th=im.length>1?'<div class="th">'+im.map(u=>'<img src="'+esc(u)+'" alt="" onclick="document.getElementById(\'gi\').src=this.src">').join("")+'</div>':"";
+document.getElementById("mb").innerHTML='<img id="gi" src="'+esc(im[0])+'" alt="">'+th+'<h2>'+esc(p.nombre)+'</h2><p class="p">'+(o?'<span class="old">$'+p.precio_usd+'</span>$'+o:'$'+p.precio_usd)+' USD</p><p>'+esc(p.descripcion)+'</p><ul style="font:14px sans-serif;margin-left:18px">'+f+'</ul><p><b>Disponibilidad:</b> '+(D[p.disponibilidad]||"")+'</p><p><b>Garantía:</b> '+esc(p.garantia)+'</p><p><b>Transporte:</b> '+esc(p.transporte)+'</p><a class="btn" target="_blank" href="'+wa("Hola VOLXEN, me interesa: "+p.nombre)+'">PEDIR POR WHATSAPP</a>';
 document.getElementById("m").style.display="block"}
 async function init(){
 document.getElementById("wa").href=wa("Hola VOLXEN, quiero información.");
