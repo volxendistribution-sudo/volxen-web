@@ -144,7 +144,20 @@ footer{border-top:1px solid var(--gl)}
 .vp{flex:none;min-height:44px;padding:0 14px;border:1px solid rgba(169,130,74,.45);color:var(--g);font:500 10px var(--s);letter-spacing:.28em;text-transform:uppercase}
 .so{width:44px;height:44px;border:1px solid var(--bd);display:grid;place-items:center;color:var(--fg);transition:.3s}
 .so:hover{border-color:rgba(169,130,74,.6);color:var(--g)}
-.so svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.25}
+.so svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.25}/* Mis pedidos */
+.od{display:flex;flex-direction:column;gap:6px;width:100%;margin-top:12px;padding:1.25rem;background:var(--sf);border:1px solid var(--bd);text-align:left;transition:border-color .3s}
+.od:hover{border-color:rgba(169,130,74,.55)}
+.od b{font:400 16px var(--d);color:var(--fg)}
+.od .th{display:flex;gap:6px}
+.od .th img{width:48px;height:48px;object-fit:contain;background:var(--s2);border:1px solid var(--bd)}
+.pb{display:flex;gap:4px;margin-top:1.25rem}
+.pb span{flex:1;font-size:10px}
+.pb i{display:block;height:3px;background:var(--bd);margin-bottom:6px}
+.pb .on{color:var(--g)}.pb .on i{background:var(--g)}
+.tl{margin-top:1rem;border-left:1px solid var(--gl);padding-left:1rem}
+.tl p{position:relative;margin-top:1rem}
+.tl p::before{content:"";position:absolute;left:-1.3rem;top:.5rem;width:7px;height:7px;background:var(--bd)}
+.tl p:first-child::before{background:var(--g)}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.rv{opacity:1;transform:none}}
 </style></head><body><header id="hd"><div class="c hd">
 <a class="br" href="#top" aria-label="VOLXEN — inicio"><img src="logo.svg" alt="" width="34" height="34"><span class="wm">VOLXEN</span></a>
@@ -309,34 +322,56 @@ else if(a==="vp"){$("ts").classList.remove("on");cart();show("ctv")}
 else if(a==="buy"&&cur){K[cur.id]=(K[cur.id]||0)+mq;sv();hide();setTimeout(vale,320)}});
 (async()=>{const[c,p,o]=await Promise.all([q("categorias?order=orden"),q("productos?activo=eq.true&order=created_at.desc"),q("ofertas?activa=eq.true")]);
 Cs=Array.isArray(c)?c:[];P=Array.isArray(p)?p:[];(Array.isArray(o)?o:[]).forEach(x=>O[x.producto_id]=x.precio_oferta_usd);draw()})();
-/* VOLXEN - seguimiento de pedido, contactos y menu */
+/* VOLXEN - Mis pedidos (estilo Amazon), contactos y menu */
 (function(){
 document.querySelectorAll('a[href="admin.html"]').forEach(a=>a.remove());
 const OP=["56581114","56193681","52405395","63990666","52842030","55500209"];
 const CH=[["Grupo de soporte y gestión (WhatsApp)","https://chat.whatsapp.com/EpzOGv9qyTP8t7ei79PlYL"],["Catálogo en Telegram","https://t.me/volxen_catalogo"],["Facebook","https://www.facebook.com/share/1M1HdetBFY/"],["Instagram","https://www.instagram.com/volxen__tecnologia_cuba"]];
 const li=(h,t)=>'<a class="bt h" style="width:100%;margin-top:10px" href="'+h+'" target="_blank" rel="noopener">'+t+'</a>';
 document.body.insertAdjacentHTML("beforeend",
-'<div class="ov" id="sgv"><div class="bx sh"><button class="xb" data-a="close" aria-label="Cerrar">×</button><h3 style="margin-top:0">Seguimiento de su pedido</h3><p class="nt" style="margin-top:1rem">Escriba el código del pedido y el código de seguimiento que recibió al registrarlo.</p><input id="sc" placeholder="Código del pedido (VX-2026-000001)" autocomplete="off" autocapitalize="characters"><input id="st" placeholder="Código de seguimiento" autocomplete="off"><p id="se" style="color:#d98080;min-height:20px;margin-top:8px;font-size:13px"></p><button class="bt" style="width:100%" id="sb">Consultar pedido</button><div id="sr"></div></div></div>'+
+'<div class="ov" id="sgv"><div class="bx sh"><button class="xb" data-a="close" aria-label="Cerrar">×</button><div id="pv"></div></div></div>'+
 '<div class="ov" id="ctc"><div class="bx sh"><button class="xb" data-a="close" aria-label="Cerrar">×</button><h3 style="margin-top:0">Contacto</h3><p class="lb" style="margin-top:1.5rem">Canales oficiales</p>'+CH.map(c=>li(c[1],c[0])).join("")+'<p class="lb" style="margin-top:2rem">Atención por WhatsApp</p>'+OP.map((n,i)=>li("https://wa.me/53"+n,"Asesor "+(i+1)+" · +53 "+n)).join("")+'</div></div>');
 const mn=document.querySelector("#mnv .mn"),w=mn&&mn.querySelector(".wl");
-if(mn){const add=(a,t)=>{const b=document.createElement("button");b.dataset.a=a;b.textContent=t;mn.insertBefore(b,w||null)};add("seg","Seguimiento de mi pedido");add("ctc","Contactos y canales")}
+if(mn){const add=(a,t)=>{const b=document.createElement("button");b.dataset.a=a;b.textContent=t;mn.insertBefore(b,w||null)};add("seg","Mis pedidos");add("ctc","Contactos y canales")}
 ["sgv","ctc"].forEach(id=>$(id).addEventListener("click",e=>{if(e.target.id===id)hide()}));
-document.addEventListener("click",e=>{const t=e.target.closest("[data-a]");if(!t)return;const a=t.dataset.a;if(a==="seg"||a==="ctc"){hide();setTimeout(()=>show(a==="seg"?"sgv":"ctc"),320)}});
 const fa=(x,k)=>{if(Array.isArray(x))return x.length&&x.every(o=>o&&typeof o==="object"&&k in o)?x:null;if(x&&typeof x==="object"){for(const v of Object.values(x)){const r=fa(v,k);if(r)return r}}return null};
 const g=(x,k)=>x&&typeof x==="object"?(k in x?x[k]:Object.values(x).map(v=>g(v,k)).find(v=>v!=null)):undefined;
-function pinta(j){const c=g(j,"codigo"),e=g(j,"estado"),n=g(j,"nombre_cliente"),t=g(j,"total_usd"),it=fa(j,"producto_nombre")||[],hs=fa(j,"estado")||[];
-$("sr").innerHTML='<div style="margin-top:1.5rem"><p class="ey">Pedido</p><h3 style="margin:.5rem 0">'+esc(c||"")+'</h3>'+(e?'<p>Estado actual: <b style="color:var(--g);font-weight:400">'+esc(e)+'</b></p>':'')+(n?'<p>Cliente: '+esc(n)+'</p>':'')+
-it.map(p=>'<p>'+esc(p.cantidad)+' × '+esc(p.producto_nombre)+(p.subtotal!=null?' — '+fm(Number(p.subtotal)):'')+'</p>').join("")+(t!=null?'<p style="margin-top:1rem">Total: <b>'+fm(Number(t))+'</b></p>':'')+
-(hs.length?'<p class="lb" style="margin-top:2rem">Historial</p>'+hs.map(h=>'<p>'+esc(h.estado)+(h.created_at?' · '+esc(new Date(h.created_at).toLocaleString("es")):'')+(h.comentario?'<br><span class="nt">'+esc(h.comentario)+'</span>':'')+'</p>').join(""):'')+'</div>'}
-$("sb").onclick=async()=>{const c=$("sc").value.trim().toUpperCase(),t=$("st").value.trim(),b=$("sb");
+const gt=x=>{if(x&&typeof x==="object"){for(const[k,v]of Object.entries(x))if(/track|token/i.test(k)&&typeof v==="string")return v;for(const v of Object.values(x)){const r=gt(v);if(r)return r}}};
+const pe=s=>{s=String(s||"").replace(/_/g," ");return s.charAt(0).toUpperCase()+s.slice(1)};
+const LS="vx_pedidos",rd=()=>{try{return JSON.parse(localStorage.getItem(LS)||"[]")}catch(e){return[]}},wr=a=>{try{localStorage.setItem(LS,JSON.stringify(a))}catch(e){}};
+function gp(c,t){c=String(c).toUpperCase();const a=rd();if(!a.some(x=>x.c===c)){a.unshift({c:c,t:t,f:Date.now()});wr(a)}}
+window.vxGuardarPedido=gp;
+const D={};let L=0;
+const ask=(c,t)=>fetch(C.SUPABASE_URL+"/rest/v1/rpc/consultar_pedido_tracking",{method:"POST",headers:{apikey:C.SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify({p_codigo:c,p_tracking_token:t})}).then(async r=>{const j=await r.json();if(!r.ok)throw new Error((j&&j.message)||"No se pudo consultar el pedido.");if(!j||!g(j,"codigo"))throw new Error("No encontramos un pedido con esos códigos.");return j});
+const inf=j=>({c:g(j,"codigo"),e:g(j,"estado"),n:g(j,"nombre_cliente"),t:g(j,"total_usd"),it:fa(j,"producto_nombre")||[],hs:fa(j,"estado")||[]});
+const st=e=>{e=String(e||"").toLowerCase();return /cancel|rechaz/.test(e)?-1:/entreg|complet/.test(e)?3:/camino|ruta|envi|transp|despach/.test(e)?2:/confirm|prepar|proces|aprob/.test(e)?1:/pend|recib|regist|nuev/.test(e)?0:null};
+const fd=d=>d.toLocaleDateString("es",{day:"numeric",month:"long",year:"numeric"});
+const dt=o=>{const h=o.hs.map(x=>x.created_at).filter(Boolean).sort()[0];return h?new Date(h):null};
+const img=n=>{const p=P.find(x=>x.nombre===n);return p?ft(p)[0]||"":""};
+const ADD='<details style="margin-top:2rem"><summary class="lb" style="min-height:44px;display:flex;align-items:center;cursor:pointer">Agregar un pedido con sus códigos</summary><input id="sc" placeholder="Código del pedido (VX-2026-000001)" autocomplete="off" autocapitalize="characters"><input id="st" placeholder="Código de seguimiento" autocomplete="off"><p id="se" style="color:#d98080;min-height:20px;margin-top:8px;font-size:13px"></p><button class="bt" style="width:100%" data-a="padd">Agregar pedido</button></details>';
+async function lista(){const k=++L,a=rd();
+$("pv").innerHTML='<h3 style="margin-top:0">Mis pedidos</h3>'+(a.length?'<div id="ol"><p class="nt">Cargando sus pedidos…</p></div>':'<p style="margin-top:1rem">Aún no tiene pedidos guardados en este dispositivo.</p>')+ADD;
+await Promise.all(a.map(x=>ask(x.c,x.t).then(j=>{D[x.c]=inf(j)}).catch(()=>{D[x.c]=null})));
+const ol=$("ol");if(k!==L||!ol)return;
+ol.innerHTML=a.map(x=>{const o=D[x.c];
+if(!o)return '<button class="od" data-a="pdet" data-id="'+esc(x.c)+'"><span class="ey">'+esc(x.c)+'</span><span class="nt">No se pudo actualizar. Toque para reintentar.</span></button>';
+const d=dt(o)||new Date(x.f);
+return '<button class="od" data-a="pdet" data-id="'+esc(x.c)+'"><span class="ey">'+esc(x.c)+'</span><b>'+esc(pe(o.e))+'</b><span class="th">'+o.it.slice(0,3).map(p=>img(p.producto_nombre)?'<img src="'+esc(img(p.producto_nombre))+'" alt="">':"").join("")+'</span><span>'+(o.it.length>1?o.it.length+' productos':o.it[0]?esc(o.it[0].producto_nombre):'')+'</span><span class="nt">'+fd(d)+(o.t!=null?' · '+fm(Number(o.t)):'')+'</span></button>'}).join("")}
+function det(c){L++;const o=D[c];if(!o){lista();return}
+const s=st(o.e),h=o.hs.slice().sort((x,y)=>String(y.created_at).localeCompare(String(x.created_at)));
+$("pv").innerHTML='<button class="lb" data-a="pback" style="min-height:44px">← Mis pedidos</button><p class="ey" style="margin-top:1rem">Pedido</p><h3 style="margin:.5rem 0">'+esc(o.c)+'</h3><p>Estado actual: <b style="color:var(--g);font-weight:400">'+esc(pe(o.e))+'</b></p>'+
+(s===-1?'<span class="ag">Cancelado</span>':s!=null?'<div class="pb">'+["Recibido","Confirmado","En camino","Entregado"].map((l,i)=>'<span'+(i<=s?' class="on"':'')+'><i></i>'+l+'</span>').join("")+'</div>':'')+
+'<p class="lb" style="margin-top:2rem">Productos</p>'+o.it.map(p=>{const m=img(p.producto_nombre);return '<div class="li">'+(m?'<img src="'+esc(m)+'" alt="">':'')+'<div><b>'+esc(p.producto_nombre)+'</b><span>'+esc(p.cantidad)+(Number(p.cantidad)>1?' unidades':' unidad')+(p.subtotal!=null?' · '+fm(Number(p.subtotal)):'')+'</span></div></div>'}).join("")+
+(o.t!=null?'<p class="tt">Total: <b>'+fm(Number(o.t))+'</b></p>':'')+(o.n?'<p>Cliente: '+esc(o.n)+'</p>':'')+
+(h.length?'<p class="lb" style="margin-top:2rem">Seguimiento</p><div class="tl">'+h.map(x=>'<p><span style="color:var(--fg)">'+esc(pe(x.estado))+'</span>'+(x.created_at?'<br>'+esc(new Date(x.created_at).toLocaleString("es")):'')+(x.comentario?'<br><span class="nt">'+esc(x.comentario)+'</span>':'')+'</p>').join("")+'</div>':'')+
+'<a class="bt" style="width:100%;margin-top:2rem" href="'+wa("Buenas, consulto por mi pedido "+o.c)+'" target="_blank" rel="noopener">Consultar con su asesor</a><button class="sl" style="width:100%" data-a="prm" data-id="'+esc(c)+'">Quitar de esta lista</button>'}
+async function agr(){const c=$("sc").value.trim().toUpperCase(),t=$("st").value.trim();
 if(!c||!t){$("se").textContent="Escriba ambos códigos.";return}
-$("se").textContent="";$("sr").innerHTML="";b.disabled=true;b.textContent="Consultando…";
-try{const r=await fetch(C.SUPABASE_URL+"/rest/v1/rpc/consultar_pedido_tracking",{method:"POST",headers:{apikey:C.SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify({p_codigo:c,p_tracking_token:t})});
-const j=await r.json();if(!r.ok)throw new Error((j&&j.message)||"No se pudo consultar el pedido.");
-if(!j||!g(j,"codigo"))throw new Error("No encontramos un pedido con esos códigos.");pinta(j)}
-catch(x){$("se").textContent=x.message||"No se pudo consultar el pedido."}
-b.disabled=false;b.textContent="Consultar pedido"};
+$("se").textContent="Consultando…";
+try{const j=await ask(c,t);gp(c,t);D[c]=inf(j);det(c)}catch(x){$("se").textContent=x.message||"No se pudo consultar el pedido."}}
+const f0=window.fetch;window.fetch=function(u,o){const r=f0.apply(this,arguments);try{const s=String(u&&u.url||u);if(/\/rest\/v1\//.test(s)&&!/consultar_pedido_tracking/.test(s)&&String(o&&o.method||u&&u.method||"GET").toUpperCase()==="POST")r.then(x=>x.clone().json()).then(j=>{const c=g(j,"codigo"),t=gt(j);if(c&&t)gp(c,t)}).catch(()=>{})}catch(e){}return r};
+document.addEventListener("click",e=>{const t=e.target.closest("[data-a]");if(!t)return;const a=t.dataset.a,id=t.dataset.id;
+if(a==="seg"||a==="ctc"){hide();setTimeout(()=>{show(a==="seg"?"sgv":"ctc");if(a==="seg")lista()},320)}
+else if(a==="pdet")det(id);else if(a==="pback")lista();else if(a==="padd")agr();
+else if(a==="prm"){wr(rd().filter(x=>x.c!==id));lista()}});
 })();
-</script>
-<script src="pedido.js"></script>
-</body></html>
