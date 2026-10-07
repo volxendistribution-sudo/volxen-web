@@ -1860,8 +1860,30 @@ alert(
 }
 
 }
-
-</script>
+/* =========================================================
+   CONSULTAS E INCIDENCIAS
+========================================================= */
+let Q=[];
+const QE={nueva:"Nueva",en_atencion:"En atención",resuelta:"Resuelta"};
+const QT={consulta:"Consulta general",incidencia:"Incidencia"};
+const qf=d=>new Date(d).toLocaleString("es-ES");
+function qBadge(){const n=Q.filter(x=>x.estado==="nueva").length,b=$("tq");if(b)b.textContent="Consultas"+(n?" ("+n+")":"")}
+document.querySelector(".t").insertAdjacentHTML("beforeend",'<button id="tq" onclick="tab(\'q\')">Consultas</button>');
+const tab0=tab;tab=function(n){if(n==="q"){consultas();return}tab0(n)};
+const load0=load;load=async function(){await load0();try{Q=await api("consultas?order=created_at.desc");qBadge()}catch(e){}};
+function consultas(){msg("");
+$("v").innerHTML='<h3>Consultas e incidencias</h3><select id="qt" onchange="qFilt()"><option value="">Todas</option><option value="consulta">Consultas generales</option><option value="incidencia">Incidencias</option></select><select id="qe" onchange="qFilt()"><option value="">Todos los estados</option><option value="nueva">Nuevas</option><option value="en_atencion">En atención</option><option value="resuelta">Resueltas</option></select><input id="qs" placeholder="Buscar por nombre, contacto, pedido o mensaje" oninput="qFilt()"><div id="ql"><div class="r">Cargando...</div></div>';
+qCargar()}
+async function qCargar(){try{Q=await api("consultas?order=created_at.desc");qBadge();qFilt()}catch(e){const l=$("ql");if(l)l.innerHTML='<div class="r"><strong>No se pudieron cargar las consultas.</strong><br><small>'+esc(e.message||"")+'</small></div>'}}
+function qFilt(){const t=$("qt"),e=$("qe"),s=$("qs");if(!t||!e||!s)return;const q=s.value.trim().toLowerCase();
+const a=Q.filter(x=>(!t.value||x.tipo===t.value)&&(!e.value||x.estado===e.value)&&(!q||[x.nombre,x.contacto,x.codigo_pedido,x.mensaje].some(y=>String(y||"").toLowerCase().includes(q))));
+$("ql").innerHTML=a.length?a.map(x=>'<div class="r"><strong>'+esc(QT[x.tipo]||x.tipo)+'</strong> · <span class="estado">'+esc(QE[x.estado]||x.estado)+'</span><br>'+esc(x.nombre||"Sin nombre")+' · '+esc(x.contacto||"")+(x.codigo_pedido?'<br>Pedido: '+esc(x.codigo_pedido):'')+'<br><small>'+qf(x.created_at)+'</small><br>'+esc(String(x.mensaje).slice(0,120))+(String(x.mensaje).length>120?"…":"")+'<br><button onclick="qVer(\''+x.id+'\')">VER</button>'+(x.contacto?'<button onclick="qWa(\''+x.id+'\')">WHATSAPP</button>':'')+'</div>').join(""):'<div class="r">No hay mensajes.</div>'}
+function qVer(id){const x=Q.find(y=>y.id===id);if(!x)return;
+$("v").innerHTML='<button class="back" onclick="consultas()">← VOLVER</button><h3>'+esc(QT[x.tipo]||x.tipo)+'</h3><div class="r"><strong>CONTACTO</strong><br>'+esc(x.nombre||"Sin nombre")+'<br>'+esc(x.contacto||"—")+(x.codigo_pedido?'<br>Pedido: '+esc(x.codigo_pedido):'')+'<br><small>'+qf(x.created_at)+'</small></div><div class="r"><strong>MENSAJE</strong><br>'+esc(x.mensaje).replace(/\n/g,"<br>")+'</div><div class="r"><strong>ESTADO</strong><select id="qe2">'+Object.keys(QE).map(k=>'<option value="'+k+'"'+(k===x.estado?" selected":"")+'>'+QE[k]+'</option>').join("")+'</select><button onclick="qGuardar(\''+x.id+'\')">GUARDAR ESTADO</button></div>'+(x.contacto?'<button onclick="qWa(\''+x.id+'\')">CONTACTAR POR WHATSAPP</button>':'')+'<button class="x" onclick="qBorrar(\''+x.id+'\')">BORRAR</button>'}
+async function qGuardar(id){try{const s=$("qe2").value;await api("consultas?id=eq."+encodeURIComponent(id),"PATCH",{estado:s});const x=Q.find(y=>y.id===id);if(x)x.estado=s;qBadge();qVer(id);msg("Estado actualizado correctamente.")}catch(e){alert("No se pudo actualizar el estado.")}}
+async function qBorrar(id){if(!confirm("¿Borrar este mensaje?"))return;try{await api("consultas?id=eq."+encodeURIComponent(id),"DELETE");Q=Q.filter(y=>y.id!==id);qBadge();consultas()}catch(e){alert("No se pudo borrar el mensaje.")}}
+function qWa(id){const x=Q.find(y=>y.id===id);if(!x)return;let n=String(x.contacto||"").replace(/\D/g,"");if(!n)return;if(n.length===8)n="53"+n;
+window.open("https://wa.me/"+n+"?text="+encodeURIComponent("Hola, le contactamos desde VOLXEN sobre su "+(x.tipo==="incidencia"?"incidencia":"consulta")+(x.codigo_pedido?" del pedido "+x.codigo_pedido:"")+"."),"_blank")}
 
 </body>
    </html>
