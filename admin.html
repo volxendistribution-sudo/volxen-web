@@ -1862,7 +1862,7 @@ alert(
 }
 /* =========================================================
    CONSULTAS E INCIDENCIAS
-========================================================= */
+   ========================================================= */
 let Q=[];
 const QE={nueva:"Nueva",en_atencion:"En atención",resuelta:"Resuelta"};
 const QT={consulta:"Consulta general",incidencia:"Incidencia"};
@@ -1884,6 +1884,6 @@ async function qGuardar(id){try{const s=$("qe2").value;await api("consultas?id=e
 async function qBorrar(id){if(!confirm("¿Borrar este mensaje?"))return;try{await api("consultas?id=eq."+encodeURIComponent(id),"DELETE");Q=Q.filter(y=>y.id!==id);qBadge();consultas()}catch(e){alert("No se pudo borrar el mensaje.")}}
 function qWa(id){const x=Q.find(y=>y.id===id);if(!x)return;let n=String(x.contacto||"").replace(/\D/g,"");if(!n)return;if(n.length===8)n="53"+n;
 window.open("https://wa.me/"+n+"?text="+encodeURIComponent("Hola, le contactamos desde VOLXEN sobre su "+(x.tipo==="incidencia"?"incidencia":"consulta")+(x.codigo_pedido?" del pedido "+x.codigo_pedido:"")+"."),"_blank")}
-
+</script>
 </body>
-   </html>
+</html>
