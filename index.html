@@ -118,7 +118,14 @@ footer{border-top:1px solid var(--gl)}
 .sh textarea{min-height:76px}.sh input:focus,.sh textarea:focus{outline:0;border-color:var(--g)}
 #er{color:#d98080;min-height:20px;margin-top:8px;font-size:13px}
 #ts{position:fixed;left:50%;bottom:calc(28px + env(safe-area-inset-bottom));transform:translate(-50%,14px);z-index:80;background:var(--s2);border:1px solid rgba(169,130,74,.5);color:var(--fg);padding:12px 20px;font-size:13px;opacity:0;pointer-events:none;transition:.3s;white-space:nowrap}
-#ts.on{opacity:1;transform:translate(-50%,0)}
+#ts.on{opacity:1;transform:translate(-50%,0)}/* Fase 1 */
+#of:not([hidden])+#catalogo{border-top:1px solid var(--gl)!important}
+.sh label.lb{display:block;margin-top:16px}
+.sh select{width:100%;min-height:50px;margin-top:6px;padding:12px 40px 12px 12px;background:var(--sf) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a9824a' stroke-width='1.25'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center/16px;border:1px solid var(--bd);color:var(--fg);font:300 16px var(--s);-webkit-appearance:none;appearance:none}
+.sh select:focus{outline:0;border-color:var(--g)}
+.sh select option{background:var(--s2);color:var(--fg)}
+.sh #fc{margin-top:6px}
+.sh .nt{margin-top:6px;font-size:12px;line-height:1.5}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.rv{opacity:1;transform:none}}
 </style></head><body>
 
