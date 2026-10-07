@@ -309,4 +309,4 @@ else if(a==="vp"){$("ts").classList.remove("on");cart();show("ctv")}
 else if(a==="buy"&&cur){K[cur.id]=(K[cur.id]||0)+mq;sv();hide();setTimeout(vale,320)}});
 (async()=>{const[c,p,o]=await Promise.all([q("categorias?order=orden"),q("productos?activo=eq.true&order=created_at.desc"),q("ofertas?activa=eq.true")]);
 Cs=Array.isArray(c)?c:[];P=Array.isArray(p)?p:[];(Array.isArray(o)?o:[]).forEach(x=>O[x.producto_id]=x.precio_oferta_usd);draw()})();
-</script></body></html>
+</script></body></html><script src="pedido.js"></script>
