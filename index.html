@@ -23,12 +23,12 @@ nav a{color:var(--k);text-decoration:none;font:400 11px var(--sans);margin-left:
 @keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
 .mono{display:block;margin:0 auto 22px}
 .hero small{display:block;color:var(--g);letter-spacing:.34em;font:400 11px var(--sans)}
-.hero h1{font:500 38px/1.12 var(--serif);margin:16px 0 18px;letter-spacing:.01em}
+.hero h1{font:500 38px/1.12 var(--serif);margin:16px 0 18px}
 .hero h1 em{color:var(--g);font-style:italic}
 .rule{width:56px;height:1px;background:var(--g);margin:0 auto 16px}
 .hero .sl{font:italic 400 19px var(--serif);color:#e7dcc3;margin-bottom:26px}
 .bt{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-.btn{display:inline-block;background:var(--g);color:var(--c);padding:13px 24px;font:500 12px var(--sans);letter-spacing:.16em;text-decoration:none;border:1px solid var(--g);cursor:pointer;transition:transform .2s,background .3s,color .3s}
+.btn{display:inline-block;background:var(--g);color:var(--c);padding:13px 24px;font:500 12px var(--sans);letter-spacing:.16em;text-decoration:none;border:1px solid var(--g);cursor:pointer;transition:transform .2s}
 .btn:active{transform:scale(.97)}
 .btn.o{background:none;color:var(--g)}
 .strip{background:#15130f;border-top:1px solid #c9a96e44;border-bottom:1px solid #c9a96e44;display:flex;flex-wrap:wrap;justify-content:center;gap:6px 26px;padding:14px 18px;color:#d9c9a3;font:400 11px var(--sans);letter-spacing:.14em;text-transform:uppercase;text-align:center}
@@ -50,12 +50,13 @@ h2::after{content:"";display:block;width:44px;height:1px;background:var(--g);mar
 .card b{display:block;font:600 18px/1.15 var(--serif);margin-bottom:6px}
 .p{font:500 17px var(--sans)}.old{text-decoration:line-through;color:#999;margin-right:6px;font-weight:400;font-size:14px}
 .tag{font-size:11px;color:#7a6335;letter-spacing:.08em;text-transform:uppercase}
-#m{display:none;position:fixed;inset:0;background:#000c;z-index:9;overflow:auto;opacity:0;transition:opacity .25s}
-#m.on{opacity:1}
-#m .box{position:relative;background:var(--k);max-width:520px;margin:20px auto;padding:18px;transform:translateY(28px);transition:transform .35s}
-#m.on .box{transform:none}
+#m,#ct{display:none;position:fixed;inset:0;background:#000c;z-index:9;overflow:auto;opacity:0;transition:opacity .25s}
+#m.on,#ct.on{opacity:1}
+#m .box,#ct .box{position:relative;background:var(--k);max-width:520px;margin:20px auto;padding:18px;transform:translateY(28px);transition:transform .35s}
+#m.on .box,#ct.on .box{transform:none}
 #m h2{font:500 28px/1.1 var(--serif);letter-spacing:.02em;text-transform:none;margin-bottom:10px}
 #m h2::after{margin-top:12px}
+#ct h2{font-size:22px;padding-right:40px}
 .cl{position:absolute;top:10px;right:10px;z-index:3;width:36px;height:36px;border-radius:50%;border:0;background:var(--c);color:var(--g);font:22px/1 sans-serif;cursor:pointer}
 .gal{position:relative;margin:-18px -18px 16px}
 .sl2{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;background:#fff}
@@ -65,10 +66,32 @@ h2::after{content:"";display:block;width:44px;height:1px;background:var(--g);mar
 .dots i{width:7px;height:7px;border-radius:4px;background:#0e0e0e44;transition:.25s}
 .dots i.on{background:var(--g);width:20px}
 #m p{font:400 15px/1.55 var(--sans);margin:8px 0}
-#m .btn{margin-top:10px}
+.row{display:flex;gap:10px;align-items:stretch;margin-top:14px}
+.row .btn{flex:1;text-align:center;margin:0}
+.qt{display:flex;align-items:center;border:1px solid #cdbf9f;background:#fff}
+.qt button{width:38px;border:0;background:none;font:20px sans-serif;cursor:pointer;padding:8px 0}
+.qt i{min-width:28px;text-align:center;font:500 15px var(--sans);font-style:normal}
+.lk{display:block;text-align:center;margin-top:12px;font:400 12px var(--sans);color:#7a6335;letter-spacing:.06em}
 .about{border-left:2px solid var(--g);padding-left:16px}
 .about p{font:400 16px/1.7 var(--sans)}
-footer{background:var(--c);color:var(--k);text-align:center;padding:36px 18px;font:400 12px var(--sans);letter-spacing:.08em;border-top:1px solid #c9a96e44}
+.fab{position:fixed;right:16px;bottom:16px;z-index:6;width:56px;height:56px;border-radius:50%;background:var(--c);border:1px solid var(--g);color:var(--g);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 16px #0006}
+.fab b{position:absolute;top:-4px;right:-4px;min-width:20px;height:20px;border-radius:10px;background:var(--g);color:var(--c);font:600 11px/20px var(--sans);text-align:center;padding:0 5px;display:none}
+#ts{position:fixed;left:50%;bottom:92px;transform:translate(-50%,20px);background:var(--c);color:var(--g);padding:10px 18px;font:400 13px var(--sans);letter-spacing:.06em;border:1px solid var(--g);opacity:0;pointer-events:none;transition:.3s;z-index:12;white-space:nowrap}
+#ts.on{opacity:1;transform:translate(-50%,0)}
+.ci{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid #e0d6bf;position:relative}
+.ci img{width:64px;height:64px;object-fit:cover;background:#fff;flex:none}
+.cd{flex:1;font:400 13px var(--sans);display:flex;flex-direction:column;gap:6px}
+.cd b{font:600 17px/1.1 var(--serif)}
+.cd .qt{align-self:flex-start}
+.cd .qt button{width:32px;padding:4px 0}
+.rm{border:0;background:none;font:22px sans-serif;cursor:pointer;color:#8a3b34;align-self:flex-start;padding:0 4px}
+.tt{font:400 16px var(--sans);margin:14px 0 4px;text-align:right}
+.sm{font:400 12px/1.4 var(--sans);color:#6b6252;margin:4px 0}
+#cf h3{font:500 20px var(--serif);margin:20px 0 6px;letter-spacing:.04em}
+#cf input,#cf select,#cf textarea{width:100%;padding:12px;margin:6px 0;border:1px solid #cdbf9f;background:#fff;font:400 15px var(--sans);color:var(--c);border-radius:0}
+#er{color:#8a3b34;font:500 13px var(--sans);min-height:18px;margin:6px 0}
+#cf .btn{width:100%;text-align:center}
+footer{background:var(--c);color:var(--k);text-align:center;padding:36px 18px 90px;font:400 12px var(--sans);letter-spacing:.08em;border-top:1px solid #c9a96e44}
 footer svg{display:block;margin:0 auto 12px}
 footer i{display:block;color:var(--g);margin-bottom:12px;font:italic 400 19px var(--serif);letter-spacing:.02em}
 @media(max-width:380px){.brand svg{display:none}nav a{margin-left:9px}}
@@ -88,16 +111,49 @@ footer i{display:block;color:var(--g);margin-bottom:12px;font:italic 400 19px va
 <section id="catalogo"><h2>Catálogo</h2><div class="chips" id="ch"></div><div class="grid" id="gr"></div></section>
 <section id="nosotros"><h2>Sobre VOLXEN</h2><div class="about"><p>VOLXEN es una comercializadora de tecnología y energía en Cuba: electrodomésticos, climatización, refrigeración, energía solar, movilidad eléctrica, cocina, TV y audio.</p></div><br><a class="btn" id="wa" href="#">ESCRÍBENOS POR WHATSAPP</a></section>
 <footer><svg viewBox="0 0 40 40" width="40" height="40" fill="none" stroke="#c9a96e" stroke-width="1.1"><circle cx="20" cy="20" r="18"/><path d="M11 12l9 17 9-17" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><i>Transparencia y confianza en cada venta</i>© VOLXEN · Comercializadora</footer>
+
+<button class="fab" onclick="abrirC()" aria-label="Ver mi pedido"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l-1 13H7L6 7z"/><path d="M9 7a3 3 0 016 0"/></svg><b id="bd">0</b></button>
+<div id="ts"></div>
+
 <div id="m" onclick="if(event.target===this)cerrar()"><div class="box" id="mb"></div></div>
+
+<div id="ct" onclick="if(event.target===this)cerrarC()"><div class="box">
+<button class="cl" onclick="cerrarC()">×</button>
+<h2>Tu pedido</h2>
+<div id="cl"></div>
+<div id="cf" style="display:none">
+<h3>Tus datos</h3>
+<input id="fn" placeholder="Nombre y apellidos *" autocomplete="name">
+<input id="fc" inputmode="numeric" maxlength="11" placeholder="Carnet de identidad (opcional)">
+<p class="sm">El carnet es opcional. Solo viaja dentro de tu mensaje de WhatsApp: esta web no lo guarda.</p>
+<select id="fp" onchange="mun()"></select>
+<div id="fm"></div>
+<input id="fd" placeholder="Localidad y dirección *" autocomplete="street-address">
+<textarea id="fo" rows="2" placeholder="Notas (opcional)"></textarea>
+<p id="er"></p>
+<button class="btn" onclick="enviar()">ENVIAR PEDIDO POR WHATSAPP</button>
+<a class="lk" href="#" onclick="vaciar();return false">Vaciar pedido</a>
+</div>
+</div></div>
+
 <script src="config.js"></script>
 <script>
 const C=window.VOLXEN_CONFIG,H={apikey:C.SUPABASE_KEY};
 const q=p=>fetch(C.SUPABASE_URL+"/rest/v1/"+p,{headers:H}).then(r=>r.json());
+const $=i=>document.getElementById(i);
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const D={disponible:"Disponible",bajo_pedido:"Bajo pedido",agotado:"Agotado"};
 const wa=t=>"https://wa.me/"+(C.WHATSAPP||"")+"?text="+encodeURIComponent(t);
-let P=[],O={},cat="";
+const fmt=n=>String(Math.round(n*100)/100);
+const PROV=["Pinar del Río","Artemisa","La Habana","Mayabeque","Matanzas","Villa Clara","Cienfuegos","Sancti Spíritus","Ciego de Ávila","Camagüey","Las Tunas","Holguín","Granma","Santiago de Cuba","Guantánamo","Isla de la Juventud"];
+const MUNH=["Playa","Plaza de la Revolución","Centro Habana","La Habana Vieja","Regla","La Habana del Este","Guanabacoa","San Miguel del Padrón","Diez de Octubre","Cerro","Marianao","La Lisa","Boyeros","Arroyo Naranjo","Cotorro"];
+let P=[],O={},cat="",CT=[],MQ=1;
+try{CT=JSON.parse(localStorage.getItem("vx_cart")||"[]")}catch(e){CT=[]}
+const sv=()=>{try{localStorage.setItem("vx_cart",JSON.stringify(CT))}catch(e){}};
 const fotos=p=>(p.imagenes&&p.imagenes.length)?p.imagenes:(p.imagen_principal?[p.imagen_principal]:[]);
+const pu=p=>O[p.id]!=null?+O[p.id]:+p.precio_usd;
+function badge(){const n=CT.reduce((a,x)=>a+x.q,0),b=$("bd");b.textContent=n;b.style.display=n?"block":"none"}
+function toast(t){const e=$("ts");e.textContent=t;e.classList.add("on");setTimeout(()=>e.classList.remove("on"),1800)}
 function card(p){const o=O[p.id];const pr=o?'<span class="old">$'+p.precio_usd+'</span>$'+o:'$'+p.precio_usd;
 return '<div class="card" onclick="ver(\''+p.id+'\')"><img src="'+esc(fotos(p)[0])+'" alt=""><div><b>'+esc(p.nombre)+'</b><span class="p">'+pr+' USD</span><br><span class="tag">'+(D[p.disponibilidad]||"")+'</span></div></div>'}
 function reveal(){const els=document.querySelectorAll(".card:not(.in)");
@@ -105,25 +161,47 @@ if(!("IntersectionObserver" in window)){els.forEach(c=>c.classList.add("in"));re
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{threshold:.1});
 els.forEach(c=>io.observe(c))}
 function draw(){
-document.getElementById("gr").innerHTML=P.filter(p=>!cat||p.categoria_id===cat).map(card).join("")||"<p>Próximamente.</p>";
-document.getElementById("of").innerHTML=P.filter(p=>O[p.id]).map(card).join("")||"<p>Pronto nuevas ofertas.</p>";
+$("gr").innerHTML=P.filter(p=>!cat||p.categoria_id===cat).map(card).join("")||"<p>Próximamente.</p>";
+$("of").innerHTML=P.filter(p=>O[p.id]).map(card).join("")||"<p>Pronto nuevas ofertas.</p>";
 reveal()}
-function cerrar(){const m=document.getElementById("m");m.classList.remove("on");setTimeout(()=>{m.style.display="none";document.body.style.overflow=""},250)}
-function ver(id){const p=P.find(x=>x.id===id),o=O[id];
+function show(id){const m=$(id);m.style.display="block";m.scrollTop=0;document.body.style.overflow="hidden";requestAnimationFrame(()=>requestAnimationFrame(()=>m.classList.add("on")))}
+function hide(id){const m=$(id);m.classList.remove("on");setTimeout(()=>{m.style.display="none";if(!$("m").classList.contains("on")&&!$("ct").classList.contains("on"))document.body.style.overflow=""},250)}
+function cerrar(){hide("m")}
+function cerrarC(){hide("ct")}
+function qm(d){MQ=Math.max(1,Math.min(99,MQ+d));$("mq").textContent=MQ}
+function add(id){const x=CT.find(c=>c.id===id);if(x)x.q=Math.min(99,x.q+MQ);else CT.push({id:id,q:MQ});sv();badge();cerrar();toast("Añadido al pedido")}
+function ver(id){MQ=1;const p=P.find(x=>x.id===id),o=O[id];
 const f=(p.caracteristicas||[]).map(x=>"<li>"+esc(x)+"</li>").join("");
 const im=fotos(p);
 const dots=im.length>1?'<div class="dots">'+im.map((u,i)=>'<i class="'+(i?"":"on")+'"></i>').join("")+'</div>':"";
-document.getElementById("mb").innerHTML='<button class="cl" onclick="cerrar()">×</button><div class="gal"><div class="sl2">'+im.map(u=>'<img src="'+esc(u)+'" alt="">').join("")+'</div>'+dots+'</div><h2>'+esc(p.nombre)+'</h2><p class="p">'+(o?'<span class="old">$'+p.precio_usd+'</span>$'+o:'$'+p.precio_usd)+' USD</p><p>'+esc(p.descripcion)+'</p><ul style="font:400 14px var(--sans);margin-left:18px">'+f+'</ul><p><b>Disponibilidad:</b> '+(D[p.disponibilidad]||"")+'</p><p><b>Garantía:</b> '+esc(p.garantia)+'</p><p><b>Transporte:</b> '+esc(p.transporte)+'</p><a class="btn" target="_blank" href="'+wa("Hola VOLXEN, me interesa: "+p.nombre)+'">PEDIR POR WHATSAPP</a>';
+$("mb").innerHTML='<button class="cl" onclick="cerrar()">×</button><div class="gal"><div class="sl2">'+im.map(u=>'<img src="'+esc(u)+'" alt="">').join("")+'</div>'+dots+'</div><h2>'+esc(p.nombre)+'</h2><p class="p">'+(o?'<span class="old">$'+p.precio_usd+'</span>$'+o:'$'+p.precio_usd)+' USD</p><p>'+esc(p.descripcion)+'</p><ul style="font:400 14px var(--sans);margin-left:18px">'+f+'</ul><p><b>Disponibilidad:</b> '+(D[p.disponibilidad]||"")+'</p><p><b>Garantía:</b> '+esc(p.garantia)+'</p><p><b>Transporte:</b> '+esc(p.transporte)+'</p><div class="row"><div class="qt"><button onclick="qm(-1)">−</button><i id="mq">1</i><button onclick="qm(1)">+</button></div><a class="btn" href="#" onclick="add(\''+p.id+'\');return false">AÑADIR AL PEDIDO</a></div><a class="lk" target="_blank" href="'+wa("Hola VOLXEN, quiero consultar sobre: "+p.nombre)+'">Consultar este producto por WhatsApp</a>';
 const sl=document.querySelector("#mb .sl2"),ds=document.querySelectorAll("#mb .dots i");
 if(sl&&ds.length)sl.onscroll=()=>{const i=Math.round(sl.scrollLeft/sl.clientWidth);ds.forEach((d,j)=>d.className=j===i?"on":"")};
-const m=document.getElementById("m");m.style.display="block";m.scrollTop=0;document.body.style.overflow="hidden";
-requestAnimationFrame(()=>requestAnimationFrame(()=>m.classList.add("on")))}
+show("m")}
+function rows(){return CT.map(c=>({p:P.find(x=>x.id===c.id),q:c.q})).filter(r=>r.p)}
+function renderL(){const rs=rows(),el=$("cl");
+if(!rs.length){el.innerHTML='<p>Tu pedido está vacío. Añade productos desde el catálogo.</p>';$("cf").style.display="none";return}
+$("cf").style.display="block";let t=0;
+el.innerHTML=rs.map(r=>{const s=pu(r.p)*r.q;t+=s;return '<div class="ci"><img src="'+esc(fotos(r.p)[0])+'" alt=""><div class="cd"><b>'+esc(r.p.nombre)+'</b><span>$'+fmt(pu(r.p))+' USD</span><div class="qt"><button onclick="cq(\''+r.p.id+'\',-1)">−</button><i>'+r.q+'</i><button onclick="cq(\''+r.p.id+'\',1)">+</button></div></div><button class="rm" onclick="cq(\''+r.p.id+'\',-99)">×</button></div>'}).join("")+'<p class="tt">Total estimado: <b>$'+fmt(t)+' USD</b></p><p class="sm">El total final, la disponibilidad y la entrega se confirman por WhatsApp.</p>'}
+function cq(id,d){const x=CT.find(c=>c.id===id);if(!x)return;x.q+=d;if(x.q>99)x.q=99;if(x.q<=0)CT=CT.filter(c=>c.id!==id);sv();badge();renderL()}
+function vaciar(){if(confirm("¿Vaciar el pedido?")){CT=[];sv();badge();renderL()}}
+function abrirC(){renderL();show("ct")}
+function mun(){const p=$("fp").value;
+$("fm").innerHTML=p==="La Habana"?'<select id="fmu"><option value="">Municipio *</option>'+MUNH.map(m=>'<option>'+m+'</option>').join("")+'</select>':'<input id="fmu" placeholder="Municipio *">'}
+function enviar(){const rs=rows(),er=$("er");er.textContent="";
+if(!rs.length){er.textContent="Tu pedido está vacío.";return}
+const n=$("fn").value.trim(),pv=$("fp").value,mu=($("fmu")?$("fmu").value:"").trim(),dr=$("fd").value.trim(),ci=$("fc").value.trim(),nt=$("fo").value.trim();
+if(!n||!pv||!mu||!dr){er.textContent="Completa nombre, provincia, municipio y dirección.";return}
+let t=0;const ls=rs.map(r=>{const s=pu(r.p)*r.q;t+=s;return "• "+r.q+" x "+r.p.nombre+" — $"+fmt(pu(r.p))+" c/u = $"+fmt(s)});
+let msg="Hola VOLXEN, quiero hacer este pedido:\n\n"+ls.join("\n")+"\n\nTotal estimado: $"+fmt(t)+" USD\n\nDATOS DEL CLIENTE\nNombre: "+n+(ci?"\nCarnet de identidad: "+ci:"")+"\nProvincia: "+pv+"\nMunicipio: "+mu+"\nLocalidad y dirección: "+dr+(nt?"\nNotas: "+nt:"");
+window.open(wa(msg),"_blank")}
 async function init(){
-document.getElementById("wa").href=wa("Hola VOLXEN, quiero información.");
-document.getElementById("wa2").href=wa("Hola VOLXEN, quiero información.");
+$("wa").href=wa("Hola VOLXEN, quiero información.");
+$("wa2").href=wa("Hola VOLXEN, quiero información.");
+$("fp").innerHTML='<option value="">Provincia *</option>'+PROV.map(x=>'<option>'+x+'</option>').join("");mun();badge();
 const[c,p,o]=await Promise.all([q("categorias?order=orden"),q("productos?activo=eq.true&order=created_at.desc"),q("ofertas?activa=eq.true")]);
 P=Array.isArray(p)?p:[];(Array.isArray(o)?o:[]).forEach(x=>O[x.producto_id]=x.precio_oferta_usd);
-const ch=document.getElementById("ch");
+const ch=$("ch");
 const all=[{id:"",nombre:"Todo"}].concat(Array.isArray(c)?c:[]);
 ch.innerHTML=all.map(x=>'<button data-i="'+x.id+'" class="'+(x.id===cat?"on":"")+'">'+esc(x.nombre)+'</button>').join("");
 ch.onclick=e=>{if(e.target.dataset.i===undefined)return;cat=e.target.dataset.i;[...ch.children].forEach(b=>b.className=b.dataset.i===cat?"on":"");draw()};
