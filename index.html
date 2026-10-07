@@ -5,114 +5,195 @@
 <title>VOLXEN | Comercializadora de tecnología y energía</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--c:#0e0e0e;--k:#f6f1e7;--g:#c9a96e;--serif:'Cormorant Garamond',Georgia,serif;--sans:'Jost',system-ui,sans-serif}
+:root{--bg:#121212;--sf:#1a1a1a;--ln:#2c2820;--g:#c9a96e;--cr:#f1ead9;--mu:#a8a090;--serif:'Cormorant Garamond',Georgia,serif;--sans:'Jost',system-ui,sans-serif}
 *{box-sizing:border-box;margin:0}
 html{scroll-behavior:smooth}
-body{font-family:var(--sans);background:var(--k);color:var(--c)}
-header{background:var(--c);color:var(--k);padding:12px 18px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:5;border-bottom:1px solid #c9a96e33}
-.brand{display:flex;align-items:center;gap:10px;text-decoration:none}
-.brand span{display:flex;flex-direction:column}
-.brand b{font:500 20px var(--serif);letter-spacing:.32em;color:var(--g);line-height:1}
-.brand small{font:400 7.5px var(--sans);letter-spacing:.32em;color:#c9a96eaa;margin-top:4px}
-nav a{color:var(--k);text-decoration:none;font:400 11px var(--sans);margin-left:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.85}
-.hero{background:radial-gradient(ellipse at 50% 0%,#241f15 0%,#0e0e0e 70%);color:var(--k);padding:56px 22px 52px;text-align:center}
+body{font-family:var(--sans);background:var(--bg);color:var(--cr)}
+section{scroll-margin-top:70px}
+/* bienvenida */
+#vw{position:fixed;inset:0;z-index:100;background:radial-gradient(ellipse at 50% 38%,#17130c 0%,#0b0b0b 65%);transition:opacity .7s;overflow:hidden}
+#vw.out{opacity:0;pointer-events:none}
+#vw svg.vv{position:absolute;inset:0;width:100%;height:100%}
+.vwc{position:relative;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 20px 40px}
+.vwi{opacity:0;transform:translateY(14px);animation:vwup 1s forwards}
+@keyframes vwup{to{opacity:1;transform:none}}
+@keyframes vwln{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.vwl{width:100%;height:1px;margin:30px 0 28px;opacity:0;animation:vwup .01s .5s forwards}
+.vwl i{display:block;height:1px;background:linear-gradient(90deg,transparent,#6b5530,transparent);transform:scaleX(0);animation:vwln 1s .5s forwards}
+.vwn{font:500 44px/1 var(--serif);letter-spacing:.4em;padding-left:.4em;color:#efe6d2}
+.vwr{width:100px;height:1px;background:#6b5530;margin:26px auto}
+.vws{font:400 12px var(--sans);letter-spacing:.3em;color:var(--mu);padding-left:.3em}
+#vwb{position:absolute;left:50%;bottom:max(60px,calc(env(safe-area-inset-bottom) + 40px));margin-left:-80px;width:160px;background:none;border:1px solid #4a4132;color:#cfc7b4;font:400 13px var(--sans);letter-spacing:.38em;padding:16px 0 16px .38em;cursor:pointer;transition:border-color .3s,color .3s}
+#vwb:active{border-color:var(--g);color:var(--g)}
+.vwlg{filter:drop-shadow(0 0 14px rgba(201,169,110,.28))}
+/* cabecera y menú */
+header{background:#0e0e0e;padding:12px 18px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:5;border-bottom:1px solid #c9a96e33}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--cr)}
+.lg{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--g);background:#0b0b0b;color:var(--g);font:600 22px/35px var(--serif);text-align:center}
+.bn{display:flex;flex-direction:column}
+.bn b{font:500 19px/1 var(--serif);letter-spacing:.34em;color:var(--cr)}
+.bn small{font:400 7.5px var(--sans);letter-spacing:.26em;color:var(--g);margin-top:5px}
+.mb{background:none;border:0;color:var(--cr);cursor:pointer;padding:8px}
+.mb svg{width:26px;height:26px;stroke:currentColor;stroke-width:1.5;fill:none;stroke-linecap:round}
+#dr{display:none;position:fixed;inset:0;z-index:20;background:#000a;opacity:0;transition:opacity .3s}
+#dr.on{opacity:1}
+.pn{position:absolute;top:0;right:0;bottom:0;width:min(86vw,340px);background:#1a1a1a;overflow:auto;transform:translateX(100%);transition:transform .35s}
+#dr.on .pn{transform:none}
+.ph{text-align:center;padding:36px 20px 26px;border-bottom:1px solid #3a2f1f;position:relative}
+.ph .lg{width:60px;height:60px;font-size:36px;line-height:56px;margin:0 auto 18px;border-width:2px}
+.ph b{display:block;font:500 28px/1 var(--serif);letter-spacing:.4em;padding-left:.4em;color:var(--cr)}
+.ph small{display:block;margin-top:14px;font:400 11px var(--sans);letter-spacing:.2em;color:var(--g)}
+.xx{position:absolute;top:10px;right:10px;width:34px;height:34px;border:0;background:none;color:var(--mu);font:24px/1 sans-serif;cursor:pointer}
+.pn a.it{display:flex;align-items:center;gap:20px;padding:18px 26px;color:var(--cr);text-decoration:none;font:400 17px var(--sans)}
+.pn a.it:active{background:#242424}
+.pn a.it svg{width:22px;height:22px;stroke:var(--cr);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
+/* portada */
+.hero{background:radial-gradient(ellipse at 50% 0%,#241f15 0%,#0e0e0e 72%);padding:58px 22px 54px;text-align:center;border-bottom:1px solid #c9a96e33}
 .hero>*{animation:up .9s both}
-.hero>:nth-child(2){animation-delay:.1s}.hero>:nth-child(3){animation-delay:.2s}.hero>:nth-child(4){animation-delay:.3s}.hero>:nth-child(5){animation-delay:.4s}.hero>:nth-child(6){animation-delay:.5s}
+.hero>:nth-child(2){animation-delay:.1s}.hero>:nth-child(3){animation-delay:.2s}.hero>:nth-child(4){animation-delay:.3s}.hero>:nth-child(5){animation-delay:.4s}
 @keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
-.mono{display:block;margin:0 auto 22px}
-.hero small{display:block;color:var(--g);letter-spacing:.34em;font:400 11px var(--sans)}
-.hero h1{font:500 38px/1.12 var(--serif);margin:16px 0 18px}
+.hero .ey{color:var(--g);letter-spacing:.3em;font:400 11px var(--sans)}
+.hero h1{font:500 42px/1.08 var(--serif);margin:18px 0 16px}
 .hero h1 em{color:var(--g);font-style:italic}
-.rule{width:56px;height:1px;background:var(--g);margin:0 auto 16px}
-.hero .sl{font:italic 400 19px var(--serif);color:#e7dcc3;margin-bottom:26px}
-.bt{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-.btn{display:inline-block;background:var(--g);color:var(--c);padding:13px 24px;font:500 12px var(--sans);letter-spacing:.16em;text-decoration:none;border:1px solid var(--g);cursor:pointer;transition:transform .2s}
+.hero .sl{font:italic 400 20px var(--serif);color:#d9cfb6;margin-bottom:28px}
+.bt{display:flex;flex-direction:column;align-items:center;gap:18px}
+.btn{display:inline-block;background:var(--g);color:#0e0e0e;padding:14px 28px;font:500 12px var(--sans);letter-spacing:.18em;text-decoration:none;border:1px solid var(--g);cursor:pointer;transition:transform .2s}
 .btn:active{transform:scale(.97)}
-.btn.o{background:none;color:var(--g)}
-.strip{background:#15130f;border-top:1px solid #c9a96e44;border-bottom:1px solid #c9a96e44;display:flex;flex-wrap:wrap;justify-content:center;gap:6px 26px;padding:14px 18px;color:#d9c9a3;font:400 11px var(--sans);letter-spacing:.14em;text-transform:uppercase;text-align:center}
+.al{color:var(--g);text-decoration:none;font:400 16px var(--sans)}
+.strip{background:#0d0d0d;border-bottom:1px solid #c9a96e33;display:flex;flex-wrap:wrap;justify-content:center;gap:6px 26px;padding:14px 18px;color:#cfc3a5;font:400 11px var(--sans);letter-spacing:.14em;text-transform:uppercase;text-align:center}
 .strip span::before{content:"◆";color:var(--g);margin-right:8px;font-size:7px;vertical-align:middle}
-section{padding:40px 18px;max-width:1100px;margin:auto}
-h2{font:500 24px var(--serif);letter-spacing:.2em;margin-bottom:22px;text-transform:uppercase}
-h2::after{content:"";display:block;width:44px;height:1px;background:var(--g);margin-top:10px}
-.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
-.chips button{border:1px solid #cdbf9f;background:none;padding:9px 15px;font:400 12px var(--sans);letter-spacing:.06em;cursor:pointer;transition:.25s;color:var(--c)}
-.chips .on{background:var(--c);color:var(--g);border-color:var(--c)}
+/* secciones */
+section{padding:48px 18px 20px;max-width:1100px;margin:auto}
+.ey2{color:var(--g);font:400 11px var(--sans);letter-spacing:.3em;text-transform:uppercase;margin-bottom:10px}
+h2{font:500 34px/1.1 var(--serif);margin-bottom:24px;color:var(--cr)}
+.chips{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;margin:0 -18px 22px;padding:0 18px}
+.chips::-webkit-scrollbar{display:none}
+.chips button{flex:none;border:1px solid #3a342a;background:none;color:var(--cr);padding:10px 18px;border-radius:999px;font:400 13px var(--sans);letter-spacing:.04em;cursor:pointer;transition:.25s}
+.chips .on{background:var(--g);color:#0e0e0e;border-color:var(--g)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:14px}
-.card{background:#fff;border:1px solid #e8dfcc;cursor:pointer;overflow:hidden;opacity:0;transform:translateY(16px);transition:opacity .6s,transform .6s,box-shadow .3s}
+.card{background:var(--sf);border:1px solid var(--ln);cursor:pointer;overflow:hidden;opacity:0;transform:translateY(16px);transition:opacity .6s,transform .6s,border-color .3s}
 .card.in{opacity:1;transform:none}
 .card:active{transform:scale(.98)}
-.card:hover{box-shadow:0 8px 22px #0002}
-.card img{width:100%;aspect-ratio:1;object-fit:cover;background:#ece5d6;display:block;transition:transform .5s}
-.card:hover img{transform:scale(1.05)}
-.card div{padding:12px;font:400 13px var(--sans);border-top:1px solid #c9a96e55}
-.card b{display:block;font:600 18px/1.15 var(--serif);margin-bottom:6px}
-.p{font:500 17px var(--sans)}.old{text-decoration:line-through;color:#999;margin-right:6px;font-weight:400;font-size:14px}
-.tag{font-size:11px;color:#7a6335;letter-spacing:.08em;text-transform:uppercase}
-#m,#ct{display:none;position:fixed;inset:0;background:#000c;z-index:9;overflow:auto;opacity:0;transition:opacity .25s}
+.card:hover{border-color:#5a4727}
+.card img{width:100%;aspect-ratio:1;object-fit:contain;padding:8px;background:#f4f1ea;display:block;transition:transform .5s}
+.card:hover img{transform:scale(1.04)}
+.card div{padding:14px;font:400 13px var(--sans);border-top:1px solid #3a2f1f}
+.card b{display:block;font:500 20px/1.15 var(--serif);margin-bottom:8px;color:var(--cr)}
+.p{font:500 17px var(--sans);color:var(--cr)}.old{text-decoration:line-through;color:#7d766a;margin-right:6px;font-weight:400;font-size:14px}
+.tag{font-size:11px;color:var(--g);letter-spacing:.1em;text-transform:uppercase}
+.empty{color:var(--mu);font:400 15px var(--sans)}
+.about{border-left:2px solid var(--g);padding-left:16px;margin-bottom:26px}
+.about p{font:300 17px/1.75 var(--sans);color:#d9cfb6}
+details{border-bottom:1px solid var(--ln);padding:18px 0}
+details summary{cursor:pointer;font:400 17px var(--sans);list-style:none;display:flex;justify-content:space-between;gap:12px;color:var(--cr)}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:"+";color:var(--g);font-size:22px;line-height:1}
+details[open] summary::after{content:"–"}
+details p{margin-top:12px;font:300 15px/1.65 var(--sans);color:#cfc7b4}
+footer{background:#0b0b0b;text-align:center;padding:40px 18px 100px;font:400 12px var(--sans);letter-spacing:.08em;border-top:1px solid #c9a96e33;margin-top:40px;color:var(--mu)}
+footer svg{display:block;margin:0 auto 14px}
+footer i{display:block;color:var(--g);margin-bottom:12px;font:italic 400 20px var(--serif);letter-spacing:.02em}
+/* fichas y pedido */
+#m,#ct{display:none;position:fixed;inset:0;background:#000d;z-index:30;overflow:auto;opacity:0;transition:opacity .25s}
 #m.on,#ct.on{opacity:1}
-#m .box,#ct .box{position:relative;background:var(--k);max-width:520px;margin:20px auto;padding:18px;transform:translateY(28px);transition:transform .35s}
+#m .box,#ct .box{position:relative;background:#161616;border:1px solid #3a2f1f;max-width:520px;margin:20px auto;padding:18px;transform:translateY(28px);transition:transform .35s}
 #m.on .box,#ct.on .box{transform:none}
-#m h2{font:500 28px/1.1 var(--serif);letter-spacing:.02em;text-transform:none;margin-bottom:10px}
-#m h2::after{margin-top:12px}
-#ct h2{font-size:22px;padding-right:40px}
-.cl{position:absolute;top:10px;right:10px;z-index:3;width:36px;height:36px;border-radius:50%;border:0;background:var(--c);color:var(--g);font:22px/1 sans-serif;cursor:pointer}
-.gal{position:relative;margin:-18px -18px 16px}
-.sl2{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;background:#fff}
+#m h2{font:500 32px/1.1 var(--serif);margin-bottom:10px}
+#ct h2{font-size:28px;padding-right:40px}
+.cl{position:absolute;top:10px;right:10px;z-index:3;width:36px;height:36px;border-radius:50%;border:1px solid var(--g);background:#0e0e0e;color:var(--g);font:22px/1 sans-serif;cursor:pointer}
+.gal{position:relative;margin:-18px -18px 18px}
+.sl2{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;background:#f4f1ea}
 .sl2::-webkit-scrollbar{display:none}
-.sl2 img{flex:none;width:100%;scroll-snap-align:center;aspect-ratio:1;object-fit:contain;display:block}
+.sl2 img{flex:none;width:100%;scroll-snap-align:center;aspect-ratio:1;object-fit:contain;display:block;padding:10px}
 .dots{position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:center;gap:6px}
 .dots i{width:7px;height:7px;border-radius:4px;background:#0e0e0e44;transition:.25s}
 .dots i.on{background:var(--g);width:20px}
-#m p{font:400 15px/1.55 var(--sans);margin:8px 0}
-.row{display:flex;gap:10px;align-items:stretch;margin-top:14px}
+#m p{font:300 16px/1.6 var(--sans);margin:10px 0;color:#d9cfb6}
+#m p b{font-weight:500;color:var(--cr)}
+#m ul{color:#d9cfb6}
+.row{display:flex;gap:10px;align-items:stretch;margin-top:16px}
 .row .btn{flex:1;text-align:center;margin:0}
-.qt{display:flex;align-items:center;border:1px solid #cdbf9f;background:#fff}
-.qt button{width:38px;border:0;background:none;font:20px sans-serif;cursor:pointer;padding:8px 0}
+.qt{display:flex;align-items:center;border:1px solid #3a342a;background:#1c1c1c;color:var(--cr)}
+.qt button{width:38px;border:0;background:none;color:var(--cr);font:20px sans-serif;cursor:pointer;padding:8px 0}
 .qt i{min-width:28px;text-align:center;font:500 15px var(--sans);font-style:normal}
-.lk{display:block;text-align:center;margin-top:12px;font:400 12px var(--sans);color:#7a6335;letter-spacing:.06em}
-.about{border-left:2px solid var(--g);padding-left:16px}
-.about p{font:400 16px/1.7 var(--sans)}
-.fab{position:fixed;right:16px;bottom:16px;z-index:6;width:56px;height:56px;border-radius:50%;background:var(--c);border:1px solid var(--g);color:var(--g);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 16px #0006}
-.fab b{position:absolute;top:-4px;right:-4px;min-width:20px;height:20px;border-radius:10px;background:var(--g);color:var(--c);font:600 11px/20px var(--sans);text-align:center;padding:0 5px;display:none}
-#ts{position:fixed;left:50%;bottom:92px;transform:translate(-50%,20px);background:var(--c);color:var(--g);padding:10px 18px;font:400 13px var(--sans);letter-spacing:.06em;border:1px solid var(--g);opacity:0;pointer-events:none;transition:.3s;z-index:12;white-space:nowrap}
+.lk{display:block;text-align:center;margin-top:14px;font:400 13px var(--sans);color:var(--g);text-decoration:none}
+.fab{position:fixed;right:16px;bottom:16px;z-index:6;width:56px;height:56px;border-radius:50%;background:var(--g);border:0;color:#0e0e0e;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 18px #000a}
+.fab svg{width:25px;height:25px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.fab b{position:absolute;top:-4px;right:-4px;min-width:20px;height:20px;border-radius:10px;background:#0e0e0e;border:1px solid var(--g);color:var(--g);font:600 11px/18px var(--sans);text-align:center;padding:0 5px;display:none}
+#ts{position:fixed;left:50%;bottom:92px;transform:translate(-50%,20px);background:#1a1a1a;color:var(--cr);padding:10px 18px;font:400 13px var(--sans);letter-spacing:.06em;border:1px solid var(--g);opacity:0;pointer-events:none;transition:.3s;z-index:40;white-space:nowrap}
 #ts.on{opacity:1;transform:translate(-50%,0)}
-.ci{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid #e0d6bf;position:relative}
-.ci img{width:64px;height:64px;object-fit:cover;background:#fff;flex:none}
-.cd{flex:1;font:400 13px var(--sans);display:flex;flex-direction:column;gap:6px}
-.cd b{font:600 17px/1.1 var(--serif)}
+.ci{display:flex;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--ln)}
+.ci img{width:64px;height:64px;object-fit:contain;background:#f4f1ea;flex:none;padding:3px}
+.cd{flex:1;font:400 13px var(--sans);display:flex;flex-direction:column;gap:6px;color:#d9cfb6}
+.cd b{font:500 18px/1.1 var(--serif);color:var(--cr)}
 .cd .qt{align-self:flex-start}
 .cd .qt button{width:32px;padding:4px 0}
-.rm{border:0;background:none;font:22px sans-serif;cursor:pointer;color:#8a3b34;align-self:flex-start;padding:0 4px}
-.tt{font:400 16px var(--sans);margin:14px 0 4px;text-align:right}
-.sm{font:400 12px/1.4 var(--sans);color:#6b6252;margin:4px 0}
-#cf h3{font:500 20px var(--serif);margin:20px 0 6px;letter-spacing:.04em}
-#cf input,#cf select,#cf textarea{width:100%;padding:12px;margin:6px 0;border:1px solid #cdbf9f;background:#fff;font:400 15px var(--sans);color:var(--c);border-radius:0}
-#er{color:#8a3b34;font:500 13px var(--sans);min-height:18px;margin:6px 0}
+.rm{border:0;background:none;font:22px sans-serif;cursor:pointer;color:#c47a70;align-self:flex-start;padding:0 4px}
+.tt{font:400 16px var(--sans);margin:16px 0 4px;text-align:right}
+.tt b{color:var(--g);font-weight:500}
+.sm{font:300 12px/1.45 var(--sans);color:var(--mu);margin:4px 0}
+#cf h3{font:500 22px var(--serif);margin:22px 0 6px}
+#cf input,#cf select,#cf textarea{width:100%;padding:13px;margin:6px 0;border:1px solid #3a342a;background:#1c1c1c;font:400 15px var(--sans);color:var(--cr);border-radius:0;appearance:none;-webkit-appearance:none}
+#cf input::placeholder,#cf textarea::placeholder{color:#8a8374}
+#cf select option{background:#1c1c1c;color:var(--cr)}
+#er{color:#e08f84;font:500 13px var(--sans);min-height:18px;margin:6px 0}
 #cf .btn{width:100%;text-align:center}
-footer{background:var(--c);color:var(--k);text-align:center;padding:36px 18px 90px;font:400 12px var(--sans);letter-spacing:.08em;border-top:1px solid #c9a96e44}
-footer svg{display:block;margin:0 auto 12px}
-footer i{display:block;color:var(--g);margin-bottom:12px;font:italic 400 19px var(--serif);letter-spacing:.02em}
-@media(max-width:380px){.brand svg{display:none}nav a{margin-left:9px}}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.card{opacity:1;transform:none}}
+@media(max-width:380px){.bn small{display:none}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.card,.vwi,.vwl,.vwl i{opacity:1;transform:none}}
 </style></head><body>
-<header><a class="brand" href="#"><svg viewBox="0 0 40 40" width="34" height="34" fill="none" stroke="#c9a96e" stroke-width="1.2"><circle cx="20" cy="20" r="18"/><path d="M11 12l9 17 9-17" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b>VOLXEN</b><small>COMERCIALIZADORA</small></span></a><nav><a href="#ofertas">Ofertas</a><a href="#catalogo">Catálogo</a><a href="#nosotros">Nosotros</a></nav></header>
+
+<div id="vw">
+<svg class="vv" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice" fill="none" stroke="#5a4727" stroke-width=".8" opacity=".38"><path d="M-10 120C60 150 90 100 150 140S260 200 330 150S390 90 420 110"/><path d="M0 420C70 380 120 450 200 430S330 360 410 400"/><path d="M120 800C140 700 100 640 170 590S260 520 250 440"/><path d="M420 560C360 600 380 680 320 720"/><path d="M-10 640C40 610 70 660 130 640"/></svg>
+<div class="vwc">
+<svg class="vwi vwlg" style="animation-delay:.1s" width="86" height="86" viewBox="0 0 100 100"><defs><linearGradient id="vwg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f2dfb0"/><stop offset=".55" stop-color="#c9a96e"/><stop offset="1" stop-color="#8f6a2c"/></linearGradient></defs><path d="M0 0H24L50 64L76 0H100L50 100Z" fill="url(#vwg)"/></svg>
+<div class="vwl"><i></i></div>
+<div class="vwi vwn" style="animation-delay:.6s">VOLXEN</div>
+<div class="vwi vwr" style="animation-delay:.9s"></div>
+<div class="vwi vws" style="animation-delay:1s">COMERCIALIZACIÓN · LA HABANA</div>
+</div>
+<button id="vwb" class="vwi" style="animation-delay:1.3s" onclick="entrar()">ENTRAR</button>
+</div>
+<script>
+function entrar(){var d=document.getElementById("vw");try{sessionStorage.setItem("vx_w","1")}catch(e){}d.classList.add("out");document.body.style.overflow="";setTimeout(function(){d.remove()},700)}
+try{if(sessionStorage.getItem("vx_w")){document.getElementById("vw").remove()}else{document.body.style.overflow="hidden"}}catch(e){document.body.style.overflow="hidden"}
+</script>
+
+<header><a class="brand" href="#"><span class="lg">V</span><span class="bn"><b>VOLXEN</b><small>COMERCIALIZADORA LA HABANA</small></span></a><button class="mb" onclick="menu(1)" aria-label="Abrir menú"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button></header>
+
+<div id="dr" onclick="if(event.target===this)menu(0)"><div class="pn">
+<div class="ph"><button class="xx" onclick="menu(0)">×</button><div class="lg">V</div><b>VOLXEN</b><small>Comercializadora La Habana</small></div>
+<a class="it" href="#catalogo" onclick="menu(0)"><svg viewBox="0 0 24 24"><path d="M6 7h12l-1 13H7L6 7z"/><path d="M9 7a3 3 0 016 0"/></svg>Catálogo de Piezas</a>
+<a class="it" href="#ofertas" onclick="menu(0)"><svg viewBox="0 0 24 24"><path d="M3 12l9-9h8v8l-9 9z"/><circle cx="16" cy="8" r="1.2"/></svg>Ofertas</a>
+<a class="it" href="#" onclick="menu(0);abrirC();return false"><svg viewBox="0 0 24 24"><path d="M3 4h2l2 11h11l2-8H6"/><circle cx="9" cy="19" r="1.3"/><circle cx="17" cy="19" r="1.3"/></svg>Carrito de Compras</a>
+<a class="it" id="wc" target="_blank" href="#" onclick="menu(0)"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg>Consulta General</a>
+<a class="it" href="#nosotros" onclick="menu(0)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>Quiénes Somos</a>
+<a class="it" href="#faq" onclick="menu(0)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 115 0c0 1.5-2.5 2-2.5 4M12 17v.5"/></svg>Preguntas Frecuentes</a>
+<a class="it" id="wi" target="_blank" href="#" onclick="menu(0)"><svg viewBox="0 0 24 24"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.5"/></svg>Reportar Incidencia</a>
+</div></div>
+
 <div class="hero">
-<svg class="mono" viewBox="0 0 40 40" width="64" height="64" fill="none" stroke="#c9a96e" stroke-width="1"><circle cx="20" cy="20" r="18"/><path d="M11 12l9 17 9-17" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-<small>COMERCIALIZADORA DE TECNOLOGÍA Y ENERGÍA</small>
+<p class="ey">COMERCIALIZADORA DE TECNOLOGÍA Y ENERGÍA</p>
 <h1>Tecnología y energía para tu <em>hogar</em></h1>
-<div class="rule"></div>
 <p class="sl">Transparencia y confianza en cada venta</p>
-<div class="bt"><a class="btn" href="#catalogo">VER CATÁLOGO</a><a class="btn o" id="wa2" href="#">HABLAR POR WHATSAPP</a></div>
+<div class="bt"><a class="btn" href="#catalogo">VER CATÁLOGO</a><a class="al" id="wa2" target="_blank" href="#">Habla con un asesor ↗</a></div>
 </div>
 <div class="strip"><span>Precios claros en USD</span><span>Atención directa por WhatsApp</span><span>Garantía y transporte en cada ficha</span></div>
-<section id="ofertas"><h2>Ofertas</h2><div class="grid" id="of"></div></section>
-<section id="catalogo"><h2>Catálogo</h2><div class="chips" id="ch"></div><div class="grid" id="gr"></div></section>
-<section id="nosotros"><h2>Sobre VOLXEN</h2><div class="about"><p>VOLXEN es una comercializadora de tecnología y energía en Cuba: electrodomésticos, climatización, refrigeración, energía solar, movilidad eléctrica, cocina, TV y audio.</p></div><br><a class="btn" id="wa" href="#">ESCRÍBENOS POR WHATSAPP</a></section>
-<footer><svg viewBox="0 0 40 40" width="40" height="40" fill="none" stroke="#c9a96e" stroke-width="1.1"><circle cx="20" cy="20" r="18"/><path d="M11 12l9 17 9-17" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><i>Transparencia y confianza en cada venta</i>© VOLXEN · Comercializadora</footer>
 
-<button class="fab" onclick="abrirC()" aria-label="Ver mi pedido"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l-1 13H7L6 7z"/><path d="M9 7a3 3 0 016 0"/></svg><b id="bd">0</b></button>
+<section id="ofertas"><p class="ey2">Especiales</p><h2>Ofertas</h2><div class="grid" id="of"></div></section>
+<section id="catalogo"><p class="ey2">Colección</p><h2>Piezas disponibles</h2><div class="chips" id="ch"></div><div class="grid" id="gr"></div></section>
+<section id="nosotros"><p class="ey2">VOLXEN</p><h2>Quiénes somos</h2><div class="about"><p>VOLXEN es una comercializadora de tecnología y energía en Cuba: electrodomésticos, climatización, refrigeración, energía solar, movilidad eléctrica, cocina, TV y audio.</p></div><a class="btn" id="wa" target="_blank" href="#">ESCRÍBENOS POR WHATSAPP</a></section>
+<section id="faq"><p class="ey2">Ayuda</p><h2>Preguntas frecuentes</h2>
+<details><summary>¿Cómo hago un pedido?</summary><p>Entra a un producto, elige la cantidad y toca “Añadir al pedido”. En tu pedido completas tus datos y se abre WhatsApp con el mensaje listo para enviarnos. Nosotros confirmamos todo contigo por el chat.</p></details>
+<details><summary>¿El precio del pedido es final?</summary><p>El total que ves es estimado. El precio final, la disponibilidad y la entrega se confirman por WhatsApp antes de cerrar la compra.</p></details>
+<details><summary>¿Hay garantía y transporte?</summary><p>Cada ficha de producto indica su garantía y si incluye transporte.</p></details>
+<details><summary>¿Es obligatorio el carnet de identidad?</summary><p>No, es opcional. Solo viaja dentro de tu mensaje de WhatsApp; esta web no lo guarda.</p></details>
+</section>
+
+<footer><svg viewBox="0 0 40 40" width="40" height="40" fill="none" stroke="#c9a96e" stroke-width="1.1"><circle cx="20" cy="20" r="18"/><path d="M11 12l9 17 9-17" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><i>Transparencia y confianza en cada venta</i>© VOLXEN · Comercializadora La Habana</footer>
+
+<button class="fab" onclick="abrirC()" aria-label="Ver mi pedido"><svg viewBox="0 0 24 24"><path d="M6 7h12l-1 13H7L6 7z"/><path d="M9 7a3 3 0 016 0"/></svg><b id="bd">0</b></button>
 <div id="ts"></div>
 
 <div id="m" onclick="if(event.target===this)cerrar()"><div class="box" id="mb"></div></div>
@@ -145,66 +226,4 @@ const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",
 const D={disponible:"Disponible",bajo_pedido:"Bajo pedido",agotado:"Agotado"};
 const wa=t=>"https://wa.me/"+(C.WHATSAPP||"")+"?text="+encodeURIComponent(t);
 const fmt=n=>String(Math.round(n*100)/100);
-const PROV=["Pinar del Río","Artemisa","La Habana","Mayabeque","Matanzas","Villa Clara","Cienfuegos","Sancti Spíritus","Ciego de Ávila","Camagüey","Las Tunas","Holguín","Granma","Santiago de Cuba","Guantánamo","Isla de la Juventud"];
-const MUNH=["Playa","Plaza de la Revolución","Centro Habana","La Habana Vieja","Regla","La Habana del Este","Guanabacoa","San Miguel del Padrón","Diez de Octubre","Cerro","Marianao","La Lisa","Boyeros","Arroyo Naranjo","Cotorro"];
-let P=[],O={},cat="",CT=[],MQ=1;
-try{CT=JSON.parse(localStorage.getItem("vx_cart")||"[]")}catch(e){CT=[]}
-const sv=()=>{try{localStorage.setItem("vx_cart",JSON.stringify(CT))}catch(e){}};
-const fotos=p=>(p.imagenes&&p.imagenes.length)?p.imagenes:(p.imagen_principal?[p.imagen_principal]:[]);
-const pu=p=>O[p.id]!=null?+O[p.id]:+p.precio_usd;
-function badge(){const n=CT.reduce((a,x)=>a+x.q,0),b=$("bd");b.textContent=n;b.style.display=n?"block":"none"}
-function toast(t){const e=$("ts");e.textContent=t;e.classList.add("on");setTimeout(()=>e.classList.remove("on"),1800)}
-function card(p){const o=O[p.id];const pr=o?'<span class="old">$'+p.precio_usd+'</span>$'+o:'$'+p.precio_usd;
-return '<div class="card" onclick="ver(\''+p.id+'\')"><img src="'+esc(fotos(p)[0])+'" alt=""><div><b>'+esc(p.nombre)+'</b><span class="p">'+pr+' USD</span><br><span class="tag">'+(D[p.disponibilidad]||"")+'</span></div></div>'}
-function reveal(){const els=document.querySelectorAll(".card:not(.in)");
-if(!("IntersectionObserver" in window)){els.forEach(c=>c.classList.add("in"));return}
-const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{threshold:.1});
-els.forEach(c=>io.observe(c))}
-function draw(){
-$("gr").innerHTML=P.filter(p=>!cat||p.categoria_id===cat).map(card).join("")||"<p>Próximamente.</p>";
-$("of").innerHTML=P.filter(p=>O[p.id]).map(card).join("")||"<p>Pronto nuevas ofertas.</p>";
-reveal()}
-function show(id){const m=$(id);m.style.display="block";m.scrollTop=0;document.body.style.overflow="hidden";requestAnimationFrame(()=>requestAnimationFrame(()=>m.classList.add("on")))}
-function hide(id){const m=$(id);m.classList.remove("on");setTimeout(()=>{m.style.display="none";if(!$("m").classList.contains("on")&&!$("ct").classList.contains("on"))document.body.style.overflow=""},250)}
-function cerrar(){hide("m")}
-function cerrarC(){hide("ct")}
-function qm(d){MQ=Math.max(1,Math.min(99,MQ+d));$("mq").textContent=MQ}
-function add(id){const x=CT.find(c=>c.id===id);if(x)x.q=Math.min(99,x.q+MQ);else CT.push({id:id,q:MQ});sv();badge();cerrar();toast("Añadido al pedido")}
-function ver(id){MQ=1;const p=P.find(x=>x.id===id),o=O[id];
-const f=(p.caracteristicas||[]).map(x=>"<li>"+esc(x)+"</li>").join("");
-const im=fotos(p);
-const dots=im.length>1?'<div class="dots">'+im.map((u,i)=>'<i class="'+(i?"":"on")+'"></i>').join("")+'</div>':"";
-$("mb").innerHTML='<button class="cl" onclick="cerrar()">×</button><div class="gal"><div class="sl2">'+im.map(u=>'<img src="'+esc(u)+'" alt="">').join("")+'</div>'+dots+'</div><h2>'+esc(p.nombre)+'</h2><p class="p">'+(o?'<span class="old">$'+p.precio_usd+'</span>$'+o:'$'+p.precio_usd)+' USD</p><p>'+esc(p.descripcion)+'</p><ul style="font:400 14px var(--sans);margin-left:18px">'+f+'</ul><p><b>Disponibilidad:</b> '+(D[p.disponibilidad]||"")+'</p><p><b>Garantía:</b> '+esc(p.garantia)+'</p><p><b>Transporte:</b> '+esc(p.transporte)+'</p><div class="row"><div class="qt"><button onclick="qm(-1)">−</button><i id="mq">1</i><button onclick="qm(1)">+</button></div><a class="btn" href="#" onclick="add(\''+p.id+'\');return false">AÑADIR AL PEDIDO</a></div><a class="lk" target="_blank" href="'+wa("Hola VOLXEN, quiero consultar sobre: "+p.nombre)+'">Consultar este producto por WhatsApp</a>';
-const sl=document.querySelector("#mb .sl2"),ds=document.querySelectorAll("#mb .dots i");
-if(sl&&ds.length)sl.onscroll=()=>{const i=Math.round(sl.scrollLeft/sl.clientWidth);ds.forEach((d,j)=>d.className=j===i?"on":"")};
-show("m")}
-function rows(){return CT.map(c=>({p:P.find(x=>x.id===c.id),q:c.q})).filter(r=>r.p)}
-function renderL(){const rs=rows(),el=$("cl");
-if(!rs.length){el.innerHTML='<p>Tu pedido está vacío. Añade productos desde el catálogo.</p>';$("cf").style.display="none";return}
-$("cf").style.display="block";let t=0;
-el.innerHTML=rs.map(r=>{const s=pu(r.p)*r.q;t+=s;return '<div class="ci"><img src="'+esc(fotos(r.p)[0])+'" alt=""><div class="cd"><b>'+esc(r.p.nombre)+'</b><span>$'+fmt(pu(r.p))+' USD</span><div class="qt"><button onclick="cq(\''+r.p.id+'\',-1)">−</button><i>'+r.q+'</i><button onclick="cq(\''+r.p.id+'\',1)">+</button></div></div><button class="rm" onclick="cq(\''+r.p.id+'\',-99)">×</button></div>'}).join("")+'<p class="tt">Total estimado: <b>$'+fmt(t)+' USD</b></p><p class="sm">El total final, la disponibilidad y la entrega se confirman por WhatsApp.</p>'}
-function cq(id,d){const x=CT.find(c=>c.id===id);if(!x)return;x.q+=d;if(x.q>99)x.q=99;if(x.q<=0)CT=CT.filter(c=>c.id!==id);sv();badge();renderL()}
-function vaciar(){if(confirm("¿Vaciar el pedido?")){CT=[];sv();badge();renderL()}}
-function abrirC(){renderL();show("ct")}
-function mun(){const p=$("fp").value;
-$("fm").innerHTML=p==="La Habana"?'<select id="fmu"><option value="">Municipio *</option>'+MUNH.map(m=>'<option>'+m+'</option>').join("")+'</select>':'<input id="fmu" placeholder="Municipio *">'}
-function enviar(){const rs=rows(),er=$("er");er.textContent="";
-if(!rs.length){er.textContent="Tu pedido está vacío.";return}
-const n=$("fn").value.trim(),pv=$("fp").value,mu=($("fmu")?$("fmu").value:"").trim(),dr=$("fd").value.trim(),ci=$("fc").value.trim(),nt=$("fo").value.trim();
-if(!n||!pv||!mu||!dr){er.textContent="Completa nombre, provincia, municipio y dirección.";return}
-let t=0;const ls=rs.map(r=>{const s=pu(r.p)*r.q;t+=s;return "• "+r.q+" x "+r.p.nombre+" — $"+fmt(pu(r.p))+" c/u = $"+fmt(s)});
-let msg="Hola VOLXEN, quiero hacer este pedido:\n\n"+ls.join("\n")+"\n\nTotal estimado: $"+fmt(t)+" USD\n\nDATOS DEL CLIENTE\nNombre: "+n+(ci?"\nCarnet de identidad: "+ci:"")+"\nProvincia: "+pv+"\nMunicipio: "+mu+"\nLocalidad y dirección: "+dr+(nt?"\nNotas: "+nt:"");
-window.open(wa(msg),"_blank")}
-async function init(){
-$("wa").href=wa("Hola VOLXEN, quiero información.");
-$("wa2").href=wa("Hola VOLXEN, quiero información.");
-$("fp").innerHTML='<option value="">Provincia *</option>'+PROV.map(x=>'<option>'+x+'</option>').join("");mun();badge();
-const[c,p,o]=await Promise.all([q("categorias?order=orden"),q("productos?activo=eq.true&order=created_at.desc"),q("ofertas?activa=eq.true")]);
-P=Array.isArray(p)?p:[];(Array.isArray(o)?o:[]).forEach(x=>O[x.producto_id]=x.precio_oferta_usd);
-const ch=$("ch");
-const all=[{id:"",nombre:"Todo"}].concat(Array.isArray(c)?c:[]);
-ch.innerHTML=all.map(x=>'<button data-i="'+x.id+'" class="'+(x.id===cat?"on":"")+'">'+esc(x.nombre)+'</button>').join("");
-ch.onclick=e=>{if(e.target.dataset.i===undefined)return;cat=e.target.dataset.i;[...ch.children].forEach(b=>b.className=b.dataset.i===cat?"on":"");draw()};
-draw()}
-init();
-</script></body></html>
+const PROV=["Pinar del Río","Artemisa","La Habana","Mayabeque","Matanzas","Villa Clara","Cienfuegos","Sancti Spíritus","Ciego de Ávila","Camagüey","Las Tunas","Holguín","Granma","Santiago de Cuba","Guantánamo","Isla de la Juventud"]
