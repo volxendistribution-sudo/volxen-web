@@ -1,361 +1,810 @@
 <!DOCTYPE html>
-<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+
 <title>VOLXEN · Panel</title>
+
 <style>
-body{font:15px sans-serif;margin:0;background:#f6f1e7;color:#0e0e0e}
-header{background:#0e0e0e;color:#c9a96e;padding:14px;letter-spacing:.3em}
-main{padding:14px;max-width:640px;margin:auto}
-input,select,textarea,button{width:100%;padding:11px;margin:5px 0;font:inherit;border:1px solid #bbb;background:#fff}
-button{background:#c9a96e;border:0;font-weight:600}
-.t{display:flex;gap:6px}.t button{background:#0e0e0e;color:#c9a96e}
-.r{background:#fff;padding:10px;margin:8px 0;border:1px solid #e4dccb}
-.r button{width:auto;padding:6px 12px;margin-right:6px}
-.x{background:#b3261e!important;color:#fff}
-</style></head><body>
-<header>VOLXEN · PANEL</header>
+
+body{
+font:15px sans-serif;
+margin:0;
+background:#f6f1e7;
+color:#0e0e0e
+}
+
+header{
+background:#0e0e0e;
+color:#c9a96e;
+padding:14px;
+letter-spacing:.3em
+}
+
+main{
+padding:14px;
+max-width:640px;
+margin:auto
+}
+
+input,
+select,
+textarea,
+button{
+width:100%;
+padding:11px;
+margin:5px 0;
+font:inherit;
+border:1px solid #bbb;
+background:#fff;
+box-sizing:border-box
+}
+
+button{
+background:#c9a96e;
+border:0;
+font-weight:600;
+cursor:pointer
+}
+
+.t{
+display:flex;
+gap:6px;
+flex-wrap:wrap
+}
+
+.t button{
+background:#0e0e0e;
+color:#c9a96e;
+flex:1;
+min-width:100px
+}
+
+.r{
+background:#fff;
+padding:10px;
+margin:8px 0;
+border:1px solid #e4dccb
+}
+
+.r button{
+width:auto;
+padding:6px 12px;
+margin-right:6px
+}
+
+.x{
+background:#b3261e!important;
+color:#fff
+}
+
+.back{
+background:#ddd;
+color:#111
+}
+
+.estado{
+font-weight:600;
+margin:6px 0
+}
+
+small{
+line-height:1.5
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+VOLXEN · PANEL
+</header>
+
 <main>
 
+<!-- LOGIN -->
+
 <div id="lg">
+
 <h3>Iniciar sesión</h3>
-<input id="em" type="email" placeholder="Correo">
-<input id="pw" type="password" placeholder="Contraseña">
-<button onclick="login()">ENTRAR</button>
+
+<input
+id="em"
+type="email"
+placeholder="Correo"
+autocomplete="username"
+>
+
+<input
+id="pw"
+type="password"
+placeholder="Contraseña"
+autocomplete="current-password"
+>
+
+<button onclick="login()">
+ENTRAR
+</button>
+
+<p id="loginmsg"></p>
+
 </div>
 
+
+<!-- PANEL ADMIN -->
+
 <div id="ad" style="display:none">
+
 <div class="t">
-<button onclick="tab('p')">Productos</button>
-<button onclick="tab('c')">Categorías</button>
-<button onclick="tab('o')">Ofertas</button>
-<button onclick="tab('d')">Pedidos</button>
+
+<button onclick="tab('p')">
+Productos
+</button>
+
+<button onclick="tab('c')">
+Categorías
+</button>
+
+<button onclick="tab('o')">
+Ofertas
+</button>
+
+<button onclick="tab('d')">
+Pedidos
+</button>
+
 </div>
 
 <p id="ms"></p>
+
 <div id="v"></div>
+
 </div>
 
 </main>
 
+
 <script src="config.js"></script>
 
 <script>
-const C=window.VOLXEN_CONFIG,B=C.SUPABASE_URL;
-let T="",K=[],P=[],O=[],D=[],E=null,IM=[],OD=null;
 
-const $=i=>document.getElementById(i);
+/* =========================
+   CONFIGURACIÓN
+========================= */
 
-const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({
+const C = window.VOLXEN_CONFIG;
+
+const B = C.SUPABASE_URL;
+
+let T = "";
+
+let K = [];
+let P = [];
+let O = [];
+let D = [];
+
+let E = null;
+let IM = [];
+let OD = null;
+
+
+/* =========================
+   UTILIDADES
+========================= */
+
+const $ = i => document.getElementById(i);
+
+
+const esc = s =>
+String(s == null ? "" : s)
+.replace(/[&<>"]/g, c => ({
 "&":"&amp;",
 "<":"&lt;",
 ">":"&gt;",
 '"':"&quot;"
 }[c]));
 
-const msg=t=>{
-$("ms").textContent=t
+
+const msg = t => {
+
+$("ms").textContent = t || "";
+
 };
 
-const slug=s=>
+
+const loginMsg = t => {
+
+$("loginmsg").textContent = t || "";
+
+};
+
+
+const slug = s =>
 s.toLowerCase()
 .normalize("NFD")
 .replace(/[\u0300-\u036f]/g,"")
 .replace(/[^a-z0-9]+/g,"-")
 .replace(/^-|-$/g,"")
-+"-"+Math.random().toString(36).slice(2,6);
++
+"-"+
+Math.random().toString(36).slice(2,6);
+
+
+/* =========================
+   API SUPABASE
+========================= */
 
 async function api(p,m,b){
-const r=await fetch(
-B+"/rest/v1/"+p,
+
+const r = await fetch(
+B + "/rest/v1/" + p,
 {
-method:m||"GET",
+method:m || "GET",
+
 headers:{
 apikey:C.SUPABASE_KEY,
-Authorization:"Bearer "+T,
+Authorization:"Bearer " + T,
 "Content-Type":"application/json",
 Prefer:"return=representation"
 },
-body:b?JSON.stringify(b):undefined
+
+body:b !== undefined
+? JSON.stringify(b)
+: undefined
+
 }
 );
 
-const j=await r.json();
+
+/*
+   Algunas operaciones pueden devolver
+   respuesta vacía. No intentamos convertir
+   una respuesta vacía en JSON.
+*/
+
+const texto = await r.text();
+
+let j = null;
+
+if(texto){
+
+try{
+j = JSON.parse(texto);
+}catch(e){
+j = texto;
+}
+
+}
+
 
 if(!r.ok){
-msg("Error: "+(j.message||r.status));
-throw j
+
+let errorMsg = "Error HTTP " + r.status;
+
+if(j && j.message){
+errorMsg = j.message;
 }
 
-return j
+if(j && j.error){
+errorMsg = j.error;
 }
 
-async function login(){
+msg(errorMsg);
 
-const r=await fetch(
-B+"/auth/v1/token?grant_type=password",
-{
-method:"POST",
-headers:{
-apikey:C.SUPABASE_KEY,
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-email:$("em").value,
-password:$("pw").value
-})
-}
-);
-
-const j=await r.json();
-
-if(!j.access_token){
-alert("Datos incorrectos");
-return
-}
-
-T=j.access_token;
-
-$("lg").style.display="none";
-$("ad").style.display="block";
-
-await load();
-tab("p")
-}
-
-async function load(){
-
-K=await api("categorias?order=orden");
-
-P=await api("productos?order=created_at.desc");
-
-O=await api("ofertas?order=created_at.desc");
-
-D=await api("pedidos?order=created_at.desc")
+throw new Error(errorMsg);
 
 }
 
-function tab(n){
 
-msg("");
-
-const v=$("v");
-
-if(n=="c"){
-
-v.innerHTML=
-'<input id="cn" placeholder="Nueva categoría">'+
-'<button onclick="addC()">AÑADIR CATEGORÍA</button>'+
-K.map(k=>
-'<div class="r">'+
-esc(k.nombre)+
-'<br>'+
-'<button class="x" onclick="delC(\''+k.id+'\')">Borrar</button>'+
-'</div>'
-).join("")
-
-}
-
-else if(n=="d"){
-
-pedidos();
-
-}
-
-else if(n=="o"){
-
-v.innerHTML=
-'<select id="op">'+
-P.map(p=>
-'<option value="'+p.id+'">'+
-esc(p.nombre)+
-'</option>'
-).join("")+
-'</select>'+
-
-'<input id="oq" type="number" step="0.01" placeholder="Precio de oferta USD">'+
-
-'<button onclick="addO()">CREAR OFERTA</button>'+
-
-O.map(o=>{
-
-const p=P.find(x=>x.id==o.producto_id);
-
-return '<div class="r">'+
-esc(p?p.nombre:"?")+
-' · $'+
-o.precio_oferta_usd+
-' · '+
-(o.activa?"activa":"pausada")+
-'<br>'+
-'<button onclick="togO(\''+o.id+'\','+!o.activa+')">'+
-(o.activa?"Pausar":"Activar")+
-'</button>'+
-'<button class="x" onclick="delO(\''+o.id+'\')">Borrar</button>'+
-'</div>'
-
-}).join("")
-
-}
-
-else form()
+return j;
 
 }
 
 
 /* =========================
-   PEDIDOS
+   LOGIN
 ========================= */
+
+async function login(){
+
+loginMsg("");
+
+const email = $("em").value.trim();
+
+const password = $("pw").value;
+
+
+if(!email || !password){
+
+loginMsg("Escribe el correo y la contraseña.");
+
+return;
+
+}
+
+
+try{
+
+const r = await fetch(
+B + "/auth/v1/token?grant_type=password",
+{
+method:"POST",
+
+headers:{
+apikey:C.SUPABASE_KEY,
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+email:email,
+password:password
+})
+
+}
+);
+
+
+const j = await r.json();
+
+
+if(!r.ok || !j.access_token){
+
+loginMsg(
+j.message ||
+"Correo o contraseña incorrectos."
+);
+
+return;
+
+}
+
+
+T = j.access_token;
+
+
+$("lg").style.display = "none";
+
+$("ad").style.display = "block";
+
+
+/*
+   IMPORTANTE:
+   Aquí NO cargamos pedidos.
+   Así un problema de RLS de pedidos
+   no puede impedir entrar al panel.
+*/
+
+await load();
+
+tab("p");
+
+
+}catch(e){
+
+console.error(e);
+
+loginMsg(
+"No se pudo iniciar sesión."
+);
+
+}
+
+}
+
+
+/* =========================
+   CARGA PRINCIPAL
+========================= */
+
+async function load(){
+
+K = await api(
+"categorias?order=orden"
+);
+
+P = await api(
+"productos?order=created_at.desc"
+);
+
+O = await api(
+"ofertas?order=created_at.desc"
+);
+
+
+/*
+   NO cargar pedidos aquí.
+   Se cargan únicamente al entrar
+   en la pestaña PEDIDOS.
+*/
+
+}
+
+
+/* =========================
+   PESTAÑAS
+========================= */
+
+function tab(n){
+
+msg("");
+
+const v = $("v");
+
+
+if(n === "c"){
+
+v.innerHTML =
+
+'<input id="cn" placeholder="Nueva categoría">'+
+
+'<button onclick="addC()">'+
+'AÑADIR CATEGORÍA'+
+'</button>'+
+
+K.map(k =>
+
+'<div class="r">'+
+
+esc(k.nombre)+
+
+'<br>'+
+
+'<button class="x" onclick="delC(\''+
+k.id+
+'\')">'+
+'Borrar'+
+'</button>'+
+
+'</div>'
+
+).join("");
+
+}
+
+
+else if(n === "o"){
+
+v.innerHTML =
+
+'<select id="op">'+
+
+P.map(p =>
+
+'<option value="'+
+p.id+
+'">'+
+esc(p.nombre)+
+'</option>'
+
+).join("")+
+
+'</select>'+
+
+'<input id="oq" type="number" step="0.01" placeholder="Precio de oferta USD">'+
+
+'<button onclick="addO()">'+
+'CREAR OFERTA'+
+'</button>'+
+
+O.map(o => {
+
+const p =
+P.find(x => x.id == o.producto_id);
+
+return (
+
+'<div class="r">'+
+
+esc(p ? p.nombre : "?")+
+
+' · $'+
+o.precio_oferta_usd+
+
+' · '+
+(o.activa ? "activa" : "pausada")+
+
+'<br>'+
+
+'<button onclick="togO(\''+
+o.id+
+'\','+
+!o.activa+
+')">'+
+
+(o.activa ? "Pausar" : "Activar")+
+
+'</button>'+
+
+'<button class="x" onclick="delO(\''+
+o.id+
+'\')">'+
+'Borrar'+
+'</button>'+
+
+'</div>'
+
+);
+
+}).join("");
+
+}
+
+
+else if(n === "d"){
+
+pedidos();
+
+}
+
+
+else{
+
+form();
+
+}
+
+}
+
+
+/* =========================================================
+   PEDIDOS
+========================================================= */
 
 async function pedidos(){
 
-OD=null;
+OD = null;
 
-const q=
-'<input id="ds" placeholder="Buscar por código, cliente o teléfono" oninput="filtrarPedidos()">';
 
-$("v").innerHTML=
+$("v").innerHTML =
+
 '<h3>Pedidos</h3>'+
-q+
+
+'<p>Cargando pedidos...</p>';
+
+
+try{
+
+/*
+   Los pedidos se consultan SOLO aquí.
+*/
+
+D = await api(
+"pedidos?order=created_at.desc"
+);
+
+
+$("v").innerHTML =
+
+'<h3>Pedidos</h3>'+
+
+'<input '+
+'id="ds" '+
+'placeholder="Buscar por código, cliente o teléfono" '+
+'oninput="filtrarPedidos()">'+
+
 '<div id="dl"></div>';
+
 
 renderPedidos(D);
 
+
+}catch(e){
+
+console.error(e);
+
+
+$("v").innerHTML =
+
+'<h3>Pedidos</h3>'+
+
+'<div class="r">'+
+
+'<strong>No se pudieron cargar los pedidos.</strong>'+
+
+'<br><br>'+
+
+'El panel funciona, pero Supabase está rechazando la consulta de pedidos.'+
+
+'<br><br>'+
+
+'<small>'+
+esc(e.message || "")+
+'</small>'+
+
+'</div>';
+
+}
+
 }
 
 
-function estadoSel(e){
-
-return [
-"Pedido recibido",
-"Confirmando pedido",
-"Preparando pedido",
-"En camino",
-"Entregado",
-"Cancelado"
-].map(x=>
-'<option value="'+esc(x)+'"'+
-(x===e?' selected':'')+
-'>'+
-esc(x)+
-'</option>'
-).join("")
-
-}
-
+/* =========================
+   MOSTRAR PEDIDOS
+========================= */
 
 function renderPedidos(a){
 
-const el=$("dl");
+const el = $("dl");
 
 if(!el)return;
 
-if(!a.length){
 
-el.innerHTML=
-'<div class="r">No hay pedidos.</div>';
+if(!a || !a.length){
 
-return
+el.innerHTML =
+
+'<div class="r">'+
+'No hay pedidos registrados.'+
+'</div>';
+
+return;
+
 }
 
-el.innerHTML=a.map(o=>
+
+el.innerHTML = a.map(o =>
 
 '<div class="r">'+
 
 '<strong>'+
 esc(o.codigo)+
 '</strong>'+
+
 '<br>'+
 
 esc(o.nombre_cliente)+
-' · '+
+
+'<br>'+
+
 esc(o.telefono)+
 
 '<br>'+
 
-'$'+
-Number(o.total_usd||0).toFixed(2)+
-' · '+
+'<span class="estado">'+
 esc(o.estado)+
+'</span>'+
+
+'<br>'+
+
+'<strong>$'+
+Number(o.total_usd || 0).toFixed(2)+
+'</strong>'+
 
 '<br>'+
 
 '<button onclick="verPedido(\''+
 o.id+
-'\')">VER PEDIDO</button>'+
+'\')">'+
+'VER PEDIDO'+
+'</button>'+
 
 '<button onclick="cambiarEstado(\''+
 o.id+
-'\',this)">CAMBIAR ESTADO</button>'+
+'\')">'+
+'CAMBIAR ESTADO'+
+'</button>'+
 
 (
-o.telefono?
+o.telefono
+?
 '<button onclick="waPedido(\''+
 o.telefono+
 '\',\''+
 o.codigo+
-'\')">WHATSAPP</button>'
-:""
+'\')">'+
+'WHATSAPP'+
+'</button>'
+:
+''
 )+
 
 '</div>'
 
-).join("")
+).join("");
 
 }
 
 
+/* =========================
+   BUSCAR PEDIDOS
+========================= */
+
 function filtrarPedidos(){
 
-const q=
-($("ds")?.value||"")
+const input = $("ds");
+
+if(!input)return;
+
+
+const q =
+input.value
 .trim()
 .toLowerCase();
 
-renderPedidos(
-D.filter(o=>
-!q||
+
+const resultado = D.filter(o =>
+
+!q ||
+
 [
 o.codigo,
 o.nombre_cliente,
 o.telefono,
 o.email
 ]
-.some(x=>
-String(x||"")
+.some(x =>
+String(x || "")
 .toLowerCase()
 .includes(q)
 )
-)
+
+);
+
+
+renderPedidos(resultado);
 
 }
 
 
+/* =========================
+   ESTADOS OFICIALES
+========================= */
+
+function estadoSel(e){
+
+const estados = [
+
+"Pedido recibido",
+
+"Confirmando pedido",
+
+"Preparando pedido",
+
+"En camino",
+
+"Entregado",
+
+"Cancelado"
+
+];
+
+
+return estados.map(x =>
+
+'<option value="'+
+esc(x)+
+'"'+
+(x === e ? " selected" : "")+
+'>'+
+esc(x)+
+'</option>'
+
+).join("");
+
+}
+
+
+/* =========================
+   VER PEDIDO
+========================= */
+
 async function verPedido(id){
 
-const o=D.find(x=>x.id===id);
+const o =
+D.find(x => x.id === id);
+
 
 if(!o)return;
 
-const [items,hist]=await Promise.all([
 
-api(
-'pedido_items?pedido_id=eq.'+
-id+
-'&order=created_at'
-),
+$("v").innerHTML =
 
-api(
-'pedido_historial?pedido_id=eq.'+
-id+
-'&order=created_at'
-)
-
-]);
-
-OD=o;
-
-$("v").innerHTML=
-
-'<button onclick="pedidos()">← VOLVER A PEDIDOS</button>'+
+'<button class="back" onclick="pedidos()">'+
+'← VOLVER A PEDIDOS'+
+'</button>'+
 
 '<h3>'+
 esc(o.codigo)+
@@ -363,225 +812,471 @@ esc(o.codigo)+
 
 '<div class="r">'+
 
-'<strong>Cliente</strong>'+
+'<strong>CLIENTE</strong>'+
+
 '<br>'+
 esc(o.nombre_cliente)+
+
 '<br>'+
-esc(o.email||'Sin correo')+
+esc(o.email || "Sin correo")+
+
 '<br>'+
 esc(o.telefono)+
 
-'<br><br>'+
+'</div>'+
 
-'<strong>Entrega</strong>'+
+'<div class="r">'+
+
+'<strong>DIRECCIÓN DE ENTREGA</strong>'+
+
 '<br>'+
 esc(o.direccion)+
+
 '<br>'+
 esc(o.municipio)+
 
-'<br><br>'+
+'</div>'+
 
-'<strong>Notas</strong>'+
+'<div class="r">'+
+
+'<strong>NOTAS</strong>'+
+
 '<br>'+
-esc(o.notas||'—')+
+esc(o.notas || "—")+
 
 '</div>'+
 
 '<div class="r">'+
 
-'<strong>Productos</strong>'+
+'<strong>ESTADO ACTUAL</strong>'+
 
-items.map(i=>
 '<br>'+
+
+esc(o.estado)+
+
+'</div>'+
+
+'<div class="r">'+
+
+'Cargando productos e historial...'+
+
+'</div>';
+
+
+try{
+
+
+const items = await api(
+"pedido_items?pedido_id=eq."+
+encodeURIComponent(id)+
+"&order=created_at"
+);
+
+
+const hist = await api(
+"pedido_historial?pedido_id=eq."+
+encodeURIComponent(id)+
+"&order=created_at"
+);
+
+
+OD = o;
+
+
+$("v").innerHTML =
+
+'<button class="back" onclick="pedidos()">'+
+'← VOLVER A PEDIDOS'+
+'</button>'+
+
+'<h3>'+
+esc(o.codigo)+
+'</h3>'+
+
+'<div class="r">'+
+
+'<strong>CLIENTE</strong>'+
+
+'<br>'+
+esc(o.nombre_cliente)+
+
+'<br>'+
+esc(o.email || "Sin correo")+
+
+'<br>'+
+esc(o.telefono)+
+
+'</div>'+
+
+'<div class="r">'+
+
+'<strong>ENTREGA</strong>'+
+
+'<br>'+
+esc(o.direccion)+
+
+'<br>'+
+esc(o.municipio)+
+
+'</div>'+
+
+'<div class="r">'+
+
+'<strong>NOTAS</strong>'+
+
+'<br>'+
+esc(o.notas || "—")+
+
+'</div>'+
+
+'<div class="r">'+
+
+'<strong>PRODUCTOS</strong>'+
+
+items.map(i =>
+
+'<br>'+
+
 esc(i.producto_nombre)+
+
 ' × '+
 i.cantidad+
+
 ' · $'+
-Number(i.precio_unitario||0).toFixed(2)+
+Number(i.precio_unitario || 0).toFixed(2)+
+
 ' = $'+
-Number(i.subtotal||0).toFixed(2)
-).join('')+
+Number(i.subtotal || 0).toFixed(2)
+
+).join("")+
 
 '<br><br>'+
 
-'<strong>Total: $'+
-Number(o.total_usd||0).toFixed(2)+
+'<strong>TOTAL: $'+
+Number(o.total_usd || 0).toFixed(2)+
 '</strong>'+
+
+'<br><br>'+
+
+'<strong>GARANTÍA:</strong> '+
+esc(o.garantia || "—")+
+
+'<br>'+
+
+'<strong>TRANSPORTE:</strong> '+
+esc(o.transporte || "—")+
 
 '</div>'+
 
 '<div class="r">'+
 
-'<strong>Estado actual</strong>'+
+'<strong>CAMBIAR ESTADO</strong>'+
 
 '<select id="ds2">'+
+
 estadoSel(o.estado)+
+
 '</select>'+
 
 '<button onclick="guardarEstado(\''+
 o.id+
-'\')">GUARDAR ESTADO</button>'+
+'\')">'+
+'GUARDAR ESTADO'+
+'</button>'+
 
 '</div>'+
 
 '<div class="r">'+
 
-'<strong>Historial</strong>'+
+'<strong>HISTORIAL</strong>'+
 
-hist.map(h=>
-'<br><small>'+
-new Date(h.created_at).toLocaleString('es-ES')+
-' · '+
-esc(h.estado)+
 (
-h.comentario?
+hist && hist.length
+?
+hist.map(h =>
+
+'<br><small>'+
+
+new Date(h.created_at)
+.toLocaleString("es-ES")+
+
+' · '+
+
+esc(h.estado)+
+
+(
+h.comentario
+?
 ' · '+
 esc(h.comentario)
-:""
+:
+''
 )+
+
 '</small>'
-).join('')+
+
+).join("")
+:
+'<br>Sin historial.'
+)+
 
 '</div>'+
 
 (
-o.telefono?
+o.telefono
+?
+
 '<button onclick="waPedido(\''+
 o.telefono+
 '\',\''+
 o.codigo+
-'\')">CONTACTAR POR WHATSAPP</button>'
-:""
+'\')">'+
+'CONTACTAR POR WHATSAPP'+
+'</button>'
+
+:
+''
 );
 
-}
 
+}catch(e){
 
-async function guardarEstado(id){
+console.error(e);
 
-const estado=$("ds2").value;
+$("v").innerHTML +=
 
-await api(
-'pedidos?id=eq.'+
-id,
-'PATCH',
-{
-estado:estado
-}
-);
+'<div class="r">'+
 
-await load();
+'<strong>Error cargando detalle.</strong>'+
 
-msg('Estado actualizado.');
+'<br>'+
 
-await verPedido(id);
+esc(e.message || "")+
+
+'</div>';
 
 }
-
-
-async function cambiarEstado(id,btn){
-
-const o=D.find(x=>x.id===id);
-
-if(!o)return;
-
-const estado=prompt(
-'Nuevo estado:\n'+
-'1. Pedido recibido\n'+
-'2. Confirmando pedido\n'+
-'3. Preparando pedido\n'+
-'4. En camino\n'+
-'5. Entregado\n'+
-'6. Cancelado',
-o.estado
-);
-
-const mapa={
-'1':'Pedido recibido',
-'2':'Confirmando pedido',
-'3':'Preparando pedido',
-'4':'En camino',
-'5':'Entregado',
-'6':'Cancelado'
-};
-
-if(!estado)return;
-
-const nuevo=mapa[estado]||estado;
-
-if(![
-"Pedido recibido",
-"Confirmando pedido",
-"Preparando pedido",
-"En camino",
-"Entregado",
-"Cancelado"
-].includes(nuevo)){
-
-alert('Estado no válido');
-
-return
-}
-
-await api(
-'pedidos?id=eq.'+
-id,
-'PATCH',
-{
-estado:nuevo
-}
-);
-
-await load();
-
-pedidos();
-
-msg('Estado actualizado.');
-
-}
-
-
-function waPedido(t,c){
-
-let n=String(t||'')
-.replace(/[^0-9]/g,'');
-
-if(!n)return;
-
-if(n.length===8)n='53'+n;
-
-open(
-'https://wa.me/'+
-n+
-'?text='+
-encodeURIComponent(
-'Hola, le contactamos desde VOLXEN sobre su pedido '+
-c+
-'.'
-),
-'_blank'
-);
 
 }
 
 
 /* =========================
-   PRODUCTOS
+   GUARDAR ESTADO
 ========================= */
+
+async function guardarEstado(id){
+
+const select = $("ds2");
+
+if(!select)return;
+
+
+const estado = select.value;
+
+
+try{
+
+await api(
+"pedidos?id=eq."+
+encodeURIComponent(id),
+
+"PATCH",
+
+{
+estado:estado
+}
+
+);
+
+
+await load();
+
+msg("Estado actualizado correctamente.");
+
+
+await pedidos();
+
+
+await verPedido(id);
+
+
+}catch(e){
+
+alert(
+"No se pudo actualizar el estado."
+);
+
+}
+
+}
+
+
+/* =========================
+   CAMBIAR ESTADO RÁPIDO
+========================= */
+
+async function cambiarEstado(id){
+
+const o =
+D.find(x => x.id === id);
+
+
+if(!o)return;
+
+
+const estado = prompt(
+
+"Escribe el nuevo estado exactamente como aparece:\n\n"+
+
+"Pedido recibido\n"+
+"Confirmando pedido\n"+
+"Preparando pedido\n"+
+"En camino\n"+
+"Entregado\n"+
+"Cancelado",
+
+o.estado
+
+);
+
+
+if(!estado)return;
+
+
+const estados = [
+
+"Pedido recibido",
+
+"Confirmando pedido",
+
+"Preparando pedido",
+
+"En camino",
+
+"Entregado",
+
+"Cancelado"
+
+];
+
+
+if(!estados.includes(estado)){
+
+alert(
+"Estado no válido."
+);
+
+return;
+
+}
+
+
+try{
+
+await api(
+"pedidos?id=eq."+
+encodeURIComponent(id),
+
+"PATCH",
+
+{
+estado:estado
+}
+
+);
+
+
+D = await api(
+"pedidos?order=created_at.desc"
+);
+
+
+pedidos();
+
+
+msg(
+"Estado actualizado correctamente."
+);
+
+
+}catch(e){
+
+alert(
+"No se pudo actualizar el estado."
+);
+
+}
+
+}
+
+
+/* =========================
+   WHATSAPP
+========================= */
+
+function waPedido(t,c){
+
+let n = String(t || "")
+.replace(/[^0-9]/g,"");
+
+
+if(!n)return;
+
+
+if(n.length === 8){
+
+n = "53" + n;
+
+}
+
+
+const texto =
+
+"Hola, le contactamos desde VOLXEN sobre su pedido "+
+c+
+".";
+
+
+window.open(
+
+"https://wa.me/"+
+n+
+"?text="+
+encodeURIComponent(texto),
+
+"_blank"
+
+);
+
+}
+
+
+/* =========================================================
+   PRODUCTOS
+========================================================= */
 
 function thumbs(){
 
-$("th").innerHTML=
-IM.map((u,i)=>
+const th = $("th");
+
+if(!th)return;
+
+
+th.innerHTML = IM.map((u,i) =>
+
 '<span style="position:relative;display:inline-block;margin:4px">'+
+
 '<img src="'+
 esc(u)+
 '" style="width:72px;height:72px;object-fit:cover;border:1px solid #bbb">'+
 
-'<button class="x" style="width:auto;padding:0 7px;margin:0;position:absolute;top:0;right:0" onclick="rmI('+i+')">×</button>'+
+'<button class="x" style="width:auto;padding:0 7px;margin:0;position:absolute;top:0;right:0" onclick="rmI('+i+')">'+
+'×'+
+'</button>'+
 
 '</span>'
-).join("")
+
+).join("");
 
 }
 
@@ -590,30 +1285,46 @@ function rmI(i){
 
 IM.splice(i,1);
 
-thumbs()
+thumbs();
 
 }
 
 
 function form(p){
 
-p=p||{};
+p = p || {};
 
-E=p.id||null;
+E = p.id || null;
 
-IM=
-(p.imagenes&&p.imagenes.length)?
-p.imagenes.slice():
-(p.imagen_principal?
-[p.imagen_principal]:
-[]);
 
-const d=p.disponibilidad||"disponible";
+IM =
 
-$("v").innerHTML=
+(p.imagenes && p.imagenes.length)
+
+?
+
+p.imagenes.slice()
+
+:
+
+(
+p.imagen_principal
+?
+[p.imagen_principal]
+:
+[]
+);
+
+
+const d =
+p.disponibilidad ||
+"disponible";
+
+
+$("v").innerHTML =
 
 '<h3>'+
-(E?"Editar":"Nuevo")+
+(E ? "Editar" : "Nuevo")+
 ' producto</h3>'+
 
 '<input id="n" placeholder="Nombre" value="'+
@@ -621,16 +1332,25 @@ esc(p.nombre)+
 '">'+
 
 '<select id="k">'+
+
 '<option value="">Sin categoría</option>'+
-K.map(k=>
+
+K.map(k =>
+
 '<option value="'+
 k.id+
 '"'+
-(k.id==p.categoria_id?" selected":"")+
+(k.id == p.categoria_id
+?
+" selected"
+:
+"")+
 '>'+
 esc(k.nombre)+
 '</option>'
+
 ).join("")+
+
 '</select>'+
 
 '<input id="pr" type="number" step="0.01" placeholder="Precio USD" value="'+
@@ -638,17 +1358,21 @@ esc(p.precio_usd)+
 '">'+
 
 '<select id="d">'+
+
 [
 "disponible",
 "bajo_pedido",
 "agotado"
-].map(x=>
+].map(x =>
+
 '<option'+
-(x==d?" selected":"")+
+(x == d ? " selected" : "")+
 '>'+
 x+
 '</option>'
+
 ).join("")+
+
 '</select>'+
 
 '<input id="g" placeholder="Garantía" value="'+
@@ -665,7 +1389,7 @@ esc(p.descripcion)+
 
 '<textarea id="ca" rows="3" placeholder="Características (una por línea)">'+
 esc(
-(p.caracteristicas||[])
+(p.caracteristicas || [])
 .join("\n")
 )+
 '</textarea>'+
@@ -677,54 +1401,82 @@ esc(
 '<input id="f" type="file" accept="image/*" multiple>'+
 
 '<label>'+
+
 '<input id="ac" type="checkbox" style="width:auto"'+
-(p.activo===false?"":" checked")+
+(p.activo === false ? "" : " checked")+
 '>'+
-' Visible en la web</label>'+
+
+' Visible en la web'+
+
+'</label>'+
 
 '<button onclick="saveP()">GUARDAR</button>'+
 
-'<button onclick="form()" style="background:#ddd">Nuevo / limpiar</button>'+
+'<button onclick="form()" style="background:#ddd">'+
+'Nuevo / limpiar'+
+'</button>'+
 
-P.map(x=>
+P.map(x =>
+
 '<div class="r">'+
+
 esc(x.nombre)+
 ' · $'+
 x.precio_usd+
+
 '<br>'+
 
 '<button onclick="editP(\''+
 x.id+
-'\')">Editar</button>'+
+'\')">'+
+'Editar'+
+'</button>'+
 
 '<button class="x" onclick="delP(\''+
 x.id+
-'\')">Borrar</button>'+
+'\')">'+
+'Borrar'+
+'</button>'+
 
 '</div>'
+
 ).join("");
 
-thumbs()
+
+thumbs();
 
 }
 
+
+/* =========================
+   GUARDAR PRODUCTO
+========================= */
 
 async function saveP(){
 
-const n=$("n").value.trim();
+const n =
+$("n").value.trim();
 
-if(!n||!$("pr").value){
 
-msg("Falta nombre o precio");
+if(!n || !$("pr").value){
 
-return
+msg(
+"Falta nombre o precio"
+);
+
+return;
+
 }
 
-const fs=[...$("f").files];
+
+const fs =
+[...$("f").files];
+
 
 for(let i=0;i<fs.length;i++){
 
-const f=fs[i];
+const f = fs[i];
+
 
 msg(
 "Subiendo foto "+
@@ -734,7 +1486,9 @@ fs.length+
 "..."
 );
 
-const nm=
+
+const nm =
+
 Date.now()+
 "-"+
 i+
@@ -744,20 +1498,28 @@ f.name.replace(
 "_"
 );
 
-const r=await fetch(
+
+const r = await fetch(
+
 B+
 "/storage/v1/object/productos/"+
 nm,
+
 {
 method:"POST",
+
 headers:{
 apikey:C.SUPABASE_KEY,
 Authorization:"Bearer "+T,
 "Content-Type":f.type
 },
+
 body:f
+
 }
+
 );
+
 
 if(!r.ok){
 
@@ -766,23 +1528,28 @@ msg(
 (i+1)
 );
 
-return
+return;
+
 }
 
+
 IM.push(
+
 B+
 "/storage/v1/object/public/productos/"+
 nm
-)
+
+);
 
 }
 
-const b={
+
+const b = {
 
 nombre:n,
 
 categoria_id:
-$("k").value||null,
+$("k").value || null,
 
 precio_usd:
 +$("pr").value,
@@ -802,11 +1569,11 @@ $("de").value,
 caracteristicas:
 $("ca").value
 .split("\n")
-.map(s=>s.trim())
+.map(s => s.trim())
 .filter(Boolean),
 
 imagen_principal:
-IM[0]||null,
+IM[0] || null,
 
 imagenes:
 IM,
@@ -819,69 +1586,120 @@ new Date().toISOString()
 
 };
 
-if(E)
+
+try{
+
+
+if(E){
 
 await api(
-"productos?id=eq."+E,
+"productos?id=eq."+
+encodeURIComponent(E),
+
 "PATCH",
+
 b
+
 );
 
-else{
+}else{
 
-b.slug=slug(n);
+b.slug =
+slug(n);
 
 await api(
 "productos",
 "POST",
 b
-)
+);
 
 }
+
 
 await load();
 
 tab("p");
 
-msg("Guardado correctamente")
+msg(
+"Guardado correctamente"
+);
+
+
+}catch(e){
+
+msg(
+"No se pudo guardar el producto."
+);
 
 }
 
+}
+
+
+/* =========================
+   EDITAR PRODUCTO
+========================= */
 
 function editP(id){
 
 form(
-P.find(x=>x.id==id)
+P.find(x => x.id == id)
 );
 
-scrollTo(0,0)
+scrollTo(0,0);
 
 }
 
+
+/* =========================
+   BORRAR PRODUCTO
+========================= */
 
 async function delP(id){
 
-if(confirm("¿Borrar producto?")){
+if(!confirm("¿Borrar producto?"))return;
+
+
+try{
 
 await api(
-"productos?id=eq."+id,
+"productos?id=eq."+
+encodeURIComponent(id),
+
 "DELETE"
 );
 
+
 await load();
 
-tab("p")
+tab("p");
+
+
+}catch(e){
+
+alert(
+"No se pudo borrar el producto."
+);
 
 }
 
 }
 
+
+/* =========================================================
+   CATEGORÍAS
+========================================================= */
 
 async function addC(){
 
-const n=$("cn").value.trim();
+const n =
+$("cn").value.trim();
+
 
 if(!n)return;
+
+
+try{
 
 await api(
 "categorias",
@@ -893,34 +1711,67 @@ orden:K.length
 }
 );
 
+
 await load();
 
-tab("c")
+tab("c");
+
+
+}catch(e){
+
+alert(
+"No se pudo crear la categoría."
+);
+
+}
 
 }
 
 
 async function delC(id){
 
-if(confirm("¿Borrar categoría?")){
+if(!confirm("¿Borrar categoría?"))return;
+
+
+try{
 
 await api(
-"categorias?id=eq."+id,
+"categorias?id=eq."+
+encodeURIComponent(id),
+
 "DELETE"
 );
 
+
 await load();
 
-tab("c")
+tab("c");
+
+
+}catch(e){
+
+alert(
+"No se pudo borrar la categoría."
+);
 
 }
 
 }
 
+
+/* =========================================================
+   OFERTAS
+========================================================= */
 
 async function addO(){
 
-if(!$("op").value||!$("oq").value)return;
+if(
+!$("op").value ||
+!$("oq").value
+)return;
+
+
+try{
 
 await api(
 "ofertas",
@@ -931,44 +1782,86 @@ precio_oferta_usd:+$("oq").value
 }
 );
 
+
 await load();
 
-tab("o")
+tab("o");
+
+
+}catch(e){
+
+alert(
+"No se pudo crear la oferta."
+);
+
+}
 
 }
 
 
 async function togO(id,a){
 
+try{
+
 await api(
-"ofertas?id=eq."+id,
+"ofertas?id=eq."+
+encodeURIComponent(id),
+
 "PATCH",
+
 {
 activa:a
 }
 );
 
+
 await load();
 
-tab("o")
+tab("o");
+
+
+}catch(e){
+
+alert(
+"No se pudo actualizar la oferta."
+);
+
+}
 
 }
 
 
 async function delO(id){
 
+if(!confirm("¿Borrar oferta?"))return;
+
+
+try{
+
 await api(
-"ofertas?id=eq."+id,
+"ofertas?id=eq."+
+encodeURIComponent(id),
+
 "DELETE"
 );
 
+
 await load();
 
-tab("o")
+tab("o");
+
+
+}catch(e){
+
+alert(
+"No se pudo borrar la oferta."
+);
+
+}
 
 }
 
 </script>
 
 </body>
-</html>
+   </html>
