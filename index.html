@@ -22,24 +22,41 @@ h2{font:300 clamp(28px,5vw,40px)/1.1 var(--f);margin-bottom:28px}
 .btn:active{transform:scale(.98)}
 .btn.ghost{background:transparent;color:var(--cr);border-color:#4a4435}
 .btn.ghost:hover{border-color:var(--g);color:var(--g)}
+@keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+/* header */
 header{position:sticky;top:0;z-index:20;background:rgba(20,20,20,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--ln)}
-.hd{max-width:1160px;margin:auto;padding:0 22px;height:68px;display:flex;align-items:center;justify-content:space-between}
-.brand{display:flex;align-items:center;gap:14px;text-decoration:none}
-.brand img{width:40px;height:40px;border-radius:50%}
+.hd{max-width:1160px;margin:auto;padding:0 10px 0 6px;height:68px;display:flex;align-items:center;justify-content:space-between}
+.lf{display:flex;align-items:center;gap:4px}
+.mb,.cb{width:48px;height:48px;background:none;border:0;color:var(--cr);cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative}
+.mb svg,.cb svg{width:26px;height:26px;stroke:currentColor;stroke-width:1.5;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.bd{position:absolute;top:3px;right:1px;min-width:19px;height:19px;border-radius:10px;background:var(--g);color:#141414;font:600 11px var(--f);align-items:center;justify-content:center;padding:0 5px;display:none}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+.brand img{width:38px;height:38px;border-radius:50%}
 .brand span{display:flex;flex-direction:column;gap:5px}
-.brand b{font:500 18px/1 var(--f);letter-spacing:.34em}
-.brand small{font:400 8px/1 var(--f);letter-spacing:.3em;color:var(--g)}
+.brand b{font:500 17px/1 var(--f);letter-spacing:.34em}
+.brand small{font:400 7.5px/1 var(--f);letter-spacing:.3em;color:var(--g)}
 nav{display:none;gap:36px}
 nav a{font:400 13px var(--f);letter-spacing:.12em;text-transform:uppercase;text-decoration:none;color:#cfc9bb;padding:8px 0;border-bottom:1px solid transparent;transition:.25s}
 nav a:hover{color:var(--g);border-color:var(--g)}
-.mb{width:48px;height:48px;margin-right:-10px;background:none;border:0;color:var(--cr);cursor:pointer;display:flex;align-items:center;justify-content:center}
-.mb svg{width:26px;height:26px;stroke:currentColor;stroke-width:1.5;fill:none;stroke-linecap:round}
-#mm{display:none;border-top:1px solid var(--ln);background:var(--bg)}
-#mm.on{display:block;animation:fd .3s ease}
-#mm a{display:flex;align-items:center;min-height:58px;padding:0 22px;font:400 16px var(--f);letter-spacing:.06em;text-decoration:none;border-bottom:1px solid var(--ln)}
-@keyframes fd{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
-@keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
-@media(min-width:860px){nav{display:flex}.mb,#mm{display:none!important}}
+@media(min-width:860px){nav{display:flex}.mb{display:none}.hd{padding:0 22px}}
+@media(max-width:360px){.brand small{display:none}}
+/* menú lateral */
+#dr{display:none;position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.6);opacity:0;transition:opacity .3s}
+#dr.on{opacity:1}
+.pn{position:absolute;top:0;left:0;bottom:0;width:min(86vw,340px);background:#1a1a1a;border-right:1px solid var(--ln);display:flex;flex-direction:column;overflow:auto;transform:translateX(-100%);transition:transform .35s}
+#dr.on .pn{transform:none}
+.ph{position:relative;text-align:center;padding:calc(34px + env(safe-area-inset-top)) 20px 26px;border-bottom:1px solid var(--ln)}
+.ph img{width:76px;height:76px;border-radius:50%;margin:0 auto 18px}
+.ph b{display:block;font:400 26px/1 var(--f);letter-spacing:.4em;padding-left:.4em}
+.ph small{display:block;margin-top:12px;font:400 11px var(--f);letter-spacing:.2em;color:var(--g);text-transform:uppercase}
+.xx{position:absolute;top:10px;right:10px;width:44px;height:44px;border:0;background:none;color:var(--mu);font:26px/1 var(--f);cursor:pointer}
+.it{display:flex;align-items:center;gap:20px;min-height:58px;padding:0 26px;font:400 17px var(--f);text-decoration:none;color:var(--cr);background:none;border:0;width:100%;text-align:left;cursor:pointer}
+.it:hover,.it:active{background:#242422}
+.it svg{width:22px;height:22px;stroke:var(--cr);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.pf{margin-top:auto;border-top:1px solid var(--ln);padding:6px 0 calc(10px + env(safe-area-inset-bottom))}
+.pf .it{color:var(--mu);font-size:15px}
+.pf .it svg{stroke:var(--mu)}
+/* hero */
 .hero{padding:clamp(84px,16vw,160px) 22px clamp(72px,12vw,120px);background:radial-gradient(ellipse 70% 60% at 50% 0%,#221d14 0%,var(--bg) 70%);border-bottom:1px solid var(--ln)}
 .hi{max-width:1160px;margin:auto;display:flex;flex-direction:column;align-items:flex-start;gap:26px}
 .hi>*{animation:up .9s both}
@@ -47,6 +64,7 @@ nav a:hover{color:var(--g);border-color:var(--g)}
 .hi .ln{width:56px;height:1px;background:var(--g)}
 .hi p{font:300 clamp(17px,2.4vw,21px)/1.55 var(--f);color:#cfc9bb;max-width:520px}
 .bt{display:flex;flex-wrap:wrap;gap:14px}
+/* secciones */
 section{padding:clamp(56px,9vw,96px) 22px 0;max-width:1160px;margin:auto;scroll-margin-top:84px}
 .chips{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;margin:0 -22px 28px;padding:0 22px}
 .chips::-webkit-scrollbar{display:none}
@@ -69,7 +87,17 @@ section{padding:clamp(56px,9vw,96px) 22px 0;max-width:1160px;margin:auto;scroll-
 .tag{display:block;margin-top:8px;font:400 11px var(--f);letter-spacing:.14em;text-transform:uppercase;color:var(--g)}
 .about{border-left:1px solid var(--g);padding-left:20px;margin-bottom:28px;max-width:640px}
 .about p{font:300 18px/1.7 var(--f);color:#cfc9bb}
-#m{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:50;overflow:auto;-webkit-overflow-scrolling:touch}
+details{border-bottom:1px solid var(--ln);padding:20px 0}
+details summary{cursor:pointer;font:400 17px var(--f);list-style:none;display:flex;justify-content:space-between;gap:12px;min-height:30px}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:"+";color:var(--g);font-size:24px;line-height:1}
+details[open] summary::after{content:"–"}
+details p{margin-top:12px;font:300 16px/1.65 var(--f);color:#cfc9bb}
+footer{margin-top:clamp(70px,10vw,110px);border-top:1px solid var(--ln);padding:56px 22px calc(40px + env(safe-area-inset-bottom));text-align:center}
+footer i{display:block;font:300 clamp(20px,3vw,26px)/1.3 var(--f);font-style:normal;color:var(--cr);margin-bottom:14px}
+footer span{font:300 12px var(--f);letter-spacing:.1em;color:#6f6a5f}
+/* ficha */
+#m,#ct{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:50;overflow:auto;-webkit-overflow-scrolling:touch}
 #m .box{background:var(--bg);border:1px solid var(--ln);max-width:540px;margin:16px auto 24px;padding:0 0 26px}
 #m .box>img{width:100%;aspect-ratio:1;object-fit:contain;background:var(--cr);padding:14px;display:block;margin:0}
 #m .th{display:flex;gap:8px;padding:12px 22px;overflow-x:auto}
@@ -82,19 +110,51 @@ section{padding:clamp(56px,9vw,96px) 22px 0;max-width:1160px;margin:auto;scroll-
 #m p b{font-weight:500;color:var(--cr)}
 #m .btn{margin:14px 22px 0;display:flex}
 .x{position:fixed;top:max(12px,env(safe-area-inset-top));right:14px;z-index:60;width:46px;height:46px;border-radius:50%;border:1px solid var(--g);background:var(--bg);color:var(--g);font:24px/1 var(--f);cursor:pointer}
-footer{margin-top:clamp(70px,10vw,110px);border-top:1px solid var(--ln);padding:56px 22px calc(40px + env(safe-area-inset-bottom));text-align:center}
-footer i{display:block;font:300 clamp(20px,3vw,26px)/1.3 var(--f);font-style:normal;color:var(--cr);margin-bottom:14px}
-footer span{font:300 12px var(--f);letter-spacing:.1em;color:#6f6a5f}
+/* pedido */
+.cbx{max-width:520px;margin:16px auto 24px;background:var(--bg);border:1px solid var(--ln);padding:26px 22px}
+.cbx h2{font-size:28px;margin-bottom:14px;padding-right:50px}
+.li{display:flex;gap:14px;align-items:center;padding:14px 0;border-bottom:1px solid var(--ln)}
+.li img{width:64px;height:64px;object-fit:contain;background:var(--cr);padding:4px;flex:none}
+.li>div{flex:1;display:flex;flex-direction:column;gap:6px;font:400 14px var(--f);color:#cfc9bb}
+.li b{font:400 15px/1.3 var(--f);color:var(--cr)}
+.qt{display:flex;align-items:center;border:1px solid #3a352b;align-self:flex-start}
+.qt button{width:40px;height:40px;background:none;border:0;color:var(--cr);font:20px var(--f);cursor:pointer}
+.qt i{min-width:28px;text-align:center;font-style:normal;font-weight:500}
+.rm{background:none;border:0;color:#c47a70;font:24px var(--f);cursor:pointer;width:40px;height:40px}
+.tt{text-align:right;font:400 16px var(--f);margin:18px 0 4px}
+.tt b{color:var(--g);font-weight:500}
+.sm{font:300 12px/1.45 var(--f);color:var(--mu)}
+#cf h3{font:400 20px var(--f);margin:24px 0 8px}
+#cf input,#cf select,#cf textarea{width:100%;min-height:50px;padding:13px;margin:6px 0;border:1px solid #3a352b;background:var(--sf);color:var(--cr);font:400 16px var(--f);border-radius:2px;appearance:none;-webkit-appearance:none}
+#cf textarea{min-height:76px}
+#cf input::placeholder,#cf textarea::placeholder{color:#8a8374}
+#er{color:#e08f84;font:500 13px var(--f);min-height:18px;margin:6px 0}
+#cf .btn{width:100%}
+#ts{position:fixed;left:50%;bottom:calc(30px + env(safe-area-inset-bottom));transform:translate(-50%,16px);background:var(--sf);border:1px solid var(--g);color:var(--cr);padding:12px 20px;font:400 13px var(--f);letter-spacing:.06em;opacity:0;pointer-events:none;transition:.3s;z-index:70;white-space:nowrap}
+#ts.on{opacity:1;transform:translate(-50%,0)}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 </style></head><body>
 
 <header><div class="hd">
-<a class="brand" href="#" aria-label="VOLXEN"><img src="logo.png" alt="" width="40" height="40" onerror="this.style.display='none'"><span><b>VOLXEN</b><small>COMERCIALIZADORA</small></span></a>
-<nav aria-label="Principal"><a href="#catalogo">Catálogo</a><a href="#catalogo">Categorías</a><a href="#ofertas">Ofertas</a><a href="#nosotros">Contacto</a></nav>
-<button class="mb" id="mbt" aria-label="Abrir menú"><svg viewBox="0 0 24 24"><path d="M4 8h16M4 16h16"/></svg></button>
+<div class="lf">
+<button class="mb" onclick="menu(1)" aria-label="Abrir menú"><svg viewBox="0 0 24 24"><path d="M4 8h16M4 16h16"/></svg></button>
+<a class="brand" href="#" aria-label="VOLXEN"><img src="logo.png" alt="" width="38" height="38" onerror="this.style.display='none'"><span><b>VOLXEN</b><small>COMERCIALIZADORA</small></span></a>
 </div>
-<div id="mm"><a href="#catalogo">Catálogo</a><a href="#catalogo">Categorías</a><a href="#ofertas">Ofertas</a><a href="#nosotros">Contacto</a></div>
-</header>
+<nav aria-label="Principal"><a href="#catalogo">Catálogo</a><a href="#catalogo">Categorías</a><a href="#ofertas">Ofertas</a><a href="#nosotros">Contacto</a></nav>
+<button class="cb" onclick="openC()" aria-label="Ver mi pedido"><svg viewBox="0 0 24 24"><path d="M3 4h2l2 11h11l2-8H6"/><circle cx="9" cy="19" r="1.3"/><circle cx="17" cy="19" r="1.3"/></svg><i class="bd" id="bd">0</i></button>
+</div></header>
+
+<div id="dr" onclick="if(event.target===this)menu(0)"><div class="pn">
+<div class="ph"><button class="xx" onclick="menu(0)" aria-label="Cerrar menú">×</button><img src="logo.png" alt="" onerror="this.style.display='none'"><b>VOLXEN</b><small>Comercializadora La Habana</small></div>
+<a class="it" href="#catalogo" onclick="menu(0)"><svg viewBox="0 0 24 24"><path d="M6 7h12l-1 13H7L6 7z"/><path d="M9 7a3 3 0 016 0"/></svg>Catálogo de Piezas</a>
+<a class="it" href="#ofertas" onclick="menu(0)"><svg viewBox="0 0 24 24"><path d="M3 12l9-9h8v8l-9 9z"/><circle cx="16" cy="8" r="1.2"/></svg>Ofertas</a>
+<button class="it" onclick="menu(0);openC()"><svg viewBox="0 0 24 24"><path d="M3 4h2l2 11h11l2-8H6"/><circle cx="9" cy="19" r="1.3"/><circle cx="17" cy="19" r="1.3"/></svg>Carrito de Compras</button>
+<a class="it" id="wc" target="_blank" rel="noopener" href="#" onclick="menu(0)"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg>Consulta General</a>
+<a class="it" href="#nosotros" onclick="menu(0)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>Quiénes Somos</a>
+<a class="it" href="#faq" onclick="menu(0)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 115 0c0 1.5-2.5 2-2.5 4M12 17v.5"/></svg>Preguntas Frecuentes</a>
+<a class="it" id="wi" target="_blank" rel="noopener" href="#" onclick="menu(0)"><svg viewBox="0 0 24 24"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.5"/></svg>Reportar Incidencia</a>
+<div class="pf"><a class="it" href="admin.html"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="1"/><path d="M8 11V8a4 4 0 018 0v3"/></svg>Portal Empresa</a></div>
+</div></div>
 
 <div class="hero"><div class="hi">
 <span class="eyebrow" style="margin:0">Comercializadora</span>
@@ -106,41 +166,96 @@ footer span{font:300 12px var(--f);letter-spacing:.1em;color:#6f6a5f}
 
 <section id="ofertas"><span class="eyebrow">Selección</span><h2>Ofertas</h2><div class="grid" id="of"></div></section>
 <section id="catalogo"><span class="eyebrow">Catálogo</span><h2>Nuestros productos</h2><div class="chips" id="ch"></div><div class="grid" id="gr"></div></section>
-<section id="nosotros"><span class="eyebrow">VOLXEN</span><h2>Sobre nosotros</h2><div class="about"><p>VOLXEN es una comercializadora de tecnología y energía en Cuba: electrodomésticos, climatización, refrigeración, energía solar, movilidad eléctrica, cocina, TV y audio.</p></div><a class="btn" id="wa" href="#">Escríbenos por WhatsApp</a></section>
+<section id="nosotros"><span class="eyebrow">VOLXEN</span><h2>Quiénes somos</h2><div class="about"><p>VOLXEN es una comercializadora de tecnología y energía en Cuba: electrodomésticos, climatización, refrigeración, energía solar, movilidad eléctrica, cocina, TV y audio.</p></div><a class="btn" id="wa" target="_blank" rel="noopener" href="#">Escríbenos por WhatsApp</a></section>
+<section id="faq"><span class="eyebrow">Ayuda</span><h2>Preguntas frecuentes</h2>
+<details><summary>¿Cómo hago un pedido?</summary><p>Entra a un producto y toca “Añadir al pedido”. Luego abre tu pedido, completa tus datos y se abre WhatsApp con el mensaje listo para enviarnos. Nosotros confirmamos todo contigo por el chat.</p></details>
+<details><summary>¿El precio del pedido es final?</summary><p>El total que ves es estimado. El precio final, la disponibilidad y la entrega se confirman por WhatsApp antes de cerrar la compra.</p></details>
+<details><summary>¿Hay garantía y transporte?</summary><p>Cada ficha de producto indica su garantía y su transporte.</p></details>
+<details><summary>¿Es obligatorio el carnet de identidad?</summary><p>No, es opcional. Solo viaja dentro de tu mensaje de WhatsApp; esta web no lo guarda.</p></details>
+</section>
 <footer><i>Transparencia y confianza en cada venta</i><span>© VOLXEN · Comercializadora · La Habana, Cuba</span></footer>
 
-<div id="m" onclick="if(event.target===this)this.style.display='none'"><button class="x" aria-label="Cerrar" onclick="document.getElementById('m').style.display='none'">×</button><div class="box" id="mb"></div></div>
+<div id="m" onclick="if(event.target===this)cerrar()"><button class="x" aria-label="Cerrar" onclick="cerrar()">×</button><div class="box" id="mb"></div></div>
+
+<div id="ct" onclick="if(event.target===this)closeC()"><button class="x" aria-label="Cerrar" onclick="closeC()">×</button><div class="cbx">
+<h2>Tu pedido</h2>
+<div id="cl"></div><div class="tt" id="tt"></div>
+<div id="cf" style="display:none">
+<h3>Tus datos</h3>
+<input id="fn" placeholder="Nombre y apellidos *" autocomplete="name">
+<input id="fc" inputmode="numeric" maxlength="11" placeholder="Carnet de identidad (opcional)">
+<p class="sm">El carnet es opcional. Solo viaja dentro de tu mensaje de WhatsApp: esta web no lo guarda.</p>
+<select id="fp" aria-label="Provincia"></select>
+<input id="fd" placeholder="Localidad y dirección *" autocomplete="street-address">
+<textarea id="fo" placeholder="Notas (opcional)"></textarea>
+<p id="er"></p>
+<button class="btn" onclick="enviar()">Enviar pedido por WhatsApp</button>
+</div></div></div>
+<div id="ts"></div>
+
 <script src="config.js"></script><script>
 const C=window.VOLXEN_CONFIG,H={apikey:C.SUPABASE_KEY};
 const q=p=>fetch(C.SUPABASE_URL+"/rest/v1/"+p,{headers:H}).then(r=>r.json());
+const $=i=>document.getElementById(i);
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const D={disponible:"Disponible",bajo_pedido:"Bajo pedido",agotado:"Agotado"};
 const wa=t=>"https://wa.me/"+(C.WHATSAPP||"")+"?text="+encodeURIComponent(t);
-let P=[],O={},cat="";
+const PROV=["Pinar del Río","Artemisa","La Habana","Mayabeque","Matanzas","Villa Clara","Cienfuegos","Sancti Spíritus","Ciego de Ávila","Camagüey","Las Tunas","Holguín","Granma","Santiago de Cuba","Guantánamo","Isla de la Juventud"];
+let P=[],O={},cat="",K={};
+try{K=JSON.parse(localStorage.getItem("vx_k")||"{}")}catch(e){}
+const fm=n=>"$"+(Math.round(n*100)/100);
+const pr=p=>Number(O[p.id]||p.precio_usd)||0;
 const fotos=p=>(p.imagenes&&p.imagenes.length)?p.imagenes:(p.imagen_principal?[p.imagen_principal]:[]);
+function bd(){const n=Object.values(K).reduce((a,b)=>a+b,0),b=$("bd");b.textContent=n;b.style.display=n?"flex":"none"}
+function sv(){try{localStorage.setItem("vx_k",JSON.stringify(K))}catch(e){}bd()}
+function toast(t){const e=$("ts");e.textContent=t;e.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove("on"),1800)}
 function card(p){const o=O[p.id];const pr=o?'<span class="old">$'+p.precio_usd+'</span>$'+o:'$'+p.precio_usd;
 return '<div class="card" onclick="ver(\''+p.id+'\')"><img src="'+esc(fotos(p)[0])+'" alt="" loading="lazy"><div><b>'+esc(p.nombre)+'</b><span class="p">'+pr+' USD</span><br><span class="tag">'+(D[p.disponibilidad]||"")+'</span></div></div>'}
 function draw(){
-document.getElementById("gr").innerHTML=P.filter(p=>!cat||p.categoria_id===cat).map(card).join("")||"<p>Próximamente.</p>";
-document.getElementById("of").innerHTML=P.filter(p=>O[p.id]).map(card).join("")||"<p>Pronto nuevas ofertas.</p>"}
+$("gr").innerHTML=P.filter(p=>!cat||p.categoria_id===cat).map(card).join("")||"<p>Próximamente.</p>";
+$("of").innerHTML=P.filter(p=>O[p.id]).map(card).join("")||"<p>Pronto nuevas ofertas.</p>"}
 function ver(id){const p=P.find(x=>x.id===id),o=O[id];
 const f=(p.caracteristicas||[]).map(x=>"<li>"+esc(x)+"</li>").join("");
 const im=fotos(p);
 const th=im.length>1?'<div class="th">'+im.map(u=>'<img src="'+esc(u)+'" alt="" onclick="document.getElementById(\'gi\').src=this.src">').join("")+'</div>':"";
-document.getElementById("mb").innerHTML='<img id="gi" src="'+esc(im[0])+'" alt="">'+th+'<h2>'+esc(p.nombre)+'</h2><p class="p">'+(o?'<span class="old">$'+p.precio_usd+'</span>$'+o:'$'+p.precio_usd)+' USD</p><p>'+esc(p.descripcion)+'</p><ul>'+f+'</ul><p><b>Disponibilidad:</b> '+(D[p.disponibilidad]||"")+'</p><p><b>Garantía:</b> '+esc(p.garantia)+'</p><p><b>Transporte:</b> '+esc(p.transporte)+'</p><a class="btn" target="_blank" href="'+wa("Hola VOLXEN, me interesa: "+p.nombre)+'">Pedir por WhatsApp</a>';
-document.getElementById("m").style.display="block"}
+$("mb").innerHTML='<img id="gi" src="'+esc(im[0])+'" alt="">'+th+'<h2>'+esc(p.nombre)+'</h2><p class="p">'+(o?'<span class="old">$'+p.precio_usd+'</span>$'+o:'$'+p.precio_usd)+' USD</p><p>'+esc(p.descripcion)+'</p><ul>'+f+'</ul><p><b>Disponibilidad:</b> '+(D[p.disponibilidad]||"")+'</p><p><b>Garantía:</b> '+esc(p.garantia)+'</p><p><b>Transporte:</b> '+esc(p.transporte)+'</p><button class="btn" onclick="add(\''+p.id+'\')">Añadir al pedido</button><a class="btn ghost" target="_blank" rel="noopener" href="'+wa("Hola VOLXEN, me interesa: "+p.nombre)+'">Pedir por WhatsApp</a>';
+$("m").style.display="block";document.body.style.overflow="hidden";$("m").scrollTop=0}
+function cerrar(){$("m").style.display="none";document.body.style.overflow=""}
+/* pedido */
+function add(id){K[id]=(K[id]||0)+1;sv();toast("Añadido al pedido")}
+function chg(id,d){K[id]=(K[id]||0)+d;if(K[id]<=0)delete K[id];sv();cart()}
+function cart(){
+const it=Object.keys(K).map(id=>P.find(x=>x.id===id)).filter(Boolean);
+$("cl").innerHTML=it.length?it.map(p=>'<div class="li"><img src="'+esc(fotos(p)[0])+'" alt=""><div><b>'+esc(p.nombre)+'</b><span>'+fm(pr(p))+' USD</span><div class="qt"><button onclick="chg(\''+p.id+'\',-1)" aria-label="Menos">−</button><i>'+K[p.id]+'</i><button onclick="chg(\''+p.id+'\',1)" aria-label="Más">+</button></div></div><button class="rm" onclick="chg(\''+p.id+'\',-999)" aria-label="Quitar">×</button></div>').join(""):'<p class="sm" style="padding:10px 0">Tu pedido está vacío.</p>';
+const t=it.reduce((a,p)=>a+pr(p)*K[p.id],0);
+$("tt").innerHTML=it.length?'Total estimado: <b>'+fm(t)+' USD</b>':"";
+$("cf").style.display=it.length?"block":"none"}
+function openC(){cart();$("ct").style.display="block";document.body.style.overflow="hidden";$("ct").scrollTop=0}
+function closeC(){$("ct").style.display="none";document.body.style.overflow=""}
+function enviar(){
+const n=$("fn").value.trim(),d=$("fd").value.trim(),c=$("fc").value.trim();
+if(!n||!d){$("er").textContent="Completa tu nombre y la dirección.";return}
+$("er").textContent="";
+const it=Object.keys(K).map(id=>P.find(x=>x.id===id)).filter(Boolean);
+const t=it.reduce((a,p)=>a+pr(p)*K[p.id],0);
+let m="Hola VOLXEN, quiero hacer este pedido:\n"+it.map(p=>"- "+K[p.id]+" x "+p.nombre+" ("+fm(pr(p))+" USD)").join("\n")+"\nTotal estimado: "+fm(t)+" USD\n\nNombre: "+n+(c?"\nCarnet: "+c:"")+"\nProvincia: "+$("fp").value+"\nDirección: "+d;
+const o=$("fo").value.trim();if(o)m+="\nNotas: "+o;
+window.open(wa(m),"_blank")}
+/* menú */
+function menu(o){const d=$("dr");if(o){d.style.display="block";document.body.style.overflow="hidden";requestAnimationFrame(()=>d.classList.add("on"))}else{d.classList.remove("on");document.body.style.overflow="";setTimeout(()=>d.style.display="none",300)}}
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){menu(0);cerrar();closeC()}});
 async function init(){
-document.getElementById("wa").href=wa("Hola VOLXEN, quiero información.");
+bd();
+$("fp").innerHTML=PROV.map(x=>"<option"+(x==="La Habana"?" selected":"")+">"+x+"</option>").join("");
+$("wa").href=wa("Hola VOLXEN, quiero información.");
+$("wc").href=wa("Hola VOLXEN, tengo una consulta.");
+$("wi").href=wa("Hola VOLXEN, quiero reportar una incidencia: ");
 const[c,p,o]=await Promise.all([q("categorias?order=orden"),q("productos?activo=eq.true&order=created_at.desc"),q("ofertas?activa=eq.true")]);
 P=Array.isArray(p)?p:[];(Array.isArray(o)?o:[]).forEach(x=>O[x.producto_id]=x.precio_oferta_usd);
-const ch=document.getElementById("ch");
+const ch=$("ch");
 const all=[{id:"",nombre:"Todo"}].concat(Array.isArray(c)?c:[]);
 ch.innerHTML=all.map(x=>'<button data-i="'+x.id+'" class="'+(x.id===cat?"on":"")+'">'+esc(x.nombre)+'</button>').join("");
 ch.onclick=e=>{if(e.target.dataset.i===undefined)return;cat=e.target.dataset.i;[...ch.children].forEach(b=>b.className=b.dataset.i===cat?"on":"");draw()};
 draw()}
 init();
-/* menú móvil */
-const mbt=document.getElementById("mbt"),mm=document.getElementById("mm");
-mbt.onclick=()=>mm.classList.toggle("on");
-mm.onclick=e=>{if(e.target.tagName==="A")mm.classList.remove("on")};
 </script></body></html>
