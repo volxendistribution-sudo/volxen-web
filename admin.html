@@ -1884,6 +1884,31 @@ async function qGuardar(id){try{const s=$("qe2").value;await api("consultas?id=e
 async function qBorrar(id){if(!confirm("¿Borrar este mensaje?"))return;try{await api("consultas?id=eq."+encodeURIComponent(id),"DELETE");Q=Q.filter(y=>y.id!==id);qBadge();consultas()}catch(e){alert("No se pudo borrar el mensaje.")}}
 function qWa(id){const x=Q.find(y=>y.id===id);if(!x)return;let n=String(x.contacto||"").replace(/\D/g,"");if(!n)return;if(n.length===8)n="53"+n;
 window.open("https://wa.me/"+n+"?text="+encodeURIComponent("Hola, le contactamos desde VOLXEN sobre su "+(x.tipo==="incidencia"?"incidencia":"consulta")+(x.codigo_pedido?" del pedido "+x.codigo_pedido:"")+"."),"_blank")}
+
+   /* =========================================================
+   BORRAR PEDIDOS
+   ========================================================= */
+async function borrarPedido(id){
+const o=(D||[]).find(x=>x.id===id);
+if(!confirm("¿Borrar el pedido "+(o?o.codigo:"")+"? También se borrarán sus productos y su historial. No se puede deshacer."))return;
+try{
+await api("pedido_items?pedido_id=eq."+encodeURIComponent(id),"DELETE");
+await api("pedido_historial?pedido_id=eq."+encodeURIComponent(id),"DELETE");
+const r=await api("pedidos?id=eq."+encodeURIComponent(id),"DELETE");
+if(Array.isArray(r)&&!r.length){alert("No se borró: Supabase no permite borrar pedidos con tu usuario (falta una política de borrado).");return}
+await pedidos();
+msg("Pedido borrado correctamente.");
+}catch(e){alert("No se pudo borrar el pedido. "+(e&&e.message?e.message:""))}
+}
+const renderPedidos0=renderPedidos;
+renderPedidos=function(a){renderPedidos0(a);
+if(!a||!a.length)return;
+const cs=document.querySelectorAll("#dl > .r");
+a.forEach((o,i)=>{if(cs[i])cs[i].insertAdjacentHTML("beforeend",'<button class="x" onclick="borrarPedido(\''+o.id+'\')">BORRAR</button>')})};
+const verPedido0=verPedido;
+verPedido=async function(id){await verPedido0(id);
+$("v").insertAdjacentHTML("beforeend",'<button class="x" onclick="borrarPedido(\''+id+'\')">BORRAR PEDIDO</button>')};
 </script>
 </body>
 </html>
+
