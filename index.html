@@ -1,1462 +1,234 @@
 <!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="utf-8">
+<html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0c0c0d">
-
 <title>VOLXEN — Tecnología y energía en La Habana</title>
-
 <meta name="description" content="VOLXEN: comercialización de tecnología y energía en La Habana. Transparencia y confianza en cada venta.">
-
 <link rel="icon" href="logo.svg">
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
-
 <style>
-:root{
---bg:#0c0c0d;
---sf:#1e1d1b;
---s2:#141414;
---fg:#ede7da;
---mu:#a09a8f;
---g:#a9824a;
---gl:rgba(169,130,74,.25);
---bd:rgba(237,231,218,.12);
---ox:#4a1518;
---d:'Fraunces',Georgia,serif;
---s:'Inter',system-ui,sans-serif;
---e:cubic-bezier(.22,1,.36,1)
-}
-
-*{
-box-sizing:border-box;
-margin:0;
-padding:0;
-border-radius:0
-}
-
-html{
-scroll-behavior:smooth;
--webkit-text-size-adjust:100%
-}
-
-body{
-background:var(--bg);
-color:var(--mu);
-font:300 14px/1.7 var(--s);
-overflow-x:hidden
-}
-
-h1,h2,h3{
-font-family:var(--d);
-font-weight:400;
-color:var(--fg);
-line-height:1.15
-}
-
-a{
-color:inherit;
-text-decoration:none
-}
-
-button{
-font:inherit;
-color:inherit;
-background:none;
-border:0;
-cursor:pointer;
-text-align:inherit
-}
-
-img{
-display:block;
-max-width:100%
-}
-
-:focus-visible{
-outline:1px solid var(--g);
-outline-offset:3px
-}
-
-.c{
-width:100%;
-margin:auto;
-padding-inline:clamp(1.5rem,5vw,3rem);
-max-width:78rem
-}
-
-.ey{
-display:block;
-font:500 10px var(--s);
-letter-spacing:.28em;
-text-transform:uppercase;
-color:var(--g)
-}
-
-.lb{
-font:500 10px var(--s);
-letter-spacing:.28em;
-text-transform:uppercase;
-color:var(--mu)
-}
-
-.hl{
-display:block;
-height:1px;
-background:rgba(169,130,74,.35)
-}
-
-h2{
-font-size:clamp(1.9rem,4vw,2.4rem);
-margin-top:1.5rem
-}
-
-.sec{
-padding:clamp(5rem,10vw,11rem) 0;
-border-top:1px solid var(--gl)
-}
-
-.bt{
-display:inline-flex;
-align-items:center;
-justify-content:center;
-min-height:48px;
-padding:16px 32px;
-border:1px solid rgba(169,130,74,.45);
-color:var(--g);
-font:500 10px var(--s);
-letter-spacing:.28em;
-text-transform:uppercase;
-text-align:center;
-transition:.3s
-}
-
-.bt:hover{
-border-color:var(--g);
-background:rgba(169,130,74,.07)
-}
-
-.bt.h{
-border-color:var(--bd);
-color:var(--fg)
-}
-
-.bt.h:hover{
-border-color:rgba(169,130,74,.6);
-color:var(--g);
-background:none
-}
-
-.bt:disabled{
-opacity:.5;
-cursor:not-allowed
-}
-
-.rv{
-opacity:0;
-transform:translateY(16px);
-transition:opacity .6s var(--e),transform .6s var(--e)
-}
-
-.rv.in{
-opacity:1;
-transform:none
-}
-
-header{
-position:sticky;
-top:0;
-z-index:40;
-border-bottom:1px solid transparent;
-transition:.5s
-}
-
-header.sc{
-border-color:var(--gl);
-background:rgba(12,12,13,.9);
--webkit-backdrop-filter:blur(12px);
-backdrop-filter:blur(12px)
-}
-
-.hd{
-height:80px;
-display:flex;
-align-items:center;
-justify-content:space-between;
-gap:16px
-}
-
-.br{
-display:flex;
-align-items:center;
-gap:12px
-}
-
-.br img{
-width:34px;
-height:34px
-}
-
-.wm{
-font:400 20px/1 var(--d);
-letter-spacing:.03em;
-color:var(--fg)
-}
-
-.nv{
-display:flex;
-align-items:center;
-gap:28px
-}
-
-.nv a.l{
-display:none;
-font:500 10px var(--s);
-letter-spacing:.28em;
-text-transform:uppercase;
-transition:color .3s
-}
-
-.nv a.l:hover{
-color:var(--g)
-}
-
-@media(min-width:760px){
-.nv a.l{
-display:inline
-}
-}
-
-.cb{
-position:relative;
-width:44px;
-height:44px;
-border:1px solid var(--bd);
-display:grid;
-place-items:center;
-color:var(--fg);
-transition:.3s
-}
-
-.cb:hover{
-border-color:rgba(169,130,74,.6);
-color:var(--g)
-}
-
-.cb svg{
-width:17px;
-height:17px;
-stroke:currentColor;
-fill:none;
-stroke-width:1.4
-}
-
-.cb i{
-position:absolute;
-top:-8px;
-right:-8px;
-min-width:20px;
-padding:0 4px;
-border:1px solid rgba(169,130,74,.5);
-background:var(--bg);
-color:var(--g);
-font:400 10px/18px var(--s);
-text-align:center;
-font-style:normal;
-display:none
-}
-
-.hero{
-position:relative;
-overflow:hidden
-}
-
-.hero::before,
-.cie::before{
-content:"";
-position:absolute;
-inset:0;
-background:url(texture-stone.jpg) center/cover;
-opacity:.18
-}
-
-.hero::after{
-content:"";
-position:absolute;
-inset:0;
-background:
-radial-gradient(70% 55% at 50% 38%,rgba(169,130,74,.1),transparent 70%),
-linear-gradient(to bottom,rgba(12,12,13,.6),transparent,var(--bg))
-}
-
-.hero .c{
-position:relative;
-z-index:1;
-min-height:86vh;
-display:flex;
-flex-direction:column;
-align-items:center;
-justify-content:center;
-text-align:center;
-padding-block:7rem
-}
-
-.hx{
-perspective:900px
-}
-
-.hx img{
-width:clamp(7rem,28vw,9rem);
-height:auto;
-animation:sp 9s cubic-bezier(.45,0,.55,1) infinite
-}
-
-@keyframes sp{
-0%,100%{transform:rotateY(-26deg) rotateX(8deg)}
-50%{transform:rotateY(26deg) rotateX(-8deg)}
-}
-
-.hero h1{
-font-size:clamp(2.9rem,13vw,8.5rem);
-letter-spacing:.03em;
-line-height:1;
-margin-top:3.5rem
-}
-
-.hero p{
-max-width:28rem;
-margin-top:3rem
-}
-
-.hero .bt{
-margin-top:4rem
-}
-
-.hero .vv{
-margin-top:4rem;
-font:500 10px var(--s);
-letter-spacing:.28em;
-text-transform:uppercase
-}
-
-.hero .vv:hover{
-color:var(--g)
-}
-
-.hero .b{
-position:absolute;
-left:0;
-right:0;
-bottom:0;
-height:1px;
-background:rgba(169,130,74,.35);
-z-index:1
-}
-
-.cd{
-position:relative;
-background:var(--sf);
-border:1px solid var(--bd);
-isolation:isolate;
-transition:
-transform .32s var(--e),
-border-color .32s,
-box-shadow .32s,
-opacity .6s var(--e)
-}
-
-.cd::after{
-content:"";
-position:absolute;
-inset:0;
-pointer-events:none;
-opacity:0;
-transition:opacity .32s;
-background:linear-gradient(
-115deg,
-transparent 30%,
-rgba(169,130,74,.16) 50%,
-transparent 70%
-)
-}
-
-@media(hover:hover){
-.cd:hover{
-transform:
-perspective(1000px)
-translateY(-6px)
-rotateX(3deg)
-rotateY(-3deg)
-scale(1.008);
-border-color:rgba(169,130,74,.55);
-box-shadow:
-0 40px 70px -40px rgba(0,0,0,.85),
-0 0 0 1px rgba(169,130,74,.14)
-}
-
-.cd:hover::after{
-opacity:1
-}
-}
-
-.cats{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:12px;
-margin-top:4rem
-}
-
-@media(min-width:640px){
-.cats{
-grid-template-columns:repeat(3,1fr)
-}
-}
-
-@media(min-width:1024px){
-.cats{
-grid-template-columns:repeat(5,1fr)
-}
-}
-
-.ct{
-padding:2rem;
-display:block;
-width:100%
-}
-
-.ct svg{
-width:20px;
-height:20px;
-stroke:var(--g);
-fill:none;
-stroke-width:1.25
-}
-
-.ct b{
-display:block;
-margin-top:2rem;
-font:400 16px var(--d);
-color:var(--fg)
-}
-
-.ct span{
-display:block;
-margin-top:.75rem
-}
-
-.chs{
-display:flex;
-flex-wrap:wrap;
-gap:12px 28px;
-margin-top:3.5rem;
-padding-bottom:1.25rem;
-border-bottom:1px solid var(--gl)
-}
-
-.chs button{
-padding:6px 0;
-border-bottom:1px solid transparent;
-font:500 10px var(--s);
-letter-spacing:.28em;
-text-transform:uppercase;
-transition:color .3s
-}
-
-.chs button:hover{
-color:var(--fg)
-}
-
-.chs .on{
-border-color:var(--g);
-color:var(--g)
-}
-
-.grid{
-display:grid;
-gap:2rem;
-margin-top:4rem
-}
-
-@media(min-width:640px){
-.grid{
-grid-template-columns:repeat(2,1fr)
-}
-}
-
-@media(min-width:1024px){
-.grid{
-grid-template-columns:repeat(3,1fr);
-gap:3rem
-}
-}
-
-.pcd{
-display:flex;
-flex-direction:column
-}
-
-.im{
-aspect-ratio:4/3;
-border-bottom:1px solid var(--bd);
-background:var(--sf);
-overflow:hidden
-}
-
-.im img{
-width:100%;
-height:100%;
-object-fit:contain;
-padding:1rem
-}
-
-.tx{
-display:block;
-width:100%;
-flex:1;
-padding:2.5rem 2rem 1rem
-}
-
-@media(min-width:640px){
-.tx{
-padding:2.5rem 2.5rem 1rem
-}
-}
-
-.tx h3{
-margin-top:1.25rem;
-font-size:20px;
-transition:color .3s
-}
-
-.pcd:hover .tx h3{
-color:var(--g)
-}
-
-.tx .hl{
-width:2rem;
-margin-top:1.5rem;
-transition:width .5s
-}
-
-.pcd:hover .tx .hl{
-width:4rem
-}
-
-.pc{
-margin-top:1.5rem;
-letter-spacing:.03em;
-font-size:14px
-}
-
-.pc s{
-color:#6f6a5f;
-margin-right:8px
-}
-
-.pc b{
-font-weight:400;
-color:var(--g)
-}
-
-.ag{
-display:inline-block;
-margin-top:1.25rem;
-padding:4px 8px;
-border:1px solid var(--ox);
-color:#a8383d;
-font:500 10px var(--s);
-letter-spacing:.28em;
-text-transform:uppercase
-}
-
-.ad{
-padding:2rem
-}
-
-.ad .bt{
-width:100%
-}
-
-.emp{
-margin-top:4rem;
-padding:3.5rem 2rem;
-text-align:center
-}
-
-.emp p{
-max-width:28rem;
-margin:0 auto 2rem
-}
-
-.faq{
-display:grid;
-gap:5rem
-}
-
-@media(min-width:1024px){
-.faq{
-grid-template-columns:.75fr 1.25fr
-}
-}
-
-.faq .hl{
-width:5rem;
-margin:2.5rem 0
-}
-
-dl>div{
-border-top:1px solid var(--gl);
-padding:2.5rem 0
-}
-
-dl>div:last-child{
-border-bottom:1px solid var(--gl)
-}
-
-dt{
-font:400 18px/1.3 var(--d);
-color:var(--fg)
-}
-
-dd{
-margin-top:1rem;
-max-width:42rem
-}
-
-.cie{
-position:relative;
-overflow:hidden;
-text-align:center
-}
-
-.cie::before{
-opacity:.14
-}
-
-.cie::after{
-content:"";
-position:absolute;
-inset:0;
-background:
-linear-gradient(
-to bottom,
-rgba(12,12,13,.7),
-transparent,
-var(--bg)
-)
-}
-
-.cie .c{
-position:relative;
-z-index:1
-}
-
-.cie h2{
-max-width:40rem;
-margin:2rem auto 0;
-font-size:clamp(2.2rem,5vw,3rem)
-}
-
-.cie .hl{
-width:6rem;
-margin:2.5rem auto
-}
-
-.qs{
-max-width:600px;
-margin:auto
-}
-
-.qs .hl{
-width:5rem;
-margin:2.5rem 0
-}
-
-.qs p+p{
-margin-top:2rem
-}
-
-footer{
-border-top:1px solid var(--gl)
-}
-
-.fg{
-display:grid;
-gap:4rem;
-padding-block:5rem
-}
-
-@media(min-width:760px){
-.fg{
-grid-template-columns:repeat(3,1fr)
-}
-}
-
-.fg a.t{
-display:block;
-margin-top:1.5rem;
-transition:color .3s
-}
-
-.fg a:hover{
-color:var(--g)
-}
-
-.fg .sc2{
-display:flex;
-gap:1.5rem;
-margin-top:2rem
-}
-
-.fd{
-display:flex;
-flex-direction:column;
-gap:12px;
-padding-block:1.5rem;
-font-size:13px
-}
-
-@media(min-width:760px){
-.fd{
-flex-direction:row;
-flex-wrap:wrap;
-gap:12px 40px
-}
-}
-
-.fd span::before{
-content:"◆";
-color:var(--g);
-font-size:7px;
-margin-right:12px;
-vertical-align:middle
-}
-
-.cp{
-padding-block:1.5rem;
-font-size:12px
-}
-
-.ov{
-display:none;
-position:fixed;
-inset:0;
-z-index:60;
-background:rgba(0,0,0,.8);
-overflow:auto;
-opacity:0;
-transition:opacity .3s
-}
-
-.ov.on{
-opacity:1
-}
-
-.bx{
-position:relative;
-max-width:32rem;
-margin:max(16px,env(safe-area-inset-top)) auto 24px;
-background:var(--s2);
-border:1px solid var(--gl);
-padding:2rem
-}
-
-.xb{
-position:absolute;
-top:8px;
-right:8px;
-width:44px;
-height:44px;
-font-size:24px;
-color:var(--mu);
-text-align:center;
-z-index:2
-}
-
-.bx .im{
-border:1px solid var(--bd)
-}
-
-.bx h3{
-font-size:24px;
-margin-top:1rem
-}
-
-.bx p{
-margin-top:1.25rem
-}
-
-.bx ul{
-margin:1rem 0 0 1.1rem
-}
-
-.bx .row{
-display:flex;
-gap:1px;
-margin-top:2.5rem
-}
-
-.bx .row .bt{
-flex:1
-}
-
-.q{
-display:flex;
-align-items:center;
-border:1px solid var(--bd)
-}
-
-.q button{
-width:44px;
-height:48px;
-text-align:center;
-font-size:18px;
-color:var(--mu)
-}
-
-.q button:hover{
-color:var(--g)
-}
-
-.q i{
-min-width:28px;
-text-align:center;
-font-style:normal;
-color:var(--fg)
-}
-
-.sl{
-display:block;
-margin-top:2rem;
-text-align:center;
-font-size:12px
-}
-
-.sl:hover{
-color:var(--g)
-}
-
-.sh{
-margin:0 0 0 auto;
-min-height:100%;
-width:min(92vw,26rem);
-border:0;
-border-left:1px solid var(--gl);
-transform:translateX(30px);
-transition:transform .35s var(--e)
-}
-
-.ov.on .sh{
-transform:none
-}
-
-.li{
-display:flex;
-gap:16px;
-padding:1.25rem 0;
-border-bottom:1px solid var(--bd);
-align-items:center
-}
-
-.li img{
-width:64px;
-height:64px;
-object-fit:contain;
-background:var(--sf);
-flex:none
-}
-
-.li div{
-flex:1
-}
-
-.li b{
-display:block;
-font:400 15px/1.3 var(--d);
-color:var(--fg);
-margin-bottom:6px
-}
-
-.tt{
-margin-top:1.5rem;
-text-align:right;
-color:var(--fg)
-}
-
-.tt b{
-color:var(--g);
-font-weight:400
-}
-
-.sh input,
-.sh textarea{
-width:100%;
-min-height:50px;
-margin-top:10px;
-padding:12px;
-background:var(--sf);
-border:1px solid var(--bd);
-color:var(--fg);
-font:300 16px var(--s)
-}
-
-.sh textarea{
-min-height:76px
-}
-
-.sh input:focus,
-.sh textarea:focus{
-outline:0;
-border-color:var(--g)
-}
-
-#er{
-color:#d98080;
-min-height:20px;
-margin-top:8px;
-font-size:13px
-}
-
-#ts{
-display:flex;
-align-items:center;
-gap:16px;
-position:fixed;
-left:50%;
-bottom:calc(28px + env(safe-area-inset-bottom));
-transform:translate(-50%,14px);
-z-index:80;
-background:var(--s2);
-border:1px solid rgba(169,130,74,.5);
-color:var(--fg);
-padding:12px 20px;
-font-size:13px;
-opacity:0;
-pointer-events:none;
-transition:.3s;
-max-width:92vw;
-white-space:normal
-}
-
-#ts.on{
-opacity:1;
-transform:translate(-50%,0);
-pointer-events:auto
-}
-
-.vp{
-flex:none;
-min-height:44px;
-padding:0 14px;
-border:1px solid rgba(169,130,74,.45);
-color:var(--g);
-font:500 10px var(--s);
-letter-spacing:.28em;
-text-transform:uppercase
-}
-
-.so{
-width:44px;
-height:44px;
-border:1px solid var(--bd);
-display:grid;
-place-items:center;
-color:var(--fg);
-transition:.3s
-}
-
-.so:hover{
-border-color:rgba(169,130,74,.6);
-color:var(--g)
-}
-
-.so svg{
-width:18px;
-height:18px;
-stroke:currentColor;
-fill:none;
-stroke-width:1.25
-}
-
-.sh label.lb{
-display:block;
-margin-top:16px
-}
-
-.sh select{
-width:100%;
-min-height:50px;
-margin-top:6px;
-padding:12px 40px 12px 12px;
-background:var(--sf) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a9824a' stroke-width='1.25'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center/16px;
-border:1px solid var(--bd);
-color:var(--fg);
-font:300 16px var(--s);
--webkit-appearance:none;
-appearance:none
-}
-
-.sh select:focus{
-outline:0;
-border-color:var(--g)
-}
-
-.sh select option{
-background:var(--s2);
-color:var(--fg)
-}
-
-.sh #fc{
-margin-top:6px
-}
-
-.sh .nt{
-margin-top:6px;
-font-size:12px;
-line-height:1.5
-}
-
-.sh.lf{
-margin:0 auto 0 0;
-border-left:0;
-border-right:1px solid var(--gl);
-transform:translateX(-30px)
-}
-
-.mn{
-margin-top:2rem;
-border-top:1px solid var(--gl)
-}
-
-.mn a,
-.mn button{
-display:flex;
-align-items:center;
-width:100%;
-min-height:52px;
-border-bottom:1px solid var(--bd);
-color:var(--fg);
-font:500 10px var(--s);
-letter-spacing:.28em;
-text-transform:uppercase;
-transition:color .3s
-}
-
-.mn a:hover,
-.mn button:hover{
-color:var(--g)
-}
-
-.im.gv{
-position:relative
-}
-
-.gl{
-display:flex;
-height:100%;
-overflow-x:auto;
-scroll-snap-type:x mandatory;
-scrollbar-width:none
-}
-
-.gl::-webkit-scrollbar{
-display:none
-}
-
-.gl img{
-flex:0 0 100%;
-scroll-snap-align:center
-}
-
-.dt{
-position:absolute;
-left:0;
-right:0;
-bottom:10px;
-display:flex;
-justify-content:center;
-gap:6px;
-pointer-events:none
-}
-
-.dt i{
-width:6px;
-height:6px;
-border:1px solid rgba(169,130,74,.6)
-}
-
-.dt i.on{
-background:var(--g)
-}
-
-.receipt{
-border-top:1px solid var(--gl);
-border-bottom:1px solid var(--gl);
-padding:1.5rem 0;
-margin-top:1.5rem
-}
-
-.receipt-code{
-font:400 26px var(--d);
-color:var(--g);
-letter-spacing:.03em;
-word-break:break-word
-}
-
-.receipt-token{
-margin-top:8px;
-font-size:11px;
-color:var(--mu);
-word-break:break-all
-}
-
-.receipt-status{
-display:inline-block;
-margin-top:1rem;
-padding:6px 10px;
-border:1px solid rgba(169,130,74,.45);
-color:var(--g);
-font-size:10px;
-letter-spacing:.12em;
-text-transform:uppercase
-}
-
-.order-success{
-padding-bottom:1rem
-}
-
-.order-success p{
-margin-top:.8rem
-}
-
-.order-actions{
-display:grid;
-gap:10px;
-margin-top:1.5rem
-}
-
-.order-actions .bt{
-width:100%
-}
-
-.order-loading{
-text-align:center;
-padding:2rem 0
-}
-
-@media(prefers-reduced-motion:reduce){
-*,
-*::before,
-*::after{
-animation:none!important;
-transition:none!important;
-scroll-behavior:auto!important
-}
-
-.rv{
-opacity:1;
-transform:none
-}
-}
-</style>
-</head>
-
-<body>
-
-<header id="hd">
-<div class="c hd">
-
-<a class="br" href="#top" aria-label="VOLXEN — inicio">
-<img src="logo.svg" alt="" width="34" height="34">
-<span class="wm">VOLXEN</span>
-</a>
-
-<nav class="nv">
-
-<a class="l" href="#catalogo">Colección</a>
-<a class="l" href="#faq">Información</a>
-<a class="l" href="#quienes-somos">Quiénes somos</a>
-
-<button class="cb" data-a="menu" aria-label="Abrir menú">
-<svg viewBox="0 0 24 24">
-<path d="M4 8h16M4 16h16"/>
-</svg>
-</button>
-
-<button class="cb" data-a="cart" aria-label="Ver su pedido">
-<svg viewBox="0 0 24 24">
-<path d="M6 7h12l1 13H5L6 7z"/>
-<path d="M9 7a3 3 0 016 0"/>
-</svg>
-<i id="bd">0</i>
-</button>
-
-</nav>
-</div>
-</header>
-
+:root{--bg:#0c0c0d;--sf:#1e1d1b;--s2:#141414;--fg:#ede7da;--mu:#a09a8f;--g:#a9824a;--gl:rgba(169,130,74,.25);--bd:rgba(237,231,218,.12);--ox:#4a1518;--d:'Fraunces',Georgia,serif;--s:'Inter',system-ui,sans-serif;--e:cubic-bezier(.22,1,.36,1)}
+*{box-sizing:border-box;margin:0;padding:0;border-radius:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--mu);font:300 14px/1.7 var(--s);overflow-x:hidden}
+h1,h2,h3{font-family:var(--d);font-weight:400;color:var(--fg);line-height:1.15}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;text-align:inherit}
+img{display:block;max-width:100%}
+:focus-visible{outline:1px solid var(--g);outline-offset:3px}
+.c{width:100%;margin:auto;padding-inline:clamp(1.5rem,5vw,3rem);max-width:78rem}
+.ey{display:block;font:500 10px var(--s);letter-spacing:.28em;text-transform:uppercase;color:var(--g)}
+.lb{font:500 10px var(--s);letter-spacing:.28em;text-transform:uppercase;color:var(--mu)}
+.hl{display:block;height:1px;background:rgba(169,130,74,.35)}
+h2{font-size:clamp(1.9rem,4vw,2.4rem);margin-top:1.5rem}
+.sec{padding:clamp(5rem,10vw,11rem) 0;border-top:1px solid var(--gl)}
+.bt{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:16px 32px;border:1px solid rgba(169,130,74,.45);color:var(--g);font:500 10px var(--s);letter-spacing:.28em;text-transform:uppercase;text-align:center;transition:.3s}
+.bt:hover{border-color:var(--g);background:rgba(169,130,74,.07)}
+.bt.h{border-color:var(--bd);color:var(--fg)}
+.bt.h:hover{border-color:rgba(169,130,74,.6);color:var(--g);background:none}
+.rv{opacity:0;transform:translateY(16px);transition:opacity .6s var(--e),transform .6s var(--e)}
+.rv.in{opacity:1;transform:none}
+header{position:sticky;top:0;z-index:40;border-bottom:1px solid transparent;transition:.5s}
+header.sc{border-color:var(--gl);background:rgba(12,12,13,.9);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.hd{height:80px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.br{display:flex;align-items:center;gap:12px}
+.br img{width:34px;height:34px}
+.wm{font:400 20px/1 var(--d);letter-spacing:.03em;color:var(--fg)}
+.nv{display:flex;align-items:center;gap:28px}
+.nv a.l{display:none;font:500 10px var(--s);letter-spacing:.28em;text-transform:uppercase;transition:color .3s}
+.nv a.l:hover{color:var(--g)}
+@media(min-width:760px){.nv a.l{display:inline}}
+.cb{position:relative;width:44px;height:44px;border:1px solid var(--bd);display:grid;place-items:center;color:var(--fg);transition:.3s}
+.cb:hover{border-color:rgba(169,130,74,.6);color:var(--g)}
+.cb svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.4}
+.cb i{position:absolute;top:-8px;right:-8px;min-width:20px;padding:0 4px;border:1px solid rgba(169,130,74,.5);background:var(--bg);color:var(--g);font:400 10px/18px var(--s);text-align:center;font-style:normal;display:none}
+.hero{position:relative;overflow:hidden}
+.hero::before,.cie::before{content:"";position:absolute;inset:0;background:url(texture-stone.jpg) center/cover;opacity:.18}
+.hero::after{content:"";position:absolute;inset:0;background:radial-gradient(70% 55% at 50% 38%,rgba(169,130,74,.1),transparent 70%),linear-gradient(to bottom,rgba(12,12,13,.6),transparent,var(--bg))}
+.hero .c{position:relative;z-index:1;min-height:86vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding-block:7rem}
+.hx{perspective:900px}
+.hx img{width:clamp(7rem,28vw,9rem);height:auto;animation:sp 9s cubic-bezier(.45,0,.55,1) infinite}
+@keyframes sp{0%,100%{transform:rotateY(-26deg) rotateX(8deg)}50%{transform:rotateY(26deg) rotateX(-8deg)}}
+.hero h1{font-size:clamp(2.9rem,13vw,8.5rem);letter-spacing:.03em;line-height:1;margin-top:3.5rem}
+.hero p{max-width:28rem;margin-top:3rem}
+.hero .bt{margin-top:4rem}
+.hero .vv{margin-top:4rem;font:500 10px var(--s);letter-spacing:.28em;text-transform:uppercase}
+.hero .vv:hover{color:var(--g)}
+.hero .b{position:absolute;left:0;right:0;bottom:0;height:1px;background:rgba(169,130,74,.35);z-index:1}
+.cd{position:relative;background:var(--sf);border:1px solid var(--bd);isolation:isolate;transition:transform .32s var(--e),border-color .32s,box-shadow .32s,opacity .6s var(--e)}
+.cd::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .32s;background:linear-gradient(115deg,transparent 30%,rgba(169,130,74,.16) 50%,transparent 70%)}
+@media(hover:hover){.cd:hover{transform:perspective(1000px) translateY(-6px) rotateX(3deg) rotateY(-3deg) scale(1.008);border-color:rgba(169,130,74,.55);box-shadow:0 40px 70px -40px rgba(0,0,0,.85),0 0 0 1px rgba(169,130,74,.14)}.cd:hover::after{opacity:1}}
+.cats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:4rem}
+@media(min-width:640px){.cats{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:1024px){.cats{grid-template-columns:repeat(5,1fr)}}
+.ct{padding:2rem;display:block;width:100%}
+.ct svg{width:20px;height:20px;stroke:var(--g);fill:none;stroke-width:1.25}
+.ct b{display:block;margin-top:2rem;font:400 16px var(--d);color:var(--fg)}
+.ct span{display:block;margin-top:.75rem}
+.chs{display:flex;flex-wrap:wrap;gap:12px 28px;margin-top:3.5rem;padding-bottom:1.25rem;border-bottom:1px solid var(--gl)}
+.chs button{padding:6px 0;border-bottom:1px solid transparent;font:500 10px var(--s);letter-spacing:.28em;text-transform:uppercase;transition:color .3s}
+.chs button:hover{color:var(--fg)}
+.chs .on{border-color:var(--g);color:var(--g)}
+.grid{display:grid;gap:2rem;margin-top:4rem}
+@media(min-width:640px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1024px){.grid{grid-template-columns:repeat(3,1fr);gap:3rem}}
+.pcd{display:flex;flex-direction:column}
+.im{aspect-ratio:4/3;border-bottom:1px solid var(--bd);background:var(--sf);overflow:hidden}
+.im img{width:100%;height:100%;object-fit:contain;padding:1rem}
+.tx{display:block;width:100%;flex:1;padding:2.5rem 2rem 1rem}
+@media(min-width:640px){.tx{padding:2.5rem 2.5rem 1rem}}
+.tx h3{margin-top:1.25rem;font-size:20px;transition:color .3s}
+.pcd:hover .tx h3{color:var(--g)}
+.tx .hl{width:2rem;margin-top:1.5rem;transition:width .5s}
+.pcd:hover .tx .hl{width:4rem}
+.pc{margin-top:1.5rem;letter-spacing:.03em;font-size:14px}
+.pc s{color:#6f6a5f;margin-right:8px}
+.pc b{font-weight:400;color:var(--g)}
+.ag{display:inline-block;margin-top:1.25rem;padding:4px 8px;border:1px solid var(--ox);color:#a8383d;font:500 10px var(--s);letter-spacing:.28em;text-transform:uppercase}
+.ad{padding:2rem}
+.ad .bt{width:100%}
+.emp{margin-top:4rem;padding:3.5rem 2rem;text-align:center}
+.emp p{max-width:28rem;margin:0 auto 2rem}
+.faq{display:grid;gap:5rem}
+@media(min-width:1024px){.faq{grid-template-columns:.75fr 1.25fr}}
+.faq .hl{width:5rem;margin:2.5rem 0}
+dl>div{border-top:1px solid var(--gl);padding:2.5rem 0}
+dl>div:last-child{border-bottom:1px solid var(--gl)}
+dt{font:400 18px/1.3 var(--d);color:var(--fg)}
+dd{margin-top:1rem;max-width:42rem}
+.cie{position:relative;overflow:hidden;text-align:center}
+.cie::before{opacity:.14}
+.cie::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(12,12,13,.7),transparent,var(--bg))}
+.cie .c{position:relative;z-index:1}
+.cie h2{max-width:40rem;margin:2rem auto 0;font-size:clamp(2.2rem,5vw,3rem)}
+.cie .hl{width:6rem;margin:2.5rem auto}
+.qs{max-width:600px;margin:auto}
+.qs .hl{width:5rem;margin:2.5rem 0}
+.qs p+p{margin-top:2rem}
+footer{border-top:1px solid var(--gl)}
+.fg{display:grid;gap:4rem;padding-block:5rem}
+@media(min-width:760px){.fg{grid-template-columns:repeat(3,1fr)}}
+.fg a.t{display:block;margin-top:1.5rem;transition:color .3s}
+.fg a:hover{color:var(--g)}
+.fg .sc2{display:flex;gap:1.5rem;margin-top:2rem}
+.fd{display:flex;flex-direction:column;gap:12px;padding-block:1.5rem;font-size:13px}
+@media(min-width:760px){.fd{flex-direction:row;flex-wrap:wrap;gap:12px 40px}}
+.fd span::before{content:"◆";color:var(--g);font-size:7px;margin-right:12px;vertical-align:middle}
+.cp{padding-block:1.5rem;font-size:12px}
+.ov{display:none;position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.8);overflow:auto;opacity:0;transition:opacity .3s}
+.ov.on{opacity:1}
+.bx{position:relative;max-width:32rem;margin:max(16px,env(safe-area-inset-top)) auto 24px;background:var(--s2);border:1px solid var(--gl);padding:2rem}
+.xb{position:absolute;top:8px;right:8px;width:44px;height:44px;font-size:24px;color:var(--mu);text-align:center;z-index:2}
+.bx .im{border:1px solid var(--bd)}
+.bx h3{font-size:24px;margin-top:1rem}
+.bx p{margin-top:1.25rem}
+.bx ul{margin:1rem 0 0 1.1rem}
+.bx .row{display:flex;gap:1px;margin-top:2.5rem}
+.bx .row .bt{flex:1}
+.q{display:flex;align-items:center;border:1px solid var(--bd)}
+.q button{width:44px;height:48px;text-align:center;font-size:18px;color:var(--mu)}
+.q button:hover{color:var(--g)}
+.q i{min-width:28px;text-align:center;font-style:normal;color:var(--fg)}
+.sl{display:block;margin-top:2rem;text-align:center;font-size:12px}
+.sl:hover{color:var(--g)}
+.sh{margin:0 0 0 auto;min-height:100%;width:min(92vw,26rem);border:0;border-left:1px solid var(--gl);transform:translateX(30px);transition:transform .35s var(--e)}
+.ov.on .sh{transform:none}
+.li{display:flex;gap:16px;padding:1.25rem 0;border-bottom:1px solid var(--bd);align-items:center}
+.li img{width:64px;height:64px;object-fit:contain;background:var(--sf);flex:none}
+.li div{flex:1}
+.li b{display:block;font:400 15px/1.3 var(--d);color:var(--fg);margin-bottom:6px}
+.tt{margin-top:1.5rem;text-align:right;color:var(--fg)}
+.tt b{color:var(--g);font-weight:400}
+.sh input,.sh textarea{width:100%;min-height:50px;margin-top:10px;padding:12px;background:var(--sf);border:1px solid var(--bd);color:var(--fg);font:300 16px var(--s)}
+.sh textarea{min-height:76px}
+.sh input:focus,.sh textarea:focus{outline:0;border-color:var(--g)}
+#er{color:#d98080;min-height:20px;margin-top:8px;font-size:13px}
+#ts{position:fixed;left:50%;bottom:calc(28px + env(safe-area-inset-bottom));transform:translate(-50%,14px);z-index:80;background:var(--s2);border:1px solid rgba(169,130,74,.5);color:var(--fg);padding:12px 20px;font-size:13px;opacity:0;pointer-events:none;transition:.3s;white-space:nowrap}
+#ts.on{opacity:1;transform:translate(-50%,0)}
+.sh label.lb{display:block;margin-top:16px}
+.sh select{width:100%;min-height:50px;margin-top:6px;padding:12px 40px 12px 12px;background:var(--sf) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a9824a' stroke-width='1.25'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center/16px;border:1px solid var(--bd);color:var(--fg);font:300 16px var(--s);-webkit-appearance:none;appearance:none}
+.sh select:focus{outline:0;border-color:var(--g)}
+.sh select option{background:var(--s2);color:var(--fg)}
+.sh #fc{margin-top:6px}
+.sh .nt{margin-top:6px;font-size:12px;line-height:1.5}
+.sh.lf{margin:0 auto 0 0;border-left:0;border-right:1px solid var(--gl);transform:translateX(-30px)}
+.mn{margin-top:2rem;border-top:1px solid var(--gl)}
+.mn a,.mn button{display:flex;align-items:center;width:100%;min-height:52px;border-bottom:1px solid var(--bd);color:var(--fg);font:500 10px var(--s);letter-spacing:.28em;text-transform:uppercase;transition:color .3s}
+.mn a:hover,.mn button:hover{color:var(--g)}
+.im.gv{position:relative}
+.gl{display:flex;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
+.gl::-webkit-scrollbar{display:none}
+.gl img{flex:0 0 100%;scroll-snap-align:center}
+.dt{position:absolute;left:0;right:0;bottom:10px;display:flex;justify-content:center;gap:6px;pointer-events:none}
+.dt i{width:6px;height:6px;border:1px solid rgba(169,130,74,.6)}
+.dt i.on{background:var(--g)}
+#ts{display:flex;align-items:center;gap:16px;max-width:92vw;white-space:normal}
+#ts.on{pointer-events:auto}
+.vp{flex:none;min-height:44px;padding:0 14px;border:1px solid rgba(169,130,74,.45);color:var(--g);font:500 10px var(--s);letter-spacing:.28em;text-transform:uppercase}
+.so{width:44px;height:44px;border:1px solid var(--bd);display:grid;place-items:center;color:var(--fg);transition:.3s}
+.so:hover{border-color:rgba(169,130,74,.6);color:var(--g)}
+.so svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.25}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.rv{opacity:1;transform:none}}
+</style></head><body><header id="hd"><div class="c hd">
+<a class="br" href="#top" aria-label="VOLXEN — inicio"><img src="logo.svg" alt="" width="34" height="34"><span class="wm">VOLXEN</span></a>
+<nav class="nv"><a class="l" href="#catalogo">Colección</a><a class="l" href="#faq">Información</a><a class="l" href="#quienes-somos">Quiénes somos</a>
+<button class="cb" data-a="menu" aria-label="Abrir menú"><svg viewBox="0 0 24 24"><path d="M4 8h16M4 16h16"/></svg></button><button class="cb" data-a="cart" aria-label="Ver su pedido"><svg viewBox="0 0 24 24"><path d="M6 7h12l1 13H5L6 7z"/><path d="M9 7a3 3 0 016 0"/></svg><i id="bd">0</i></button></nav>
+</div></header>
 
 <main>
-
-<section class="hero" id="top">
-<div class="c">
-
-<div class="hx">
-<img src="logo.svg" alt="VOLXEN" width="144" height="144">
-</div>
-
-<h1>VOLXEN</h1>
-
-<span class="hl" style="width:6rem;margin-top:3rem"></span>
-
+<section class="hero" id="top"><div class="c">
+<div class="hx"><img src="logo.svg" alt="VOLXEN" width="144" height="144"></div>
+<h1>VOLXEN</h1><span class="hl" style="width:6rem;margin-top:3rem"></span>
 <p>Transparencia y confianza en cada venta.</p>
-
-<a class="bt wl"
-data-m="Buenas, deseo consultar sobre la colección de Volxen."
-href="#"
-target="_blank"
-rel="noopener">
-Consulte con su asesor
-</a>
-
+<a class="bt wl" data-m="Buenas, deseo consultar sobre la colección de Volxen." href="#" target="_blank" rel="noopener">Consulte con su asesor</a>
 <a class="vv" href="#catalogo">Ver colección</a>
+</div><i class="b"></i></section>
 
-</div>
+<section class="sec" id="cats" hidden><div class="c"><p class="ey">Categorías</p><h2>La colección</h2><div class="cats" id="cg"></div></div></section>
 
-<i class="b"></i>
-</section>
+<section class="sec" id="of" hidden><div class="c"><p class="ey">Ofertas</p><h2>Precios especiales</h2><div class="grid" id="og"></div></div></section>
 
+<section class="sec" id="catalogo" style="border-top:0"><div class="c"><p class="ey">Colección</p><h2>Piezas disponibles</h2>
+<div class="chs" id="ch"></div><div class="grid" id="gr"></div></div></section>
 
-<section class="sec" id="cats" hidden>
-<div class="c">
-
-<p class="ey">Categorías</p>
-<h2>La colección</h2>
-
-<div class="cats" id="cg"></div>
-
-</div>
-</section>
-
-
-<section class="sec" id="of" hidden>
-<div class="c">
-
-<p class="ey">Ofertas</p>
-<h2>Precios especiales</h2>
-
-<div class="grid" id="og"></div>
-
-</div>
-</section>
-
-
-<section class="sec" id="catalogo" style="border-top:0">
-
-<div class="c">
-
-<p class="ey">Colección</p>
-<h2>Piezas disponibles</h2>
-
-<div class="chs" id="ch"></div>
-
-<div class="grid" id="gr"></div>
-
-</div>
-</section>
-
-
-<section class="sec" id="faq">
-
-<div class="c faq">
-
-<div>
-
-<p class="ey">Información</p>
-
-<h2>Todo claro antes de confirmar</h2>
-
-<span class="hl"></span>
-
-<p>
-Preferimos la transparencia antes de cerrar.
-Si queda alguna duda, consulte con su asesor.
-</p>
-
-</div>
-
+<section class="sec" id="faq"><div class="c faq"><div><p class="ey">Información</p><h2>Todo claro antes de confirmar</h2><span class="hl"></span><p>Preferimos la transparencia antes de cerrar. Si queda alguna duda, consulte con su asesor.</p></div>
 <dl>
+<div><dt>¿En qué zonas entregan?</dt><dd>La entrega está incluida en Centro Habana, Habana Vieja, Vedado, Diez de Octubre, Marianao y Playa. Otros municipios se coordinan con mensajería y el costo se confirma antes de cerrar el pedido.</dd></div>
+<div><dt>¿Cómo puedo pagar?</dt><dd>Se acepta USD, EUR, CUP y Zelle según disponibilidad. No hay pago en línea: su asesor confirma la forma de pago antes de la entrega.</dd></div>
+<div><dt>¿Los equipos tienen garantía?</dt><dd>Sí. Cada equipo lleva respaldo posventa por escrito; el plazo aparece en la ficha de la pieza cuando aplica.</dd></div>
+<div><dt>¿Aceptan devoluciones?</dt><dd>No hay devoluciones salvo por garantía. Revise medidas y especificaciones antes de confirmar, e inspeccione el equipo al recibirlo.</dd></div>
+<div><dt>¿Necesito crear una cuenta para pedir?</dt><dd>No. Puede registrar su pedido directamente desde el sitio. El pedido queda registrado y recibe un código para su seguimiento.</dd></div>
+</dl></div></section>
 
-<div>
-<dt>¿En qué zonas entregan?</dt>
-<dd>
-La entrega está incluida en Centro Habana, Habana Vieja,
-Vedado, Diez de Octubre, Marianao y Playa.
-Otros municipios se coordinan con mensajería y el costo
-se confirma antes de cerrar el pedido.
-</dd>
-</div>
+<section class="sec cie"><div class="c"><p class="ey">Atención personal</p><h2>Su asesor confirma disponibilidad, precio y entrega</h2><span class="hl"></span>
+<a class="bt wl" data-m="Buenas, deseo cerrar un pedido con Volxen." href="#" target="_blank" rel="noopener">Consulte con su asesor</a></div></section>
 
-<div>
-<dt>¿Cómo puedo pagar?</dt>
-<dd>
-Se acepta USD, EUR, CUP y Zelle según disponibilidad.
-No hay pago en línea: su asesor confirma la forma de pago
-antes de la entrega.
-</dd>
-</div>
-
-<div>
-<dt>¿Los equipos tienen garantía?</dt>
-<dd>
-Sí. Cada equipo lleva respaldo posventa por escrito;
-el plazo aparece en la ficha de la pieza cuando aplica.
-</dd>
-</div>
-
-<div>
-<dt>¿Aceptan devoluciones?</dt>
-<dd>
-No hay devoluciones salvo por garantía.
-Revise medidas y especificaciones antes de confirmar,
-e inspeccione el equipo al recibirlo.
-</dd>
-</div>
-
-<div>
-<dt>¿Necesito crear una cuenta para pedir?</dt>
-<dd>
-No. Puede realizar su pedido directamente desde el sitio.
-El pedido queda registrado y recibe un código para consultar
-su estado. WhatsApp queda disponible como canal de contacto.
-</dd>
-</div>
-
-</dl>
-
-</div>
-</section>
-
-
-<section class="sec cie">
-
-<div class="c">
-
-<p class="ey">Atención personal</p>
-
-<h2>
-Su asesor confirma disponibilidad,
-precio y entrega
-</h2>
-
-<span class="hl"></span>
-
-<a class="bt wl"
-data-m="Buenas, deseo cerrar un pedido con Volxen."
-href="#"
-target="_blank"
-rel="noopener">
-Consulte con su asesor
-</a>
-
-</div>
-
-</section>
-
-
-<section class="sec" id="quienes-somos">
-
-<div class="c">
-
-<div class="qs">
-
-<p class="ey">Volxen</p>
-
-<h2>Quiénes somos</h2>
-
-<span class="hl"></span>
-
-<p>
-Volxen es una casa de comercialización de tecnología
-y energía con sede en La Habana.
-Seleccionamos cada equipo con criterio propio y lo
-exhibimos como una colección reducida:
-climatización, energía portátil, paneles solares
-y línea de cocina, listos para entregar en la capital.
-</p>
-
-<p>
-No trabajamos con pago en línea.
-Usted arma su pedido en el sitio y lo registra directamente.
-Su asesor puede verificar disponibilidad, precio final,
-forma de pago y fecha de entrega antes de cualquier compromiso.
-</p>
-
-<p>
-Cada equipo se entrega con respaldo posventa por escrito,
-según las condiciones propias del producto.
-Si algo no corresponde con lo acordado,
-lo atendemos directamente con usted.
-</p>
-
-</div>
-</div>
-</section>
-
+<section class="sec" id="quienes-somos"><div class="c"><div class="qs"><p class="ey">Volxen</p><h2>Quiénes somos</h2><span class="hl"></span>
+<p>Volxen es una casa de comercialización de tecnología y energía con sede en La Habana. Seleccionamos cada equipo con criterio propio y lo exhibimos como una colección reducida: climatización, energía portátil, paneles solares y línea de cocina, listos para entregar en la capital.</p>
+<p>No trabajamos con pago en línea. Usted arma su pedido en el sitio y lo confirma en una conversación personal con su asesor, quien verifica disponibilidad, precio final, forma de pago y fecha de entrega antes de cualquier compromiso.</p>
+<p>Cada equipo se entrega con respaldo posventa por escrito, según las condiciones propias del producto. Si algo no corresponde con lo acordado, lo atendemos directamente con usted.</p></div></div></section>
 </main>
 
+<footer><div class="c fg">
+<div><div class="br"><img src="logo.svg" alt="" width="36" height="36"><span class="wm" style="font-size:16px">VOLXEN</span></div><p style="margin-top:1.5rem;max-width:20rem">Tecnología y energía seleccionada, exhibida y entregada en La Habana.</p></div>
+<div><p class="lb">Contacto</p><a class="t wl" data-m="Buenas, deseo información." href="#" target="_blank" rel="noopener">+53 5076 0258</a>
+<div class="sc2"><a class="so" href="https://www.instagram.com/volxen__tecnologia_cuba" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16"/><circle cx="12" cy="12" r="3.5"/><path d="M16.5 7.5h.01"/></svg></a><a class="so" href="https://www.facebook.com/profile.php?id=61593563156261" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M14 21v-8h3l.5-3.5H14V7.5c0-1 .5-1.5 1.5-1.5H18V3h-3a4 4 0 00-4 4v2.5H8V13h3v8z"/></svg></a><a class="so" href="https://whatsapp.com/channel/0029Vb8cqt1IiRomvBx6cI2A" target="_blank" rel="noopener" aria-label="Canal de WhatsApp"><svg viewBox="0 0 24 24"><path d="M4 10v4h3l7 4V6l-7 4z"/><path d="M17 9.5a4 4 0 010 5"/></svg></a></div></div>
+<div><p class="lb">Colección</p><a class="t" href="#catalogo">Ver colección</a><a class="lb" style="display:inline-block;margin-top:2rem" href="admin.html">Acceso al panel</a></div>
+</div><span class="hl"></span>
+<div class="c fd"><span>Entrega: La Habana</span><span>Garantía por escrito</span><span>Sin pago en línea</span><span>USD · EUR · CUP · Zelle</span></div><span class="hl"></span>
+<div class="c cp">© <span id="yr"></span> VOLXEN. La Habana, Cuba.</div></footer><div class="ov" id="pm"><button class="xb" data-a="close" aria-label="Cerrar" style="position:fixed;z-index:70;top:max(8px,env(safe-area-inset-top));right:8px;background:var(--s2);border:1px solid var(--gl)">×</button><div class="bx" id="pb"></div></div>
 
-<footer>
-
-<div class="c fg">
-
-<div>
-
-<div class="br">
-<img src="logo.svg" alt="" width="36" height="36">
-<span class="wm" style="font-size:16px">VOLXEN</span>
-</div>
-
-<p style="margin-top:1.5rem;max-width:20rem">
-Tecnología y energía seleccionada, exhibida y entregada en La Habana.
-</p>
-
-</div>
-
-
-<div>
-
-<p class="lb">Contacto</p>
-
-<a class="t wl"
-data-m="Buenas, deseo información."
-href="#"
-target="_blank"
-rel="noopener">
-+53 5076 0258
-</a>
-
-<div class="sc2">
-
-<a class="so"
-href="https://www.instagram.com/volxen__tecnologia_cuba"
-target="_blank"
-rel="noopener"
-aria-label="Instagram">
-
-<svg viewBox="0 0 24 24">
-<rect x="4" y="4" width="16" height="16"/>
-<circle cx="12" cy="12" r="3.5"/>
-<path d="M16.5 7.5h.01"/>
-</svg>
-
-</a>
-
-
-<a class="so"
-href="https://www.facebook.com/profile.php?id=61593563156261"
-ta
+<div class="ov" id="ctv"><div class="bx sh"><button class="xb" data-a="close" aria-label="Cerrar">×</button>
+<h3 style="margin-top:0">Su pedido</h3><div id="cl"></div><div class="tt" id="tt"></div>
+<div id="cf" style="display:none;margin-top:1.5rem">
+<p class="ey">Vale de pedido</p>
+<input id="fn" placeholder="Nombre y apellidos *" autocomplete="name">
+<input id="ftel" type="tel" inputmode="tel" placeholder="Número de teléfono *" autocomplete="tel">
+<input id="fd" placeholder="Dirección completa (calle, número, entre calles) *" autocomplete="street-address">
+<label class="lb" for="fp">Municipio</label>
+<select id="fp">
+<option value="" selected disabled>Seleccione su municipio</option>
+<option>Playa</option>
+<option>Plaza de la Revolución</option>
+<option>
