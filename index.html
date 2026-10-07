@@ -374,6 +374,22 @@ document.addEventListener("click",e=>{const t=e.target.closest("[data-a]");if(!t
 if(a==="seg"||a==="ctc"){hide();setTimeout(()=>{show(a==="seg"?"sgv":"ctc");if(a==="seg")lista()},320)}
 else if(a==="pdet")det(id);else if(a==="pback")lista();else if(a==="padd")agr();
 else if(a==="prm"){wr(rd().filter(x=>x.c!==id));lista()}});
-})(); </script>
+})();/* VOLXEN - Consulta general e incidencias (se guardan en la base de datos) */
+(function(){
+document.querySelectorAll("#mnv .mn .wl").forEach(a=>{const m=(a.dataset.m||"").toLowerCase(),k=m.includes("consulta general")?"cq":m.includes("incidencia")?"ci":"";if(!k)return;const b=document.createElement("button");b.dataset.a=k;b.textContent=a.textContent;a.replaceWith(b)});
+document.body.insertAdjacentHTML("beforeend",'<div class="ov" id="cqv"><div class="bx sh"><button class="xb" data-a="close" aria-label="Cerrar">×</button><h3 id="cqt" style="margin-top:0"></h3><p class="nt" style="margin-top:1rem">Su mensaje queda registrado y después se abre WhatsApp para hablar con su asesor.</p><input id="cqn" placeholder="Nombre y apellidos *" autocomplete="name"><input id="cqc" placeholder="WhatsApp o teléfono *" inputmode="tel" autocomplete="tel"><input id="cqp" placeholder="Código del pedido (opcional)" autocomplete="off" autocapitalize="characters"><textarea id="cqm" placeholder="Escriba su mensaje *"></textarea><p id="cqe" style="color:#d98080;min-height:20px;margin-top:8px;font-size:13px"></p><button class="bt" style="width:100%" id="cqs" data-a="cqsend">Enviar</button></div></div>');
+$("cqv").addEventListener("click",e=>{if(e.target.id==="cqv")hide()});
+let ty="consulta";
+document.addEventListener("click",async e=>{const t=e.target.closest("[data-a]");if(!t)return;const a=t.dataset.a;
+if(a==="cq"||a==="ci"){ty=a==="cq"?"consulta":"incidencia";hide();setTimeout(()=>{$("cqt").textContent=ty==="consulta"?"Consulta general":"Reportar incidencia";$("cqe").textContent="";show("cqv")},320)}
+else if(a==="cqsend"){const n=$("cqn").value.trim(),c=$("cqc").value.trim(),p=$("cqp").value.trim().toUpperCase(),m=$("cqm").value.trim(),b=$("cqs");
+if(n.length<2||c.length<6||m.length<5){$("cqe").textContent="Complete su nombre, su contacto y el mensaje.";return}
+$("cqe").textContent="";b.disabled=true;b.textContent="Enviando…";let ok=false;
+try{const r=await fetch(C.SUPABASE_URL+"/rest/v1/rpc/registrar_consulta",{method:"POST",headers:{apikey:C.SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify({p_tipo:ty,p_nombre:n,p_contacto:c,p_codigo_pedido:p,p_mensaje:m})});ok=r.ok}catch(x){}
+b.disabled=false;b.textContent="Enviar";
+const tx=(ty==="consulta"?"Buenas, tengo una consulta general.":"Buenas, deseo reportar una incidencia.")+"\nNombre: "+n+"\nContacto: "+c+(p?"\nPedido: "+p:"")+"\nMensaje: "+m;
+$("cqm").value="";hide();toast(ok?"Su mensaje quedó registrado":"Abriendo WhatsApp");go(wa(tx))}});
+})();
+</script>
 <script src="pedido.js"></script>
 </body></html>
