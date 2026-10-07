@@ -10,29 +10,45 @@ header{background:var(--c);color:var(--k);padding:16px 18px;display:flex;justify
 .logo{letter-spacing:.35em;font-size:22px;color:var(--g)}
 nav a{color:var(--k);text-decoration:none;font:12px sans-serif;margin-left:12px;letter-spacing:.1em}
 .hero{background:var(--c);color:var(--k);padding:56px 20px;text-align:center}
+.hero>*{animation:up .9s both}
+.hero h1{animation-delay:.15s}.hero a{animation-delay:.3s}
+@keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
 .hero small{color:var(--g);letter-spacing:.3em;font:12px sans-serif}
 .hero h1{font-weight:400;font-size:28px;margin:14px 0 22px}
-.btn{display:inline-block;background:var(--g);color:var(--c);padding:12px 24px;font:600 13px sans-serif;letter-spacing:.1em;text-decoration:none;border:0;cursor:pointer}
+.btn{display:inline-block;background:var(--g);color:var(--c);padding:12px 24px;font:600 13px sans-serif;letter-spacing:.1em;text-decoration:none;border:0;cursor:pointer;transition:transform .2s}
+.btn:active{transform:scale(.97)}
 section{padding:34px 18px;max-width:1100px;margin:auto}
 h2{font-weight:400;letter-spacing:.15em;font-size:19px;margin-bottom:16px;text-transform:uppercase}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
-.chips button{border:1px solid var(--c);background:none;padding:8px 14px;font:12px sans-serif;cursor:pointer}
+.chips button{border:1px solid var(--c);background:none;padding:8px 14px;font:12px sans-serif;cursor:pointer;transition:.2s}
 .chips .on{background:var(--c);color:var(--g)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:14px}
-.card{background:#fff;border:1px solid #e4dccb;cursor:pointer}
-.card img{width:100%;aspect-ratio:1;object-fit:cover;background:#ece5d6;display:block}
+.card{background:#fff;border:1px solid #e4dccb;cursor:pointer;overflow:hidden;opacity:0;transform:translateY(16px);transition:opacity .6s,transform .6s,box-shadow .3s}
+.card.in{opacity:1;transform:none}
+.card:active{transform:scale(.98)}
+.card:hover{box-shadow:0 6px 18px #0002}
+.card img{width:100%;aspect-ratio:1;object-fit:cover;background:#ece5d6;display:block;transition:transform .5s}
+.card:hover img{transform:scale(1.05)}
 .card div{padding:10px;font:13px sans-serif}
 .card b{display:block;font:15px Georgia,serif;margin-bottom:4px}
 .p{font:600 16px sans-serif}.old{text-decoration:line-through;color:#888;margin-right:6px;font-weight:400}
 .tag{font-size:11px;color:#7a6335}
-#m{display:none;position:fixed;inset:0;background:#000c;z-index:9;overflow:auto}
-#m .box{background:var(--k);max-width:520px;margin:20px auto;padding:18px}
-#m img{width:100%;margin-bottom:12px}
-#m .th{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto}
-#m .th img{width:64px;height:64px;object-fit:cover;margin:0;cursor:pointer;border:1px solid #e4dccb;flex:none}
+#m{display:none;position:fixed;inset:0;background:#000c;z-index:9;overflow:auto;opacity:0;transition:opacity .25s}
+#m.on{opacity:1}
+#m .box{position:relative;background:var(--k);max-width:520px;margin:20px auto;padding:18px;transform:translateY(28px);transition:transform .35s}
+#m.on .box{transform:none}
+.cl{position:absolute;top:10px;right:10px;z-index:3;width:36px;height:36px;border-radius:50%;border:0;background:var(--c);color:var(--g);font:22px/1 sans-serif;cursor:pointer}
+.gal{position:relative;margin:-18px -18px 14px}
+.sl{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;background:#fff}
+.sl::-webkit-scrollbar{display:none}
+.sl img{flex:none;width:100%;scroll-snap-align:center;aspect-ratio:1;object-fit:contain;display:block}
+.dots{position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:center;gap:6px}
+.dots i{width:7px;height:7px;border-radius:4px;background:#0e0e0e44;transition:.25s}
+.dots i.on{background:var(--g);width:20px}
 #m p{font:14px/1.5 sans-serif;margin:8px 0}
 footer{background:var(--c);color:var(--k);text-align:center;padding:30px 18px;font:13px sans-serif}
 footer i{display:block;color:var(--g);margin-bottom:10px;font:italic 15px Georgia}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.card{opacity:1;transform:none}}
 </style></head><body>
 <header><div class="logo">VOLXEN</div><nav><a href="#ofertas">Ofertas</a><a href="#catalogo">Catálogo</a><a href="#nosotros">Nosotros</a></nav></header>
 <div class="hero"><small>COMERCIALIZADORA</small><h1>Tecnología y energía para tu hogar</h1><a class="btn" href="#catalogo">VER CATÁLOGO</a></div>
@@ -40,7 +56,7 @@ footer i{display:block;color:var(--g);margin-bottom:10px;font:italic 15px Georgi
 <section id="catalogo"><h2>Catálogo</h2><div class="chips" id="ch"></div><div class="grid" id="gr"></div></section>
 <section id="nosotros"><h2>Sobre VOLXEN</h2><p style="font:15px/1.6 sans-serif">VOLXEN es una comercializadora de tecnología y energía en Cuba: electrodomésticos, climatización, refrigeración, energía solar, movilidad eléctrica, cocina, TV y audio.</p><br><a class="btn" id="wa" href="#">ESCRÍBENOS POR WHATSAPP</a></section>
 <footer><i>Transparencia y confianza en cada venta</i>© VOLXEN · Comercializadora</footer>
-<div id="m" onclick="if(event.target===this)this.style.display='none'"><div class="box" id="mb"></div></div>
+<div id="m" onclick="if(event.target===this)cerrar()"><div class="box" id="mb"></div></div>
 <script src="config.js"></script>
 <script>
 const C=window.VOLXEN_CONFIG,H={apikey:C.SUPABASE_KEY};
@@ -52,15 +68,24 @@ let P=[],O={},cat="";
 const fotos=p=>(p.imagenes&&p.imagenes.length)?p.imagenes:(p.imagen_principal?[p.imagen_principal]:[]);
 function card(p){const o=O[p.id];const pr=o?'<span class="old">$'+p.precio_usd+'</span>$'+o:'$'+p.precio_usd;
 return '<div class="card" onclick="ver(\''+p.id+'\')"><img src="'+esc(fotos(p)[0])+'" alt=""><div><b>'+esc(p.nombre)+'</b><span class="p">'+pr+' USD</span><br><span class="tag">'+(D[p.disponibilidad]||"")+'</span></div></div>'}
+function reveal(){const els=document.querySelectorAll(".card:not(.in)");
+if(!("IntersectionObserver" in window)){els.forEach(c=>c.classList.add("in"));return}
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{threshold:.1});
+els.forEach(c=>io.observe(c))}
 function draw(){
 document.getElementById("gr").innerHTML=P.filter(p=>!cat||p.categoria_id===cat).map(card).join("")||"<p>Próximamente.</p>";
-document.getElementById("of").innerHTML=P.filter(p=>O[p.id]).map(card).join("")||"<p>Pronto nuevas ofertas.</p>"}
+document.getElementById("of").innerHTML=P.filter(p=>O[p.id]).map(card).join("")||"<p>Pronto nuevas ofertas.</p>";
+reveal()}
+function cerrar(){const m=document.getElementById("m");m.classList.remove("on");setTimeout(()=>{m.style.display="none";document.body.style.overflow=""},250)}
 function ver(id){const p=P.find(x=>x.id===id),o=O[id];
 const f=(p.caracteristicas||[]).map(x=>"<li>"+esc(x)+"</li>").join("");
 const im=fotos(p);
-const th=im.length>1?'<div class="th">'+im.map(u=>'<img src="'+esc(u)+'" alt="" onclick="document.getElementById(\'gi\').src=this.src">').join("")+'</div>':"";
-document.getElementById("mb").innerHTML='<img id="gi" src="'+esc(im[0])+'" alt="">'+th+'<h2>'+esc(p.nombre)+'</h2><p class="p">'+(o?'<span class="old">$'+p.precio_usd+'</span>$'+o:'$'+p.precio_usd)+' USD</p><p>'+esc(p.descripcion)+'</p><ul style="font:14px sans-serif;margin-left:18px">'+f+'</ul><p><b>Disponibilidad:</b> '+(D[p.disponibilidad]||"")+'</p><p><b>Garantía:</b> '+esc(p.garantia)+'</p><p><b>Transporte:</b> '+esc(p.transporte)+'</p><a class="btn" target="_blank" href="'+wa("Hola VOLXEN, me interesa: "+p.nombre)+'">PEDIR POR WHATSAPP</a>';
-document.getElementById("m").style.display="block"}
+const dots=im.length>1?'<div class="dots">'+im.map((u,i)=>'<i class="'+(i?"":"on")+'"></i>').join("")+'</div>':"";
+document.getElementById("mb").innerHTML='<button class="cl" onclick="cerrar()">×</button><div class="gal"><div class="sl">'+im.map(u=>'<img src="'+esc(u)+'" alt="">').join("")+'</div>'+dots+'</div><h2>'+esc(p.nombre)+'</h2><p class="p">'+(o?'<span class="old">$'+p.precio_usd+'</span>$'+o:'$'+p.precio_usd)+' USD</p><p>'+esc(p.descripcion)+'</p><ul style="font:14px sans-serif;margin-left:18px">'+f+'</ul><p><b>Disponibilidad:</b> '+(D[p.disponibilidad]||"")+'</p><p><b>Garantía:</b> '+esc(p.garantia)+'</p><p><b>Transporte:</b> '+esc(p.transporte)+'</p><a class="btn" target="_blank" href="'+wa("Hola VOLXEN, me interesa: "+p.nombre)+'">PEDIR POR WHATSAPP</a>';
+const sl=document.querySelector("#mb .sl"),ds=document.querySelectorAll("#mb .dots i");
+if(sl&&ds.length)sl.onscroll=()=>{const i=Math.round(sl.scrollLeft/sl.clientWidth);ds.forEach((d,j)=>d.className=j===i?"on":"")};
+const m=document.getElementById("m");m.style.display="block";m.scrollTop=0;document.body.style.overflow="hidden";
+requestAnimationFrame(()=>requestAnimationFrame(()=>m.classList.add("on")))}
 async function init(){
 document.getElementById("wa").href=wa("Hola VOLXEN, quiero información.");
 const[c,p,o]=await Promise.all([q("categorias?order=orden"),q("productos?activo=eq.true&order=created_at.desc"),q("ofertas?activa=eq.true")]);
