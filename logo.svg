@@ -1,0 +1,5 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="VOLXEN">
+<defs><linearGradient id="g" x1="32" y1="42" x2="119" y2="174" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#f4deae"/><stop offset="0.46" stop-color="#c9a15c"/><stop offset="1" stop-color="#8a642d"/></linearGradient></defs>
+<circle cx="100" cy="100" r="96" fill="#0c0c0d"/>
+<path d="M42 48 100 160 158 48" fill="none" stroke="url(#g)" stroke-width="22" stroke-linecap="butt" stroke-linejoin="miter"/>
+</svg>
