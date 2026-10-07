@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
 <title>VOLXEN · Panel</title>
@@ -15,38 +14,961 @@ button{background:#c9a96e;border:0;font-weight:600}
 </style></head><body>
 <header>VOLXEN · PANEL</header>
 <main>
-<div id="lg"><h3>Iniciar sesión</h3><input id="em" type="email" placeholder="Correo"><input id="pw" type="password" placeholder="Contraseña"><button onclick="login()">ENTRAR</button></div>
-<div id="ad" style="display:none"><div class="t"><button onclick="tab('p')">Productos</button><button onclick="tab('c')">Categorías</button><button onclick="tab('o')">Ofertas</button></div><p id="ms"></p><div id="v"></div></div>
+
+<div id="lg">
+<h3>Iniciar sesión</h3>
+<input id="em" type="email" placeholder="Correo">
+<input id="pw" type="password" placeholder="Contraseña">
+<button onclick="login()">ENTRAR</button>
+</div>
+
+<div id="ad" style="display:none">
+<div class="t">
+<button onclick="tab('p')">Productos</button>
+<button onclick="tab('c')">Categorías</button>
+<button onclick="tab('o')">Ofertas</button>
+<button onclick="tab('d')">Pedidos</button>
+</div>
+
+<p id="ms"></p>
+<div id="v"></div>
+</div>
+
 </main>
+
 <script src="config.js"></script>
+
 <script>
-const C=window.VOLXEN_CONFIG,B=C.SUPABASE_URL;let T="",K=[],P=[],O=[],E=null,IM=[];
+const C=window.VOLXEN_CONFIG,B=C.SUPABASE_URL;
+let T="",K=[],P=[],O=[],D=[],E=null,IM=[],OD=null;
+
 const $=i=>document.getElementById(i);
-const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const msg=t=>{$("ms").textContent=t};
-const slug=s=>s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")+"-"+Math.random().toString(36).slice(2,6);
-async function api(p,m,b){const r=await fetch(B+"/rest/v1/"+p,{method:m||"GET",headers:{apikey:C.SUPABASE_KEY,Authorization:"Bearer "+T,"Content-Type":"application/json",Prefer:"return=representation"},body:b?JSON.stringify(b):undefined});const j=await r.json();if(!r.ok){msg("Error: "+(j.message||r.status));throw j}return j}
-async function login(){const r=await fetch(B+"/auth/v1/token?grant_type=password",{method:"POST",headers:{apikey:C.SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify({email:$("em").value,password:$("pw").value})});const j=await r.json();if(!j.access_token){alert("Datos incorrectos");return}T=j.access_token;$("lg").style.display="none";$("ad").style.display="block";await load();tab("p")}
-async function load(){K=await api("categorias?order=orden");P=await api("productos?order=created_at.desc");O=await api("ofertas?order=created_at.desc")}
-function tab(n){msg("");const v=$("v");
-if(n=="c"){v.innerHTML='<input id="cn" placeholder="Nueva categoría"><button onclick="addC()">AÑADIR CATEGORÍA</button>'+K.map(k=>'<div class="r">'+esc(k.nombre)+'<br><button class="x" onclick="delC(\''+k.id+'\')">Borrar</button></div>').join("")}
-else if(n=="o"){v.innerHTML='<select id="op">'+P.map(p=>'<option value="'+p.id+'">'+esc(p.nombre)+'</option>').join("")+'</select><input id="oq" type="number" step="0.01" placeholder="Precio de oferta USD"><button onclick="addO()">CREAR OFERTA</button>'+O.map(o=>{const p=P.find(x=>x.id==o.producto_id);return '<div class="r">'+esc(p?p.nombre:"?")+' · $'+o.precio_oferta_usd+' · '+(o.activa?"activa":"pausada")+'<br><button onclick="togO(\''+o.id+'\','+!o.activa+')">'+(o.activa?"Pausar":"Activar")+'</button><button class="x" onclick="delO(\''+o.id+'\')">Borrar</button></div>'}).join("")}
-else form()}
-function thumbs(){$("th").innerHTML=IM.map((u,i)=>'<span style="position:relative;display:inline-block;margin:4px"><img src="'+esc(u)+'" style="width:72px;height:72px;object-fit:cover;border:1px solid #bbb"><button class="x" style="width:auto;padding:0 7px;margin:0;position:absolute;top:0;right:0" onclick="rmI('+i+')">×</button></span>').join("")}
-function rmI(i){IM.splice(i,1);thumbs()}
-function form(p){p=p||{};E=p.id||null;IM=(p.imagenes&&p.imagenes.length)?p.imagenes.slice():(p.imagen_principal?[p.imagen_principal]:[]);const d=p.disponibilidad||"disponible";
-$("v").innerHTML='<h3>'+(E?"Editar":"Nuevo")+' producto</h3><input id="n" placeholder="Nombre" value="'+esc(p.nombre)+'"><select id="k"><option value="">Sin categoría</option>'+K.map(k=>'<option value="'+k.id+'"'+(k.id==p.categoria_id?" selected":"")+'>'+esc(k.nombre)+'</option>').join("")+'</select><input id="pr" type="number" step="0.01" placeholder="Precio USD" value="'+esc(p.precio_usd)+'"><select id="d">'+["disponible","bajo_pedido","agotado"].map(x=>'<option'+(x==d?" selected":"")+'>'+x+'</option>').join("")+'</select><input id="g" placeholder="Garantía" value="'+esc(p.garantia)+'"><input id="tr" placeholder="Transporte" value="'+esc(p.transporte)+'"><textarea id="de" rows="3" placeholder="Descripción">'+esc(p.descripcion)+'</textarea><textarea id="ca" rows="3" placeholder="Características (una por línea)">'+esc((p.caracteristicas||[]).join("\n"))+'</textarea><p>Fotos (la primera es la principal). Puedes elegir varias:</p><div id="th"></div><input id="f" type="file" accept="image/*" multiple><label><input id="ac" type="checkbox" style="width:auto"'+(p.activo===false?"":" checked")+'> Visible en la web</label><button onclick="saveP()">GUARDAR</button><button onclick="form()" style="background:#ddd">Nuevo / limpiar</button>'+P.map(x=>'<div class="r">'+esc(x.nombre)+' · $'+x.precio_usd+'<br><button onclick="editP(\''+x.id+'\')">Editar</button><button class="x" onclick="delP(\''+x.id+'\')">Borrar</button></div>').join("");thumbs()}
-async function saveP(){const n=$("n").value.trim();if(!n||!$("pr").value){msg("Falta nombre o precio");return}
+
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({
+"&":"&amp;",
+"<":"&lt;",
+">":"&gt;",
+'"':"&quot;"
+}[c]));
+
+const msg=t=>{
+$("ms").textContent=t
+};
+
+const slug=s=>
+s.toLowerCase()
+.normalize("NFD")
+.replace(/[\u0300-\u036f]/g,"")
+.replace(/[^a-z0-9]+/g,"-")
+.replace(/^-|-$/g,"")
++"-"+Math.random().toString(36).slice(2,6);
+
+async function api(p,m,b){
+const r=await fetch(
+B+"/rest/v1/"+p,
+{
+method:m||"GET",
+headers:{
+apikey:C.SUPABASE_KEY,
+Authorization:"Bearer "+T,
+"Content-Type":"application/json",
+Prefer:"return=representation"
+},
+body:b?JSON.stringify(b):undefined
+}
+);
+
+const j=await r.json();
+
+if(!r.ok){
+msg("Error: "+(j.message||r.status));
+throw j
+}
+
+return j
+}
+
+async function login(){
+
+const r=await fetch(
+B+"/auth/v1/token?grant_type=password",
+{
+method:"POST",
+headers:{
+apikey:C.SUPABASE_KEY,
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+email:$("em").value,
+password:$("pw").value
+})
+}
+);
+
+const j=await r.json();
+
+if(!j.access_token){
+alert("Datos incorrectos");
+return
+}
+
+T=j.access_token;
+
+$("lg").style.display="none";
+$("ad").style.display="block";
+
+await load();
+tab("p")
+}
+
+async function load(){
+
+K=await api("categorias?order=orden");
+
+P=await api("productos?order=created_at.desc");
+
+O=await api("ofertas?order=created_at.desc");
+
+D=await api("pedidos?order=created_at.desc")
+
+}
+
+function tab(n){
+
+msg("");
+
+const v=$("v");
+
+if(n=="c"){
+
+v.innerHTML=
+'<input id="cn" placeholder="Nueva categoría">'+
+'<button onclick="addC()">AÑADIR CATEGORÍA</button>'+
+K.map(k=>
+'<div class="r">'+
+esc(k.nombre)+
+'<br>'+
+'<button class="x" onclick="delC(\''+k.id+'\')">Borrar</button>'+
+'</div>'
+).join("")
+
+}
+
+else if(n=="d"){
+
+pedidos();
+
+}
+
+else if(n=="o"){
+
+v.innerHTML=
+'<select id="op">'+
+P.map(p=>
+'<option value="'+p.id+'">'+
+esc(p.nombre)+
+'</option>'
+).join("")+
+'</select>'+
+
+'<input id="oq" type="number" step="0.01" placeholder="Precio de oferta USD">'+
+
+'<button onclick="addO()">CREAR OFERTA</button>'+
+
+O.map(o=>{
+
+const p=P.find(x=>x.id==o.producto_id);
+
+return '<div class="r">'+
+esc(p?p.nombre:"?")+
+' · $'+
+o.precio_oferta_usd+
+' · '+
+(o.activa?"activa":"pausada")+
+'<br>'+
+'<button onclick="togO(\''+o.id+'\','+!o.activa+')">'+
+(o.activa?"Pausar":"Activar")+
+'</button>'+
+'<button class="x" onclick="delO(\''+o.id+'\')">Borrar</button>'+
+'</div>'
+
+}).join("")
+
+}
+
+else form()
+
+}
+
+
+/* =========================
+   PEDIDOS
+========================= */
+
+async function pedidos(){
+
+OD=null;
+
+const q=
+'<input id="ds" placeholder="Buscar por código, cliente o teléfono" oninput="filtrarPedidos()">';
+
+$("v").innerHTML=
+'<h3>Pedidos</h3>'+
+q+
+'<div id="dl"></div>';
+
+renderPedidos(D);
+
+}
+
+
+function estadoSel(e){
+
+return [
+"Pedido recibido",
+"Confirmando pedido",
+"Preparando pedido",
+"En camino",
+"Entregado",
+"Cancelado"
+].map(x=>
+'<option value="'+esc(x)+'"'+
+(x===e?' selected':'')+
+'>'+
+esc(x)+
+'</option>'
+).join("")
+
+}
+
+
+function renderPedidos(a){
+
+const el=$("dl");
+
+if(!el)return;
+
+if(!a.length){
+
+el.innerHTML=
+'<div class="r">No hay pedidos.</div>';
+
+return
+}
+
+el.innerHTML=a.map(o=>
+
+'<div class="r">'+
+
+'<strong>'+
+esc(o.codigo)+
+'</strong>'+
+'<br>'+
+
+esc(o.nombre_cliente)+
+' · '+
+esc(o.telefono)+
+
+'<br>'+
+
+'$'+
+Number(o.total_usd||0).toFixed(2)+
+' · '+
+esc(o.estado)+
+
+'<br>'+
+
+'<button onclick="verPedido(\''+
+o.id+
+'\')">VER PEDIDO</button>'+
+
+'<button onclick="cambiarEstado(\''+
+o.id+
+'\',this)">CAMBIAR ESTADO</button>'+
+
+(
+o.telefono?
+'<button onclick="waPedido(\''+
+o.telefono+
+'\',\''+
+o.codigo+
+'\')">WHATSAPP</button>'
+:""
+)+
+
+'</div>'
+
+).join("")
+
+}
+
+
+function filtrarPedidos(){
+
+const q=
+($("ds")?.value||"")
+.trim()
+.toLowerCase();
+
+renderPedidos(
+D.filter(o=>
+!q||
+[
+o.codigo,
+o.nombre_cliente,
+o.telefono,
+o.email
+]
+.some(x=>
+String(x||"")
+.toLowerCase()
+.includes(q)
+)
+)
+
+}
+
+
+async function verPedido(id){
+
+const o=D.find(x=>x.id===id);
+
+if(!o)return;
+
+const [items,hist]=await Promise.all([
+
+api(
+'pedido_items?pedido_id=eq.'+
+id+
+'&order=created_at'
+),
+
+api(
+'pedido_historial?pedido_id=eq.'+
+id+
+'&order=created_at'
+)
+
+]);
+
+OD=o;
+
+$("v").innerHTML=
+
+'<button onclick="pedidos()">← VOLVER A PEDIDOS</button>'+
+
+'<h3>'+
+esc(o.codigo)+
+'</h3>'+
+
+'<div class="r">'+
+
+'<strong>Cliente</strong>'+
+'<br>'+
+esc(o.nombre_cliente)+
+'<br>'+
+esc(o.email||'Sin correo')+
+'<br>'+
+esc(o.telefono)+
+
+'<br><br>'+
+
+'<strong>Entrega</strong>'+
+'<br>'+
+esc(o.direccion)+
+'<br>'+
+esc(o.municipio)+
+
+'<br><br>'+
+
+'<strong>Notas</strong>'+
+'<br>'+
+esc(o.notas||'—')+
+
+'</div>'+
+
+'<div class="r">'+
+
+'<strong>Productos</strong>'+
+
+items.map(i=>
+'<br>'+
+esc(i.producto_nombre)+
+' × '+
+i.cantidad+
+' · $'+
+Number(i.precio_unitario||0).toFixed(2)+
+' = $'+
+Number(i.subtotal||0).toFixed(2)
+).join('')+
+
+'<br><br>'+
+
+'<strong>Total: $'+
+Number(o.total_usd||0).toFixed(2)+
+'</strong>'+
+
+'</div>'+
+
+'<div class="r">'+
+
+'<strong>Estado actual</strong>'+
+
+'<select id="ds2">'+
+estadoSel(o.estado)+
+'</select>'+
+
+'<button onclick="guardarEstado(\''+
+o.id+
+'\')">GUARDAR ESTADO</button>'+
+
+'</div>'+
+
+'<div class="r">'+
+
+'<strong>Historial</strong>'+
+
+hist.map(h=>
+'<br><small>'+
+new Date(h.created_at).toLocaleString('es-ES')+
+' · '+
+esc(h.estado)+
+(
+h.comentario?
+' · '+
+esc(h.comentario)
+:""
+)+
+'</small>'
+).join('')+
+
+'</div>'+
+
+(
+o.telefono?
+'<button onclick="waPedido(\''+
+o.telefono+
+'\',\''+
+o.codigo+
+'\')">CONTACTAR POR WHATSAPP</button>'
+:""
+);
+
+}
+
+
+async function guardarEstado(id){
+
+const estado=$("ds2").value;
+
+await api(
+'pedidos?id=eq.'+
+id,
+'PATCH',
+{
+estado:estado
+}
+);
+
+await load();
+
+msg('Estado actualizado.');
+
+await verPedido(id);
+
+}
+
+
+async function cambiarEstado(id,btn){
+
+const o=D.find(x=>x.id===id);
+
+if(!o)return;
+
+const estado=prompt(
+'Nuevo estado:\n'+
+'1. Pedido recibido\n'+
+'2. Confirmando pedido\n'+
+'3. Preparando pedido\n'+
+'4. En camino\n'+
+'5. Entregado\n'+
+'6. Cancelado',
+o.estado
+);
+
+const mapa={
+'1':'Pedido recibido',
+'2':'Confirmando pedido',
+'3':'Preparando pedido',
+'4':'En camino',
+'5':'Entregado',
+'6':'Cancelado'
+};
+
+if(!estado)return;
+
+const nuevo=mapa[estado]||estado;
+
+if(![
+"Pedido recibido",
+"Confirmando pedido",
+"Preparando pedido",
+"En camino",
+"Entregado",
+"Cancelado"
+].includes(nuevo)){
+
+alert('Estado no válido');
+
+return
+}
+
+await api(
+'pedidos?id=eq.'+
+id,
+'PATCH',
+{
+estado:nuevo
+}
+);
+
+await load();
+
+pedidos();
+
+msg('Estado actualizado.');
+
+}
+
+
+function waPedido(t,c){
+
+let n=String(t||'')
+.replace(/[^0-9]/g,'');
+
+if(!n)return;
+
+if(n.length===8)n='53'+n;
+
+open(
+'https://wa.me/'+
+n+
+'?text='+
+encodeURIComponent(
+'Hola, le contactamos desde VOLXEN sobre su pedido '+
+c+
+'.'
+),
+'_blank'
+);
+
+}
+
+
+/* =========================
+   PRODUCTOS
+========================= */
+
+function thumbs(){
+
+$("th").innerHTML=
+IM.map((u,i)=>
+'<span style="position:relative;display:inline-block;margin:4px">'+
+'<img src="'+
+esc(u)+
+'" style="width:72px;height:72px;object-fit:cover;border:1px solid #bbb">'+
+
+'<button class="x" style="width:auto;padding:0 7px;margin:0;position:absolute;top:0;right:0" onclick="rmI('+i+')">×</button>'+
+
+'</span>'
+).join("")
+
+}
+
+
+function rmI(i){
+
+IM.splice(i,1);
+
+thumbs()
+
+}
+
+
+function form(p){
+
+p=p||{};
+
+E=p.id||null;
+
+IM=
+(p.imagenes&&p.imagenes.length)?
+p.imagenes.slice():
+(p.imagen_principal?
+[p.imagen_principal]:
+[]);
+
+const d=p.disponibilidad||"disponible";
+
+$("v").innerHTML=
+
+'<h3>'+
+(E?"Editar":"Nuevo")+
+' producto</h3>'+
+
+'<input id="n" placeholder="Nombre" value="'+
+esc(p.nombre)+
+'">'+
+
+'<select id="k">'+
+'<option value="">Sin categoría</option>'+
+K.map(k=>
+'<option value="'+
+k.id+
+'"'+
+(k.id==p.categoria_id?" selected":"")+
+'>'+
+esc(k.nombre)+
+'</option>'
+).join("")+
+'</select>'+
+
+'<input id="pr" type="number" step="0.01" placeholder="Precio USD" value="'+
+esc(p.precio_usd)+
+'">'+
+
+'<select id="d">'+
+[
+"disponible",
+"bajo_pedido",
+"agotado"
+].map(x=>
+'<option'+
+(x==d?" selected":"")+
+'>'+
+x+
+'</option>'
+).join("")+
+'</select>'+
+
+'<input id="g" placeholder="Garantía" value="'+
+esc(p.garantia)+
+'">'+
+
+'<input id="tr" placeholder="Transporte" value="'+
+esc(p.transporte)+
+'">'+
+
+'<textarea id="de" rows="3" placeholder="Descripción">'+
+esc(p.descripcion)+
+'</textarea>'+
+
+'<textarea id="ca" rows="3" placeholder="Características (una por línea)">'+
+esc(
+(p.caracteristicas||[])
+.join("\n")
+)+
+'</textarea>'+
+
+'<p>Fotos (la primera es la principal). Puedes elegir varias:</p>'+
+
+'<div id="th"></div>'+
+
+'<input id="f" type="file" accept="image/*" multiple>'+
+
+'<label>'+
+'<input id="ac" type="checkbox" style="width:auto"'+
+(p.activo===false?"":" checked")+
+'>'+
+' Visible en la web</label>'+
+
+'<button onclick="saveP()">GUARDAR</button>'+
+
+'<button onclick="form()" style="background:#ddd">Nuevo / limpiar</button>'+
+
+P.map(x=>
+'<div class="r">'+
+esc(x.nombre)+
+' · $'+
+x.precio_usd+
+'<br>'+
+
+'<button onclick="editP(\''+
+x.id+
+'\')">Editar</button>'+
+
+'<button class="x" onclick="delP(\''+
+x.id+
+'\')">Borrar</button>'+
+
+'</div>'
+).join("");
+
+thumbs()
+
+}
+
+
+async function saveP(){
+
+const n=$("n").value.trim();
+
+if(!n||!$("pr").value){
+
+msg("Falta nombre o precio");
+
+return
+}
+
 const fs=[...$("f").files];
-for(let i=0;i<fs.length;i++){const f=fs[i];msg("Subiendo foto "+(i+1)+" de "+fs.length+"...");const nm=Date.now()+"-"+i+"-"+f.name.replace(/[^a-z0-9.]/gi,"_");const r=await fetch(B+"/storage/v1/object/productos/"+nm,{method:"POST",headers:{apikey:C.SUPABASE_KEY,Authorization:"Bearer "+T,"Content-Type":f.type},body:f});if(!r.ok){msg("Error subiendo la foto "+(i+1));return}IM.push(B+"/storage/v1/object/public/productos/"+nm)}
-const b={nombre:n,categoria_id:$("k").value||null,precio_usd:+$("pr").value,disponibilidad:$("d").value,garantia:$("g").value,transporte:$("tr").value,descripcion:$("de").value,caracteristicas:$("ca").value.split("\n").map(s=>s.trim()).filter(Boolean),imagen_principal:IM[0]||null,imagenes:IM,activo:$("ac").checked,updated_at:new Date().toISOString()};
-if(E)await api("productos?id=eq."+E,"PATCH",b);else{b.slug=slug(n);await api("productos","POST",b)}
-await load();tab("p");msg("Guardado correctamente")}
-function editP(id){form(P.find(x=>x.id==id));scrollTo(0,0)}
-async function delP(id){if(confirm("¿Borrar producto?")){await api("productos?id=eq."+id,"DELETE");await load();tab("p")}}
-async function addC(){const n=$("cn").value.trim();if(!n)return;await api("categorias","POST",{nombre:n,slug:slug(n),orden:K.length});await load();tab("c")}
-async function delC(id){if(confirm("¿Borrar categoría?")){await api("categorias?id=eq."+id,"DELETE");await load();tab("c")}}
-async function addO(){if(!$("op").value||!$("oq").value)return;await api("ofertas","POST",{producto_id:$("op").value,precio_oferta_usd:+$("oq").value});await load();tab("o")}
-async function togO(id,a){await api("ofertas?id=eq."+id,"PATCH",{activa:a});await load();tab("o")}
-async function delO(id){await api("ofertas?id=eq."+id,"DELETE");await load();tab("o")}
-</script></body></html>
+
+for(let i=0;i<fs.length;i++){
+
+const f=fs[i];
+
+msg(
+"Subiendo foto "+
+(i+1)+
+" de "+
+fs.length+
+"..."
+);
+
+const nm=
+Date.now()+
+"-"+
+i+
+"-"+
+f.name.replace(
+/[^a-z0-9.]/gi,
+"_"
+);
+
+const r=await fetch(
+B+
+"/storage/v1/object/productos/"+
+nm,
+{
+method:"POST",
+headers:{
+apikey:C.SUPABASE_KEY,
+Authorization:"Bearer "+T,
+"Content-Type":f.type
+},
+body:f
+}
+);
+
+if(!r.ok){
+
+msg(
+"Error subiendo la foto "+
+(i+1)
+);
+
+return
+}
+
+IM.push(
+B+
+"/storage/v1/object/public/productos/"+
+nm
+)
+
+}
+
+const b={
+
+nombre:n,
+
+categoria_id:
+$("k").value||null,
+
+precio_usd:
++$("pr").value,
+
+disponibilidad:
+$("d").value,
+
+garantia:
+$("g").value,
+
+transporte:
+$("tr").value,
+
+descripcion:
+$("de").value,
+
+caracteristicas:
+$("ca").value
+.split("\n")
+.map(s=>s.trim())
+.filter(Boolean),
+
+imagen_principal:
+IM[0]||null,
+
+imagenes:
+IM,
+
+activo:
+$("ac").checked,
+
+updated_at:
+new Date().toISOString()
+
+};
+
+if(E)
+
+await api(
+"productos?id=eq."+E,
+"PATCH",
+b
+);
+
+else{
+
+b.slug=slug(n);
+
+await api(
+"productos",
+"POST",
+b
+)
+
+}
+
+await load();
+
+tab("p");
+
+msg("Guardado correctamente")
+
+}
+
+
+function editP(id){
+
+form(
+P.find(x=>x.id==id)
+);
+
+scrollTo(0,0)
+
+}
+
+
+async function delP(id){
+
+if(confirm("¿Borrar producto?")){
+
+await api(
+"productos?id=eq."+id,
+"DELETE"
+);
+
+await load();
+
+tab("p")
+
+}
+
+}
+
+
+async function addC(){
+
+const n=$("cn").value.trim();
+
+if(!n)return;
+
+await api(
+"categorias",
+"POST",
+{
+nombre:n,
+slug:slug(n),
+orden:K.length
+}
+);
+
+await load();
+
+tab("c")
+
+}
+
+
+async function delC(id){
+
+if(confirm("¿Borrar categoría?")){
+
+await api(
+"categorias?id=eq."+id,
+"DELETE"
+);
+
+await load();
+
+tab("c")
+
+}
+
+}
+
+
+async function addO(){
+
+if(!$("op").value||!$("oq").value)return;
+
+await api(
+"ofertas",
+"POST",
+{
+producto_id:$("op").value,
+precio_oferta_usd:+$("oq").value
+}
+);
+
+await load();
+
+tab("o")
+
+}
+
+
+async function togO(id,a){
+
+await api(
+"ofertas?id=eq."+id,
+"PATCH",
+{
+activa:a
+}
+);
+
+await load();
+
+tab("o")
+
+}
+
+
+async function delO(id){
+
+await api(
+"ofertas?id=eq."+id,
+"DELETE"
+);
+
+await load();
+
+tab("o")
+
+}
+
+</script>
+
+</body>
+</html>
