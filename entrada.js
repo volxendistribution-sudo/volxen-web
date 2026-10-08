@@ -832,4 +832,48 @@
 
       '<div class="vx-progress"></div>';
 
-    document.body.appendChil
+    document.body.appendChild(d);
+
+    var skip = d.querySelector(".vx-skip");
+    var enter = d.querySelector(".vx-enter");
+
+    function closeIntro() {
+      if (done) return;
+      done = true;
+
+      d.classList.add("out");
+
+      setTimeout(function () {
+        if (d && d.parentNode) {
+          d.parentNode.removeChild(d);
+        }
+
+        var oldStyle = document.getElementById("vx-intro-style");
+
+        if (oldStyle && oldStyle.parentNode) {
+          oldStyle.parentNode.removeChild(oldStyle);
+        }
+      }, reduce ? 0 : 1000);
+    }
+
+    if (skip) {
+      skip.addEventListener("click", closeIntro);
+    }
+
+    if (enter) {
+      enter.addEventListener("click", closeIntro);
+      enter.style.cursor = "pointer";
+    }
+
+    setTimeout(function () {
+      closeIntro();
+    }, reduce ? 700 : 4800);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", run);
+  } else {
+    run();
+  }
+
+})();
