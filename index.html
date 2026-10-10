@@ -1,447 +1,337 @@
 <!DOCTYPE html>
-<html lang="es"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0c0c0d">
-<title>VOLXEN — Tecnología y energía en La Habana</title>
-<meta name="description" content="VOLXEN: comercialización de tecnología y energía en La Habana. Transparencia y confianza en cada venta.">
-<link rel="icon" href="logo.svg">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#F0ECE3">
+<meta name="robots" content="noindex">
+<title>VOLXEN</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;600;700&family=Raleway:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0c0c0d;--sf:#1e1d1b;--s2:#141414;--fg:#ede7da;--mu:#a09a8f;--g:#a9824a;--gl:rgba(169,130,74,.25);--bd:rgba(237,231,218,.12);--ox:#4a1518;--d:'Fraunces',Georgia,serif;--s:'Inter',system-ui,sans-serif;--e:cubic-bezier(.22,1,.36,1)}
-*{box-sizing:border-box;margin:0;padding:0;border-radius:0}
+:root{--lino:#F0ECE3;--card:#F7F4EE;--obs:#141414;--onyx:#3A3A3C;--sky:#B0B3B8;--gold:#C8A165;--agot:#4a1518;--tit:'Josefin Sans','Trebuchet MS',sans-serif;--cuerpo:'Raleway','Segoe UI',sans-serif;--ancho:1120px}
+*{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-body{background:var(--bg);color:var(--mu);font:300 14px/1.7 var(--s);overflow-x:hidden}
-h1,h2,h3{font-family:var(--d);font-weight:400;color:var(--fg);line-height:1.15}
-a{color:inherit;text-decoration:none}button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;text-align:inherit}
-img{display:block;max-width:100%}
-:focus-visible{outline:1px solid var(--g);outline-offset:3px}
-.c{width:100%;margin:auto;padding-inline:clamp(1.5rem,5vw,3rem);max-width:78rem}
-.ey{display:block;font:500 10px var(--s);letter-spacing:.28em;text-transform:uppercase;color:var(--g)}
-.lb{font:500 10px var(--s);letter-spacing:.28em;text-transform:uppercase;color:var(--mu)}
-.hl{display:block;height:1px;background:rgba(169,130,74,.35)}
-h2{font-size:clamp(1.9rem,4vw,2.4rem);margin-top:1.5rem}
-.sec{padding:clamp(5rem,10vw,11rem) 0;border-top:1px solid var(--gl)}
-.bt{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:16px 32px;border:1px solid rgba(169,130,74,.45);color:var(--g);font:500 10px var(--s);letter-spacing:.28em;text-transform:uppercase;text-align:center;transition:.3s}
-.bt:hover{border-color:var(--g);background:rgba(169,130,74,.07)}
-.bt.h{border-color:var(--bd);color:var(--fg)}.bt.h:hover{border-color:rgba(169,130,74,.6);color:var(--g);background:none}
-.rv{opacity:0;transform:translateY(16px);transition:opacity .6s var(--e),transform .6s var(--e)}
-.rv.in{opacity:1;transform:none}
-header{position:sticky;top:0;z-index:40;border-bottom:1px solid transparent;transition:.5s}
-header.sc{border-color:var(--gl);background:rgba(12,12,13,.9);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
-.hd{height:80px;display:flex;align-items:center;justify-content:space-between;gap:16px}
-.br{display:flex;align-items:center;gap:12px}.br img{width:34px;height:34px}
-.wm{font:400 20px/1 var(--d);letter-spacing:.03em;color:var(--fg)}
-.nv{display:flex;align-items:center;gap:28px}
-.nv a.l{display:none;font:500 10px var(--s);letter-spacing:.28em;text-transform:uppercase;transition:color .3s}
-.nv a.l:hover{color:var(--g)}
-@media(min-width:760px){.nv a.l{display:inline}}
-.cb{position:relative;width:44px;height:44px;border:1px solid var(--bd);display:grid;place-items:center;color:var(--fg);transition:.3s}
-.cb:hover{border-color:rgba(169,130,74,.6);color:var(--g)}
-.cb svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.4}
-.cb i{position:absolute;top:-8px;right:-8px;min-width:20px;padding:0 4px;border:1px solid rgba(169,130,74,.5);background:var(--bg);color:var(--g);font:400 10px/18px var(--s);text-align:center;font-style:normal;display:none}
-.hero{position:relative;overflow:hidden}
-.hero::before,.cie::before{content:"";position:absolute;inset:0;background:url(texture-stone.jpg) center/cover;opacity:.18}
-.hero::after{content:"";position:absolute;inset:0;background:radial-gradient(70% 55% at 50% 38%,rgba(169,130,74,.1),transparent 70%),linear-gradient(to bottom,rgba(12,12,13,.6),transparent,var(--bg))}
-.hero .c{position:relative;z-index:1;min-height:86vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding-block:7rem}
-.hx{perspective:900px}
-.hx img{width:clamp(7rem,28vw,9rem);height:auto;animation:sp 9s cubic-bezier(.45,0,.55,1) infinite}
-@keyframes sp{0%,100%{transform:rotateY(-26deg) rotateX(8deg)}50%{transform:rotateY(26deg) rotateX(-8deg)}}
-.hero h1{font-size:clamp(2.9rem,13vw,8.5rem);letter-spacing:.03em;line-height:1;margin-top:3.5rem}
-.hero p{max-width:28rem;margin-top:3rem}
-.hero .bt{margin-top:4rem}
-.hero .vv{margin-top:4rem;font:500 10px var(--s);letter-spacing:.28em;text-transform:uppercase}
-.hero .vv:hover{color:var(--g)}
-.hero .b{position:absolute;left:0;right:0;bottom:0;height:1px;background:rgba(169,130,74,.35);z-index:1}
-.cd{position:relative;background:var(--sf);border:1px solid var(--bd);isolation:isolate;transition:transform .32s var(--e),border-color .32s,box-shadow .32s,opacity .6s var(--e)}
-.cd::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .32s;background:linear-gradient(115deg,transparent 30%,rgba(169,130,74,.16) 50%,transparent 70%)}
-@media(hover:hover){.cd:hover{transform:perspective(1000px) translateY(-6px) rotateX(3deg) rotateY(-3deg) scale(1.008);border-color:rgba(169,130,74,.55);box-shadow:0 40px 70px -40px rgba(0,0,0,.85),0 0 0 1px rgba(169,130,74,.14)}.cd:hover::after{opacity:1}}
-.cats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:4rem}
-@media(min-width:640px){.cats{grid-template-columns:repeat(3,1fr)}}@media(min-width:1024px){.cats{grid-template-columns:repeat(5,1fr)}}
-.ct{padding:2rem;display:block;width:100%}
-.ct svg{width:20px;height:20px;stroke:var(--g);fill:none;stroke-width:1.25}
-.ct b{display:block;margin-top:2rem;font:400 16px var(--d);color:var(--fg)}
-.ct span{display:block;margin-top:.75rem}
-.chs{display:flex;flex-wrap:wrap;gap:12px 28px;margin-top:3.5rem;padding-bottom:1.25rem;border-bottom:1px solid var(--gl)}
-.chs button{padding:6px 0;border-bottom:1px solid transparent;font:500 10px var(--s);letter-spacing:.28em;text-transform:uppercase;transition:color .3s}
-.chs button:hover{color:var(--fg)}.chs .on{border-color:var(--g);color:var(--g)}
-.grid{display:grid;gap:2rem;margin-top:4rem}
-@media(min-width:640px){.grid{grid-template-columns:repeat(2,1fr)}}@media(min-width:1024px){.grid{grid-template-columns:repeat(3,1fr);gap:3rem}}
-.pcd{display:flex;flex-direction:column}
-.im{aspect-ratio:4/3;border-bottom:1px solid var(--bd);background:var(--sf);overflow:hidden}
-.im img{width:100%;height:100%;object-fit:contain;padding:1rem}
-.tx{display:block;width:100%;flex:1;padding:2.5rem 2rem 1rem}
-@media(min-width:640px){.tx{padding:2.5rem 2.5rem 1rem}}
-.tx h3{margin-top:1.25rem;font-size:20px;transition:color .3s}.pcd:hover .tx h3{color:var(--g)}
-.tx .hl{width:2rem;margin-top:1.5rem;transition:width .5s}.pcd:hover .tx .hl{width:4rem}
-.pc{margin-top:1.5rem;letter-spacing:.03em;font-size:14px}
-.pc s{color:#6f6a5f;margin-right:8px}.pc b{font-weight:400;color:var(--g)}
-.ag{display:inline-block;margin-top:1.25rem;padding:4px 8px;border:1px solid var(--ox);color:#a8383d;font:500 10px var(--s);letter-spacing:.28em;text-transform:uppercase}
-.ad{padding:2rem}.ad .bt{width:100%}
-.emp{margin-top:4rem;padding:3.5rem 2rem;text-align:center}.emp p{max-width:28rem;margin:0 auto 2rem}
-.faq{display:grid;gap:5rem}@media(min-width:1024px){.faq{grid-template-columns:.75fr 1.25fr}}
-.faq .hl{width:5rem;margin:2.5rem 0}
-dl>div{border-top:1px solid var(--gl);padding:2.5rem 0}dl>div:last-child{border-bottom:1px solid var(--gl)}
-dt{font:400 18px/1.3 var(--d);color:var(--fg)}dd{margin-top:1rem;max-width:42rem}
-.cie{position:relative;overflow:hidden;text-align:center}.cie::before{opacity:.14}
-.cie::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(12,12,13,.7),transparent,var(--bg))}
-.cie .c{position:relative;z-index:1}
-.cie h2{max-width:40rem;margin:2rem auto 0;font-size:clamp(2.2rem,5vw,3rem)}
-.cie .hl{width:6rem;margin:2.5rem auto}
-.qs{max-width:600px;margin:auto}.qs .hl{width:5rem;margin:2.5rem 0}.qs p+p{margin-top:2rem}
-footer{border-top:1px solid var(--gl)}
-.fg{display:grid;gap:4rem;padding-block:5rem}@media(min-width:760px){.fg{grid-template-columns:repeat(3,1fr)}}
-.fg a.t{display:block;margin-top:1.5rem;transition:color .3s}.fg a:hover{color:var(--g)}
-.fg .sc2{display:flex;gap:1.5rem;margin-top:2rem}
-.fd{display:flex;flex-direction:column;gap:12px;padding-block:1.5rem;font-size:13px}
-@media(min-width:760px){.fd{flex-direction:row;flex-wrap:wrap;gap:12px 40px}}
-.fd span::before{content:"◆";color:var(--g);font-size:7px;margin-right:12px;vertical-align:middle}
-.cp{padding-block:1.5rem;font-size:12px}
-.ov{display:none;position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.8);overflow:auto;opacity:0;transition:opacity .3s}
-.ov.on{opacity:1}
-.bx{position:relative;max-width:32rem;margin:max(16px,env(safe-area-inset-top)) auto 24px;background:var(--s2);border:1px solid var(--gl);padding:2rem}
-.xb{position:absolute;top:8px;right:8px;width:44px;height:44px;font-size:24px;color:var(--mu);text-align:center;z-index:2}
-.bx .im{border:1px solid var(--bd)}
-.bx h3{font-size:24px;margin-top:1rem}.bx p{margin-top:1.25rem}.bx ul{margin:1rem 0 0 1.1rem}
-.bx .row{display:flex;gap:1px;margin-top:2.5rem}.bx .row .bt{flex:1}
-.q{display:flex;align-items:center;border:1px solid var(--bd)}
-.q button{width:44px;height:48px;text-align:center;font-size:18px;color:var(--mu)}.q button:hover{color:var(--g)}
-.q i{min-width:28px;text-align:center;font-style:normal;color:var(--fg)}
-.sl{display:block;margin-top:2rem;text-align:center;font-size:12px}.sl:hover{color:var(--g)}
-.sh{margin:0 0 0 auto;min-height:100%;width:min(92vw,26rem);border:0;border-left:1px solid var(--gl);transform:translateX(30px);transition:transform .35s var(--e)}
-.ov.on .sh{transform:none}
-.li{display:flex;gap:16px;padding:1.25rem 0;border-bottom:1px solid var(--bd);align-items:center}
-.li img{width:64px;height:64px;object-fit:contain;background:var(--sf);flex:none}
-.li div{flex:1}.li b{display:block;font:400 15px/1.3 var(--d);color:var(--fg);margin-bottom:6px}
-.tt{margin-top:1.5rem;text-align:right;color:var(--fg)}.tt b{color:var(--g);font-weight:400}
-.sh input,.sh textarea{width:100%;min-height:50px;margin-top:10px;padding:12px;background:var(--sf);border:1px solid var(--bd);color:var(--fg);font:300 16px var(--s)}
-.sh textarea{min-height:76px}.sh input:focus,.sh textarea:focus{outline:0;border-color:var(--g)}
-#er{color:#d98080;min-height:20px;margin-top:8px;font-size:13px}
-#ts{position:fixed;left:50%;bottom:calc(28px + env(safe-area-inset-bottom));transform:translate(-50%,14px);z-index:80;background:var(--s2);border:1px solid rgba(169,130,74,.5);color:var(--fg);padding:12px 20px;font-size:13px;opacity:0;pointer-events:none;transition:.3s;white-space:nowrap}
-#ts.on{opacity:1;transform:translate(-50%,0)}
-/* Fase 1 */
-#of:not([hidden])+#catalogo{border-top:1px solid var(--gl)!important}
-.sh label.lb{display:block;margin-top:16px}
-.sh select{width:100%;min-height:50px;margin-top:6px;padding:12px 40px 12px 12px;background:var(--sf) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a9824a' stroke-width='1.25'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center/16px;border:1px solid var(--bd);color:var(--fg);font:300 16px var(--s);-webkit-appearance:none;appearance:none}
-.sh select:focus{outline:0;border-color:var(--g)}
-.sh select option{background:var(--s2);color:var(--fg)}
-.sh #fc{margin-top:6px}
-.sh .nt{margin-top:6px;font-size:12px;line-height:1.5}
-/* Fase 2 */
-.sh.lf{margin:0 auto 0 0;border-left:0;border-right:1px solid var(--gl);transform:translateX(-30px)}
-.mn{margin-top:2rem;border-top:1px solid var(--gl)}
-.mn a,.mn button{display:flex;align-items:center;width:100%;min-height:52px;border-bottom:1px solid var(--bd);color:var(--fg);font:500 10px var(--s);letter-spacing:.28em;text-transform:uppercase;transition:color .3s}
-.mn a:hover,.mn button:hover{color:var(--g)}
-.im.gv{position:relative}
-.gl{display:flex;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
-.gl::-webkit-scrollbar{display:none}
-.gl img{flex:0 0 100%;scroll-snap-align:center}
-.dt{position:absolute;left:0;right:0;bottom:10px;display:flex;justify-content:center;gap:6px;pointer-events:none}
-.dt i{width:6px;height:6px;border:1px solid rgba(169,130,74,.6)}
-.dt i.on{background:var(--g)}
-#ts{display:flex;align-items:center;gap:16px;max-width:92vw;white-space:normal}
-#ts.on{pointer-events:auto}
-.vp{flex:none;min-height:44px;padding:0 14px;border:1px solid rgba(169,130,74,.45);color:var(--g);font:500 10px var(--s);letter-spacing:.28em;text-transform:uppercase}
-.so{width:44px;height:44px;border:1px solid var(--bd);display:grid;place-items:center;color:var(--fg);transition:.3s}
-.so:hover{border-color:rgba(169,130,74,.6);color:var(--g)}
-.so svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.25}/* Mis pedidos */
-.od{display:flex;flex-direction:column;gap:6px;width:100%;margin-top:12px;padding:1.25rem;background:var(--sf);border:1px solid var(--bd);text-align:left;transition:border-color .3s}
-.od:hover{border-color:rgba(169,130,74,.55)}
-.od b{font:400 16px var(--d);color:var(--fg)}
-.od .th{display:flex;gap:6px}
-.od .th img{width:48px;height:48px;object-fit:contain;background:var(--s2);border:1px solid var(--bd)}
-.pb{display:flex;gap:4px;margin-top:1.25rem}
-.pb span{flex:1;font-size:10px}
-.pb i{display:block;height:3px;background:var(--bd);margin-bottom:6px}
-.pb .on{color:var(--g)}.pb .on i{background:var(--g)}
-.tl{margin-top:1rem;border-left:1px solid var(--gl);padding-left:1rem}
-.tl p{position:relative;margin-top:1rem}
-.tl p::before{content:"";position:absolute;left:-1.3rem;top:.5rem;width:7px;height:7px;background:var(--bd)}
-.tl p:first-child::before{background:var(--g)}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.rv{opacity:1;transform:none}}
-</style></head><body><script src="entrada.js"></script><header id="hd"><div class="c hd">
-<a class="br" href="#top" aria-label="VOLXEN — inicio"><img src="logo.svg" alt="" width="34" height="34"><span class="wm">VOLXEN</span></a>
-<nav class="nv"><a class="l" href="#catalogo">Colección</a><a class="l" href="#faq">Información</a><a class="l" href="#quienes-somos">Quiénes somos</a>
-<button class="cb" data-a="menu" aria-label="Abrir menú"><svg viewBox="0 0 24 24"><path d="M4 8h16M4 16h16"/></svg></button><button class="cb" data-a="cart" aria-label="Ver su pedido"><svg viewBox="0 0 24 24"><path d="M6 7h12l1 13H5L6 7z"/><path d="M9 7a3 3 0 016 0"/></svg><i id="bd">0</i></button></nav>
-</div></header>
+body{background:var(--lino);color:var(--obs);font:400 16px/1.6 var(--cuerpo)}
+img,svg{display:block;max-width:100%}
+a{color:inherit}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--obs);outline-offset:2px}
+.wrap{max-width:var(--ancho);margin:0 auto;padding:0 18px}
+section{scroll-margin-top:84px}
 
-<main>
-<section class="hero" id="top"><div class="c">
-<div class="hx"><img src="logo.svg" alt="VOLXEN" width="144" height="144"></div>
-<h1>VOLXEN</h1><span class="hl" style="width:6rem;margin-top:3rem"></span>
-<p>Transparencia y confianza en cada venta.</p>
-<a class="bt wl" data-m="Buenas, deseo consultar sobre la colección de Volxen." href="#" target="_blank" rel="noopener">Consulte con su asesor</a>
-<a class="vv" href="#catalogo">Ver colección</a>
-</div><i class="b"></i></section>
+/* barra de aviso */
+.aviso{background:var(--card);border-bottom:1px solid var(--gold);text-align:center;padding:9px 18px;font:500 13px/1.3 var(--cuerpo);letter-spacing:.04em;color:var(--onyx)}
 
-<section class="sec" id="cats" hidden><div class="c"><p class="ey">Categorías</p><h2>La colección</h2><div class="cats" id="cg"></div></div></section>
+/* cabecera */
+.cab{position:sticky;top:0;z-index:20;background:var(--lino);border-bottom:1px solid var(--sky)}
+.cab .wrap{display:flex;align-items:center;justify-content:space-between;gap:6px;min-height:68px}
+.marca{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--obs)}
+.marca b{font:600 19px/1 var(--tit);letter-spacing:.24em}
+.acc{display:flex;align-items:center}
+.bi{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:52px;min-height:48px;padding:4px 6px;background:none;border:0;cursor:pointer;font:500 11px/1 var(--cuerpo);color:var(--onyx)}
+.bi svg{width:24px;height:24px;stroke:var(--obs);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 
-<section class="sec" id="of" hidden><div class="c"><p class="ey">Ofertas</p><h2>Precios especiales</h2><div class="grid" id="og"></div></div></section>
+/* buscador */
+.busca form{display:flex;gap:8px;padding:12px 0}
+.busca input{flex:1;min-width:0;height:46px;padding:0 14px;background:var(--card);border:1px solid var(--sky);border-radius:0;font-size:14px;text-overflow:ellipsis}
+.busca input::placeholder{color:var(--sky);opacity:1}
+.bs{flex:none;width:46px;height:46px;display:flex;align-items:center;justify-content:center;background:var(--gold);border:1px solid var(--gold);cursor:pointer}
+.bs svg{width:22px;height:22px;stroke:var(--obs);fill:none;stroke-width:1.8;stroke-linecap:round}
 
-<section class="sec" id="catalogo" style="border-top:0"><div class="c"><p class="ey">Colección</p><h2>Piezas disponibles</h2>
-<div class="chs" id="ch"></div><div class="grid" id="gr"></div></div></section>
+/* departamentos */
+.dep{border-top:1px solid var(--sky);border-bottom:1px solid var(--sky);background:var(--card)}
+.dep ul{list-style:none;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;max-width:var(--ancho);margin:0 auto;padding:0 14px}
+.dep ul::-webkit-scrollbar{display:none}
+.dep a{display:block;white-space:nowrap;min-height:46px;padding:14px;text-decoration:none;font:500 14px/1.2 var(--cuerpo);color:var(--onyx);border-bottom:2px solid transparent}
+.dep a:hover{color:var(--obs);border-bottom-color:var(--gold)}
 
-<section class="sec" id="faq"><div class="c faq"><div><p class="ey">Información</p><h2>Todo claro antes de confirmar</h2><span class="hl"></span><p>Preferimos la transparencia antes de cerrar. Si queda alguna duda, consulte con su asesor.</p></div>
-<dl>
-<div><dt>¿En qué zonas entregan?</dt><dd>La entrega está incluida en Centro Habana, Habana Vieja, Vedado, Diez de Octubre, Marianao y Playa. Otros municipios se coordinan con mensajería y el costo se confirma antes de cerrar el pedido.</dd></div>
-<div><dt>¿Cómo puedo pagar?</dt><dd>Se acepta USD, EUR, CUP y Zelle según disponibilidad. No hay pago en línea: su asesor confirma la forma de pago antes de la entrega.</dd></div>
-<div><dt>¿Los equipos tienen garantía?</dt><dd>Sí. Cada equipo lleva respaldo posventa por escrito; el plazo aparece en la ficha de la pieza cuando aplica.</dd></div>
-<div><dt>¿Aceptan devoluciones?</dt><dd>No hay devoluciones salvo por garantía. Revise medidas y especificaciones antes de confirmar, e inspeccione el equipo al recibirlo.</dd></div>
-<div><dt>¿Necesito crear una cuenta para pedir?</dt><dd>No. Arme su pedido en el sitio, edite el mensaje si lo desea y envíelo directamente a su asesor por WhatsApp.</dd></div>
-</dl></div></section>
+/* portada */
+.portada{padding:34px 0 26px}
+.portada .wrap{display:grid;gap:26px}
+.etq{display:flex;align-items:center;gap:12px;font:600 12px/1.3 var(--tit);letter-spacing:.26em;color:var(--onyx)}
+.etq::before{content:"";flex:none;width:28px;height:1px;background:var(--gold)}
+.portada h1{font:600 clamp(32px,8.5vw,56px)/1.08 var(--tit);margin:14px 0}
+.sub{font:400 16px/1.7 var(--cuerpo);color:var(--onyx)}
+.btns{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 26px;font:600 13px/1 var(--tit);letter-spacing:.16em;text-transform:uppercase;text-decoration:none;border:1px solid var(--gold);background:none;color:var(--obs);cursor:pointer;transition:transform .15s}
+.btn:active{transform:scale(.98)}
+.btn.p{background:var(--gold)}
+.resp{background:var(--card);border:1px solid var(--sky);border-top:2px solid var(--gold);padding:22px}
+.resp h2{font:600 17px/1.2 var(--tit);letter-spacing:.18em;text-transform:uppercase;margin-bottom:12px}
+.resp ul{list-style:none}
+.resp li{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--sky);font-size:15px;color:var(--onyx)}
+.resp li svg{flex:none;width:22px;height:22px;margin-top:2px;stroke:var(--gold);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 
-<section class="sec cie"><div class="c"><p class="ey">Atención personal</p><h2>Su asesor confirma disponibilidad, precio y entrega</h2><span class="hl"></span>
-<a class="bt wl" data-m="Buenas, deseo cerrar un pedido con Volxen." href="#" target="_blank" rel="noopener">Consulte con su asesor</a></div></section>
+/* secciones */
+.sec{padding:40px 0 8px}
+.sh{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:22px}
+.sh h2{position:relative;padding-bottom:12px;font:600 clamp(24px,6vw,34px)/1.15 var(--tit)}
+.sh h2::after{content:"";position:absolute;left:0;bottom:0;width:44px;height:2px;background:var(--gold)}
+.vt{padding:12px 0;font:600 13px/1 var(--tit);letter-spacing:.14em;text-transform:uppercase;text-decoration:none;border-bottom:1px solid var(--gold)}
 
-<section class="sec" id="quienes-somos"><div class="c"><div class="qs"><p class="ey">Volxen</p><h2>Quiénes somos</h2><span class="hl"></span>
-<p>Volxen es una casa de comercialización de tecnología y energía con sede en La Habana. Seleccionamos cada equipo con criterio propio y lo exhibimos como una colección reducida: climatización, energía portátil, paneles solares y línea de cocina, listos para entregar en la capital.</p>
-<p>No trabajamos con pago en línea. Usted arma su pedido en el sitio y lo confirma en una conversación personal con su asesor, quien verifica disponibilidad, precio final, forma de pago y fecha de entrega antes de cualquier compromiso.</p>
-<p>Cada equipo se entrega con respaldo posventa por escrito, según las condiciones propias del producto. Si algo no corresponde con lo acordado, lo atendemos directamente con usted.</p></div></div></section>
-</main>
+/* tarjetas de producto (esqueleto) */
+.tj{position:relative;background:var(--card);border:1px solid var(--sky)}
+.foto{aspect-ratio:1/1;background:linear-gradient(135deg,rgba(176,179,184,.22),rgba(176,179,184,.42))}
+.cu{display:grid;gap:9px;padding:14px 12px 16px}
+.ln{display:block;height:10px;border-radius:2px;background:rgba(176,179,184,.45)}
+.ln.c{width:62%}
+.ln.m{width:36%;height:14px}
+.tg{position:absolute;top:10px;left:10px;padding:6px 9px;font:600 11px/1 var(--tit);letter-spacing:.14em;text-transform:uppercase}
+.tg.of{background:var(--gold);color:var(--obs)}
+.tg.ag{background:var(--agot);color:var(--lino)}
+.of-row{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:0 -18px;padding:2px 18px 14px}
+.of-row::-webkit-scrollbar{display:none}
+.of-row .tj{flex:0 0 62%;max-width:240px;scroll-snap-align:start}
 
-<footer><div class="c fg">
-<div><div class="br"><img src="logo.svg" alt="" width="36" height="36"><span class="wm" style="font-size:16px">VOLXEN</span></div><p style="margin-top:1.5rem;max-width:20rem">Tecnología y energía seleccionada, exhibida y entregada en La Habana.</p></div>
-<div><p class="lb">Contacto</p><a class="t wl" data-m="Buenas, deseo información." href="#" target="_blank" rel="noopener">+53 5076 0258</a>
-<div class="sc2"><a class="so" href="https://www.instagram.com/volxen__tecnologia_cuba" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16"/><circle cx="12" cy="12" r="3.5"/><path d="M16.5 7.5h.01"/></svg></a><a class="so" href="https://www.facebook.com/profile.php?id=61593563156261" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M14 21v-8h3l.5-3.5H14V7.5c0-1 .5-1.5 1.5-1.5H18V3h-3a4 4 0 00-4 4v2.5H8V13h3v8z"/></svg></a><a class="so" href="https://whatsapp.com/channel/0029Vb8cqt1IiRomvBx6cI2A" target="_blank" rel="noopener" aria-label="Canal de WhatsApp"><svg viewBox="0 0 24 24"><path d="M4 10v4h3l7 4V6l-7 4z"/><path d="M17 9.5a4 4 0 010 5"/></svg></a></div></div>
-<div><p class="lb">Colección</p><a class="t" href="#catalogo">Ver colección</a><a class="lb" style="display:inline-block;margin-top:2rem" href="admin.html">Acceso al panel</a></div>
-</div><span class="hl"></span>
-<div class="c fd"><span>Entrega: La Habana</span><span>Garantía por escrito</span><span>Sin pago en línea</span><span>USD · EUR · CUP · Zelle</span></div><span class="hl"></span>
-<div class="c cp">© <span id="yr"></span> VOLXEN. La Habana, Cuba.</div></footer><div class="ov" id="pm"><button class="xb" data-a="close" aria-label="Cerrar" style="position:fixed;z-index:70;top:max(8px,env(safe-area-inset-top));right:8px;background:var(--s2);border:1px solid var(--gl)">×</button><div class="bx" id="pb"></div></div>
-<div class="ov" id="ctv"><div class="bx sh"><button class="xb" data-a="close" aria-label="Cerrar">×</button>
-<h3 style="margin-top:0">Su pedido</h3><div id="cl"></div><div class="tt" id="tt"></div>
-<div id="cf" style="display:none;margin-top:1.5rem"><p class="ey">Vale de pedido</p><input id="fn" placeholder="Nombre y apellidos *" autocomplete="name"><input id="fd" placeholder="Dirección completa (calle, número, entre calles) *" autocomplete="street-address"><label class="lb" for="fp">Municipio</label><select id="fp"><option value="" selected disabled>Seleccione su municipio</option><option>Playa</option><option>Plaza de la Revolución</option><option>Centro Habana</option><option>La Habana Vieja</option><option>Regla</option><option>La Habana del Este</option><option>Guanabacoa</option><option>San Miguel del Padrón</option><option>Diez de Octubre</option><option>Cerro</option><option>Marianao</option><option>La Lisa</option><option>Boyeros</option><option>Arroyo Naranjo</option><option>Cotorro</option></select><p class="nt">Por ahora solo entregamos en La Habana.</p>
-<label class="lb" for="fc">Carnet de identidad (opcional)</label><input id="fc" inputmode="numeric" maxlength="13" autocomplete="off" placeholder="11 dígitos"><p class="nt">Opcional. Solo viaja en el mensaje de WhatsApp a su asesor; el sitio no lo guarda.</p>
-<textarea id="fo" placeholder="Notas (opcional)"></textarea><p id="er"></p>
-<button class="bt" style="width:100%" data-a="send">Enviar pedido por WhatsApp</button></div></div></div>
-<div class="ov" id="mnv"><div class="bx sh lf"><button class="xb" data-a="close" aria-label="Cerrar">×</button>
-<span class="ey" style="margin-top:.5rem">Menú</span><nav class="mn" aria-label="Menú principal">
-<a href="#catalogo" data-a="close">Colección</a>
-<a href="#faq" data-a="close">Información</a>
-<a href="#quienes-somos" data-a="close">Quiénes somos</a>
-<button data-a="mcart">Carrito</button>
-<a class="wl" data-m="Buenas, deseo hacer una consulta general." href="#" target="_blank" rel="noopener" data-a="close">Consulta general</a>
-<a class="wl" data-m="Buenas, deseo reportar una incidencia." href="#" target="_blank" rel="noopener" data-a="close">Reportar incidencia</a>
-<a href="admin.html">Acceso al panel</a></nav></div></div>
-<div id="ts"></div>
-<script src="config.js"></script><script>
-const C=window.VOLXEN_CONFIG,H={apikey:C.SUPABASE_KEY},$=i=>document.getElementById(i);
-const q=p=>fetch(C.SUPABASE_URL+"/rest/v1/"+p,{headers:H}).then(r=>r.json());
-const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const wa=t=>"https://wa.me/"+(C.WHATSAPP||"")+"?text="+encodeURIComponent(t);
-const fm=n=>"$"+Math.round(n*100)/100+" USD";
-let P=[],Cs=[],O={},cat="",K={},mq=1,cur=null;
-try{K=JSON.parse(localStorage.getItem("vx_k")||"{}")}catch(e){}
-const ft=p=>(p.imagenes&&p.imagenes.length)?p.imagenes:(p.imagen_principal?[p.imagen_principal]:[]);
-const pr=p=>Number(O[p.id]||p.precio_usd)||0;
-const ag=p=>p.disponibilidad==="agotado";
-const cn=id=>(Cs.find(c=>c.id===id)||{}).nombre||"Volxen";
-const price=p=>ag(p)?"Consultar disponibilidad":(O[p.id]?"<s>"+fm(p.precio_usd)+"</s><b>"+fm(O[p.id])+"</b>":fm(p.precio_usd));
-function toast(t){const e=$("ts");e.textContent=t;e.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove("on"),2000)}
-function bd(){const n=Object.values(K).reduce((a,b)=>a+b,0),b=$("bd");b.textContent=n;b.style.display=n?"block":"none"}
-function sv(){try{localStorage.setItem("vx_k",JSON.stringify(K))}catch(e){}bd()}
-function obs(){const l=document.querySelectorAll(".rv:not(.in)");if(!("IntersectionObserver"in window)){l.forEach(e=>e.classList.add("in"));return}
-const o=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");o.unobserve(e.target)}}),{rootMargin:"0px 0px -40px"});l.forEach(e=>o.observe(e))}
-function pcard(p){const im=ft(p)[0];
-return '<article class="cd pcd rv"><div class="im">'+(im?'<img src="'+esc(im)+'" alt="'+esc(p.nombre)+'" loading="lazy">':'')+'</div><button class="tx" data-a="open" data-id="'+esc(p.id)+'"><span class="ey">'+esc(cn(p.categoria_id))+'</span><h3>'+esc(p.nombre)+'</h3><i class="hl"></i><p class="pc">'+price(p)+'</p>'+(ag(p)?'<span class="ag">Agotado</span>':'')+'</button><div class="ad"><button class="bt h" data-a="add1" data-id="'+esc(p.id)+'">Añadir al pedido</button></div></article>'}
-function draw(){
-const ic='<svg viewBox="0 0 24 24"><path d="M12 3l9 9-9 9-9-9z"/></svg>';
-$("cats").hidden=!Cs.length;
-$("cg").innerHTML=Cs.map(c=>{const n=P.filter(p=>p.categoria_id===c.id).length;return '<button class="cd ct rv" data-a="pick" data-id="'+esc(c.id)+'">'+ic+'<b>'+esc(c.nombre)+'</b><span class="lb">'+(n?n+(n>1?" piezas":" pieza"):"Consultar")+'</span></button>'}).join("");
-$("ch").innerHTML=[{id:"",nombre:"Todas"}].concat(Cs).map(c=>'<button class="'+(c.id===cat?"on":"")+'" data-a="cat" data-id="'+esc(c.id)+'">'+esc(c.nombre)+'</button>').join("");
-const v=P.filter(p=>!cat||p.categoria_id===cat);
-$("gr").innerHTML=v.length?v.map(pcard).join(""):'<div class="cd emp" style="grid-column:1/-1"><p>Aún no hay piezas publicadas en esta categoría. Consulte con su asesor la disponibilidad actual.</p><a class="bt h" href="'+wa("Buenas, deseo consultar la disponibilidad actual.")+'" target="_blank" rel="noopener">Consultar disponibilidad</a></div>';
-obs()}
-function show(id){const o=$(id);o.style.display="block";document.body.style.overflow="hidden";o.scrollTop=0;requestAnimationFrame(()=>o.classList.add("on"))}
-function hide(){document.querySelectorAll(".ov.on").forEach(o=>{o.classList.remove("on");setTimeout(()=>{if(!o.classList.contains("on"))o.style.display="none"},300)});document.body.style.overflow=""}
-function open(id){const p=P.find(x=>x.id===id);if(!p)return;cur=p;mq=1;const ims=ft(p);
-const f=(p.caracteristicas||[]).map(x=>"<li>"+esc(x)+"</li>").join("");
-$("pb").innerHTML='<div class="im">'+(ims[0]?'<img id="gi" src="'+esc(ims[0])+'" alt="'+esc(p.nombre)+'">':'')+'</div>'+(ims.length>1?'<div style="display:flex;gap:8px;margin-top:8px;overflow-x:auto">'+ims.map(u=>'<img data-a="thumb" data-u="'+esc(u)+'" src="'+esc(u)+'" alt="" style="width:56px;height:56px;object-fit:contain;background:var(--sf);border:1px solid var(--bd);cursor:pointer;flex:none">').join("")+'</div>':'')+'<span class="ey" style="margin-top:2rem">'+esc(cn(p.categoria_id))+'</span><h3>'+esc(p.nombre)+'</h3><p class="pc" style="margin-top:.75rem">'+price(p)+'</p>'+(p.descripcion?'<p>'+esc(p.descripcion)+'</p>':'')+(f?'<ul>'+f+'</ul>':'')+(p.garantia?'<p><span style="color:var(--fg)">Garantía:</span> '+esc(p.garantia)+'</p>':'')+(p.transporte?'<p><span style="color:var(--fg)">Transporte:</span> '+esc(p.transporte)+'</p>':'')+'<div class="row"><div class="q"><button data-a="mm" aria-label="Menos cantidad">−</button><i id="mq">1</i><button data-a="mp" aria-label="Más cantidad">+</button></div></div><div class="row" style="margin-top:1rem"><button class="bt h" style="padding:16px 12px" data-a="addm">Añadir al carrito</button><button class="bt" style="padding:16px 12px" data-a="buy">Comprar</button></div><a class="sl" target="_blank" rel="noopener" href="'+wa('Buenas, deseo consultar por la pieza "'+p.nombre+'" ('+fm(pr(p))+').')+'">O consultar solo esta pieza con su asesor</a>';
-show("pm")}
-function add(id,n){K[id]=(K[id]||0)+n;sv();const p=P.find(x=>x.id===id);toast((p?p.nombre+" — ":"")+"añadido a su pedido")}
-function cart(){const it=Object.keys(K).map(id=>P.find(x=>x.id===id)).filter(Boolean);
-$("cl").innerHTML=it.length?it.map(p=>'<div class="li"><img src="'+esc(ft(p)[0]||"")+'" alt=""><div><b>'+esc(p.nombre)+'</b><span>'+fm(pr(p))+'</span><div class="q" style="width:fit-content;margin-top:8px"><button data-a="qm" data-id="'+esc(p.id)+'" aria-label="Menos">−</button><i>'+K[p.id]+'</i><button data-a="qp" data-id="'+esc(p.id)+'" aria-label="Más">+</button></div></div><button data-a="rm" data-id="'+esc(p.id)+'" aria-label="Quitar" style="width:44px;height:44px;text-align:center;font-size:22px">×</button></div>').join(""):'<p style="margin-top:1.5rem">Su pedido está vacío.</p>';
-const t=it.reduce((a,p)=>a+pr(p)*K[p.id],0);$("tt").innerHTML=it.length?'Total estimado: <b>'+fm(t)+'</b>':"";$("cf").style.display=it.length?"block":"none"}
-function chg(id,d){K[id]=(K[id]||0)+d;if(K[id]<=0)delete K[id];sv();cart()}
-function go(u){const a=document.createElement("a");a.href=u;a.target="_blank";a.rel="noopener";document.body.appendChild(a);a.click();a.remove()}
-function send(){const n=$("fn").value.trim(),d=$("fd").value.trim(),pv=$("fp").value,ci=$("fc").value.replace(/\D/g,"");
-if(!n||!d){$("er").textContent="Complete su nombre y la dirección.";return}
-if(!pv){$("er").textContent="Seleccione su municipio.";return}
-if(ci&&ci.length!==11){$("er").textContent="El carnet de identidad tiene 11 dígitos. Complételo o déjelo en blanco.";return}
-$("er").textContent="";
-const it=Object.keys(K).map(id=>P.find(x=>x.id===id)).filter(Boolean),t=it.reduce((a,p)=>a+pr(p)*K[p.id],0);
-let m="Buenas, deseo hacer este pedido:\n"+it.map(p=>"- "+K[p.id]+" x "+p.nombre+" ("+fm(pr(p))+")").join("\n")+"\nTotal estimado: "+fm(t)+"\n\nNombre: "+n+"\nDirección: "+d+"\nMunicipio: "+pv+", La Habana";
-if(ci)m+="\nCarnet de identidad: "+ci;
-const o=$("fo").value.trim();if(o)m+="\nNotas: "+o;go(wa(m))}
-document.addEventListener("click",e=>{const t=e.target.closest("[data-a]");if(!t)return;const a=t.dataset.a,id=t.dataset.id;
-if(a==="open")open(id);else if(a==="add1")add(id,1);else if(a==="cat"){cat=id;draw()}
-else if(a==="pick"){cat=id;draw();$("catalogo").scrollIntoView({behavior:"smooth"})}
-else if(a==="cart"){cart();show("ctv")}else if(a==="close")hide();
-else if(a==="mm"){mq=Math.max(1,mq-1);$("mq").textContent=mq}else if(a==="mp"){mq++;$("mq").textContent=mq}
-else if(a==="addm"){add(cur.id,mq);hide()}else if(a==="thumb")$("gi").src=t.dataset.u;
-else if(a==="qm")chg(id,-1);else if(a==="qp")chg(id,1);else if(a==="rm")chg(id,-999);else if(a==="send")send()});
-document.querySelectorAll(".ov").forEach(o=>o.addEventListener("click",e=>{if(e.target===o)hide()}));
-document.addEventListener("keydown",e=>{if(e.key==="Escape")hide()});
-addEventListener("scroll",()=>$("hd").classList.toggle("sc",scrollY>12),{passive:true});
-document.querySelectorAll(".wl").forEach(a=>a.href=wa(a.dataset.m));
-$("yr").textContent=new Date().getFullYear();bd();
-/* Fase 1 · Ofertas */
-let ofk="";
-function drOf(){const s=$("of");if(!s)return;
-const l=P.filter(p=>Number(O[p.id])>0&&Number(O[p.id])<Number(p.precio_usd)&&!ag(p));
-s.hidden=!l.length;const k=l.map(p=>p.id).join();if(k===ofk)return;ofk=k;
-$("og").innerHTML=l.map(pcard).join("");obs()}
-const dr0=draw;draw=function(){dr0();drOf()};
-/* Fase 2 */
-function ico(n){n=String(n).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
-const m=[[/clima|aire|split/,'<rect x="3" y="5" width="18" height="7"/><path d="M7 15v2M12 15v4M17 15v2"/>'],
-[/nevera|refriger|congel/,'<rect x="6" y="3" width="12" height="18"/><path d="M6 10h12M9 6v2M9 13v3"/>'],
-[/lava/,'<rect x="4" y="3" width="16" height="18"/><circle cx="12" cy="13" r="4"/><path d="M7 6.5h2"/>'],
-[/panel|solar/,'<path d="M4 8h16l-2 9H6z"/><path d="M9.5 8l-1 9M14.5 8l1 9M5 12.5h14M12 17v4M9 21h6"/>'],
-[/energ|generador|bateria/,'<path d="M13 3L6 13h5l-1 8 7-10h-5z"/>'],
-[/\btv\b|televis|audio|entreten/,'<rect x="3" y="5" width="18" height="12"/><path d="M9 21h6M12 17v4"/>'],
-[/cocin|batidor/,'<rect x="4" y="3" width="16" height="18"/><circle cx="9" cy="8" r="1.5"/><circle cx="15" cy="8" r="1.5"/><path d="M4 13h16"/>'],
-[/moto|triciclo|movilidad|vehicul|bici/,'<circle cx="6" cy="16" r="3"/><circle cx="18" cy="16" r="3"/><path d="M6 16l4-7h5l3 7M9 9H7"/>'],
-[/ventilad/,'<circle cx="12" cy="12" r="1.5"/><path d="M12 10.5C12 6 14 4 16 5s1 4-4 5.5M13.5 12c4.5 0 6.5 2 5.5 4s-4 1-5.5-4M12 13.5c0 4.5-2 6.5-4 5.5s-1-4 4-5.5M10.5 12C6 12 4 10 5 8s4-1 5.5 4"/>']];
-for(const r of m)if(r[0].test(n))return r[1];
-return '<path d="M12 3l9 9-9 9-9-9z"/>'}
-function gal(el,p){const ims=ft(p);if(!el||ims.length<2)return;el.classList.add("gv");
-el.innerHTML='<div class="gl">'+ims.map((u,i)=>'<img src="'+esc(u)+'" alt="'+esc(p.nombre)+'"'+(i?' loading="lazy"':'')+'>').join("")+'</div><div class="dt">'+ims.map((u,i)=>'<i'+(i?'':' class="on"')+'></i>').join("")+'</div>';
-const g=el.firstChild,d=el.lastChild.children;
-g.addEventListener("scroll",()=>{const n=Math.round(g.scrollLeft/g.clientWidth);for(let i=0;i<d.length;i++)d[i].classList.toggle("on",i===n)},{passive:true})}
-function fx(){document.querySelectorAll("#cg .ct svg").forEach((s,i)=>{if(Cs[i])s.innerHTML=ico(Cs[i].nombre)});
-document.querySelectorAll(".pcd").forEach(a=>{if(a.dataset.g)return;a.dataset.g=1;const p=P.find(x=>String(x.id)===a.querySelector(".tx").dataset.id);if(p)gal(a.querySelector(".im"),p)})}
-const dr1=draw;draw=function(){dr1();fx()};
-const op0=open;open=function(id){op0(id);const p=P.find(x=>x.id===id);if(!p||ft(p).length<2)return;
-gal($("pb").querySelector(".im"),p);const t=$("pb").querySelector('[data-a="thumb"]');if(t)t.parentNode.remove()};
-const ad0=add;add=function(id,n){ad0(id,n);const e=$("ts");e.insertAdjacentHTML("beforeend",'<button class="vp" data-a="vp">Ver pedido</button>');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove("on"),4000)};
-function vale(){cart();show("ctv");setTimeout(()=>{const f=$("cf");if(f)f.scrollIntoView({behavior:"smooth",block:"start"})},350)}
-document.addEventListener("click",e=>{const t=e.target.closest("[data-a]");if(!t)return;const a=t.dataset.a;
-if(a==="menu")show("mnv");
-else if(a==="mcart"){hide();setTimeout(()=>{cart();show("ctv")},320)}
-else if(a==="vp"){$("ts").classList.remove("on");cart();show("ctv")}
-else if(a==="buy"&&cur){K[cur.id]=(K[cur.id]||0)+mq;sv();hide();setTimeout(vale,320)}});
-(async()=>{const[c,p,o]=await Promise.all([q("categorias?order=orden"),q("productos?activo=eq.true&order=created_at.desc"),q("ofertas?activa=eq.true")]);
-Cs=Array.isArray(c)?c:[];P=Array.isArray(p)?p:[];(Array.isArray(o)?o:[]).forEach(x=>O[x.producto_id]=x.precio_oferta_usd);draw()})();
-/* VOLXEN - Mis pedidos (estilo Amazon), contactos y menu */
-(function(){
-document.querySelectorAll('a[href="admin.html"]').forEach(a=>a.remove());
-const OP=["56581114","56193681","52405395","63990666","52842030","55500209"];
-const CH=[["Grupo de soporte y gestión (WhatsApp)","https://chat.whatsapp.com/EpzOGv9qyTP8t7ei79PlYL"],["Catálogo en Telegram","https://t.me/volxen_catalogo"],["Facebook","https://www.facebook.com/share/1M1HdetBFY/"],["Instagram","https://www.instagram.com/volxen__tecnologia_cuba"]];
-const li=(h,t)=>'<a class="bt h" style="width:100%;margin-top:10px" href="'+h+'" target="_blank" rel="noopener">'+t+'</a>';
-document.body.insertAdjacentHTML("beforeend",
-'<div class="ov" id="sgv"><div class="bx sh"><button class="xb" data-a="close" aria-label="Cerrar">×</button><div id="pv"></div></div></div>'+
-'<div class="ov" id="ctc"><div class="bx sh"><button class="xb" data-a="close" aria-label="Cerrar">×</button><h3 style="margin-top:0">Contacto</h3><p class="lb" style="margin-top:1.5rem">Canales oficiales</p>'+CH.map(c=>li(c[1],c[0])).join("")+'<p class="lb" style="margin-top:2rem">Atención por WhatsApp</p>'+OP.map((n,i)=>li("https://wa.me/53"+n,"Asesor "+(i+1)+" · +53 "+n)).join("")+'</div></div>');
-const mn=document.querySelector("#mnv .mn"),w=mn&&mn.querySelector(".wl");
-if(mn){const add=(a,t)=>{const b=document.createElement("button");b.dataset.a=a;b.textContent=t;mn.insertBefore(b,w||null)};add("seg","Mis pedidos");add("ctc","Contactos y canales")}
-["sgv","ctc"].forEach(id=>$(id).addEventListener("click",e=>{if(e.target.id===id)hide()}));
-const fa=(x,k)=>{if(Array.isArray(x))return x.length&&x.every(o=>o&&typeof o==="object"&&k in o)?x:null;if(x&&typeof x==="object"){for(const v of Object.values(x)){const r=fa(v,k);if(r)return r}}return null};
-const g=(x,k)=>x&&typeof x==="object"?(k in x?x[k]:Object.values(x).map(v=>g(v,k)).find(v=>v!=null)):undefined;
-const gt=x=>{if(x&&typeof x==="object"){for(const[k,v]of Object.entries(x))if(/track|token/i.test(k)&&typeof v==="string")return v;for(const v of Object.values(x)){const r=gt(v);if(r)return r}}};
-const pe=s=>{s=String(s||"").replace(/_/g," ");return s.charAt(0).toUpperCase()+s.slice(1)};
-const LS="vx_pedidos",rd=()=>{try{return JSON.parse(localStorage.getItem(LS)||"[]")}catch(e){return[]}},wr=a=>{try{localStorage.setItem(LS,JSON.stringify(a))}catch(e){}};
-function gp(c,t){c=String(c).toUpperCase();const a=rd();if(!a.some(x=>x.c===c)){a.unshift({c:c,t:t,f:Date.now()});wr(a)}}
-window.vxGuardarPedido=gp;
-const D={};let L=0;
-const ask=(c,t)=>fetch(C.SUPABASE_URL+"/rest/v1/rpc/consultar_pedido_tracking",{method:"POST",headers:{apikey:C.SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify({p_codigo:c,p_tracking_token:t})}).then(async r=>{const j=await r.json();if(!r.ok)throw new Error((j&&j.message)||"No se pudo consultar el pedido.");if(!j||!g(j,"codigo"))throw new Error("No encontramos un pedido con esos códigos.");return j});
-const inf=j=>({c:g(j,"codigo"),e:g(j,"estado"),n:g(j,"nombre_cliente"),t:g(j,"total_usd"),it:fa(j,"producto_nombre")||[],hs:fa(j,"estado")||[]});
-const st=e=>{e=String(e||"").toLowerCase();return /cancel|rechaz/.test(e)?-1:/entreg|complet/.test(e)?3:/camino|ruta|envi|transp|despach/.test(e)?2:/confirm|prepar|proces|aprob/.test(e)?1:/pend|recib|regist|nuev/.test(e)?0:null};
-const fd=d=>d.toLocaleDateString("es",{day:"numeric",month:"long",year:"numeric"});
-const dt=o=>{const h=o.hs.map(x=>x.created_at).filter(Boolean).sort()[0];return h?new Date(h):null};
-const img=n=>{const p=P.find(x=>x.nombre===n);return p?ft(p)[0]||"":""};
-const ADD='<details style="margin-top:2rem"><summary class="lb" style="min-height:44px;display:flex;align-items:center;cursor:pointer">Agregar un pedido con sus códigos</summary><input id="sc" placeholder="Código del pedido (VX-2026-000001)" autocomplete="off" autocapitalize="characters"><input id="st" placeholder="Código de seguimiento" autocomplete="off"><p id="se" style="color:#d98080;min-height:20px;margin-top:8px;font-size:13px"></p><button class="bt" style="width:100%" data-a="padd">Agregar pedido</button></details>';
-async function lista(){const k=++L,a=rd();
-$("pv").innerHTML='<h3 style="margin-top:0">Mis pedidos</h3>'+(a.length?'<div id="ol"><p class="nt">Cargando sus pedidos…</p></div>':'<p style="margin-top:1rem">Aún no tiene pedidos guardados en este dispositivo.</p>')+ADD;
-await Promise.all(a.map(x=>ask(x.c,x.t).then(j=>{D[x.c]=inf(j)}).catch(()=>{D[x.c]=null})));
-const ol=$("ol");if(k!==L||!ol)return;
-ol.innerHTML=a.map(x=>{const o=D[x.c];
-if(!o)return '<button class="od" data-a="pdet" data-id="'+esc(x.c)+'"><span class="ey">'+esc(x.c)+'</span><span class="nt">No se pudo actualizar. Toque para reintentar.</span></button>';
-const d=dt(o)||new Date(x.f);
-return '<button class="od" data-a="pdet" data-id="'+esc(x.c)+'"><span class="ey">'+esc(x.c)+'</span><b>'+esc(pe(o.e))+'</b><span class="th">'+o.it.slice(0,3).map(p=>img(p.producto_nombre)?'<img src="'+esc(img(p.producto_nombre))+'" alt="">':"").join("")+'</span><span>'+(o.it.length>1?o.it.length+' productos':o.it[0]?esc(o.it[0].producto_nombre):'')+'</span><span class="nt">'+fd(d)+(o.t!=null?' · '+fm(Number(o.t)):'')+'</span></button>'}).join("")}
-function det(c){L++;const o=D[c];if(!o){lista();return}
-const s=st(o.e),h=o.hs.slice().sort((x,y)=>String(y.created_at).localeCompare(String(x.created_at)));
-$("pv").innerHTML='<button class="lb" data-a="pback" style="min-height:44px">← Mis pedidos</button><p class="ey" style="margin-top:1rem">Pedido</p><h3 style="margin:.5rem 0">'+esc(o.c)+'</h3><p>Estado actual: <b style="color:var(--g);font-weight:400">'+esc(pe(o.e))+'</b></p>'+
-(s===-1?'<span class="ag">Cancelado</span>':s!=null?'<div class="pb">'+["Recibido","Confirmado","En camino","Entregado"].map((l,i)=>'<span'+(i<=s?' class="on"':'')+'><i></i>'+l+'</span>').join("")+'</div>':'')+
-'<p class="lb" style="margin-top:2rem">Productos</p>'+o.it.map(p=>{const m=img(p.producto_nombre);return '<div class="li">'+(m?'<img src="'+esc(m)+'" alt="">':'')+'<div><b>'+esc(p.producto_nombre)+'</b><span>'+esc(p.cantidad)+(Number(p.cantidad)>1?' unidades':' unidad')+(p.subtotal!=null?' · '+fm(Number(p.subtotal)):'')+'</span></div></div>'}).join("")+
-(o.t!=null?'<p class="tt">Total: <b>'+fm(Number(o.t))+'</b></p>':'')+(o.n?'<p>Cliente: '+esc(o.n)+'</p>':'')+
-(h.length?'<p class="lb" style="margin-top:2rem">Seguimiento</p><div class="tl">'+h.map(x=>'<p><span style="color:var(--fg)">'+esc(pe(x.estado))+'</span>'+(x.created_at?'<br>'+esc(new Date(x.created_at).toLocaleString("es")):'')+(x.comentario?'<br><span class="nt">'+esc(x.comentario)+'</span>':'')+'</p>').join("")+'</div>':'')+
-'<a class="bt" style="width:100%;margin-top:2rem" href="'+wa("Buenas, consulto por mi pedido "+o.c)+'" target="_blank" rel="noopener">Consultar con su asesor</a><button class="sl" style="width:100%" data-a="prm" data-id="'+esc(c)+'">Quitar de esta lista</button>'}
-async function agr(){const c=$("sc").value.trim().toUpperCase(),t=$("st").value.trim();
-if(!c||!t){$("se").textContent="Escriba ambos códigos.";return}
-$("se").textContent="Consultando…";
-try{const j=await ask(c,t);gp(c,t);D[c]=inf(j);det(c)}catch(x){$("se").textContent=x.message||"No se pudo consultar el pedido."}}
-const f0=window.fetch;window.fetch=function(u,o){const r=f0.apply(this,arguments);try{const s=String(u&&u.url||u);if(/\/rest\/v1\//.test(s)&&!/consultar_pedido_tracking/.test(s)&&String(o&&o.method||u&&u.method||"GET").toUpperCase()==="POST")r.then(x=>x.clone().json()).then(j=>{const c=g(j,"codigo"),t=gt(j);if(c&&t)gp(c,t)}).catch(()=>{})}catch(e){}return r};
-document.addEventListener("click",e=>{const t=e.target.closest("[data-a]");if(!t)return;const a=t.dataset.a,id=t.dataset.id;
-if(a==="seg"||a==="ctc"){hide();setTimeout(()=>{show(a==="seg"?"sgv":"ctc");if(a==="seg")lista()},320)}
-else if(a==="pdet")det(id);else if(a==="pback")lista();else if(a==="padd")agr();
-else if(a==="prm"){wr(rd().filter(x=>x.c!==id));lista()}});
-})();/* VOLXEN - Consulta general e incidencias (se guardan en la base de datos) */
-(function(){
-document.querySelectorAll("#mnv .mn .wl").forEach(a=>{const m=(a.dataset.m||"").toLowerCase(),k=m.includes("consulta general")?"cq":m.includes("incidencia")?"ci":"";if(!k)return;const b=document.createElement("button");b.dataset.a=k;b.textContent=a.textContent;a.replaceWith(b)});
-document.body.insertAdjacentHTML("beforeend",'<div class="ov" id="cqv"><div class="bx sh"><button class="xb" data-a="close" aria-label="Cerrar">×</button><h3 id="cqt" style="margin-top:0"></h3><p class="nt" style="margin-top:1rem">Su mensaje queda registrado y después se abre WhatsApp para hablar con su asesor.</p><input id="cqn" placeholder="Nombre y apellidos *" autocomplete="name"><input id="cqc" placeholder="WhatsApp o teléfono *" inputmode="tel" autocomplete="tel"><input id="cqp" placeholder="Código del pedido (opcional)" autocomplete="off" autocapitalize="characters"><textarea id="cqm" placeholder="Escriba su mensaje *"></textarea><p id="cqe" style="color:#d98080;min-height:20px;margin-top:8px;font-size:13px"></p><button class="bt" style="width:100%" id="cqs" data-a="cqsend">Enviar</button></div></div>');
-$("cqv").addEventListener("click",e=>{if(e.target.id==="cqv")hide()});
-let ty="consulta";
-document.addEventListener("click",async e=>{const t=e.target.closest("[data-a]");if(!t)return;const a=t.dataset.a;
-if(a==="cq"||a==="ci"){ty=a==="cq"?"consulta":"incidencia";hide();setTimeout(()=>{$("cqt").textContent=ty==="consulta"?"Consulta general":"Reportar incidencia";$("cqe").textContent="";show("cqv")},320)}
-else if(a==="cqsend"){const n=$("cqn").value.trim(),c=$("cqc").value.trim(),p=$("cqp").value.trim().toUpperCase(),m=$("cqm").value.trim(),b=$("cqs");
-if(n.length<2||c.length<6||m.length<5){$("cqe").textContent="Complete su nombre, su contacto y el mensaje.";return}
-$("cqe").textContent="";b.disabled=true;b.textContent="Enviando…";let ok=false;
-try{const r=await fetch(C.SUPABASE_URL+"/rest/v1/rpc/registrar_consulta",{method:"POST",headers:{apikey:C.SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify({p_tipo:ty,p_nombre:n,p_contacto:c,p_codigo_pedido:p,p_mensaje:m})});ok=r.ok}catch(x){}
-b.disabled=false;b.textContent="Enviar";
-const tx=(ty==="consulta"?"Buenas, tengo una consulta general.":"Buenas, deseo reportar una incidencia.")+"\nNombre: "+n+"\nContacto: "+c+(p?"\nPedido: "+p:"")+"\nMensaje: "+m;
-$("cqm").value="";hide();toast(ok?"Su mensaje quedó registrado":"Abriendo WhatsApp");go(wa(tx))}});
-})();/* VOLXEN - consultas solo en base de datos, seguimiento y ampliar foto */
-(function(){
-const S=document.createElement("style");
-S.textContent='.av{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translate(-50%,16px);width:min(92vw,26rem);z-index:90;background:var(--s2);border:1px solid rgba(169,130,74,.5);padding:20px 22px;opacity:0;pointer-events:none;transition:.3s var(--e)}.av.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}.av b{display:block;font:400 17px/1.3 var(--d);color:var(--fg);margin-bottom:8px}.av p{font-size:13px;margin:0}.av i{display:block;height:1px;background:var(--g);margin-top:14px;transform-origin:left;animation:avb 5s linear forwards}@keyframes avb{from{transform:scaleX(1)}to{transform:scaleX(0)}}.zm{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.95);align-items:center;justify-content:center;touch-action:pinch-zoom}.zm.on{display:flex}.zm img{max-width:100%;max-height:100%;object-fit:contain}.zx{position:fixed;top:max(8px,env(safe-area-inset-top));right:8px;width:44px;height:44px;font-size:24px;color:var(--fg);border:1px solid var(--gl);background:var(--s2);text-align:center}.pcd .im{cursor:pointer}#pb .im img{cursor:zoom-in}';
-document.head.appendChild(S);
-const LK="vx_consultas",rd=()=>{try{return JSON.parse(localStorage.getItem(LK)||"[]")}catch(e){return[]}},wr=a=>{try{localStorage.setItem(LK,JSON.stringify(a.slice(0,30)))}catch(e){}};
-document.body.insertAdjacentHTML("beforeend",'<div class="av" id="av"></div><div class="ov" id="cgv"><div class="bx sh"><button class="xb" data-a="close" aria-label="Cerrar">×</button><h3 style="margin-top:0">Mis consultas</h3><div id="cgl"></div></div></div><div class="zm" id="zm"><button class="zx" aria-label="Cerrar">×</button><img alt=""></div>');
-$("cgv").addEventListener("click",e=>{if(e.target.id==="cgv")hide()});
-/* formulario: sin WhatsApp */
-const nt=document.querySelector("#cqv .nt");if(nt)nt.textContent="Su mensaje queda registrado y un asesor se comunicará con usted por el teléfono o correo que indique.";
-const cc=$("cqc");if(cc){cc.placeholder="Teléfono o correo *";cc.removeAttribute("inputmode");cc.setAttribute("autocomplete","on")}
-const fb=document.querySelector("#cqv .bx");if(fb)fb.insertAdjacentHTML("beforeend",'<button class="sl" style="width:100%" data-a="cqseg">Ver seguimiento de mis consultas</button>');
-const mn=document.querySelector("#mnv .mn");if(mn){const b=document.createElement("button");b.dataset.a="cqseg";b.textContent="Seguimiento de consultas";mn.appendChild(b)}
-let at;
-function aviso(t){const a=$("av");clearTimeout(at);a.innerHTML='<b>Recibimos su '+(t==="consulta"?"consulta":"incidencia")+'</b><p>Un asesor se comunicará con usted por el teléfono o correo que indicó. No necesita hacer nada más: puede ver el estado cuando quiera en «Ver seguimiento».</p><button data-a="cqseg" style="min-height:44px;margin-top:6px;color:var(--g);font:500 10px var(--s);letter-spacing:.28em;text-transform:uppercase">Ver seguimiento</button><i></i>';a.classList.add("on");at=setTimeout(()=>a.classList.remove("on"),5000)}
-function lista(){const a=rd();$("cgl").innerHTML=a.length?a.map(x=>'<div style="border-top:1px solid var(--gl);padding:1.25rem 0"><span class="ey">'+(x.t==="consulta"?"Consulta general":"Incidencia")+(x.c?" · "+esc(x.c):"")+'</span><p style="margin-top:8px;color:var(--fg)">'+esc(x.m.length>90?x.m.slice(0,90)+"…":x.m)+'</p><p class="nt" style="margin-top:6px">'+new Date(x.f).toLocaleDateString("es",{day:"numeric",month:"long",year:"numeric"})+' · Estado: <span style="color:var(--g)">Recibida</span></p><p class="nt">Un asesor se comunicará con usted por el contacto que indicó.</p></div>').join(""):'<p style="margin-top:1rem">Aún no ha enviado consultas desde este dispositivo.</p>'}
-const fk=x=>{if(x&&typeof x==="object"){for(const[k,v]of Object.entries(x))if(/codigo|ticket|folio|referencia/i.test(k)&&typeof v==="string"&&v)return v;for(const v of Object.values(x)){const r=fk(v);if(r)return r}}};
-let busy=false;
-/* captura el envío antes que el código anterior, así ya no abre WhatsApp */
-document.addEventListener("click",async e=>{const t=e.target.closest('[data-a="cqsend"]');if(!t)return;e.stopPropagation();if(busy)return;
-const n=$("cqn").value.trim(),c=$("cqc").value.trim(),p=$("cqp").value.trim().toUpperCase(),m=$("cqm").value.trim(),b=$("cqs"),er=$("cqe");
-if(n.length<2||c.length<6||m.length<5){er.textContent="Complete su nombre, su teléfono o correo y el mensaje.";return}
-er.textContent="";busy=true;b.disabled=true;b.textContent="Enviando…";
-const ty=$("cqt").textContent==="Consulta general"?"consulta":"incidencia";let ok=false,cod;
-try{const r=await fetch(C.SUPABASE_URL+"/rest/v1/rpc/registrar_consulta",{method:"POST",headers:{apikey:C.SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify({p_tipo:ty,p_nombre:n,p_contacto:c,p_codigo_pedido:p,p_mensaje:m})});ok=r.ok;if(ok){try{cod=fk(await r.clone().json())}catch(x){}}}catch(x){}
-busy=false;b.disabled=false;b.textContent="Enviar";
-if(!ok){er.textContent="No se pudo enviar. Revise su conexión e inténtelo de nuevo.";return}
-const a=rd();a.unshift({t:ty,m:m,f:Date.now(),c:cod||""});wr(a);
-$("cqm").value="";hide();setTimeout(()=>aviso(ty),350)},true);
-document.addEventListener("click",e=>{const t=e.target.closest('[data-a="cqseg"]');if(!t)return;$("av").classList.remove("on");hide();lista();setTimeout(()=>show("cgv"),320)});
-/* foto: tocar en el catálogo abre el producto; tocar dentro la amplía */
-const zm=$("zm"),zi=zm.querySelector("img"),zc=()=>zm.classList.remove("on");
-zm.addEventListener("click",zc);
-document.addEventListener("keydown",e=>{if(e.key==="Escape")zc()});
-document.addEventListener("click",e=>{const g=e.target.closest("#pb .im img");
-if(g){zi.src=g.currentSrc||g.src;zi.alt=g.alt||"";zm.classList.add("on");return}
-const c=e.target.closest(".pcd .im");if(c){const t=c.closest(".pcd").querySelector(".tx");if(t)t.click()}});
-})(); /* VOLXEN - ampliar foto en la ficha y zona de asesores */
-(function(){
-const S=document.createElement("style");
-S.textContent='#pb .im{position:relative;cursor:zoom-in}#pb .im::after{content:"";position:absolute;right:10px;top:10px;width:36px;height:36px;border:1px solid var(--gl);background:rgba(20,20,20,.85) url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23a9824a%27 stroke-width=%271.4%27%3E%3Ccircle cx=%2710%27 cy=%2710%27 r=%276%27/%3E%3Cpath d=%27M15 15l5 5M10 7v6M7 10h6%27/%3E%3C/svg%3E") center/18px no-repeat;pointer-events:none;z-index:3}.opc{display:flex!important;justify-content:flex-start!important;align-items:center;gap:16px;text-align:left!important;text-transform:none!important;letter-spacing:normal!important;padding:12px 16px!important}.opc .op{width:44px;height:44px;flex:none;display:grid;place-items:center;border:1px solid rgba(169,130,74,.4);color:var(--g)}.opc b{display:block;font:400 16px/1.2 var(--d);color:var(--fg)}.opc small{display:block;margin-top:2px;font:300 13px var(--s);color:var(--mu);letter-spacing:.03em}';
-document.head.appendChild(S);
-/* tocar cualquier parte de la foto dentro de la ficha la amplía */
-document.addEventListener("click",e=>{const c=e.target.closest("#pb .im");if(!c)return;
-const ims=[...c.querySelectorAll("img")];if(!ims.length)return;
-const gl=c.querySelector(".gl"),i=gl?Math.min(ims.length-1,Math.max(0,Math.round(gl.scrollLeft/gl.clientWidth))):0;
-const g=ims[i],z=document.getElementById("zm"),zi=z.querySelector("img");
-zi.src=g.currentSrc||g.src;zi.alt=g.alt||"";z.classList.add("on");e.stopPropagation()},true);
-/* asesores con símbolo de operador */
-const IC='<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13" width="4" height="6"/><rect x="17" y="13" width="4" height="6"/><path d="M19 19c0 1.7-2 2.5-5 2.5"/></svg>';
-document.querySelectorAll("#ctc a.bt").forEach(a=>{const t=a.textContent.trim();if(!/^Asesor/i.test(t))return;const p=t.split("·");
-a.classList.add("opc");a.innerHTML='<span class="op">'+IC+'</span><span><b>'+p[0].trim()+'</b><small>'+(p[1]||"").trim()+'</small></span>'});
-})();
-</script>
-<script src="pedido.js"></script>
-</body></html>
+/* catálogo */
+.ctl{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-bottom:16px}
+.ctl label{font:600 12px/1 var(--tit);letter-spacing:.14em;text-transform:uppercase;color:var(--onyx)}
+.ctl select{min-height:44px;padding:0 36px 0 12px;background:var(--card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none' stroke='%23141414' stroke-width='1.5'%3E%3Cpath d='M1 1l5 5 5-5'/%3E%3C/svg%3E") no-repeat right 12px center;border:1px solid var(--sky);border-radius:0;font-size:14px;-webkit-appearance:none;appearance:none}
+.cuad{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.vacio{padding:26px 0;text-align:center;color:var(--onyx)}
+
+/* tarjetas de confianza */
+.conf{display:grid;gap:14px}
+.conf article{background:var(--card);border:1px solid var(--sky);padding:22px}
+.conf svg{width:30px;height:30px;margin-bottom:14px;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.conf h3{margin-bottom:8px;font:600 16px/1.25 var(--tit);letter-spacing:.14em;text-transform:uppercase}
+.conf p{font-size:15px;color:var(--onyx)}
+
+/* preguntas frecuentes */
+details{border-top:1px solid var(--sky)}
+details:last-of-type{border-bottom:1px solid var(--sky)}
+summary{display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:56px;padding:14px 0;list-style:none;cursor:pointer;font:600 16px/1.35 var(--cuerpo)}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";flex:none;width:30px;height:30px;border:1px solid var(--gold);text-align:center;font:400 20px/28px var(--cuerpo)}
+details[open] summary::after{content:"\2013"}
+details p{max-width:70ch;padding:0 0 18px;color:var(--onyx)}
+.pend{margin-top:14px;padding:10px 12px;border:1px dashed var(--sky);font:500 12px/1.4 var(--cuerpo);color:var(--onyx)}
+
+/* quiénes somos */
+.somos{max-width:70ch;padding-left:18px;border-left:2px solid var(--gold);font-size:17px;line-height:1.75;color:var(--onyx)}
+
+/* pie */
+.pie{margin-top:48px;background:var(--card);border-top:2px solid var(--gold)}
+.pie .wrap{display:grid;gap:30px;padding-top:38px;padding-bottom:30px}
+.pie h3{margin-bottom:12px;font:600 13px/1.4 var(--tit);letter-spacing:.14em;text-transform:uppercase}
+.pie ul{list-style:none}
+.pie li a{display:flex;align-items:center;min-height:44px;text-decoration:none;font-size:15px;color:var(--onyx)}
+.pie li a:hover{color:var(--obs);text-decoration:underline;text-decoration-color:var(--gold)}
+.fr{max-width:30ch;margin-top:14px;font-size:15px;color:var(--onyx)}
+.base{border-top:1px solid var(--sky)}
+.pie .base .wrap{display:block;padding:14px 18px 22px;font-size:13px;color:var(--onyx)}
+
+@media(max-width:359px){.marca svg{display:none}}
+@media(min-width:700px){.cuad{grid-template-columns:repeat(3,1fr);gap:16px}.conf{grid-template-columns:repeat(3,1fr)}.pie .wrap{grid-template-columns:1.2fr 1.3fr 1fr 1fr}}
+@media(min-width:900px){.portada{padding:56px 0 40px}.portada .wrap{grid-template-columns:1.3fr .9fr;align-items:center;gap:52px}.of-row .tj{flex:0 0 220px}}
+@media(min-width:1000px){.cuad{grid-template-columns:repeat(4,1fr)}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+</style>
+</head>
+<body>
+<!-- ===== FIN PARTE 1 ===== --><!-- ===== INICIO PARTE 2 ===== -->
+<div class="aviso">Lo que necesitas más cerca</div>
+
+<header class="cab">
+  <div class="wrap">
+    <button class="bi" type="button" aria-label="Abrir menú">
+      <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      <span>Menú</span>
+    </button>
+    <a class="marca" href="#" aria-label="VOLXEN, inicio">
+      <!-- LOGO: reemplazar por el logo oficial (V dorada sin fondo) -->
+      <svg viewBox="0 0 40 40" width="30" height="30" aria-hidden="true"><path d="M5 6h8l7 17 7-17h8L24 35h-8z" fill="#C8A165"/></svg>
+      <b>VOLXEN</b>
+    </a>
+    <div class="acc">
+      <button class="bi" type="button" aria-label="Mi cuenta">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+        <span>Mi cuenta</span>
+      </button>
+      <button class="bi" type="button" aria-label="Carrito">
+        <svg viewBox="0 0 24 24"><path d="M6 7h12l-1 13H7L6 7z"/><path d="M9 7a3 3 0 016 0"/></svg>
+        <span>Carrito</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="busca">
+  <div class="wrap">
+    <form role="search" onsubmit="return false">
+      <input type="search" placeholder="¿Qué necesitas? Busca por nombre o categoría." aria-label="Buscar">
+      <button class="bs" type="submit" aria-label="Buscar">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+      </button>
+    </form>
+  </div>
+</div>
+
+<nav class="dep" aria-label="Departamentos">
+  <ul>
+    <li><a href="#catalogo">Electrodomésticos</a></li>
+    <li><a href="#catalogo">Climatización</a></li>
+    <li><a href="#catalogo">Refrigeración</a></li>
+    <li><a href="#catalogo">Energía/paneles solares</a></li>
+    <li><a href="#catalogo">Movilidad eléctrica</a></li>
+    <li><a href="#catalogo">Línea de cocina</a></li>
+    <li><a href="#catalogo">TV y audio</a></li>
+  </ul>
+</nav>
+
+<section class="portada" id="inicio">
+  <div class="wrap">
+    <div>
+      <p class="etq">COMERCIALIZADORA · LA HABANA</p>
+      <h1>Información clara antes de comprar</h1>
+      <p class="sub">Encuentra electrodomésticos, climatización, refrigeración y soluciones de energía en un mismo lugar. En VOLXEN te acercamos opciones de distintos proveedores para que puedas comparar, elegir lo que necesitas y conocer las condiciones de cada producto antes de tomar una decisión. Queremos que comprar sea un proceso sencillo, con atención cercana y sin dudas innecesarias.</p>
+      <div class="btns">
+        <a class="btn p" href="#catalogo">Explorar productos</a>
+        <a class="btn" href="#mis-pedidos">Mis pedidos</a>
+      </div>
+    </div>
+    <aside class="resp" aria-labelledby="t-resp">
+      <h2 id="t-resp">Respaldo VOLXEN</h2>
+      <ul>
+        <li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Garantía por escrito, únicamente cuando el producto incluya garantía documentada.</span></li>
+        <li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Asesor que confirma precio y entrega, si ese es el procedimiento habitual.</span></li>
+      </ul>
+    </aside>
+  </div>
+</section>
+
+<section class="sec" id="ofertas">
+  <div class="wrap">
+    <div class="sh"><h2>Ofertas</h2><a class="vt" href="#ofertas">Ver todas</a></div>
+    <div class="of-row">
+      <article class="tj"><span class="tg of">Oferta</span><div class="foto"></div><div class="cu"><span class="ln"></span><span class="ln c"></span><span class="ln m"></span></div></article>
+      <article class="tj"><span class="tg of">Oferta</span><div class="foto"></div><div class="cu"><span class="ln"></span><span class="ln c"></span><span class="ln m"></span></div></article>
+      <article class="tj"><span class="tg of">Oferta</span><div class="foto"></div><div class="cu"><span class="ln"></span><span class="ln c"></span><span class="ln m"></span></div></article>
+    </div>
+    <p class="pend">[PENDIENTE] Texto que se muestra cuando no hay ofertas.</p>
+  </div>
+</section>
+
+<section class="sec" id="catalogo">
+  <div class="wrap">
+    <div class="sh"><h2>Catálogo</h2></div>
+    <div class="ctl">
+      <label for="orden">Ordenar por</label>
+      <select id="orden">
+        <option>Más recientes</option>
+        <option>Precio: de menor a mayor</option>
+        <option>Precio: de mayor a menor</option>
+        <option>Nombre: A a Z</option>
+      </select>
+    </div>
+    <div class="cuad">
+      <article class="tj"><div class="foto"></div><div class="cu"><span class="ln"></span><span class="ln c"></span><span class="ln m"></span></div></article>
+      <article class="tj"><div class="foto"></div><div class="cu"><span class="ln"></span><span class="ln c"></span><span class="ln m"></span></div></article>
+      <article class="tj"><span class="tg ag">Agotado</span><div class="foto"></div><div class="cu"><span class="ln"></span><span class="ln c"></span><span class="ln m"></span></div></article>
+      <article class="tj"><div class="foto"></div><div class="cu"><span class="ln"></span><span class="ln c"></span><span class="ln m"></span></div></article>
+      <article class="tj"><div class="foto"></div><div class="cu"><span class="ln"></span><span class="ln c"></span><span class="ln m"></span></div></article>
+      <article class="tj"><div class="foto"></div><div class="cu"><span class="ln"></span><span class="ln c"></span><span class="ln m"></span></div></article>
+    </div>
+    <p class="vacio" hidden>No encontramos resultados. Prueba otra búsqueda o consulta a nuestra operadora.</p>
+  </div>
+</section>
+
+<section class="sec" id="confianza">
+  <div class="wrap">
+    <div class="conf">
+      <article>
+        <svg viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+        <h3>Transparencia</h3>
+        <p>Precios y condiciones claros antes de comprar.</p>
+      </article>
+      <article>
+        <svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg>
+        <h3>Atención personalizada</h3>
+        <p>Una operadora te ayuda a resolver tus dudas.</p>
+      </article>
+      <article>
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/></svg>
+        <h3>Compra con confianza</h3>
+        <p>Información sobre disponibilidad y entrega antes de confirmar tu pedido.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="preguntas">
+  <div class="wrap">
+    <div class="sh"><h2>Preguntas frecuentes</h2></div>
+    <details>
+      <summary>¿Cómo hago un pedido?</summary>
+      <p>Agrega los productos al carrito, completa tus datos y confirma el pedido. Una operadora se comunica contigo para confirmar el precio y la entrega.</p>
+    </details>
+    <details>
+      <summary>¿Hacen entregas? ¿En qué zonas?</summary>
+      <p>Sí, la entrega es solo en La Habana, en sus 15 municipios, a través de proveedores aliados.</p>
+    </details>
+    <details>
+      <summary>¿Cómo se paga?</summary>
+      <p>No hay pago en línea. Una operadora confirma contigo la forma de pago: USD, EUR, CUP o Zelle.</p>
+    </details>
+    <details>
+      <summary>¿Hay garantía y devoluciones?</summary>
+      <p>La garantía se entrega por escrito en los productos que la incluyen. No hay devoluciones, salvo por garantía.</p>
+    </details>
+    <p class="pend">[PENDIENTE] Otras preguntas frecuentes.</p>
+  </div>
+</section>
+
+<section class="sec" id="nosotros">
+  <div class="wrap">
+    <div class="sh"><h2>Quiénes somos y cómo trabajamos</h2></div>
+    <p class="somos">VOLXEN es una comercializadora de tecnología y energía en La Habana. Trabajamos con proveedores aliados para ofrecerte electrodomésticos, climatización, refrigeración, energía portátil y paneles solares, movilidad eléctrica, TV y audio. Te atendemos por WhatsApp, Facebook e Instagram, y una operadora confirma contigo el precio, la disponibilidad y la entrega antes de cerrar tu pedido. Transparencia y confianza en cada venta.</p>
+  </div>
+</section>
+<!-- ===== FIN PARTE 2 ===== --><!-- ===== INICIO PARTE 3 ===== -->
+<footer class="pie">
+  <div class="wrap">
+    <div>
+      <a class="marca" href="#" aria-label="VOLXEN, inicio">
+        <svg viewBox="0 0 40 40" width="30" height="30" aria-hidden="true"><path d="M5 6h8l7 17 7-17h8L24 35h-8z" fill="#C8A165"/></svg>
+        <b>VOLXEN</b>
+      </a>
+      <p class="fr">Soluciones para cada necesidad, confianza en cada compra.</p>
+    </div>
+    <div>
+      <h3>Comunícate con nuestras operadoras</h3>
+      <ul>
+        <li><a href="https://wa.me/5350760258" target="_blank" rel="noopener">WhatsApp +53 5076 0258</a></li>
+        <li><a href="https://www.facebook.com/share/1M1HdetBFY/" target="_blank" rel="noopener">Facebook</a></li>
+        <li><a href="https://www.instagram.com/volxen__tecnologia_cuba?stkn=MzU0eXBvMDc5Y3Fk" target="_blank" rel="noopener">Instagram</a></li>
+        <li><a href="https://t.me/volxen_catalogo" target="_blank" rel="noopener">Telegram · Catálogo</a></li>
+        <li><a href="#operadoras">Hablar con una operadora</a></li>
+      </ul>
+    </div>
+    <div>
+      <h3>Departamentos</h3>
+      <ul>
+        <li><a href="#catalogo">Electrodomésticos</a></li>
+        <li><a href="#catalogo">Climatización</a></li>
+        <li><a href="#catalogo">Refrigeración</a></li>
+        <li><a href="#catalogo">Energía/paneles solares</a></li>
+        <li><a href="#catalogo">Movilidad eléctrica</a></li>
+        <li><a href="#catalogo">Línea de cocina</a></li>
+        <li><a href="#catalogo">TV y audio</a></li>
+      </ul>
+    </div>
+    <div>
+      <h3>Servicio al cliente</h3>
+      <ul>
+        <li><a href="#mis-pedidos">Mis pedidos</a></li>
+        <li><a href="#preguntas">Preguntas frecuentes</a></li>
+        <li><a href="#nosotros">Quiénes somos y cómo trabajamos</a></li>
+        <li><a href="#consulta">Consulta o incidencia</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="base"><div class="wrap">[PENDIENTE] Línea final del pie.</div></div>
+</footer>
+</body>
+</html>
