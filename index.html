@@ -1,337 +1,336 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#F0ECE3">
-<meta name="robots" content="noindex">
-<title>VOLXEN</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;600;700&family=Raleway:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-:root{--lino:#F0ECE3;--card:#F7F4EE;--obs:#141414;--onyx:#3A3A3C;--sky:#B0B3B8;--gold:#C8A165;--agot:#4a1518;--tit:'Josefin Sans','Trebuchet MS',sans-serif;--cuerpo:'Raleway','Segoe UI',sans-serif;--ancho:1120px}
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-body{background:var(--lino);color:var(--obs);font:400 16px/1.6 var(--cuerpo)}
-img,svg{display:block;max-width:100%}
-a{color:inherit}
-button,input,select{font:inherit;color:inherit}
-:focus-visible{outline:2px solid var(--obs);outline-offset:2px}
-.wrap{max-width:var(--ancho);margin:0 auto;padding:0 18px}
-section{scroll-margin-top:84px}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VOLXEN | Comercializadora en Cuba</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts: Raleway & Josefin Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;600;700&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-/* barra de aviso */
-.aviso{background:var(--card);border-bottom:1px solid var(--gold);text-align:center;padding:9px 18px;font:500 13px/1.3 var(--cuerpo);letter-spacing:.04em;color:var(--onyx)}
-
-/* cabecera */
-.cab{position:sticky;top:0;z-index:20;background:var(--lino);border-bottom:1px solid var(--sky)}
-.cab .wrap{display:flex;align-items:center;justify-content:space-between;gap:6px;min-height:68px}
-.marca{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--obs)}
-.marca b{font:600 19px/1 var(--tit);letter-spacing:.24em}
-.acc{display:flex;align-items:center}
-.bi{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:52px;min-height:48px;padding:4px 6px;background:none;border:0;cursor:pointer;font:500 11px/1 var(--cuerpo);color:var(--onyx)}
-.bi svg{width:24px;height:24px;stroke:var(--obs);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
-
-/* buscador */
-.busca form{display:flex;gap:8px;padding:12px 0}
-.busca input{flex:1;min-width:0;height:46px;padding:0 14px;background:var(--card);border:1px solid var(--sky);border-radius:0;font-size:14px;text-overflow:ellipsis}
-.busca input::placeholder{color:var(--sky);opacity:1}
-.bs{flex:none;width:46px;height:46px;display:flex;align-items:center;justify-content:center;background:var(--gold);border:1px solid var(--gold);cursor:pointer}
-.bs svg{width:22px;height:22px;stroke:var(--obs);fill:none;stroke-width:1.8;stroke-linecap:round}
-
-/* departamentos */
-.dep{border-top:1px solid var(--sky);border-bottom:1px solid var(--sky);background:var(--card)}
-.dep ul{list-style:none;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;max-width:var(--ancho);margin:0 auto;padding:0 14px}
-.dep ul::-webkit-scrollbar{display:none}
-.dep a{display:block;white-space:nowrap;min-height:46px;padding:14px;text-decoration:none;font:500 14px/1.2 var(--cuerpo);color:var(--onyx);border-bottom:2px solid transparent}
-.dep a:hover{color:var(--obs);border-bottom-color:var(--gold)}
-
-/* portada */
-.portada{padding:34px 0 26px}
-.portada .wrap{display:grid;gap:26px}
-.etq{display:flex;align-items:center;gap:12px;font:600 12px/1.3 var(--tit);letter-spacing:.26em;color:var(--onyx)}
-.etq::before{content:"";flex:none;width:28px;height:1px;background:var(--gold)}
-.portada h1{font:600 clamp(32px,8.5vw,56px)/1.08 var(--tit);margin:14px 0}
-.sub{font:400 16px/1.7 var(--cuerpo);color:var(--onyx)}
-.btns{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
-.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 26px;font:600 13px/1 var(--tit);letter-spacing:.16em;text-transform:uppercase;text-decoration:none;border:1px solid var(--gold);background:none;color:var(--obs);cursor:pointer;transition:transform .15s}
-.btn:active{transform:scale(.98)}
-.btn.p{background:var(--gold)}
-.resp{background:var(--card);border:1px solid var(--sky);border-top:2px solid var(--gold);padding:22px}
-.resp h2{font:600 17px/1.2 var(--tit);letter-spacing:.18em;text-transform:uppercase;margin-bottom:12px}
-.resp ul{list-style:none}
-.resp li{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--sky);font-size:15px;color:var(--onyx)}
-.resp li svg{flex:none;width:22px;height:22px;margin-top:2px;stroke:var(--gold);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-
-/* secciones */
-.sec{padding:40px 0 8px}
-.sh{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:22px}
-.sh h2{position:relative;padding-bottom:12px;font:600 clamp(24px,6vw,34px)/1.15 var(--tit)}
-.sh h2::after{content:"";position:absolute;left:0;bottom:0;width:44px;height:2px;background:var(--gold)}
-.vt{padding:12px 0;font:600 13px/1 var(--tit);letter-spacing:.14em;text-transform:uppercase;text-decoration:none;border-bottom:1px solid var(--gold)}
-
-/* tarjetas de producto (esqueleto) */
-.tj{position:relative;background:var(--card);border:1px solid var(--sky)}
-.foto{aspect-ratio:1/1;background:linear-gradient(135deg,rgba(176,179,184,.22),rgba(176,179,184,.42))}
-.cu{display:grid;gap:9px;padding:14px 12px 16px}
-.ln{display:block;height:10px;border-radius:2px;background:rgba(176,179,184,.45)}
-.ln.c{width:62%}
-.ln.m{width:36%;height:14px}
-.tg{position:absolute;top:10px;left:10px;padding:6px 9px;font:600 11px/1 var(--tit);letter-spacing:.14em;text-transform:uppercase}
-.tg.of{background:var(--gold);color:var(--obs)}
-.tg.ag{background:var(--agot);color:var(--lino)}
-.of-row{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:0 -18px;padding:2px 18px 14px}
-.of-row::-webkit-scrollbar{display:none}
-.of-row .tj{flex:0 0 62%;max-width:240px;scroll-snap-align:start}
-
-/* catálogo */
-.ctl{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-bottom:16px}
-.ctl label{font:600 12px/1 var(--tit);letter-spacing:.14em;text-transform:uppercase;color:var(--onyx)}
-.ctl select{min-height:44px;padding:0 36px 0 12px;background:var(--card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none' stroke='%23141414' stroke-width='1.5'%3E%3Cpath d='M1 1l5 5 5-5'/%3E%3C/svg%3E") no-repeat right 12px center;border:1px solid var(--sky);border-radius:0;font-size:14px;-webkit-appearance:none;appearance:none}
-.cuad{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-.vacio{padding:26px 0;text-align:center;color:var(--onyx)}
-
-/* tarjetas de confianza */
-.conf{display:grid;gap:14px}
-.conf article{background:var(--card);border:1px solid var(--sky);padding:22px}
-.conf svg{width:30px;height:30px;margin-bottom:14px;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
-.conf h3{margin-bottom:8px;font:600 16px/1.25 var(--tit);letter-spacing:.14em;text-transform:uppercase}
-.conf p{font-size:15px;color:var(--onyx)}
-
-/* preguntas frecuentes */
-details{border-top:1px solid var(--sky)}
-details:last-of-type{border-bottom:1px solid var(--sky)}
-summary{display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:56px;padding:14px 0;list-style:none;cursor:pointer;font:600 16px/1.35 var(--cuerpo)}
-summary::-webkit-details-marker{display:none}
-summary::after{content:"+";flex:none;width:30px;height:30px;border:1px solid var(--gold);text-align:center;font:400 20px/28px var(--cuerpo)}
-details[open] summary::after{content:"\2013"}
-details p{max-width:70ch;padding:0 0 18px;color:var(--onyx)}
-.pend{margin-top:14px;padding:10px 12px;border:1px dashed var(--sky);font:500 12px/1.4 var(--cuerpo);color:var(--onyx)}
-
-/* quiénes somos */
-.somos{max-width:70ch;padding-left:18px;border-left:2px solid var(--gold);font-size:17px;line-height:1.75;color:var(--onyx)}
-
-/* pie */
-.pie{margin-top:48px;background:var(--card);border-top:2px solid var(--gold)}
-.pie .wrap{display:grid;gap:30px;padding-top:38px;padding-bottom:30px}
-.pie h3{margin-bottom:12px;font:600 13px/1.4 var(--tit);letter-spacing:.14em;text-transform:uppercase}
-.pie ul{list-style:none}
-.pie li a{display:flex;align-items:center;min-height:44px;text-decoration:none;font-size:15px;color:var(--onyx)}
-.pie li a:hover{color:var(--obs);text-decoration:underline;text-decoration-color:var(--gold)}
-.fr{max-width:30ch;margin-top:14px;font-size:15px;color:var(--onyx)}
-.base{border-top:1px solid var(--sky)}
-.pie .base .wrap{display:block;padding:14px 18px 22px;font-size:13px;color:var(--onyx)}
-
-@media(max-width:359px){.marca svg{display:none}}
-@media(min-width:700px){.cuad{grid-template-columns:repeat(3,1fr);gap:16px}.conf{grid-template-columns:repeat(3,1fr)}.pie .wrap{grid-template-columns:1.2fr 1.3fr 1fr 1fr}}
-@media(min-width:900px){.portada{padding:56px 0 40px}.portada .wrap{grid-template-columns:1.3fr .9fr;align-items:center;gap:52px}.of-row .tj{flex:0 0 220px}}
-@media(min-width:1000px){.cuad{grid-template-columns:repeat(4,1fr)}}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
-</style>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            linen: '#F0ECE3',       /* Classic Linen - Fondo principal claro */
+            linenDark: '#E4DDD0',   /* Linen ligeramente más oscuro para tarjetería/hover */
+            gold: '#C8A165',        /* Warm Gold - Acentuaciones principales */
+            goldHover: '#B58E52',   /* Hover para elementos dorados */
+            obsidian: '#141414',    /* Obsidian Black - Textos primarios */
+            onyx: '#3A3A3C',        /* Onyx Black - Textos secundarios y bordes */
+            dustySky: '#B0B3B8'     /* Dusty Sky - Borde de separaciones suaves */
+          },
+          fontFamily: {
+            sans: ['Raleway', 'sans-serif'],
+            heading: ['Josefin Sans', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #F0ECE3;
+      color: #141414;
+      font-family: 'Raleway', sans-serif;
+    }
+    h1, h2, h3, h4, .font-heading {
+      font-family: 'Josefin Sans', sans-serif;
+    }
+    .gold-gradient {
+      background: linear-gradient(135deg, #C8A165 0%, #E6C894 50%, #C8A165 100%);
+    }
+    .shadow-soft {
+      box-shadow: 0 10px 25px -5px rgba(20, 20, 20, 0.05), 0 8px 10px -6px rgba(20, 20, 20, 0.03);
+    }
+  </style>
 </head>
-<body>
-<!-- ===== FIN PARTE 1 ===== --><!-- ===== INICIO PARTE 2 ===== -->
-<div class="aviso">Lo que necesitas más cerca</div>
+<body class="min-h-screen flex flex-col justify-between selection:bg-gold selection:text-white">
 
-<header class="cab">
-  <div class="wrap">
-    <button class="bi" type="button" aria-label="Abrir menú">
-      <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-      <span>Menú</span>
-    </button>
-    <a class="marca" href="#" aria-label="VOLXEN, inicio">
-      <!-- LOGO: reemplazar por el logo oficial (V dorada sin fondo) -->
-      <svg viewBox="0 0 40 40" width="30" height="30" aria-hidden="true"><path d="M5 6h8l7 17 7-17h8L24 35h-8z" fill="#C8A165"/></svg>
-      <b>VOLXEN</b>
-    </a>
-    <div class="acc">
-      <button class="bi" type="button" aria-label="Mi cuenta">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
-        <span>Mi cuenta</span>
-      </button>
-      <button class="bi" type="button" aria-label="Carrito">
-        <svg viewBox="0 0 24 24"><path d="M6 7h12l-1 13H7L6 7z"/><path d="M9 7a3 3 0 016 0"/></svg>
-        <span>Carrito</span>
-      </button>
-    </div>
+  <!-- BARRA DE ANUNCIOS -->
+  <div class="bg-obsidian text-linen text-xs py-2 px-4 text-center tracking-wide flex justify-between items-center px-6">
+    <span class="hidden md:inline"><i class="fa-solid fa-truck-fast text-gold mr-2"></i> Envíos a toda Cuba desde almacenes locales e importación directa</span>
+    <span class="mx-auto md:mx-0 font-medium">Atención directa por WhatsApp, Instagram y Facebook</span>
+    <a href="https://wa.me/" target="_blank" class="hidden md:inline hover:text-gold transition"><i class="fa-brands fa-whatsapp text-green-400 mr-1"></i> Contactar Ventas</a>
   </div>
-</header>
 
-<div class="busca">
-  <div class="wrap">
-    <form role="search" onsubmit="return false">
-      <input type="search" placeholder="¿Qué necesitas? Busca por nombre o categoría." aria-label="Buscar">
-      <button class="bs" type="submit" aria-label="Buscar">
-        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
-      </button>
-    </form>
-  </div>
-</div>
+  <!-- NAVEGACIÓN PRINCIPAL -->
+  <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-dustySky/30 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20">
+        
+        <!-- LOGOTIPO VOLXEN -->
+        <div class="flex items-center space-x-3 cursor-pointer" onclick="filterCategory('all')">
+          <div class="w-10 h-10 bg-obsidian text-gold flex items-center justify-center font-heading font-bold text-2xl rounded">V</div>
+          <div>
+            <span class="font-heading font-bold text-2xl tracking-widest text-obsidian block leading-none">VOLXEN</span>
+            <span class="text-[10px] uppercase tracking-widest text-onyx/70 font-semibold">Comercializadora Cuba</span>
+          </div>
+        </div>
 
-<nav class="dep" aria-label="Departamentos">
-  <ul>
-    <li><a href="#catalogo">Electrodomésticos</a></li>
-    <li><a href="#catalogo">Climatización</a></li>
-    <li><a href="#catalogo">Refrigeración</a></li>
-    <li><a href="#catalogo">Energía/paneles solares</a></li>
-    <li><a href="#catalogo">Movilidad eléctrica</a></li>
-    <li><a href="#catalogo">Línea de cocina</a></li>
-    <li><a href="#catalogo">TV y audio</a></li>
-  </ul>
-</nav>
+        <!-- BARRA DE BÚSQUEDA -->
+        <div class="hidden md:flex flex-1 max-w-lg mx-8 relative">
+          <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Buscar en almacenes: EcoFlow, Freezer, Moto, TV..." 
+            class="w-full bg-linen border border-dustySky/50 rounded-full py-2.5 pl-5 pr-12 text-sm focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition">
+          <button class="absolute right-1 top-1/2 -translate-y-1/2 w-9 h-9 bg-obsidian text-gold rounded-full flex items-center justify-center hover:bg-gold hover:text-obsidian transition">
+            <i class="fa-solid fa-magnifying-glass text-xs"></i>
+          </button>
+        </div>
 
-<section class="portada" id="inicio">
-  <div class="wrap">
-    <div>
-      <p class="etq">COMERCIALIZADORA · LA HABANA</p>
-      <h1>Información clara antes de comprar</h1>
-      <p class="sub">Encuentra electrodomésticos, climatización, refrigeración y soluciones de energía en un mismo lugar. En VOLXEN te acercamos opciones de distintos proveedores para que puedas comparar, elegir lo que necesitas y conocer las condiciones de cada producto antes de tomar una decisión. Queremos que comprar sea un proceso sencillo, con atención cercana y sin dudas innecesarias.</p>
-      <div class="btns">
-        <a class="btn p" href="#catalogo">Explorar productos</a>
-        <a class="btn" href="#mis-pedidos">Mis pedidos</a>
+        <!-- ACCIONES Y CARRITO -->
+        <div class="flex items-center space-x-6">
+          <div class="hidden lg:flex flex-col text-right text-xs">
+            <span class="text-onyx/70">Ubicación de entrega:</span>
+            <select id="provinceSelect" class="bg-transparent font-semibold text-obsidian focus:outline-none cursor-pointer">
+              <option value="la-habana">La Habana</option>
+              <option value="santiago">Santiago de Cuba</option>
+              <option value="holguin">Holguín</option>
+              <option value="camaguey">Camagüey</option>
+              <option value="matanzas">Matanzas</option>
+              <option value="villa-clara">Villa Clara</option>
+            </select>
+          </div>
+
+          <!-- BOTÓN CARRITO -->
+          <button onclick="toggleCart()" class="relative p-2 text-obsidian hover:text-gold transition">
+            <i class="fa-solid fa-bag-shopping text-2xl"></i>
+            <span id="cartCount" class="absolute -top-1 -right-1 bg-gold text-obsidian font-bold text-[11px] w-5 h-5 rounded-full flex items-center justify-center border-2 border-white">0</span>
+          </button>
+        </div>
       </div>
     </div>
-    <aside class="resp" aria-labelledby="t-resp">
-      <h2 id="t-resp">Respaldo VOLXEN</h2>
-      <ul>
-        <li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Garantía por escrito, únicamente cuando el producto incluya garantía documentada.</span></li>
-        <li><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Asesor que confirma precio y entrega, si ese es el procedimiento habitual.</span></li>
-      </ul>
-    </aside>
-  </div>
-</section>
 
-<section class="sec" id="ofertas">
-  <div class="wrap">
-    <div class="sh"><h2>Ofertas</h2><a class="vt" href="#ofertas">Ver todas</a></div>
-    <div class="of-row">
-      <article class="tj"><span class="tg of">Oferta</span><div class="foto"></div><div class="cu"><span class="ln"></span><span class="ln c"></span><span class="ln m"></span></div></article>
-      <article class="tj"><span class="tg of">Oferta</span><div class="foto"></div><div class="cu"><span class="ln"></span><span class="ln c"></span><span class="ln m"></span></div></article>
-      <article class="tj"><span class="tg of">Oferta</span><div class="foto"></div><div class="cu"><span class="ln"></span><span class="ln c"></span><span class="ln m"></span></div></article>
-    </div>
-    <p class="pend">[PENDIENTE] Texto que se muestra cuando no hay ofertas.</p>
-  </div>
-</section>
+    <!-- NAVEGACIÓN CATEGORÍAS -->
+    <nav class="bg-linen border-t border-dustySky/30 overflow-x-auto scrollbar-none">
+      <div class="max-w-7xl mx-auto px-4 flex space-x-8 py-3 text-sm font-heading font-semibold text-obsidian whitespace-nowrap">
+        <button onclick="filterCategory('all')" class="hover:text-gold transition focus:text-gold"><i class="fa-solid fa-border-all mr-1.5"></i> Todos los Productos</button>
+        <button onclick="filterCategory('Energía Portátil')" class="hover:text-gold transition focus:text-gold"><i class="fa-solid fa-solar-panel mr-1.5"></i> Energía & EcoFlow</button>
+        <button onclick="filterCategory('Refrigeración')" class="hover:text-gold transition focus:text-gold"><i class="fa-solid fa-snowflake mr-1.5"></i> Refrigeración</button>
+        <button onclick="filterCategory('Climatización')" class="hover:text-gold transition focus:text-gold"><i class="fa-solid fa-wind mr-1.5"></i> Climatización</button>
+        <button onclick="filterCategory('Electrodomésticos')" class="hover:text-gold transition focus:text-gold"><i class="fa-solid fa-kitchen-set mr-1.5"></i> Electrodomésticos</button>
+        <button onclick="filterCategory('Movilidad')" class="hover:text-gold transition focus:text-gold"><i class="fa-solid fa-bolt mr-1.5"></i> Movilidad Eléctrica</button>
+        <button onclick="filterCategory('TV & Audio')" class="hover:text-gold transition focus:text-gold"><i class="fa-solid fa-tv mr-1.5"></i> TV & Audio</button>
+      </div>
+    </nav>
+  </header>
 
-<section class="sec" id="catalogo">
-  <div class="wrap">
-    <div class="sh"><h2>Catálogo</h2></div>
-    <div class="ctl">
-      <label for="orden">Ordenar por</label>
-      <select id="orden">
-        <option>Más recientes</option>
-        <option>Precio: de menor a mayor</option>
-        <option>Precio: de mayor a menor</option>
-        <option>Nombre: A a Z</option>
-      </select>
+  <!-- HERO BANNER LUMINOSO -->
+  <section class="bg-gradient-to-r from-linenDark via-linen to-white py-12 md:py-20 border-b border-dustySky/30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-8 items-center">
+      <div>
+        <span class="inline-block px-3 py-1 bg-gold/20 text-obsidian text-xs font-semibold rounded-full tracking-wider uppercase mb-4">
+          <i class="fa-solid fa-shield-halved text-gold mr-1"></i> Garantía y Calidad Asegurada
+        </span>
+        <h1 class="text-4xl md:text-5xl font-heading font-bold text-obsidian leading-tight mb-4">
+          Productos de Almacén Directo a tu Hogar en Cuba
+        </h1>
+        <p class="text-onyx text-base md:text-lg mb-8 font-light max-w-xl">
+          Especialistas en soluciones energéticas EcoFlow, climatización, electrodomésticos de alta gama y movilidad eléctrica. Transparencia y confianza en cada compra.
+        </p>
+        <div class="flex flex-wrap gap-4">
+          <a href="#catalogo" class="bg-obsidian text-gold px-8 py-3.5 rounded font-heading font-semibold hover:bg-gold hover:text-obsidian transition shadow-md">
+            Explorar Catálogo
+          </a>
+          <a href="https://wa.me/" target="_blank" class="border border-obsidian text-obsidian px-8 py-3.5 rounded font-heading font-semibold hover:bg-obsidian hover:text-white transition">
+            <i class="fa-brands fa-whatsapp mr-2 text-green-600"></i> Pedido Rápido
+          </a>
+        </div>
+      </div>
+      <div class="relative flex justify-center">
+        <div class="w-full max-w-md bg-white p-6 rounded-2xl shadow-xl border border-dustySky/30 relative">
+          <div class="absolute -top-3 -right-3 bg-gold text-obsidian font-bold text-xs px-3 py-1 rounded-full uppercase tracking-wider shadow">
+            Destacado
+          </div>
+          <img src="https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=600&q=80" alt="EcoFlow Station" class="rounded-lg object-cover w-full h-64 mb-4">
+          <h3 class="font-heading font-bold text-xl text-obsidian">Estaciones de Energía EcoFlow</h3>
+          <p class="text-onyx/70 text-sm mb-3">Respaldo eléctrico inteligente con paneles solares integrados.</p>
+          <div class="flex items-center justify-between">
+            <span class="text-2xl font-bold text-obsidian">$1,250 USD</span>
+            <button onclick="addToCart(1)" class="bg-gold text-obsidian font-bold px-4 py-2 rounded hover:bg-goldHover transition text-sm">
+              <i class="fa-solid fa-plus mr-1"></i> Añadir
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="cuad">
-      <article class="tj"><div class="foto"></div><div class="cu"><span class="ln"></span><span class="ln c"></span><span class="ln m"></span></div></article>
-      <article class="tj"><div class="foto"></div><div class="cu"><span class="ln"></span><span class="ln c"></span><span class="ln m"></span></div></article>
-      <article class="tj"><span class="tg ag">Agotado</span><div class="foto"></div><div class="cu"><span class="ln"></span><span class="ln c"></span><span class="ln m"></span></div></article>
-      <article class="tj"><div class="foto"></div><div class="cu"><span class="ln"></span><span class="ln c"></span><span class="ln m"></span></div></article>
-      <article class="tj"><div class="foto"></div><div class="cu"><span class="ln"></span><span class="ln c"></span><span class="ln m"></span></div></article>
-      <article class="tj"><div class="foto"></div><div class="cu"><span class="ln"></span><span class="ln c"></span><span class="ln m"></span></div></article>
-    </div>
-    <p class="vacio" hidden>No encontramos resultados. Prueba otra búsqueda o consulta a nuestra operadora.</p>
-  </div>
-</section>
+  </section>
 
-<section class="sec" id="confianza">
-  <div class="wrap">
-    <div class="conf">
-      <article>
-        <svg viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
-        <h3>Transparencia</h3>
-        <p>Precios y condiciones claros antes de comprar.</p>
-      </article>
-      <article>
-        <svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg>
-        <h3>Atención personalizada</h3>
-        <p>Una operadora te ayuda a resolver tus dudas.</p>
-      </article>
-      <article>
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/></svg>
-        <h3>Compra con confianza</h3>
-        <p>Información sobre disponibilidad y entrega antes de confirmar tu pedido.</p>
-      </article>
-    </div>
-  </div>
-</section>
+  <!-- CATÁLOGO DE PRODUCTOS -->
+  <main idcatalogo class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 flex-1">
+    
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 pb-4 border-b border-dustySky/30">
+      <div>
+        <h2 class="text-2xl md:text-3xl font-heading font-bold text-obsidian">Catálogo Disponible</h2>
+        <p class="text-onyx/70 text-sm">Productos verificados disponibles para entrega rápida</p>
+      </div>
 
-<section class="sec" id="preguntas">
-  <div class="wrap">
-    <div class="sh"><h2>Preguntas frecuentes</h2></div>
-    <details>
-      <summary>¿Cómo hago un pedido?</summary>
-      <p>Agrega los productos al carrito, completa tus datos y confirma el pedido. Una operadora se comunica contigo para confirmar el precio y la entrega.</p>
-    </details>
-    <details>
-      <summary>¿Hacen entregas? ¿En qué zonas?</summary>
-      <p>Sí, la entrega es solo en La Habana, en sus 15 municipios, a través de proveedores aliados.</p>
-    </details>
-    <details>
-      <summary>¿Cómo se paga?</summary>
-      <p>No hay pago en línea. Una operadora confirma contigo la forma de pago: USD, EUR, CUP o Zelle.</p>
-    </details>
-    <details>
-      <summary>¿Hay garantía y devoluciones?</summary>
-      <p>La garantía se entrega por escrito en los productos que la incluyen. No hay devoluciones, salvo por garantía.</p>
-    </details>
-    <p class="pend">[PENDIENTE] Otras preguntas frecuentes.</p>
-  </div>
-</section>
+      <!-- FILTROS Y ORDEN -->
+      <div class="mt-4 md:mt-0 flex items-center space-x-4">
+        <label class="text-xs text-onyx uppercase tracking-wider font-semibold">Ordenar por:</label>
+        <select id="sortSelect" onchange="sortProducts()" class="bg-white border border-dustySky/50 text-obsidian text-sm rounded-lg py-2 px-3 focus:outline-none focus:border-gold">
+          <option value="featured">Recomendados</option>
+          <option value="price-low">Precio: Menor a Mayor</option>
+          <option value="price-high">Precio: Mayor a Menor</option>
+        </select>
+      </div>
+    </div>
 
-<section class="sec" id="nosotros">
-  <div class="wrap">
-    <div class="sh"><h2>Quiénes somos y cómo trabajamos</h2></div>
-    <p class="somos">VOLXEN es una comercializadora de tecnología y energía en La Habana. Trabajamos con proveedores aliados para ofrecerte electrodomésticos, climatización, refrigeración, energía portátil y paneles solares, movilidad eléctrica, TV y audio. Te atendemos por WhatsApp, Facebook e Instagram, y una operadora confirma contigo el precio, la disponibilidad y la entrega antes de cerrar tu pedido. Transparencia y confianza en cada venta.</p>
+    <!-- GRID PRODUCTOS -->
+    <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <!-- Inyectado con JavaScript -->
+    </div>
+
+  </main>
+
+  <!-- GARANTÍAS VOLXEN -->
+  <section class="bg-white py-12 border-t border-dustySky/30">
+    <div class="max-w-7xl mx-auto px-4 grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div class="flex items-center space-x-4">
+        <div class="w-12 h-12 bg-linen rounded-full flex items-center justify-center text-gold text-xl">
+          <i class="fa-solid fa-truck-ramp-box"></i>
+        </div>
+        <div>
+          <h4 class="font-heading font-bold text-obsidian">Entrega Segura</h4>
+          <p class="text-xs text-onyx/70">Coordinada en La Habana y provincias</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-4">
+        <div class="w-12 h-12 bg-linen rounded-full flex items-center justify-center text-gold text-xl">
+          <i class="fa-solid fa-handshake-angle"></i>
+        </div>
+        <div>
+          <h4 class="font-heading font-bold text-obsidian">Transparencia</h4>
+          <p class="text-xs text-onyx/70">Pago contra entrega o previo chequeo</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-4">
+        <div class="w-12 h-12 bg-linen rounded-full flex items-center justify-center text-gold text-xl">
+          <i class="fa-solid fa-award"></i>
+        </div>
+        <div>
+          <h4 class="font-heading font-bold text-obsidian">Garantía Real</h4>
+          <p class="text-xs text-onyx/70">Soporte directo para tu tranquilidad</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-4">
+        <div class="w-12 h-12 bg-linen rounded-full flex items-center justify-center text-gold text-xl">
+          <i class="fa-solid fa-headset"></i>
+        </div>
+        <div>
+          <h4 class="font-heading font-bold text-obsidian">Atención Rápida</h4>
+          <p class="text-xs text-onyx/70">WhatsApp y redes sociales activas</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER OBSCURECIDO ELEGANTE -->
+  <footer class="bg-obsidian text-linen pt-12 pb-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8 mb-8 pb-8 border-b border-onyx">
+      <div>
+        <div class="flex items-center space-x-2 mb-4">
+          <div class="w-8 h-8 bg-gold text-obsidian font-heading font-bold text-xl flex items-center justify-center rounded">V</div>
+          <span class="font-heading font-bold text-xl tracking-widest text-white">VOLXEN</span>
+        </div>
+        <p class="text-dustySky text-xs leading-relaxed mb-4">
+          Comercializadora de electrodomésticos, energía portátil, refrigeración y movilidad eléctrica con sede en La Habana, Cuba.
+        </p>
+        <div class="flex space-x-4 text-gold">
+          <a href="#" class="hover:text-white transition"><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="#" class="hover:text-white transition"><i class="fa-brands fa-instagram"></i></a>
+          <a href="#" class="hover:text-white transition"><i class="fa-brands fa-whatsapp"></i></a>
+        </div>
+      </div>
+
+      <div>
+        <h4 class="font-heading font-bold text-white mb-4 uppercase text-sm tracking-wider">Categorías</h4>
+        <ul class="space-y-2 text-xs text-dustySky">
+          <li><a href="#" onclick="filterCategory('Energía Portátil')" class="hover:text-gold transition">EcoFlow & Paneles Solares</a></li>
+          <li><a href="#" onclick="filterCategory('Refrigeración')" class="hover:text-gold transition">Freezers & Refrigeradores</a></li>
+          <li><a href="#" onclick="filterCategory('Climatización')" class="hover:text-gold transition">Aires Acondicionados Split</a></li>
+          <li><a href="#" onclick="filterCategory('Movilidad')" class="hover:text-gold transition">Motos Eléctricas</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 class="font-heading font-bold text-white mb-4 uppercase text-sm tracking-wider">Atención al Cliente</h4>
+        <ul class="space-y-2 text-xs text-dustySky">
+          <li><a href="#" class="hover:text-gold transition">Preguntas Frecuentes</a></li>
+          <li><a href="#" class="hover:text-gold transition">Políticas de Garantía</a></li>
+          <li><a href="#" class="hover:text-gold transition">Términos de Entrega</a></li>
+          <li><a href="#" class="hover:text-gold transition">Atención a Revendedores</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 class="font-heading font-bold text-white mb-4 uppercase text-sm tracking-wider">Contacto Directo</h4>
+        <p class="text-xs text-dustySky mb-2"><i class="fa-solid fa-location-dot text-gold mr-2"></i> La Habana, Cuba</p>
+        <p class="text-xs text-dustySky mb-2"><i class="fa-brands fa-whatsapp text-gold mr-2"></i> +53 50000000</p>
+        <p class="text-xs text-dustySky"><i class="fa-solid fa-envelope text-gold mr-2"></i> ventas@volxen.cu</p>
+      </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 text-center text-xs text-dustySky/60">
+      &copy; 2026 VOLXEN Comercializadora. Todos los derechos reservados.
+    </div>
+  </footer>
+
+  <!-- DRAWER DEL CARRITO -->
+  <div id="cartDrawer" class="fixed inset-0 bg-obsidian/50 z-50 hidden transition-opacity">
+    <div class="absolute right-0 top-0 bottom-0 w-full max-w-md bg-white shadow-2xl flex flex-col justify-between p-6">
+      <div>
+        <div class="flex justify-between items-center pb-4 border-b border-dustySky/30">
+          <h3 class="font-heading font-bold text-xl text-obsidian"><i class="fa-solid fa-cart-shopping text-gold mr-2"></i> Tu Pedido</h3>
+          <button onclick="toggleCart()" class="text-onyx hover:text-obsidian"><i class="fa-solid fa-xmark text-xl"></i></button>
+        </div>
+        
+        <div id="cartItems" class="py-4 overflow-y-auto max-h-[60vh] space-y-4">
+          <!-- Items del carrito -->
+        </div>
+      </div>
+
+      <div class="border-t border-dustySky/30 pt-4">
+        <div class="flex justify-between font-heading font-bold text-lg text-obsidian mb-4">
+          <span>Total Estimado:</span>
+          <span id="cartTotal">$0 USD</span>
+        </div>
+        <button onclick="checkoutWhatsApp()" class="w-full bg-green-600 text-white font-bold py-3.5 rounded-lg hover:bg-green-700 transition flex items-center justify-center space-x-2">
+          <i class="fa-brands fa-whatsapp text-xl"></i>
+          <span>Finalizar Pedido por WhatsApp</span>
+        </button>
+      </div>
+    </div>
   </div>
-</section>
-<!-- ===== FIN PARTE 2 ===== --><!-- ===== INICIO PARTE 3 ===== -->
-<footer class="pie">
-  <div class="wrap">
-    <div>
-      <a class="marca" href="#" aria-label="VOLXEN, inicio">
-        <svg viewBox="0 0 40 40" width="30" height="30" aria-hidden="true"><path d="M5 6h8l7 17 7-17h8L24 35h-8z" fill="#C8A165"/></svg>
-        <b>VOLXEN</b>
-      </a>
-      <p class="fr">Soluciones para cada necesidad, confianza en cada compra.</p>
-    </div>
-    <div>
-      <h3>Comunícate con nuestras operadoras</h3>
-      <ul>
-        <li><a href="https://wa.me/5350760258" target="_blank" rel="noopener">WhatsApp +53 5076 0258</a></li>
-        <li><a href="https://www.facebook.com/share/1M1HdetBFY/" target="_blank" rel="noopener">Facebook</a></li>
-        <li><a href="https://www.instagram.com/volxen__tecnologia_cuba?stkn=MzU0eXBvMDc5Y3Fk" target="_blank" rel="noopener">Instagram</a></li>
-        <li><a href="https://t.me/volxen_catalogo" target="_blank" rel="noopener">Telegram · Catálogo</a></li>
-        <li><a href="#operadoras">Hablar con una operadora</a></li>
-      </ul>
-    </div>
-    <div>
-      <h3>Departamentos</h3>
-      <ul>
-        <li><a href="#catalogo">Electrodomésticos</a></li>
-        <li><a href="#catalogo">Climatización</a></li>
-        <li><a href="#catalogo">Refrigeración</a></li>
-        <li><a href="#catalogo">Energía/paneles solares</a></li>
-        <li><a href="#catalogo">Movilidad eléctrica</a></li>
-        <li><a href="#catalogo">Línea de cocina</a></li>
-        <li><a href="#catalogo">TV y audio</a></li>
-      </ul>
-    </div>
-    <div>
-      <h3>Servicio al cliente</h3>
-      <ul>
-        <li><a href="#mis-pedidos">Mis pedidos</a></li>
-        <li><a href="#preguntas">Preguntas frecuentes</a></li>
-        <li><a href="#nosotros">Quiénes somos y cómo trabajamos</a></li>
-        <li><a href="#consulta">Consulta o incidencia</a></li>
-      </ul>
-    </div>
-  </div>
-  <div class="base"><div class="wrap">[PENDIENTE] Línea final del pie.</div></div>
-</footer>
-</body>
-</html>
+
+  <!-- SCRIPT CON LÓGICA -->
+  <script>
+    const products = [
+      { id: 1, name: "Estación de Energía EcoFlow Delta Pro", category: "Energía Portátil", price: 1250, image: "https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=600&q=80", stock: "En Almacén" },
+      { id: 2, name: "Panel Solar EcoFlow 220W Bifacial", category: "Energía Portátil", price: 320, image: "https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=600&q=80", stock: "En Almacén" },
+      { id: 3, name: "Freezer Horizontal 200L Midea", category: "Refrigeración", price: 450, image: "https://images.unsplash.com/photo-1584992236310-6edddc08acff?auto=format&fit=crop&w=600&q=80", stock: "En Almacén" },
+      { id: 4, name: "Split Inverter Royal 12,000 BTU", category: "Climatización", price: 380, image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=600&q=80", stock: "Pocas Unidades" },
+      { id: 5, name: "Moto Eléctrica Águila 1000W", category: "Movilidad", price: 1400, image: "https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=600&q=80", stock: "En Almacén" },
+      { id: 6, name: "Smart TV 43\" Full HD Samsung", category: "TV & Audio", price: 340, image: "https://images.unsplash.com/photo-1593784991095-a205069470b6?auto=format&fit=crop&w=600&q=80", stock: "En Almacén" },
+      { id: 7, name: "Cocina de Gas 4 Hornillas con Horno", category: "Electrodomésticos", price: 290, image: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=600&q=80", stock: "En Almacén" },
+      { id: 8, name: "Refrigerador Top Mount 10 Cu.Ft", category: "Refrigeración", price: 580, image: "https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?auto=format&fit=crop&w=600&q=80", stock: "En Almacén" }
+    ];
+
+    let cart = [];
+
+    function renderProducts(items) {
+      const grid = document.getElementById('productGrid');
+      grid.innerHTML = items.map(p => `
+        <div class="bg-white rounded-xl border border-dustySky/30 overflow-hidden shadow-soft hover:shadow-lg transition flex flex-col justify-between">
+          <div>
+            <div class="relative h-48 bg-linen overflow-hidden">
+              <img src="${p.image}" alt="${p.name}" class="w-full h-full object-cover hover:scale-105 transition duration-500">
+              <span class="absolute top-2 left-2 bg-obsidian text-gold text-[10px] font-bold px-2 py-1 rounded tracking-wider uppercase">${p.category}</span>
+            </div>
+            <div class="p-4">
+              <span class="text-[11px] text-green-600 font-semibold uppercase tracking-wider mb-1 block"><i class="fa-solid f
