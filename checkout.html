@@ -22,49 +22,67 @@
     <link rel="stylesheet" href="volxen.css">
 </head>
 
-<body class="h-full bg-slate-50 text-slate-800 flex flex-col font-sans antialiased selection:bg-volxen-500 selection:text-white" data-page="checkout">
+<body class="h-full bg-bg text-fg flex flex-col font-sans antialiased selection:bg-g selection:text-white" data-page="checkout">
 
     <main class="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div class="grid md:grid-cols-2 gap-8 items-start">
 
-            <div class="bx sh" style="max-width:100%">
-                <h2 style="margin-top:0">Resumen del pedido</h2>
+            <div class="bg-s2 border border-bd rounded-2xl shadow-sm p-6 sticky top-24">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold text-fg">Resumen del pedido</h2>
+                    <span id="bd" class="bg-fg text-g text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">0</span>
+                </div>
                 <div id="cl"></div>
                 <div class="tt" id="tt"></div>
-                <a class="sl" style="display:inline-block;margin-top:1rem" href="carrito.html">Editar el pedido</a>
+                <a class="sl btn-ghost mt-4 inline-block" href="carrito.html"><i class="fa-solid fa-pen mr-1"></i> Editar el pedido</a>
+
+                <!-- Trust indicators -->
+                <div class="mt-6 pt-4 border-t border-bd flex flex-col gap-3 text-sm text-mu" aria-label="Garantías">
+                    <div class="flex items-center gap-2"><i class="fa-solid fa-shield-halved text-g"></i><span>Garantía por escrito en cada equipo</span></div>
+                    <div class="flex items-center gap-2"><i class="fa-solid fa-truck-fast text-g"></i><span>Entrega coordinada en La Habana</span></div>
+                    <div class="flex items-center gap-2"><i class="fa-solid fa-headset text-g"></i><span>Tu asesor te contacta para confirmar</span></div>
+                    <div class="flex items-center gap-2"><i class="fa-solid fa-lock text-g"></i><span>Pago contra entrega (USD, EUR, CUP, Zelle)</span></div>
+                </div>
             </div>
 
-            <div class="bx sh" id="cf" style="display:none;max-width:100%">
-                <p class="ey">Vale de pedido</p>
-                <input id="fn" placeholder="Nombre y apellidos *" autocomplete="name">
-                <input id="fd" placeholder="Dirección completa (calle, número, entre calles) *" autocomplete="street-address">
-                <input id="ft" type="tel" inputmode="tel" placeholder="Teléfono *" autocomplete="tel">
-                <input id="fe" type="email" placeholder="Correo electrónico (opcional)" autocomplete="email">
-                <label class="lb" for="fp">Municipio</label>
-                <select id="fp">
-                    <option value="" selected disabled>Seleccione su municipio</option>
-                    <option>Playa</option>
-                    <option>Plaza de la Revolución</option>
-                    <option>Centro Habana</option>
-                    <option>La Habana Vieja</option>
-                    <option>Regla</option>
-                    <option>La Habana del Este</option>
-                    <option>Guanabacoa</option>
-                    <option>San Miguel del Padrón</option>
-                    <option>Diez de Octubre</option>
-                    <option>Cerro</option>
-                    <option>Marianao</option>
-                    <option>La Lisa</option>
-                    <option>Boyeros</option>
-                    <option>Arroyo Naranjo</option>
-                    <option>Cotorro</option>
-                </select>
-                <p class="nt">Por ahora solo entregamos en La Habana.</p>
-                <label class="lb" for="fc">Carnet de identidad (opcional)</label>
-                <input id="fc" inputmode="numeric" maxlength="13" autocomplete="off" placeholder="11 dígitos">
-                <textarea id="fo" placeholder="Notas (opcional)"></textarea>
-                <p id="er" style="color:#9C4F34;min-height:20px;margin-top:8px;font-size:13px"></p>
-                <button class="bt" style="width:100%" data-a="send">Registrar pedido</button>
+            <div class="bg-s2 border border-bd rounded-2xl shadow-sm p-6" id="cf" style="display:none;">
+                <div class="flex items-center justify-between mb-6">
+                    <p class="ey">Vale de pedido</p>
+                    <span id="bd" class="bg-fg text-g text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">0</span>
+                </div>
+                <div class="space-y-4">
+                    <input id="fn" class="input-base w-full" placeholder="Nombre y apellidos *" autocomplete="name" required>
+                    <input id="fd" class="input-base w-full" placeholder="Dirección completa (calle, número, entre calles) *" autocomplete="street-address" required>
+                    <div class="grid sm:grid-cols-2 gap-4">
+                        <input id="ft" type="tel" inputmode="tel" class="input-base w-full" placeholder="Teléfono *" autocomplete="tel" required>
+                        <input id="fe" type="email" class="input-base w-full" placeholder="Correo electrónico (opcional)" autocomplete="email">
+                    </div>
+                    <label class="lb" for="fp">Municipio</label>
+                    <select id="fp" class="input-base w-full" required>
+                        <option value="" selected disabled>Seleccione su municipio</option>
+                        <option>Playa</option>
+                        <option>Plaza de la Revolución</option>
+                        <option>Centro Habana</option>
+                        <option>La Habana Vieja</option>
+                        <option>Regla</option>
+                        <option>La Habana del Este</option>
+                        <option>Guanabacoa</option>
+                        <option>San Miguel del Padrón</option>
+                        <option>Diez de Octubre</option>
+                        <option>Cerro</option>
+                        <option>Marianao</option>
+                        <option>La Lisa</option>
+                        <option>Boyeros</option>
+                        <option>Arroyo Naranjo</option>
+                        <option>Cotorro</option>
+                    </select>
+                    <p class="nt text-xs">Por ahora solo entregamos en La Habana.</p>
+                    <label class="lb" for="fc">Carnet de identidad (opcional)</label>
+                    <input id="fc" inputmode="numeric" maxlength="13" autocomplete="off" class="input-base w-full" placeholder="11 dígitos">
+                    <textarea id="fo" class="input-base w-full" placeholder="Notas (opcional)" rows="3"></textarea>
+                    <p id="er" class="text-ox text-sm min-h-[20px]"></p>
+                    <button class="btn-primary w-full py-3 mt-2" data-a="send">Registrar pedido</button>
+                </div>
             </div>
 
         </div>

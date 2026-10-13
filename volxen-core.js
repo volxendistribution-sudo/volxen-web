@@ -1,6 +1,15 @@
 /* VOLXEN - nucleo compartido (config, estado, carrito, cabecera/pie, overlays) */
 const C = window.VOLXEN_CONFIG, H = { apikey: C.SUPABASE_KEY }, $ = i => document.getElementById(i);
-const q = p => fetch(C.SUPABASE_URL + "/rest/v1/" + p, { headers: H }).then(r => r.json());
+
+async function q(path) {
+    const res = await fetch(C.SUPABASE_URL + "/rest/v1/" + path, { headers: H });
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({ message: res.statusText }));
+        console.error("[VOLXEN] Supabase error:", res.status, path, err);
+        throw new Error(err.message || `HTTP ${res.status}`);
+    }
+    return res.json();
+}
 const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const wa = t => "https://wa.me/" + (C.WHATSAPP || "") + "?text=" + encodeURIComponent(t);
 const fm = n => "$" + Math.round(n * 100) / 100 + " USD";
@@ -13,12 +22,13 @@ const cn = id => (Cs.find(c => c.id === id) || {}).nombre || "Volxen";
 const price = p => ag(p) ? "Consultar disponibilidad" : (O[p.id] ? "<s>" + fm(p.precio_usd) + "</s><b>" + fm(O[p.id]) + "</b>" : fm(p.precio_usd));
 const PAGE = document.body ? (document.body.dataset.page || "") : "";
 
-function toast(t) {
+function toast(t, type = "info") {
     const e = $("ts"); if (!e) return;
     e.textContent = t;
-    e.classList.add("on");
+    e.className = "on";
+    if (type === "error") e.classList.add("toast-error");
     clearTimeout(toast.t);
-    toast.t = setTimeout(() => e.classList.remove("on"), 2000);
+    toast.t = setTimeout(() => e.classList.remove("on"), type === "error" ? 5000 : 2000);
 }
 
 function bd() {
@@ -42,14 +52,14 @@ function obs() {
 
 function pcard(p) {
     const im = ft(p)[0], a = ag(p);
-    const pri = a ? '<span class="text-sm font-bold text-slate-900">Consultar disponibilidad</span>' :
-        (O[p.id] ? '<s class="text-xs text-slate-400 mr-1">' + fm(p.precio_usd) + '</s><span class="text-lg font-black text-slate-900">' + fm(O[p.id]) + '</span>' :
-            '<span class="text-lg font-black text-slate-900">' + fm(p.precio_usd) + '</span>');
-    return '<article class="pcd bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl transition flex flex-col overflow-hidden group"><div class="relative"><a href="producto.html?id=' + encodeURIComponent(p.id) + '" class="block"><div class="im">' +
+    const pri = a ? '<span class="text-sm font-bold text-fg">Consultar disponibilidad</span>' :
+        (O[p.id] ? '<s class="text-xs text-mu mr-1">' + fm(p.precio_usd) + '</s><span class="text-lg font-black text-fg">' + fm(O[p.id]) + '</span>' :
+            '<span class="text-lg font-black text-fg">' + fm(p.precio_usd) + '</span>');
+    return '<article class="pcd card-product flex flex-col overflow-hidden group"><div class="relative"><a href="producto.html?id=' + encodeURIComponent(p.id) + '" class="block"><div class="im">' +
         (im ? '<img src="' + esc(im) + '" alt="' + esc(p.nombre) + '" loading="lazy">' : '') +
-        '</div></a><span class="absolute top-3 left-3 bg-white/90 backdrop-blur text-darkblue-900 text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wide">' + esc(cn(p.categoria_id)) + '</span>' +
-        (a ? '<span class="absolute top-3 right-3 bg-terracota-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg shadow">Agotado</span>' : '') +
-        '</div><div class="p-5 flex-1 flex flex-col justify-between space-y-4"><a class="tx text-left block" href="producto.html?id=' + encodeURIComponent(p.id) + '"><h3 class="font-bold text-slate-900 text-sm sm:text-base line-clamp-2">' + esc(p.nombre) + '</h3></a><div class="flex items-center justify-between gap-3 pt-2 border-t border-slate-100"><div><span class="text-[10px] text-slate-400 block uppercase">Precio</span>' + pri + '</div><button data-a="add1" data-id="' + esc(p.id) + '" class="bg-darkblue-900 hover:bg-volxen-500 hover:text-darkblue-900 text-white px-4 py-2.5 rounded-xl font-bold text-xs transition shadow flex items-center space-x-2"><i class="fa-solid fa-cart-plus"></i><span>Añadir</span></button></div></div></article>';
+        '</div></a><span class="absolute top-3 left-3 badge-category text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wide">' + esc(cn(p.categoria_id)) + '</span>' +
+        (a ? '<span class="absolute top-3 right-3 badge-out-of-stock text-[10px] font-bold px-2.5 py-1 rounded-lg shadow">Agotado</span>' : '') +
+        '</div><div class="p-5 flex-1 flex flex-col justify-between space-y-4"><a class="tx text-left block" href="producto.html?id=' + encodeURIComponent(p.id) + '"><h3 class="font-bold text-fg text-sm sm:text-base line-clamp-2">' + esc(p.nombre) + '</h3></a><div class="flex items-center justify-between gap-3 pt-2 border-t border-bd"><div><span class="text-[10px] text-mu block uppercase">Precio</span>' + pri + '</div><button data-a="add1" data-id="' + esc(p.id) + '" class="btn-primary px-4 py-2.5 rounded-xl font-bold text-xs transition shadow flex items-center space-x-2"><i class="fa-solid fa-cart-plus"></i><span>Añadir</span></button></div></div></article>';
 }
 
 function show(id) {
@@ -101,13 +111,13 @@ function cart() {
     const el = $("cl"); if (!el) return;
     const it = cartItems();
     el.innerHTML = it.length ? it.map(p =>
-        '<div class="li"><img src="' + esc(ft(p)[0] || "") + '" alt=""><div><b>' +
-        esc(p.nombre) + '</b><span>' + fm(pr(p)) + '</span><div class="q" style="width:fit-content;margin-top:8px">' +
-        '<button data-a="qm" data-id="' + esc(p.id) + '" aria-label="Menos">−</button><i>' +
+        '<div class="li"><img src="' + esc(ft(p)[0] || "") + '" alt="" class="cart-thumb"><div><b>' +
+        esc(p.nombre) + '</b><span class="cart-price">' + fm(pr(p)) + '</span><div class="q">' +
+        '<button data-a="qm" data-id="' + esc(p.id) + '" aria-label="Menos" class="qty-btn">−</button><i>' +
         K[p.id] + '</i><button data-a="qp" data-id="' + esc(p.id) +
-        '" aria-label="Más">+</button></div></div><button data-a="rm" data-id="' +
-        esc(p.id) + '" aria-label="Quitar" style="width:44px;height:44px;text-align:center;font-size:22px">×</button></div>'
-    ).join("") : '<p style="margin-top:1.5rem">Su pedido está vacío. <a class="sl" href="catalogo.html" style="display:inline;width:auto">Explorar el catálogo</a></p>';
+        '" aria-label="Más" class="qty-btn">+</button></div></div><button data-a="rm" data-id="' +
+        esc(p.id) + '" aria-label="Quitar" class="remove-btn">×</button></div>'
+    ).join("") : '<p style="margin-top:1.5rem;text-align:center;color:var(--mu)">Su pedido está vacío. <a class="sl btn-ghost" href="catalogo.html" style="display:inline;width:auto;padding:8px 16px">Explorar el catálogo</a></p>';
 
     const t = $("tt"); if (t) t.innerHTML = it.length ? 'Total estimado: <b>' + fm(cartTotal()) + '</b>' : "";
     const c = $("cf"); if (c) c.style.display = it.length ? "block" : "none";
@@ -116,14 +126,13 @@ function cart() {
 
 /* ===== Cabecera, pie y overlays compartidos ===== */
 function renderNav() {
-    const ON = "bg-darkblue-900 text-white font-bold shadow-sm", OFF = "bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200";
     const nav = $("cn");
     if (nav) nav.innerHTML = [{ id: "", nombre: "Todos los Departamentos" }].concat(Cs).map(c =>
-        '<a href="catalogo.html' + (c.id ? '?cat=' + encodeURIComponent(c.id) : '') + '" data-a="cat" data-id="' + esc(c.id) + '" class="whitespace-nowrap px-3.5 py-1.5 rounded-lg transition ' + (c.id === cat ? ON : OFF) + '">' + esc(c.nombre) + '</a>'
+        '<a href="catalogo.html' + (c.id ? '?cat=' + encodeURIComponent(c.id) : '') + '" data-a="cat" data-id="' + esc(c.id) + '" class="nav-chip whitespace-nowrap px-3.5 py-1.5 rounded-lg transition ' + (c.id === cat ? "nav-chip-on" : "nav-chip-off") + '">' + esc(c.nombre) + '</a>'
     ).join("");
     const fdp = $("fdp");
     if (fdp) fdp.innerHTML = Cs.map(c =>
-        '<li><a href="catalogo.html?cat=' + encodeURIComponent(c.id) + '" class="hover:text-volxen-400 transition text-left">' + esc(c.nombre) + '</a></li>'
+        '<li><a href="catalogo.html?cat=' + encodeURIComponent(c.id) + '" class="hover:text-g transition text-left">' + esc(c.nombre) + '</a></li>'
     ).join("");
 }
 
@@ -138,38 +147,38 @@ function operadoras() {
         ["Operadora 6", "5 5500209", "5355500209"],
     ];
     return '<div id="operadoras" class="pantalla fixed inset-0 z-50 overflow-y-auto">' +
-        '<a href="#" aria-label="Cerrar" class="fixed inset-0 bg-darkblue-900/70 backdrop-blur-sm cursor-default"></a>' +
-        '<div class="relative min-h-full flex items-center justify-center p-4 pointer-events-none"><div class="relative bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl z-10 space-y-6 pointer-events-auto">' +
-        '<div class="flex items-center justify-between"><div class="flex items-center space-x-3"><img src="logo.svg" alt="" class="h-8 w-auto shrink-0"><h3 class="font-bold text-lg text-slate-900">Contacta con nuestras operadoras</h3></div><a href="#" aria-label="Cerrar" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></a></div>' +
-        '<p class="text-sm text-slate-600 leading-relaxed">¿Necesitas información sobre un producto o quieres consultar tu pedido? Contacta con una de nuestras operadoras y recibe atención personalizada.</p><div class="space-y-3">' +
-        ops.map(o => '<div class="p-4 rounded-2xl border border-slate-200 flex items-center justify-between gap-4"><div class="flex items-center space-x-4"><div class="w-14 h-14 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center shrink-0 shadow-sm"><img src="logo.svg" alt="VOLXEN" class="h-7 w-7 shrink-0"></div><div><p class="text-[10px] font-bold uppercase tracking-wider text-volxen-600">' + o[0] + '</p><p class="font-bold text-slate-900 text-base">' + o[1] + '</p></div></div><a href="https://wa.me/' + o[2] + '" target="_blank" rel="noopener" class="bg-darkblue-900 hover:bg-volxen-500 hover:text-darkblue-900 text-white px-4 py-2.5 rounded-xl font-bold text-xs transition shadow flex items-center space-x-2"><i class="fa-brands fa-whatsapp"></i><span>WhatsApp</span></a></div>').join("") +
+        '<a href="#" aria-label="Cerrar" class="fixed inset-0 bg-fg/70 backdrop-blur-sm cursor-default"></a>' +
+        '<div class="relative min-h-full flex items-center justify-center p-4 pointer-events-none"><div class="relative bg-s2 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl z-10 space-y-6 pointer-events-auto">' +
+        '<div class="flex items-center justify-between"><div class="flex items-center space-x-3"><img src="logo-light.svg" alt="" class="h-8 w-auto shrink-0"><h3 class="font-bold text-lg text-fg">Contacta con nuestras operadoras</h3></div><a href="#" aria-label="Cerrar" class="text-mu hover:text-fg"><i class="fa-solid fa-xmark text-lg"></i></a></div>' +
+        '<p class="text-sm text-mu leading-relaxed">¿Necesitas información sobre un producto o quieres consultar tu pedido? Contacta con una de nuestras operadoras y recibe atención personalizada.</p><div class="space-y-3">' +
+        ops.map(o => '<div class="p-4 rounded-2xl border border-bd flex items-center justify-between gap-4"><div class="flex items-center space-x-4"><div class="w-14 h-14 rounded-full bg-sf border border-bd flex items-center justify-center shrink-0 shadow-sm"><img src="logo-light.svg" alt="VOLXEN" class="h-7 w-7 shrink-0"></div><div><p class="text-[10px] font-bold uppercase tracking-wider text-g">' + o[0] + '</p><p class="font-bold text-fg text-base">' + o[1] + '</p></div></div><a href="https://wa.me/' + o[2] + '" target="_blank" rel="noopener" class="btn-primary hover:bg-g-hover hover:text-fg px-4 py-2.5 rounded-xl font-bold text-xs transition shadow flex items-center space-x-2"><i class="fa-brands fa-whatsapp"></i><span>WhatsApp</span></a></div>').join("") +
         '</div></div></div></div>';
 }
 
 function shell() {
     const header =
-        '<header id="hd" class="sticky top-0 z-50 bg-slate-50 text-darkblue-900 border-b border-slate-200 shadow-sm">' +
-        '<div class="bg-darkblue-900 text-white text-xs py-1.5 px-4 text-center font-medium"><i class="fa-solid fa-truck-fast mr-2 text-volxen-500"></i>Transparencia y confianza en cada venta</div>' +
+        '<header id="hd" class="sticky top-0 z-50 bg-sf text-fg border-b border-bd shadow-sm">' +
+        '<div class="bg-fg text-s2 text-xs py-1.5 px-4 text-center font-medium"><i class="fa-solid fa-truck-fast mr-2 text-g"></i>Transparencia y confianza en cada venta</div>' +
         '<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="flex items-center justify-between h-20 gap-4">' +
-        '<a href="index.html" class="flex items-center gap-2.5 sm:gap-3 shrink-0" aria-label="VOLXEN, comercializadora de tecnología y energía en Cuba"><img src="logo.svg" alt="Logo VOLXEN" class="h-9 sm:h-11 w-auto shrink-0"><span class="block leading-none"><span class="logo-wm h-[18px] sm:h-6" role="img" aria-label="VOLXEN"></span><span class="block mt-1.5 text-[7px] sm:text-[8px] uppercase tracking-[0.42em] text-slate-600 font-bold">Comercializadora</span></span></a>' +
-        '<div class="flex-1 max-w-2xl hidden md:flex"><div class="relative w-full"><input type="text" id="searchInput" placeholder="Buscar electrodomésticos, climatización, energía solar, TV..." class="w-full bg-white text-darkblue-900 placeholder-slate-400 text-sm rounded-xl pl-4 pr-12 py-3 border border-slate-200 focus:outline-none focus:border-volxen-500 focus:ring-1 focus:ring-volxen-500 transition shadow-inner"><button data-search class="absolute right-1 top-1 bottom-1 px-4 bg-volxen-500 hover:bg-volxen-600 text-darkblue-900 rounded-lg font-bold transition flex items-center justify-center"><i class="fa-solid fa-magnifying-glass"></i></button></div></div>' +
+        '<a href="index.html" class="flex items-center gap-2.5 sm:gap-3 shrink-0" aria-label="VOLXEN, comercializadora de tecnología y energía en Cuba"><img src="logo-light.svg" alt="Logo VOLXEN" class="h-9 sm:h-11 w-auto shrink-0"><span class="block leading-none"><span class="logo-wm h-[18px] sm:h-6" role="img" aria-label="VOLXEN"></span><span class="block mt-1.5 text-[7px] sm:text-[8px] uppercase tracking-[0.42em] text-mu font-bold">Comercializadora</span></span></a>' +
+        '<div class="flex-1 max-w-2xl hidden md:flex"><div class="relative w-full"><input type="text" id="searchInput" placeholder="Buscar electrodomésticos, climatización, energía solar, TV..." class="w-full input-base placeholder-mu text-sm rounded-xl pl-4 pr-12 py-3 focus-ring-g"><button data-search class="absolute right-1 top-1 bottom-1 px-4 btn-primary hover:bg-g-hover hover:text-fg rounded-lg font-bold transition flex items-center justify-center"><i class="fa-solid fa-magnifying-glass"></i></button></div></div>' +
         '<div class="flex items-center space-x-4">' +
-        '<span class="hidden lg:flex items-center space-x-2 bg-white px-3 py-2 rounded-xl border border-slate-200 text-xs"><i class="fa-solid fa-location-dot text-volxen-500 text-base"></i><div class="text-left"><p class="text-slate-400">Entregar en:</p><p class="font-semibold text-darkblue-900">La Habana, Cuba</p></div></span>' +
-        '<a href="carrito.html" aria-label="Ver su pedido" class="relative bg-volxen-500 hover:bg-volxen-600 text-darkblue-900 font-bold px-4 py-2.5 rounded-xl flex items-center space-x-2 transition shadow-md"><i class="fa-solid fa-cart-shopping text-lg"></i><span class="hidden sm:inline text-sm">Carrito</span><span id="bd" class="absolute -top-2 -right-2 bg-darkblue-900 text-volxen-400 text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shadow-md">0</span></a>' +
-        '<button data-a="menu" aria-label="Abrir menú" class="bg-white hover:bg-slate-100 border border-slate-200 text-darkblue-900 p-2.5 rounded-xl transition"><i class="fa-solid fa-bars text-lg"></i></button>' +
+        '<span class="hidden lg:flex items-center space-x-2 bg-s2 px-3 py-2 rounded-xl border border-bd text-xs"><i class="fa-solid fa-location-dot text-g text-base"></i><div class="text-left"><p class="text-mu">Entregar en:</p><p class="font-semibold text-fg">La Habana, Cuba</p></div></span>' +
+        '<a href="carrito.html" aria-label="Ver su pedido" class="relative btn-primary hover:bg-g-hover hover:text-fg font-bold px-4 py-2.5 rounded-xl flex items-center space-x-2 transition shadow-md"><i class="fa-solid fa-cart-shopping text-lg"></i><span class="hidden sm:inline text-sm">Carrito</span><span id="bd" class="absolute -top-2 -right-2 bg-fg text-g text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shadow-md">0</span></a>' +
+        '<button data-a="menu" aria-label="Abrir menú" class="bg-s2 hover:bg-sf border border-bd text-fg p-2.5 rounded-xl transition"><i class="fa-solid fa-bars text-lg"></i></button>' +
         '</div></div>' +
-        '<div class="pb-3 md:hidden"><div class="relative w-full"><input type="text" id="searchMobileInput" placeholder="Buscar productos..." class="w-full bg-white text-darkblue-900 placeholder-slate-400 text-sm rounded-xl pl-4 pr-12 py-2.5 border border-slate-200 focus:outline-none focus:border-volxen-500"><button data-search class="absolute right-1 top-1 bottom-1 px-3 bg-volxen-500 text-darkblue-900 rounded-lg"><i class="fa-solid fa-magnifying-glass"></i></button></div></div>' +
-        '</div><div class="bg-slate-50 border-t border-slate-200 px-4"><div class="max-w-7xl mx-auto flex space-x-2 overflow-x-auto py-2.5 scrollbar-none text-xs font-medium" id="cn"></div></div></header>';
+        '<div class="pb-3 md:hidden"><div class="relative w-full"><input type="text" id="searchMobileInput" placeholder="Buscar productos..." class="w-full input-base placeholder-mu text-sm rounded-xl pl-4 pr-12 py-2.5 focus-ring-g"><button data-search class="absolute right-1 top-1 bottom-1 px-3 btn-primary text-fg rounded-lg"><i class="fa-solid fa-magnifying-glass"></i></button></div></div>' +
+        '</div><div class="bg-sf border-t border-bd px-4"><div class="max-w-7xl mx-auto flex space-x-2 overflow-x-auto py-2.5 scrollbar-none text-xs font-medium" id="cn"></div></div></header>';
 
     const footer =
-        '<footer class="bg-darkblue-900 text-slate-400 pt-16 pb-12 mt-16 border-t border-slate-800"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">' +
-        '<div class="space-y-4"><a href="index.html" class="flex items-center gap-3" aria-label="VOLXEN, comercializadora de tecnología y energía en Cuba"><img src="logo.svg" alt="Logo VOLXEN" class="h-10 w-auto shrink-0"><span class="block leading-none"><span class="logo-wm-claro h-5" role="img" aria-label="VOLXEN"></span><span class="block mt-1.5 text-[7px] uppercase tracking-[0.42em] text-slate-400 font-bold">Comercializadora</span></span></a>' +
-        '<p class="text-xs text-slate-400 leading-relaxed">VOLXEN es una comercializadora de tecnología y energía en Cuba, con sede en La Habana. Transparencia y confianza en cada venta.</p>' +
-        '<div class="flex space-x-3 pt-2"><a href="https://www.facebook.com/share/1M1HdetBFY/" target="_blank" rel="noopener noreferrer" aria-label="Facebook de VOLXEN" title="Facebook de VOLXEN" class="w-9 h-9 rounded-lg bg-slate-800 hover:bg-volxen-500 hover:text-darkblue-900 text-white flex items-center justify-center transition"><i class="fa-brands fa-facebook-f"></i></a></div></div>' +
-        '<div><h4 class="text-white font-semibold text-sm mb-4 uppercase tracking-wider">Departamentos</h4><ul id="fdp" class="space-y-2 text-xs"></ul></div>' +
-        '<div><h4 class="text-white font-semibold text-sm mb-4 uppercase tracking-wider">Atención al Cliente</h4><ul class="space-y-2 text-xs"><li><a href="#operadoras" class="hover:text-volxen-400 transition">Contacta con nuestras operadoras</a></li></ul></div>' +
-        '<div><h4 class="text-white font-semibold text-sm mb-4 uppercase tracking-wider">Información</h4><ul class="space-y-2 text-xs"><li><a href="index.html#comoTrabajamos" class="hover:text-volxen-400 transition">Cómo trabajamos</a></li><li><a href="index.html#condiciones" class="hover:text-volxen-400 transition">Condiciones de compra</a></li><li><a href="index.html#faq" class="hover:text-volxen-400 transition">Preguntas Frecuentes</a></li><li><a href="index.html#quienes-somos" class="hover:text-volxen-400 transition">Quiénes somos</a></li></ul></div>' +
-        '</div><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-slate-800 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500"><p>&copy; <span id="yr">2026</span> Volxen Comercializadora Cuba. Todos los derechos reservados.</p></div></footer>';
+        '<footer class="bg-fg text-mu pt-16 pb-12 mt-16 border-t border-bd"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">' +
+        '<div class="space-y-4"><a href="index.html" class="flex items-center gap-3" aria-label="VOLXEN, comercializadora de tecnología y energía en Cuba"><img src="logo-light.svg" alt="Logo VOLXEN" class="h-10 w-auto shrink-0"><span class="block leading-none"><span class="logo-wm-claro h-5" role="img" aria-label="VOLXEN"></span><span class="block mt-1.5 text-[7px] uppercase tracking-[0.42em] text-mu font-bold">Comercializadora</span></span></a>' +
+        '<p class="text-xs text-mu leading-relaxed">VOLXEN es una comercializadora de tecnología y energía en Cuba, con sede en La Habana. Transparencia y confianza en cada venta.</p>' +
+        '<div class="flex space-x-3 pt-2"><a href="https://www.facebook.com/share/1M1HdetBFY/" target="_blank" rel="noopener noreferrer" aria-label="Facebook de VOLXEN" title="Facebook de VOLXEN" class="w-9 h-9 rounded-lg bg-s2 hover:bg-g hover:text-fg text-fg flex items-center justify-center transition"><i class="fa-brands fa-facebook-f"></i></a></div></div>' +
+        '<div><h4 class="text-s2 font-semibold text-sm mb-4 uppercase tracking-wider">Departamentos</h4><ul id="fdp" class="space-y-2 text-xs"></ul></div>' +
+        '<div><h4 class="text-s2 font-semibold text-sm mb-4 uppercase tracking-wider">Atención al Cliente</h4><ul class="space-y-2 text-xs"><li><a href="#operadoras" class="hover:text-g transition">Contacta con nuestras operadoras</a></li></ul></div>' +
+        '<div><h4 class="text-s2 font-semibold text-sm mb-4 uppercase tracking-wider">Información</h4><ul class="space-y-2 text-xs"><li><a href="index.html#comoTrabajamos" class="hover:text-g transition">Cómo trabajamos</a></li><li><a href="index.html#condiciones" class="hover:text-g transition">Condiciones de compra</a></li><li><a href="index.html#faq" class="hover:text-g transition">Preguntas Frecuentes</a></li><li><a href="index.html#quienes-somos" class="hover:text-g transition">Quiénes somos</a></li></ul></div>' +
+        '</div><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-bd pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-mu"><p>&copy; <span id="yr">2026</span> Volxen Comercializadora Cuba. Todos los derechos reservados.</p></div></footer>';
 
     const menu =
         '<div class="ov" id="mnv"><div class="bx sh lf"><button class="xb" data-a="close" aria-label="Cerrar">×</button><span class="ey" style="margin-top:.5rem">Menú</span><nav class="mn" aria-label="Menú principal">' +
@@ -180,7 +189,7 @@ function shell() {
 
     const overlays =
         '<div id="ts"></div>' + operadoras() +
-        '<div class="ov" id="cqv"><div class="bx sh"><button class="xb" data-a="close" aria-label="Cerrar">×</button><h3 id="cqt" style="margin-top:0"></h3><p class="nt" style="margin-top:1rem">Su mensaje queda registrado y un asesor se comunicará con usted por el teléfono o correo que indique.</p><input id="cqn" placeholder="Nombre y apellidos *" autocomplete="name"><input id="cqc" placeholder="Teléfono o correo *" autocomplete="on"><input id="cqp" placeholder="Código del pedido (opcional)" autocomplete="off" autocapitalize="characters"><textarea id="cqm" placeholder="Escriba su mensaje *"></textarea><p id="cqe" style="color:#9C4F34;min-height:20px;margin-top:8px;font-size:13px"></p><button class="bt" style="width:100%" id="cqs" data-a="cqsend">Enviar</button><button class="sl" style="width:100%" data-a="cqseg">Ver seguimiento de mis consultas</button></div></div>' +
+        '<div class="ov" id="cqv"><div class="bx sh"><button class="xb" data-a="close" aria-label="Cerrar">×</button><h3 id="cqt" style="margin-top:0"></h3><p class="nt" style="margin-top:1rem">Su mensaje queda registrado y un asesor se comunicará con usted por el teléfono o correo que indique.</p><input id="cqn" placeholder="Nombre y apellidos *" autocomplete="name" class="input-base"><input id="cqc" placeholder="Teléfono o correo *" autocomplete="on" class="input-base"><input id="cqp" placeholder="Código del pedido (opcional)" autocomplete="off" autocapitalize="characters" class="input-base"><textarea id="cqm" placeholder="Escriba su mensaje *" class="input-base"></textarea><p id="cqe" style="color:var(--ox);min-height:20px;margin-top:8px;font-size:13px"></p><button class="btn-primary" style="width:100%" id="cqs" data-a="cqsend">Enviar</button><button class="btn-secondary" style="width:100%" data-a="cqseg">Ver seguimiento de mis consultas</button></div></div>' +
         '<div class="ov" id="cgv"><div class="bx sh"><button class="xb" data-a="close" aria-label="Cerrar">×</button><h3 style="margin-top:0">Mis consultas</h3><div id="cgl"></div></div></div>' +
         '<div class="av" id="av"></div><div class="zm" id="zm"><button class="zx" aria-label="Cerrar">×</button><img alt=""></div>';
 
@@ -287,7 +296,7 @@ function trackLista() {
     pv.innerHTML = '<h3 style="margin-top:0">Mis pedidos</h3>' +
         (a.length ? '<div id="ol"><p class="nt">Cargando sus pedidos…</p></div>' :
             '<p style="margin-top:1rem">Aún no tiene pedidos guardados en este dispositivo.</p>') +
-        '<details style="margin-top:2rem"><summary class="lb" style="min-height:44px;display:flex;align-items:center;cursor:pointer">Agregar un pedido con sus códigos</summary><input id="sc" placeholder="Código del pedido (VX-2026-000001)" autocomplete="off" autocapitalize="characters"><input id="st" placeholder="Código de seguimiento" autocomplete="off"><p id="se" style="color:#9C4F34;min-height:20px;margin-top:8px;font-size:13px"></p><button class="bt" style="width:100%" data-a="padd">Agregar pedido</button></details>';
+        '<details style="margin-top:2rem"><summary class="lb" style="min-height:44px;display:flex;align-items:center;cursor:pointer">Agregar un pedido con sus códigos</summary><input id="sc" class="input-base" placeholder="Código del pedido (VX-2026-000001)" autocomplete="off" autocapitalize="characters"><input id="st" class="input-base" placeholder="Código de seguimiento" autocomplete="off"><p id="se" style="color:var(--ox);min-height:20px;margin-top:8px;font-size:13px"></p><button class="btn-primary" style="width:100%" data-a="padd">Agregar pedido</button></details>';
     Promise.all(a.map(x => ask(x.c, x.t).then(j => { D[x.c] = inf(j) }).catch(() => { D[x.c] = null }))).then(() => {
         const ol = $("ol"); if (k !== L || !ol) return;
         ol.innerHTML = a.map(x => {
@@ -308,10 +317,10 @@ function trackDet(c) {
     if (!o) { trackLista(); return }
     const s = st(o.e), h = o.hs.slice().sort((x, y) => String(y.created_at).localeCompare(String(x.created_at)));
     pv.innerHTML =
-        '<button class="lb" data-a="pback" style="min-height:44px">← Mis pedidos</button>' +
+        '<button class="lb btn-ghost" data-a="pback" style="min-height:44px;width:auto">← Mis pedidos</button>' +
         '<p class="ey" style="margin-top:1rem">Pedido</p><h3 style="margin:.5rem 0">' + esc(o.c) + '</h3>' +
         '<p>Estado actual: <b style="color:var(--g);font-weight:400">' + esc(pe(o.e)) + '</b></p>' +
-        (s === -1 ? '<span class="ag">Cancelado</span>' :
+        (s === -1 ? '<span class="badge-out-of-stock" style="display:inline-block;margin-top:.5rem;padding:4px 8px;border-radius:4px">Cancelado</span>' :
             s != null ? '<div class="pb">' + ["Recibido", "Confirmado", "En camino", "Entregado"].map((l, i) =>
                 '<span' + (i <= s ? ' class="on"' : '') + '><i></i>' + l + '</span>').join("") + '</div>' : '') +
         '<p class="lb" style="margin-top:2rem">Productos</p>' +
@@ -329,8 +338,8 @@ function trackDet(c) {
                 (x.created_at ? '<br>' + esc(new Date(x.created_at).toLocaleString("es")) : '') +
                 (x.comentario ? '<br><span class="nt">' + esc(x.comentario) + '</span>' : '') + '</p>'
             ).join("") + '</div>' : '') +
-        '<a class="bt" style="width:100%;margin-top:2rem" href="' + wa("Buenas, consulto por mi pedido " + o.c) + '" target="_blank" rel="noopener">Consultar con su asesor</a>' +
-        '<button class="sl" style="width:100%" data-a="prm" data-id="' + esc(c) + '">Quitar de esta lista</button>';
+        '<a class="btn-secondary" style="width:100%;margin-top:2rem;display:flex;align-items:center;justify-content:center" href="' + wa("Buenas, consulto por mi pedido " + o.c) + '" target="_blank" rel="noopener">Consultar con su asesor</a>' +
+        '<button class="btn-destructive" style="width:100%;margin-top:.75rem" data-a="prm" data-id="' + esc(c) + '">Quitar de esta lista</button>';
 }
 async function trackAgr() {
     const c = $("sc").value.trim().toUpperCase(), t = $("st").value.trim();
@@ -345,15 +354,31 @@ async function trackAgr() {
 /* ===== Carga de datos y arranque ===== */
 function setCat(v) { cat = v || ""; renderNav(); }
 
+let loadRetry = 0;
+const MAX_LOAD_RETRIES = 2;
+
 async function load() {
-    const [c, p, o] = await Promise.all([
-        q("categorias?order=orden"),
-        q("productos?activo=eq.true&order=created_at.desc"),
-        q("ofertas?activa=eq.true")
-    ]);
-    Cs = Array.isArray(c) ? c : [];
-    P = Array.isArray(p) ? p : [];
-    (Array.isArray(o) ? o : []).forEach(x => O[x.producto_id] = x.precio_oferta_usd);
+    try {
+        const [c, p, o] = await Promise.all([
+            q("categorias?order=orden"),
+            q("productos?activo=eq.true&order=created_at.desc"),
+            q("ofertas?activa=eq.true")
+        ]);
+        Cs = Array.isArray(c) ? c : [];
+        P = Array.isArray(p) ? p : [];
+        (Array.isArray(o) ? o : []).forEach(x => O[x.producto_id] = x.precio_oferta_usd);
+        loadRetry = 0;
+    } catch (err) {
+        loadRetry++;
+        if (loadRetry <= MAX_LOAD_RETRIES) {
+            toast("Reintentando conexión... (" + loadRetry + "/" + MAX_LOAD_RETRIES + ")", "error");
+            await new Promise(r => setTimeout(r, 1000 * loadRetry));
+            return load();
+        }
+        toast("No se pudo cargar el catálogo. Verifica tu conexión.", "error");
+        console.error("[VOLXEN] Load failed:", err);
+        Cs = []; P = []; O = {};
+    }
 }
 
 function wireGlobal() {

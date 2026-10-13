@@ -12,13 +12,17 @@ tailwind.config = {
                     800: '#6B5228',
                     900: '#4A381B',
                 },
-                darkblue: {
-                    800: '#2A2823',
-                    900: '#1E1D1B'
+                brand: {
+                    bg: '#F8F7F4',
+                    sf: '#F8F7F4',
+                    fg: '#1E1D1B',
+                    mu: '#6B6557',
+                    gold: '#C8A165',
+                    goldHover: '#B08A4F',
+                    bd: '#EAE6DE',
+                    pf: '#2E4A3F',
+                    ox: '#B65F40',
                 },
-                carbon: '#1E1D1B',
-                marfil: '#F8F7F4',
-                arena: '#EAE6DE',
                 slate: {
                     50: '#F8F7F4',
                     100: '#EAE6DE',
@@ -31,31 +35,39 @@ tailwind.config = {
                     800: '#2A2823',
                     900: '#1E1D1B',
                 },
-                bosque: {
-                    50: '#EBF0EC',
-                    100: '#D6E1DA',
-                    500: '#2E4A3F',
-                    600: '#263C33',
-                    700: '#1E2F28'
-                },
-                terracota: {
-                    50: '#F8EEEA',
-                    100: '#F0DBD2',
-                    500: '#B65F40',
-                    600: '#9C4F34',
-                    700: '#7F3F29'
-                },
-                emerald: {
-                    400: '#C8A165',
-                    500: '#C8A165',
-                    600: '#A07C42',
-                    950: '#1E1D1B',
-                }
             },
             fontFamily: {
                 sans: ['Inter Tight', 'sans-serif'],
                 display: ['DM Sans', 'sans-serif'],
-            }
+            },
+            spacing: {
+                '1': '0.25rem',
+                '2': '0.5rem',
+                '3': '0.75rem',
+                '4': '1rem',
+                '5': '1.25rem',
+                '6': '1.5rem',
+                '8': '2rem',
+                '10': '2.5rem',
+                '12': '3rem',
+                '16': '4rem',
+            },
+            borderRadius: {
+                'sm': '0.375rem',
+                'md': '0.5rem',
+                'lg': '0.75rem',
+                'xl': '1rem',
+                '2xl': '1.5rem',
+            },
+            boxShadow: {
+                'sm': '0 1px 2px rgba(30,29,27,.04)',
+                'md': '0 4px 6px -1px rgba(30,29,27,.06), 0 2px 4px -1px rgba(30,29,27,.04)',
+                'lg': '0 10px 15px -3px rgba(30,29,27,.08), 0 4px 6px -2px rgba(30,29,27,.05)',
+                'xl': '0 20px 25px -5px rgba(30,29,27,.1), 0 10px 10px -5px rgba(30,29,27,.04)',
+            },
+            transitionTimingFunction: {
+                'brand': 'cubic-bezier(.22,1,.36,1)',
+            },
         }
     }
 }
