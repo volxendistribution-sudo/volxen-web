@@ -983,6 +983,24 @@
         .skeleton { animation: none; background: var(--bd); }
     }
 
+    /* ===== Skip Link ===== */
+    .skip-link {
+        position: absolute;
+        top: -100%;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 12px 24px;
+        background: var(--fg);
+        color: var(--s2);
+        font: 600 14px var(--s);
+        border-radius: var(--radius-md);
+        z-index: 10000;
+        transition: top 0.3s var(--e);
+    }
+    .skip-link:focus {
+        top: 1rem;
+    }
+
     /* ===== Selection ===== */
     ::selection {
         background-color: var(--g);

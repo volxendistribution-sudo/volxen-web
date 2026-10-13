@@ -3,43 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Tu carrito de compras en VOLXEN. Revisa tus productos, cantidades y totales antes de continuar al vale de pedido. Entrega en La Habana, pago contra entrega.">
+    <meta name="theme-color" content="#C8A165">
+    <meta property="og:title" content="Su pedido - VOLXEN">
+    <meta property="og:description" content="Revisa tu carrito de compras en VOLXEN. Entrega en La Habana, pago contra entrega, garantía por escrito.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://volxen.com/carrito.html">
+    <meta property="og:image" content="https://volxen.com/logo-light.svg">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Su pedido - VOLXEN">
+    <meta name="twitter:description" content="Revisa tu carrito de compras en VOLXEN.">
+    <link rel="canonical" href="https://volxen.com/carrito.html">
 
-    <title>Su pedido - Volxen</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Inter+Tight:wght@300;400;500;600&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Inter+Tight:wght@300;400;500;600&display=swap" media="print" onload="this.media='all'">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="volxen-tailwind.js"></script>
 
-    <link
-        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Inter+Tight:wght@300;400;500;600&display=swap"
-        rel="stylesheet"
-    >
-
-    <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    >
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
 
     <link rel="stylesheet" href="volxen.css">
 </head>
 
 <body class="h-full bg-bg text-fg flex flex-col font-sans antialiased selection:bg-g selection:text-white" data-page="carrito">
 
-    <main class="flex-1 max-w-3xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <a href="#main" class="skip-link">Saltar al contenido principal</a>
+
+    <main id="main" class="flex-1 max-w-3xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div class="bg-s2 border border-bd rounded-2xl shadow-sm p-6">
             <div class="flex items-center justify-between mb-6">
                 <h1 class="text-2xl font-bold text-fg">Su pedido</h1>
-                <span id="bd" class="bg-fg text-g text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">0</span>
+                <span id="bd-cart" class="bg-fg text-g text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center" aria-live="polite" aria-atomic="true">0</span>
             </div>
-            <div id="cl"></div>
-            <div class="tt" id="tt"></div>
+            <div id="cl" role="list" aria-label="Productos en tu pedido"></div>
+            <div class="tt" id="tt" aria-live="polite"></div>
             <p class="nt mt-4">Los precios son estimados. Su asesor confirma el precio final, la disponibilidad y las condiciones antes de cerrar el pedido.</p>
 
             <!-- Trust indicators -->
             <div class="mt-6 pt-4 border-t border-bd flex flex-wrap gap-4 text-sm text-mu" aria-label="Garantías">
-                <div class="flex items-center gap-2"><i class="fa-solid fa-shield-halved text-g"></i><span>Garantía por escrito</span></div>
-                <div class="flex items-center gap-2"><i class="fa-solid fa-truck-fast text-g"></i><span>Entrega en La Habana</span></div>
-                <div class="flex items-center gap-2"><i class="fa-solid fa-headset text-g"></i><span>Asesor personal</span></div>
-                <div class="flex items-center gap-2"><i class="fa-solid fa-lock text-g"></i><span>Pago contra entrega</span></div>
+                <div class="flex items-center gap-2"><i class="fa-solid fa-shield-halved text-g" aria-hidden="true"></i><span>Garantía por escrito</span></div>
+                <div class="flex items-center gap-2"><i class="fa-solid fa-truck-fast text-g" aria-hidden="true"></i><span>Entrega en La Habana</span></div>
+                <div class="flex items-center gap-2"><i class="fa-solid fa-headset text-g" aria-hidden="true"></i><span>Asesor personal</span></div>
+                <div class="flex items-center gap-2"><i class="fa-solid fa-lock text-g" aria-hidden="true"></i><span>Pago contra entrega</span></div>
             </div>
 
             <a id="cartGo" class="btn-primary mt-6 block text-center py-3" href="checkout.html" style="display:none">Continuar con el pedido</a>

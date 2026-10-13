@@ -3,85 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Completa tu vale de pedido en VOLXEN. Revisa tu carrito, ingresa tus datos y registra tu pedido para entrega en La Habana.">
+    <meta name="theme-color" content="#C8A165">
+    <meta property="og:title" content="Registrar pedido - VOLXEN">
+    <meta property="og:description" content="Completa tu vale de pedido en VOLXEN. Revisa tu carrito, ingresa tus datos y registra tu pedido para entrega en La Habana.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://volxen.com/checkout.html">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Registrar pedido - VOLXEN">
+    <meta name="twitter:description" content="Completa tu vale de pedido en VOLXEN.">
 
-    <title>Registrar pedido - Volxen</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Inter+Tight:wght@300;400;500;600&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Inter+Tight:wght@300;400;500;600&display=swap" media="print" onload="this.media='all'">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="volxen-tailwind.js"></script>
 
-    <link
-        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Inter+Tight:wght@300;400;500;600&display=swap"
-        rel="stylesheet"
-    >
-
-    <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    >
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
 
     <link rel="stylesheet" href="volxen.css">
 </head>
 
 <body class="h-full bg-bg text-fg flex flex-col font-sans antialiased selection:bg-g selection:text-white" data-page="checkout">
 
-    <main class="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <a href="#main" class="skip-link">Saltar al contenido principal</a>
+
+    <main id="main" class="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div class="grid md:grid-cols-2 gap-8 items-start" id="checkoutGrid">
 
             <div class="bg-s2 border border-bd rounded-2xl shadow-sm p-6 sticky top-24">
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-xl font-bold text-fg">Resumen del pedido</h2>
-                    <span id="bd" class="bg-fg text-g text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">0</span>
+                    <span id="bd-cart" class="bg-fg text-g text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center" aria-live="polite" aria-atomic="true">0</span>
                 </div>
-                <div id="cl"></div>
-                <div class="tt" id="tt"></div>
-                <a class="sl btn-ghost mt-4 inline-block" href="carrito.html"><i class="fa-solid fa-pen mr-1"></i> Editar el pedido</a>
+                <div id="cl" role="list" aria-label="Productos en tu pedido"></div>
+                <div class="tt" id="tt" aria-live="polite"></div>
+                <a class="sl btn-ghost mt-4 inline-block" href="carrito.html"><i class="fa-solid fa-pen mr-1" aria-hidden="true"></i> Editar el pedido</a>
 
                 <!-- Trust indicators -->
                 <div class="mt-6 pt-4 border-t border-bd flex flex-col gap-3 text-sm text-mu" aria-label="Garantías">
-                    <div class="flex items-center gap-2"><i class="fa-solid fa-shield-halved text-g"></i><span>Garantía por escrito en cada equipo</span></div>
-                    <div class="flex items-center gap-2"><i class="fa-solid fa-truck-fast text-g"></i><span>Entrega coordinada en La Habana</span></div>
-                    <div class="flex items-center gap-2"><i class="fa-solid fa-headset text-g"></i><span>Tu asesor te contacta para confirmar</span></div>
-                    <div class="flex items-center gap-2"><i class="fa-solid fa-lock text-g"></i><span>Pago contra entrega (USD, EUR, CUP, Zelle)</span></div>
+                    <div class="flex items-center gap-2"><i class="fa-solid fa-shield-halved text-g" aria-hidden="true"></i><span>Garantía por escrito en cada equipo</span></div>
+                    <div class="flex items-center gap-2"><i class="fa-solid fa-truck-fast text-g" aria-hidden="true"></i><span>Entrega coordinada en La Habana</span></div>
+                    <div class="flex items-center gap-2"><i class="fa-solid fa-headset text-g" aria-hidden="true"></i><span>Tu asesor te contacta para confirmar</span></div>
+                    <div class="flex items-center gap-2"><i class="fa-solid fa-lock text-g" aria-hidden="true"></i><span>Pago contra entrega (USD, EUR, CUP, Zelle)</span></div>
                 </div>
             </div>
 
             <div class="bg-s2 border border-bd rounded-2xl shadow-sm p-6" id="cf" style="display:none;">
                 <div class="flex items-center justify-between mb-6">
                     <p class="ey">Vale de pedido</p>
-                    <span id="bd2" class="bg-fg text-g text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">0</span>
+                    <span id="bd-form" class="bg-fg text-g text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center" aria-live="polite" aria-atomic="true">0</span>
                 </div>
-                <div class="space-y-4">
-                    <input id="fn" class="input-base w-full" placeholder="Nombre y apellidos *" autocomplete="name" required>
-                    <input id="fd" class="input-base w-full" placeholder="Dirección completa (calle, número, entre calles) *" autocomplete="street-address" required>
-                    <div class="grid sm:grid-cols-2 gap-4">
-                        <input id="ft" type="tel" inputmode="tel" class="input-base w-full" placeholder="Teléfono *" autocomplete="tel" required>
-                        <input id="fe" type="email" class="input-base w-full" placeholder="Correo electrónico (opcional)" autocomplete="email">
+                <div class="space-y-4" role="form" aria-labelledby="form-title">
+                    <h3 id="form-title" class="sr-only">Formulario de pedido</h3>
+                    <div>
+                        <label for="fn" class="lb">Nombre y apellidos *</label>
+                        <input id="fn" class="input-base w-full" placeholder="Nombre y apellidos *" autocomplete="name" required aria-required="true">
                     </div>
-                    <label class="lb" for="fp">Municipio</label>
-                    <select id="fp" class="input-base w-full" required>
-                        <option value="" selected disabled>Seleccione su municipio</option>
-                        <option>Playa</option>
-                        <option>Plaza de la Revolución</option>
-                        <option>Centro Habana</option>
-                        <option>La Habana Vieja</option>
-                        <option>Regla</option>
-                        <option>La Habana del Este</option>
-                        <option>Guanabacoa</option>
-                        <option>San Miguel del Padrón</option>
-                        <option>Diez de Octubre</option>
-                        <option>Cerro</option>
-                        <option>Marianao</option>
-                        <option>La Lisa</option>
-                        <option>Boyeros</option>
-                        <option>Arroyo Naranjo</option>
-                        <option>Cotorro</option>
-                    </select>
+                    <div>
+                        <label for="fd" class="lb">Dirección completa *</label>
+                        <input id="fd" class="input-base w-full" placeholder="Dirección completa (calle, número, entre calles) *" autocomplete="street-address" required aria-required="true">
+                    </div>
+                    <div class="grid sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="ft" class="lb">Teléfono *</label>
+                            <input id="ft" type="tel" inputmode="tel" class="input-base w-full" placeholder="Teléfono *" autocomplete="tel" required aria-required="true">
+                        </div>
+                        <div>
+                            <label for="fe" class="lb">Correo electrónico</label>
+                            <input id="fe" type="email" class="input-base w-full" placeholder="Correo electrónico (opcional)" autocomplete="email">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="fp" class="lb">Municipio *</label>
+                        <select id="fp" class="input-base w-full" required aria-required="true">
+                            <option value="" selected disabled>Seleccione su municipio</option>
+                            <option>Playa</option>
+                            <option>Plaza de la Revolución</option>
+                            <option>Centro Habana</option>
+                            <option>La Habana Vieja</option>
+                            <option>Regla</option>
+                            <option>La Habana del Este</option>
+                            <option>Guanabacoa</option>
+                            <option>San Miguel del Padrón</option>
+                            <option>Diez de Octubre</option>
+                            <option>Cerro</option>
+                            <option>Marianao</option>
+                            <option>La Lisa</option>
+                            <option>Boyeros</option>
+                            <option>Arroyo Naranjo</option>
+                            <option>Cotorro</option>
+                        </select>
+                    </div>
                     <p class="nt text-xs">Por ahora solo entregamos en La Habana.</p>
-                    <label class="lb" for="fc">Carnet de identidad (opcional)</label>
-                    <input id="fc" inputmode="numeric" maxlength="13" autocomplete="off" class="input-base w-full" placeholder="11 dígitos">
-                    <textarea id="fo" class="input-base w-full" placeholder="Notas (opcional)" rows="3"></textarea>
-                    <p id="er" class="text-ox text-sm min-h-[20px]"></p>
-                    <button class="btn-primary w-full py-3 mt-2" data-a="send">Registrar pedido</button>
+                    <div>
+                        <label for="fc" class="lb">Carnet de identidad (opcional)</label>
+                        <input id="fc" inputmode="numeric" maxlength="13" autocomplete="off" class="input-base w-full" placeholder="11 dígitos" pattern="[0-9]{11}">
+                    </div>
+                    <div>
+                        <label for="fo" class="lb">Notas (opcional)</label>
+                        <textarea id="fo" class="input-base w-full" placeholder="Notas (opcional)" rows="3"></textarea>
+                    </div>
+                    <div id="er" class="text-ox text-sm min-h-[20px]" role="alert" aria-live="assertive" aria-atomic="true"></div>
+                    <button class="btn-primary w-full py-3 mt-2" data-a="send" type="button">Registrar pedido</button>
                 </div>
             </div>
 

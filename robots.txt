@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://volxen.com/sitemap.xml
+
+# Disallow private/admin areas
+Disallow: /admin.html
+Disallow: /scripts/
+Disallow: /.agents/
+Disallow: /.opencode/

@@ -3,28 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Catálogo completo de VOLXEN. Explora electrodomésticos, climatización, energía solar, línea de cocina y más. Entrega en La Habana, pago contra entrega, garantía por escrito.">
+    <meta name="theme-color" content="#C8A165">
+    <meta property="og:title" content="Catálogo de Productos - VOLXEN">
+    <meta property="og:description" content="Explora nuestro catálogo completo de tecnología y energía. Electrodomésticos, climatización, energía solar, línea de cocina. Entrega en La Habana.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://volxen.com/catalogo.html">
+    <meta property="og:image" content="https://volxen.com/logo-light.svg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Catálogo de Productos - VOLXEN">
+    <meta name="twitter:description" content="Explora nuestro catálogo completo de tecnología y energía.">
+    <link rel="canonical" href="https://volxen.com/catalogo.html">
 
-    <title>Catálogo - Volxen</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Inter+Tight:wght@300;400;500;600&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Inter+Tight:wght@300;400;500;600&display=swap" media="print" onload="this.media='all'">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="volxen-tailwind.js"></script>
 
-    <link
-        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Inter+Tight:wght@300;400;500;600&display=swap"
-        rel="stylesheet"
-    >
-
-    <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    >
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
 
     <link rel="stylesheet" href="volxen.css">
 </head>
 
 <body class="h-full bg-bg text-fg flex flex-col font-sans antialiased selection:bg-g selection:text-white" data-page="catalogo">
 
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+    <a href="#main" class="skip-link">Saltar al contenido principal</a>
+
+    <main id="main" class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
         <section id="catalogo" class="space-y-6 scroll-mt-44">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-bd pb-4">
@@ -52,22 +62,33 @@
             <article class="skeleton-card" aria-hidden="true"><div class="skeleton skeleton-img"></div><div class="skeleton-body"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-text short"></div><div class="skeleton skeleton-price"></div><div class="skeleton skeleton-btn"></div></div></article>
             <article class="skeleton-card" aria-hidden="true"><div class="skeleton skeleton-img"></div><div class="skeleton-body"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-text short"></div><div class="skeleton skeleton-price"></div><div class="skeleton skeleton-btn"></div></div></article>
             <article class="skeleton-card" aria-hidden="true"><div class="skeleton skeleton-img"></div><div class="skeleton-body"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-text short"></div><div class="skeleton skeleton-price"></div><div class="skeleton skeleton-btn"></div></div></article>
-        </div>
+            </div>
 
             <div id="emptyState" class="hidden flex flex-col items-center justify-center py-16 text-center bg-s2 rounded-3xl border border-bd shadow-sm">
                 <div class="w-16 h-16 bg-sf rounded-full flex items-center justify-center text-mu text-2xl mb-4">
-                    <i class="fa-solid fa-box-open"></i>
+                    <i class="fa-solid fa-box-open" aria-hidden="true"></i>
                 </div>
                 <h3 class="text-lg font-bold text-fg">No encontramos resultados.</h3>
                 <p class="text-mu text-sm max-w-sm mt-1">Prueba otra búsqueda o consulta a nuestra operadora.</p>
                 <div class="mt-4 flex flex-wrap items-center justify-center gap-3">
-                    <a href="#operadoras" class="btn-secondary text-xs font-bold transition flex items-center space-x-2"><i class="fa-brands fa-whatsapp"></i><span>Consultar a una operadora</span></a>
+                    <a href="#operadoras" class="btn-secondary text-xs font-bold transition flex items-center space-x-2"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i><span>Consultar a una operadora</span></a>
                     <button data-reset="1" class="btn-primary text-xs font-bold">Ver todos los productos</button>
                 </div>
             </div>
         </section>
 
     </main>
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        "name": "Catálogo de Productos VOLXEN",
+        "description": "Catálogo completo de productos de tecnología y energía",
+        "numberOfItems": 0,
+        "itemListElement": []
+    }
+    </script>
 
     <script src="config.js"></script>
     <script src="volxen-core.js"></script>

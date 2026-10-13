@@ -27,15 +27,23 @@ function toast(t, type = "info") {
     e.textContent = t;
     e.className = "on";
     if (type === "error") e.classList.add("toast-error");
+    e.setAttribute("role", "status");
+    e.setAttribute("aria-live", type === "error" ? "assertive" : "polite");
+    e.setAttribute("aria-atomic", "true");
     clearTimeout(toast.t);
     toast.t = setTimeout(() => e.classList.remove("on"), type === "error" ? 5000 : 2000);
 }
 
 function bd() {
-    const n = Object.values(K).reduce((a, b) => a + b, 0), b = $("bd");
-    if (!b) return;
-    b.textContent = n;
-    b.style.display = n ? "flex" : "none";
+    const n = Object.values(K).reduce((a, b) => a + b, 0);
+    const badges = ["bd", "bd-cart", "bd-form", "bd2"];
+    badges.forEach(id => {
+        const b = $(id);
+        if (b) {
+            b.textContent = n;
+            b.style.display = n ? "flex" : "none";
+        }
+    });
 }
 
 function sv() {
@@ -68,11 +76,29 @@ function show(id) {
     document.body.style.overflow = "hidden";
     o.scrollTop = 0;
     requestAnimationFrame(() => o.classList.add("on"));
+    // Focus trap for accessibility
+    const focusable = o.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    if (focusable.length) {
+        focusable[0].focus();
+        o._firstFocusable = focusable[0];
+        o._lastFocusable = focusable[focusable.length - 1];
+        o._keydownHandler = (e) => {
+            if (e.key === "Tab") {
+                if (e.shiftKey && document.activeElement === o._firstFocusable) {
+                    e.preventDefault(); o._lastFocusable.focus();
+                } else if (!e.shiftKey && document.activeElement === o._lastFocusable) {
+                    e.preventDefault(); o._firstFocusable.focus();
+                }
+            }
+        };
+        o.addEventListener("keydown", o._keydownHandler);
+    }
 }
 
 function hide() {
     document.querySelectorAll(".ov.on").forEach(o => {
         o.classList.remove("on");
+        if (o._keydownHandler) o.removeEventListener("keydown", o._keydownHandler);
         setTimeout(() => { if (!o.classList.contains("on")) o.style.display = "none"; }, 300);
     });
     document.body.style.overflow = "";
@@ -213,6 +239,9 @@ function cqAviso(t) {
     const a = $("av"); if (!a) return;
     clearTimeout(cqAt);
     a.innerHTML = '<b>Recibimos su ' + (t === "consulta" ? "consulta" : "incidencia") + '</b><p>Un asesor se comunicará con usted por el teléfono o correo que indicó. No necesita hacer nada más: puede ver el estado cuando quiera en «Ver seguimiento».</p><button data-a="cqseg" style="min-height:44px;margin-top:6px;color:var(--g);font:500 10px var(--s);letter-spacing:.28em;text-transform:uppercase">Ver seguimiento</button><i></i>';
+    a.setAttribute("role", "status");
+    a.setAttribute("aria-live", "polite");
+    a.setAttribute("aria-atomic", "true");
     a.classList.add("on");
     cqAt = setTimeout(() => a.classList.remove("on"), 5000);
 }

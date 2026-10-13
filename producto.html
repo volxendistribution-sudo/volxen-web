@@ -3,30 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Ver detalles del producto en VOLXEN. Tecnología y energía en Cuba. Precio, características, garantía, transporte y disponibilidad.">
+    <meta name="theme-color" content="#C8A165">
+    <meta property="og:title" content="Producto - VOLXEN">
+    <meta property="og:description" content="Ver detalles del producto en VOLXEN. Tecnología y energía en Cuba.">
+    <meta property="og:type" content="product">
+    <meta property="og:url" content="https://volxen.com/producto.html">
+    <meta property="og:image" content="https://volxen.com/logo-light.svg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Producto - VOLXEN">
+    <meta name="twitter:description" content="Ver detalles del producto en VOLXEN. Tecnología y energía en Cuba.">
+    <link rel="canonical" href="https://volxen.com/producto.html">
 
-    <title>Producto - Volxen</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Inter+Tight:wght@300;400;500;600&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Inter+Tight:wght@300;400;500;600&display=swap" media="print" onload="this.media='all'">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="volxen-tailwind.js"></script>
 
-    <link
-        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Inter+Tight:wght@300;400;500;600&display=swap"
-        rel="stylesheet"
-    >
-
-    <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    >
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
 
     <link rel="stylesheet" href="volxen.css">
 </head>
 
 <body class="h-full bg-bg text-fg flex flex-col font-sans antialiased selection:bg-g selection:text-white" data-page="producto">
 
-    <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <a href="#main" class="skip-link">Saltar al contenido principal</a>
+
+    <main id="main" class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <a href="catalogo.html" class="lb btn-ghost inline-flex items-center gap-2" style="min-height:44px">
-            <i class="fa-solid fa-arrow-left"></i> Volver al catálogo
+            <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Volver al catálogo
         </a>
         <div id="prod" class="mt-6"></div>
     </main>
@@ -99,6 +109,9 @@
                         categoryBadge + titleHtml + priceDisplay + descHtml + specsHtml + garantiaHtml + transporteHtml +
                         actionHtml + waLink +
                         '</div></div>';
+
+                    // Inyectar JSON-LD Product
+                    injectProductJsonLd(p, ims[0]);
                 }
                 render();
 
@@ -112,6 +125,34 @@
                 });
             });
         })();
+
+        function injectProductJsonLd(product, image) {
+            var script = document.createElement('script');
+            script.type = 'application/ld+json';
+            var price = product.precio_usd || 0;
+            var offerPrice = VX.getO()[product.id] || price;
+            var inStock = product.disponibilidad !== "agotado";
+            var jsonLd = {
+                "@context": "https://schema.org",
+                "@type": "Product",
+                "name": product.nombre,
+                "description": product.descripcion || "Producto de tecnología y energía en VOLXEN Cuba",
+                "image": image || "https://volxen.com/logo-light.svg",
+                "brand": { "@type": "Brand", "name": "VOLXEN" },
+                "sku": product.id,
+                "offers": {
+                    "@type": "Offer",
+                    "url": window.location.href,
+                    "priceCurrency": "USD",
+                    "price": offerPrice.toFixed(2),
+                    "availability": inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+                    "seller": { "@type": "Organization", "name": "VOLXEN Comercializadora Cuba" }
+                }
+            };
+            if (product.garantia) jsonLd.warranty = product.garantia;
+            script.textContent = JSON.stringify(jsonLd);
+            document.head.appendChild(script);
+        }
     </script>
 </body>
 </html>
