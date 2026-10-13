@@ -873,6 +873,104 @@
     .pb .on { color: var(--g); }
     .pb .on i { background: var(--g); }
 
+    /* ===== Stepper visual checkout ===== */
+    .stepper {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+    .stepper::before {
+        content: '';
+        position: absolute;
+        top: 1.25rem;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--bd);
+        z-index: 1;
+    }
+    .stepper-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+        z-index: 2;
+        flex: 1;
+    }
+    .stepper-circle {
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 50%;
+        background: var(--s2);
+        border: 2px solid var(--bd);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font: 700 1rem var(--d);
+        color: var(--mu);
+        transition: all 0.3s var(--e);
+    }
+    .stepper-step.active .stepper-circle {
+        background: var(--g);
+        border-color: var(--g);
+        color: var(--fg);
+        box-shadow: 0 0 0 4px rgba(200,161,101,.2);
+    }
+    .stepper-step.completed .stepper-circle {
+        background: var(--g);
+        border-color: var(--g);
+        color: var(--s2);
+    }
+    .stepper-step.completed .stepper-circle::before {
+        content: '\f00c';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+    }
+    .stepper-label {
+        margin-top: 0.5rem;
+        font: 500 0.75rem var(--s);
+        color: var(--mu);
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    .stepper-step.active .stepper-label {
+        color: var(--g);
+        font-weight: 600;
+    }
+    .stepper-step.completed .stepper-label {
+        color: var(--g);
+    }
+    .stepper-connector {
+        flex: 1;
+        height: 2px;
+        background: var(--bd);
+        margin-top: 1.25rem;
+        position: relative;
+        z-index: 1;
+    }
+    .stepper-step.completed + .stepper-connector {
+        background: var(--g);
+    }
+
+    /* Mobile stepper adjustments */
+    @media (max-width: 640px) {
+        .stepper {
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .stepper::before {
+            display: none;
+        }
+        .stepper-step {
+            flex: 0 0 calc(50% - 0.5rem);
+        }
+        .stepper-connector {
+            display: none;
+        }
+    }
+
     /* ===== Timeline ===== */
     .tl { margin-top: 1.5rem; border-left: 2px solid var(--gl); padding-left: 1rem; }
     .tl p { position: relative; margin-top: 1rem; padding-left: 0.5rem; }
