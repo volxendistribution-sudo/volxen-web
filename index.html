@@ -24,95 +24,89 @@
 
 <body class="h-full bg-bg text-fg flex flex-col font-sans antialiased selection:bg-g selection:text-white" data-page="inicio">
 
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-10">
 
-        <section class="relative bg-gradient-to-r from-s2 via-bg to-sf rounded-3xl overflow-hidden shadow-sm border border-bd text-fg p-6 sm:p-12 flex flex-col md:flex-row items-center justify-between gap-8">
-
-            <div class="max-w-xl space-y-4">
+        <!-- Hero compacto -->
+        <section class="relative bg-gradient-to-r from-s2 via-bg to-sf rounded-3xl overflow-hidden shadow-sm border border-bd text-fg p-5 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="max-w-xl space-y-3">
                 <span class="bg-g/10 text-g border border-g/30 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">
                     Comercializadora de tecnología y energía en Cuba
                 </span>
 
-                <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight">
+                <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight">
                     Conoce <span class="text-g">VOLXEN</span>
                 </h1>
 
                 <p class="text-mu text-sm sm:text-base max-w-lg">
-                    VOLXEN es una comercializadora que acerca a sus clientes productos de diferentes categorías a través de una red de proveedores y gestores de venta.
+                    Tecnología y energía para tu hogar. Catálogo curado, precios transparentes, asesor personal.
                 </p>
 
-                <div class="flex flex-wrap gap-4 pt-2">
+                <div class="flex flex-wrap gap-3 pt-1">
                     <a href="catalogo.html"
-                        class="btn-primary hover:bg-g-hover hover:text-fg font-bold px-6 py-3 rounded-xl transition shadow-lg flex items-center space-x-2">
-                        <span>Explorar productos</span>
+                        class="btn-primary hover:bg-g-hover hover:text-fg font-bold px-5 py-2.5 rounded-xl transition shadow-lg flex items-center space-x-2 text-sm">
+                        <span>Ver catálogo</span>
                         <i class="fa-solid fa-arrow-right"></i>
                     </a>
 
                     <a href="pedidos.html"
-                        class="btn-secondary font-medium px-6 py-3 rounded-xl transition flex items-center space-x-2">
+                        class="btn-secondary font-medium px-5 py-2.5 rounded-xl transition flex items-center space-x-2 text-sm">
                         <i class="fa-solid fa-box mr-1 text-g"></i>
-                        <span>Rastrear mi Pedido</span>
+                        <span>Rastrear pedido</span>
                     </a>
-                </div>
-
-                <!-- Trust indicators -->
-                <div class="flex flex-wrap gap-6 pt-4 border-t border-bd/50" aria-label="Indicadores de confianza">
-                    <div class="flex items-center space-x-2 text-sm text-mu">
-                        <i class="fa-solid fa-shield-halved text-g"></i>
-                        <span>Garantía por escrito</span>
-                    </div>
-                    <div class="flex items-center space-x-2 text-sm text-mu">
-                        <i class="fa-solid fa-truck-fast text-g"></i>
-                        <span>Entrega en La Habana</span>
-                    </div>
-                    <div class="flex items-center space-x-2 text-sm text-mu">
-                        <i class="fa-solid fa-headset text-g"></i>
-                        <span>Asesor personal</span>
-                    </div>
-                    <div class="flex items-center space-x-2 text-sm text-mu">
-                        <i class="fa-solid fa-lock text-g"></i>
-                        <span>Pago contra entrega</span>
-                    </div>
                 </div>
             </div>
 
-            <div class="w-full md:w-auto bg-s2/90 backdrop-blur border border-bd p-6 rounded-2xl shadow-2xl flex flex-col space-y-4 min-w-[280px]">
-                <div class="flex items-center justify-between border-b border-bd pb-3">
+            <div class="w-full md:w-auto bg-s2/90 backdrop-blur border border-bd p-5 rounded-2xl shadow-xl flex flex-col space-y-3 min-w-[260px]">
+                <div class="flex items-center justify-between border-b border-bd pb-2">
                     <span class="text-xs text-mu font-medium uppercase tracking-wider">
                         Nuestro compromiso
                     </span>
                 </div>
-
-                <div class="space-y-3 text-sm">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-8 h-8 rounded-lg bg-g/10 text-g flex items-center justify-center font-bold">
-                            <i class="fa-solid fa-check"></i>
-                        </div>
-                        <div>
-                            <p class="font-semibold text-fg">Información clara</p>
-                            <p class="text-xs text-mu">Conoce las condiciones de tu compra antes de confirmarla.</p>
-                        </div>
+                <div class="space-y-2 text-sm">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-7 h-7 rounded-lg bg-g/10 text-g flex items-center justify-center"><i class="fa-solid fa-shield-halved text-xs"></i></div>
+                        <div><p class="font-semibold text-fg">Garantía por escrito</p><p class="text-xs text-mu">En cada equipo</p></div>
                     </div>
-
-                    <div class="flex items-center space-x-3"><div class="w-8 h-8 rounded-lg bg-g/10 text-g flex items-center justify-center font-bold"><i class="fa-solid fa-check"></i></div>
-                        <div>
-                            <p class="font-semibold text-fg">Atención personalizada</p>
-                            <p class="text-xs text-mu">Consulta tus dudas con una operadora de VOLXEN.</p>
-                        </div>
+                    <div class="flex items-center space-x-2"><div class="w-7 h-7 rounded-lg bg-g/10 text-g flex items-center justify-center"><i class="fa-solid fa-truck-fast text-xs"></i></div>
+                        <div><p class="font-semibold text-fg">Entrega en La Habana</p><p class="text-xs text-mu">Coordinada contigo</p></div>
                     </div>
-                    <div class="flex items-center space-x-3">
-                        <div class="w-8 h-8 rounded-lg bg-g/10 text-g flex items-center justify-center font-bold"><i class="fa-solid fa-check"></i></div>
-                        <div>
-                            <p class="font-semibold text-fg">Condiciones transparentes</p>
-                            <p class="text-xs text-mu">Precio, disponibilidad y entrega según cada producto.</p>
-                        </div>
+                    <div class="flex items-center space-x-2"><div class="w-7 h-7 rounded-lg bg-g/10 text-g flex items-center justify-center"><i class="fa-solid fa-headset text-xs"></i></div>
+                        <div><p class="font-semibold text-fg">Asesor personal</p><p class="text-xs text-mu">Te contacta para confirmar</p></div>
+                    </div>
+                    <div class="flex items-center space-x-2"><div class="w-7 h-7 rounded-lg bg-g/10 text-g flex items-center justify-center"><i class="fa-solid fa-lock text-xs"></i></div>
+                        <div><p class="font-semibold text-fg">Pago contra entrega</p><p class="text-xs text-mu">USD, EUR, CUP, Zelle</p></div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section id="of" class="space-y-6 scroll-mt-44" hidden>
-            <div class="border-b border-bd pb-4"><p class="text-xs font-semibold uppercase tracking-wider text-g">Ofertas</p><h2 class="text-2xl font-bold text-fg">Precios especiales</h2></div>
+        <!-- Productos Destacados (visibles inmediatamente) -->
+        <section id="destacados" class="space-y-6 scroll-mt-44">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-bd pb-4">
+                <div>
+                    <h2 class="text-xl sm:text-2xl font-bold text-fg">Productos Destacados</h2>
+                    <p class="text-sm text-mu">Nuestra selección de la semana</p>
+                </div>
+                <a href="catalogo.html" class="btn-secondary text-sm shrink-0"><i class="fa-solid fa-arrow-right mr-1"></i> Ver todo</a>
+            </div>
+            <div id="dg" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" role="list" aria-label="Productos destacados">
+                <!-- Skeletons mientras cargan -->
+                <article class="skeleton-card" aria-hidden="true"><div class="skeleton skeleton-img"></div><div class="skeleton-body"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-text short"></div><div class="skeleton skeleton-price"></div><div class="skeleton skeleton-btn"></div></div></article>
+                <article class="skeleton-card" aria-hidden="true"><div class="skeleton skeleton-img"></div><div class="skeleton-body"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-text short"></div><div class="skeleton skeleton-price"></div><div class="skeleton skeleton-btn"></div></div></article>
+                <article class="skeleton-card" aria-hidden="true"><div class="skeleton skeleton-img"></div><div class="skeleton-body"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-text short"></div><div class="skeleton skeleton-price"></div><div class="skeleton skeleton-btn"></div></div></article>
+                <article class="skeleton-card" aria-hidden="true"><div class="skeleton skeleton-img"></div><div class="skeleton-body"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-text short"></div><div class="skeleton skeleton-price"></div><div class="skeleton skeleton-btn"></div></div></article>
+            </div>
+        </section>
+
+        <!-- Ofertas (siempre visible) -->
+        <section id="of" class="space-y-6 scroll-mt-44">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-bd pb-4">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-g">Ofertas</p>
+                    <h2 class="text-xl sm:text-2xl font-bold text-fg">Precios especiales</h2>
+                </div>
+                <a href="catalogo.html" class="btn-secondary text-sm shrink-0"><i class="fa-solid fa-arrow-right mr-1"></i> Ver todo</a>
+            </div>
             <div id="og" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" role="list" aria-label="Productos en oferta">
                 <article class="skeleton-card" aria-hidden="true"><div class="skeleton skeleton-img"></div><div class="skeleton-body"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-text short"></div><div class="skeleton skeleton-price"></div><div class="skeleton skeleton-btn"></div></div></article>
                 <article class="skeleton-card" aria-hidden="true"><div class="skeleton skeleton-img"></div><div class="skeleton-body"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-text short"></div><div class="skeleton skeleton-price"></div><div class="skeleton skeleton-btn"></div></div></article>
@@ -121,199 +115,56 @@
             </div>
         </section>
 
-        <section id="comoTrabajamos" class="space-y-6 pt-6">
-            <div class="border-b border-bd pb-4">
-                <h2 class="text-2xl font-bold text-fg">Cómo trabajamos</h2>
-                <p class="text-sm text-mu">Trabajamos para ofrecer un proceso de compra organizado, una atención cercana y una comunicación clara desde la consulta inicial hasta la coordinación de la entrega.</p>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div class="bg-sf p-6 rounded-2xl border border-bd shadow-sm flex items-start space-x-4">
-                <div class="w-12 h-12 rounded-full bg-bg text-g flex items-center justify-center text-xl shrink-0 font-bold">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                </div>
+        <!-- Categorías principales -->
+        <section id="cats" class="space-y-6 pt-2 scroll-mt-44">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-bd pb-4">
                 <div>
-                    <p class="text-[10px] font-bold uppercase tracking-wider text-g">Paso 1</p>
-                    <h3 class="font-bold text-fg text-base">Encuentra el producto</h3>
-                    <p class="text-xs text-mu mt-1">El cliente explora el catálogo de VOLXEN y selecciona el producto que le interesa.</p>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-g">Categorías</p>
+                    <h2 class="text-xl sm:text-2xl font-bold text-fg">Explora por departamento</h2>
                 </div>
             </div>
-            <div class="bg-sf p-6 rounded-2xl border border-bd shadow-sm flex items-start space-x-4">
-                <div class="w-12 h-12 rounded-full bg-bg text-g flex items-center justify-center text-xl shrink-0 font-bold">
-                    <i class="fa-solid fa-circle-info"></i>
-                </div>
-                <div>
-                    <p class="text-[10px] font-bold uppercase tracking-wider text-g">Paso 2</p>
-                    <h3 class="font-bold text-fg text-base">Consulta la información</h3>
-                    <p class="text-xs text-mu mt-1">El cliente puede consultar el precio, las características, la disponibilidad y las condiciones particulares del producto.</p>
-                </div>
-            </div>
-            <div class="bg-sf p-6 rounded-2xl border border-bd shadow-sm flex items-start space-x-4">
-                <div class="w-12 h-12 rounded-full bg-bg text-g flex items-center justify-center text-xl shrink-0 font-bold">
-                    <i class="fa-solid fa-cart-plus"></i>
-                </div>
-                <div>
-                    <p class="text-[10px] font-bold uppercase tracking-wider text-g">Paso 3</p>
-                    <h3 class="font-bold text-fg text-base">Encarga el producto</h3>
-                    <p class="text-xs text-mu mt-1">Cuando el cliente decide continuar, inicia el proceso de pedido mediante el mecanismo habilitado en la web.</p>
-                </div>
-            </div>
-            <div class="bg-sf p-6 rounded-2xl border border-bd shadow-sm flex items-start space-x-4">
-                <div class="w-12 h-12 rounded-full bg-bg text-g flex items-center justify-center text-xl shrink-0 font-bold">
-                    <i class="fa-solid fa-file-lines"></i>
-                </div>
-                <div>
-                    <p class="text-[10px] font-bold uppercase tracking-wider text-g">Paso 4</p>
-                    <h3 class="font-bold text-fg text-base">Completa el vale de venta</h3>
-                    <p class="text-xs text-mu mt-1">Después de encargar el producto, el cliente completa un formulario con sus datos y la información necesaria para tramitar el pedido.</p>
-                </div>
-            </div>
-            <div class="bg-sf p-6 rounded-2xl border border-bd shadow-sm flex items-start space-x-4">
-                <div class="w-12 h-12 rounded-full bg-bg text-g flex items-center justify-center text-xl shrink-0 font-bold">
-                    <i class="fa-solid fa-clipboard-check"></i>
-                </div>
-                <div>
-                    <p class="text-[10px] font-bold uppercase tracking-wider text-g">Paso 5</p>
-                    <h3 class="font-bold text-fg text-base">Confirmamos los detalles</h3>
-                    <p class="text-xs text-mu mt-1">VOLXEN revisa la información y coordina con el cliente la confirmación del producto, el precio y las condiciones de la operación.</p>
-                </div>
-            </div>
-            <div class="bg-sf p-6 rounded-2xl border border-bd shadow-sm flex items-start space-x-4">
-                <div class="w-12 h-12 rounded-full bg-bg text-g flex items-center justify-center text-xl shrink-0 font-bold">
-                    <i class="fa-solid fa-truck"></i>
-                </div>
-                <div>
-                    <p class="text-[10px] font-bold uppercase tracking-wider text-g">Paso 6</p>
-                    <h3 class="font-bold text-fg text-base">Coordinamos la entrega</h3>
-                    <p class="text-xs text-mu mt-1">Según el producto y las condiciones acordadas, se coordina la entrega mediante mensajería o la recogida en el local correspondiente.</p>
-                </div>
-            </div>
-            <div class="bg-sf p-6 rounded-2xl border border-bd shadow-sm flex items-start space-x-4"><div class="w-12 h-12 rounded-full bg-bg text-g flex items-center justify-center text-xl shrink-0 font-bold">
-                    <i class="fa-solid fa-box-open"></i>
-                </div>
-                <div>
-                    <p class="text-[10px] font-bold uppercase tracking-wider text-g">Paso 7</p>
-                    <h3 class="font-bold text-fg text-base">Recibe tu producto</h3>
-                    <p class="text-xs text-mu mt-1">El cliente recibe el producto o lo recoge según la modalidad acordada y las instrucciones confirmadas para su pedido.</p>
-                </div>
-            </div>
+            <div id="catGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4" role="list" aria-label="Categorías">
+                <!-- Se llena dinámicamente desde volxen-core.js -->
             </div>
         </section>
 
-        <section id="condiciones" class="space-y-6 pt-2">
+        <!-- Cómo trabajamos (compacto) -->
+        <section id="comoTrabajamos" class="space-y-6 pt-2">
             <div class="border-b border-bd pb-4">
-                <h2 class="text-2xl font-bold text-fg">Condiciones de compra</h2>
-                <p class="text-sm text-mu">En VOLXEN, cada producto puede tener condiciones particulares de precio, disponibilidad, garantía y entrega. Por eso, confirmamos la información correspondiente a cada pedido antes de darlo por cerrado.</p>
+                <h2 class="text-xl sm:text-2xl font-bold text-fg">Cómo trabajamos</h2>
+                <p class="text-sm text-mu">Proceso claro, sin sorpresas, con asesor personal en cada paso.</p>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-sf p-6 rounded-2xl border border-bd shadow-sm flex items-start space-x-4">
-                    <div class="w-12 h-12 rounded-full bg-bg text-g flex items-center justify-center text-xl shrink-0 font-bold">
-                        <i class="fa-solid fa-tag"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-fg text-base">Precio y disponibilidad</h3>
-                        <p class="text-xs text-mu mt-1">Los precios y la disponibilidad deben verificarse para cada producto y pedido.</p>
-                    </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-sf p-5 rounded-2xl border border-bd shadow-sm flex items-start space-x-3">
+                    <div class="w-10 h-10 rounded-full bg-bg text-g flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-magnifying-glass"></i></div>
+                    <div><p class="text-[10px] font-bold uppercase tracking-wider text-g">1. Busca</p><h3 class="font-bold text-fg text-sm">Encuentra tu producto</h3><p class="text-xs text-mu mt-1">Explora el catálogo y selecciona.</p></div>
                 </div>
-                <div class="bg-sf p-6 rounded-2xl border border-bd shadow-sm flex items-start space-x-4">
-                    <div class="w-12 h-12 rounded-full bg-bg text-g flex items-center justify-center text-xl shrink-0 font-bold">
-                        <i class="fa-solid fa-shield-halved"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-fg text-base">Garantía</h3>
-                        <p class="text-xs text-mu mt-1">Las condiciones de garantía dependen del producto y de lo indicado para cada artículo.</p>
-                    </div>
+                <div class="bg-sf p-5 rounded-2xl border border-bd shadow-sm flex items-start space-x-3">
+                    <div class="w-10 h-10 rounded-full bg-bg text-g flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-circle-info"></i></div>
+                    <div><p class="text-[10px] font-bold uppercase tracking-wider text-g">2. Consulta</p><h3 class="font-bold text-fg text-sm">Revisa detalles</h3><p class="text-xs text-mu mt-1">Precio, specs, disponibilidad, garantía.</p></div>
                 </div>
-                <div class="bg-sf p-6 rounded-2xl border border-bd shadow-sm flex items-start space-x-4">
-                    <div class="w-12 h-12 rounded-full bg-bg text-g flex items-center justify-center text-xl shrink-0 font-bold">
-                        <i class="fa-solid fa-truck-fast"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-fg text-base">Entrega</h3>
-                        <p class="text-xs text-mu mt-1">La modalidad, el coste y las condiciones de entrega se comunican según las características de cada operación.</p>
-                    </div>
+                <div class="bg-sf p-5 rounded-2xl border border-bd shadow-sm flex items-start space-x-3">
+                    <div class="w-10 h-10 rounded-full bg-bg text-g flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-cart-plus"></i></div>
+                    <div><p class="text-[10px] font-bold uppercase tracking-wider text-g">3. Encarga</p><h3 class="font-bold text-fg text-sm">Añade al carrito</h3><p class="text-xs text-mu mt-1">Y continúa al vale de pedido.</p></div>
                 </div>
-                <div class="bg-sf p-6 rounded-2xl border border-bd shadow-sm flex items-start space-x-4">
-                    <div class="w-12 h-12 rounded-full bg-bg text-g flex items-center justify-center text-xl shrink-0 font-bold">
-                        <i class="fa-solid fa-money-bill-transfer"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-fg text-base">Mensajería y costes de entrega</h3>
-                        <p class="text-xs text-mu mt-1">El servicio de mensajería y su coste pueden variar según el producto, la ubicación y las condiciones de entrega. Cuando corresponda, el coste de mensajería se comunica al cliente por WhatsApp o correo electrónico para que pueda conocerlo antes de confirmar las condiciones finales del pedido.</p>
-                    </div>
-                </div>
-                <div class="bg-sf p-6 rounded-2xl border border-bd shadow-sm flex items-start space-x-4">
-                    <div class="w-12 h-12 rounded-full bg-bg text-g flex items-center justify-center text-xl shrink-0 font-bold">
-                        <i class="fa-solid fa-headset"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-fg text-base">Atención al cliente</h3>
-                        <p class="text-xs text-mu mt-1">El cliente puede comunicarse con una operadora de VOLXEN para consultar productos, resolver dudas y recibir orientación durante el proceso de compra.</p>
-                    </div>
-                </div>
-                <div class="bg-sf p-6 rounded-2xl border border-bd shadow-sm flex items-start space-x-4">
-                    <div class="w-12 h-12 rounded-full bg-bg text-g flex items-center justify-center text-xl shrink-0 font-bold">
-                        <i class="fa-solid fa-eye"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-fg text-base">Transparencia</h3>
-                        <p class="text-xs text-mu mt-1">Antes de confirmar la operación, el cliente debe conocer el precio aplicable, la disponibilidad y las condiciones relevantes de su pedido.</p>
-                    </div>
+                <div class="bg-sf p-5 rounded-2xl border border-bd shadow-sm flex items-start space-x-3">
+                    <div class="w-10 h-10 rounded-full bg-bg text-g flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-truck"></i></div>
+                    <div><p class="text-[10px] font-bold uppercase tracking-wider text-g">4. Recibe</p><h3 class="font-bold text-fg text-sm">Entrega coordinada</h3><p class="text-xs text-mu mt-1">Tu asesor confirma todo antes.</p></div>
                 </div>
             </div>
         </section>
 
-        <section id="faq" class="space-y-6 pt-2 scroll-mt-44">
-            <div class="border-b border-bd pb-4">
-                <p class="text-xs font-semibold uppercase tracking-wider text-g">Información</p>
-                <h2 class="text-2xl font-bold text-fg">Todo claro antes de confirmar</h2>
-                <p class="text-sm text-mu">Preferimos la transparencia antes de cerrar. Si queda alguna duda, consulte con su asesor.</p>
-            </div>
-            <div class="grid md:grid-cols-2 gap-4">
-                <div class="bg-s2 rounded-2xl border border-bd p-5">
-                    <h3 class="font-bold text-fg text-sm sm:text-base">¿En qué zonas entregan?</h3>
-                    <p class="text-sm text-mu mt-2">La entrega está incluida en Centro Habana, Habana Vieja, Vedado, Diez de Octubre, Marianao y Playa. Otros municipios se coordinan con mensajería y el costo se confirma antes de cerrar el pedido.</p>
-                </div>
-                <div class="bg-s2 rounded-2xl border border-bd p-5">
-                    <h3 class="font-bold text-fg text-sm sm:text-base">¿Cómo puedo pagar?</h3>
-                    <p class="text-sm text-mu mt-2">Se acepta USD, EUR, CUP y Zelle según disponibilidad. No hay pago en línea: su asesor confirma la forma de pago antes de la entrega.</p>
-                </div>
-                <div class="bg-s2 rounded-2xl border border-bd p-5">
-                    <h3 class="font-bold text-fg text-sm sm:text-base">¿Los equipos tienen garantía?</h3>
-                    <p class="text-sm text-mu mt-2">Sí. Cada equipo lleva respaldo posventa por escrito; el plazo aparece en la ficha de la pieza cuando aplica.</p>
-                </div>
-                <div class="bg-s2 rounded-2xl border border-bd p-5">
-                    <h3 class="font-bold text-fg text-sm sm:text-base">¿Aceptan devoluciones?</h3>
-                    <p class="text-sm text-mu mt-2">No hay devoluciones salvo por garantía. Revise medidas y especificaciones antes de confirmar, e inspeccione el equipo al recibirlo.</p>
-                </div>
-                <div class="bg-s2 rounded-2xl border border-bd p-5">
-                    <h3 class="font-bold text-fg text-sm sm:text-base">¿Necesito crear una cuenta para pedir?</h3>
-                    <p class="text-sm text-mu mt-2">No. Arme su pedido en el sitio, regístrelo con sus datos y reciba un código para dar seguimiento con su asesor.</p>
-                </div>
-            </div>
-        </section>
-
-        <section id="quienes-somos" class="space-y-6 pt-2 scroll-mt-44">
-            <div class="border-b border-bd pb-4">
-                <p class="text-xs font-semibold uppercase tracking-wider text-g">Volxen</p>
-                <h2 class="text-2xl font-bold text-fg">Quiénes somos</h2>
-            </div>
-            <div class="bg-s2 rounded-3xl border border-bd shadow-sm p-6 sm:p-8 space-y-4 text-sm sm:text-base text-mu max-w-3xl">
-                <p>Volxen es una casa de comercialización de tecnología y energía con sede en La Habana. Seleccionamos cada equipo con criterio propio y lo exhibimos como una colección reducida: climatización, energía portátil, paneles solares y línea de cocina, listos para entregar en la capital.</p>
-                <p>No trabajamos con pago en línea. Usted arma su pedido en el sitio y lo confirma en una conversación personal con su asesor, quien verifica disponibilidad, precio final, forma de pago y fecha de entrega antes de cualquier compromiso.</p>
-                <p>Cada equipo se entrega con respaldo posventa por escrito, según las condiciones propias del producto. Si algo no corresponde con lo acordado, lo atendemos directamente con usted.</p>
-            </div>
-        </section>
-
+        <!-- Contacto operadoras -->
         <section id="contacto" class="scroll-mt-32 pt-2">
-            <div class="bg-sf p-6 sm:p-8 rounded-3xl border border-bd shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-                <div class="flex items-start space-x-4">
-                    <div class="w-12 h-12 rounded-full bg-bg text-g flex items-center justify-center text-xl shrink-0 font-bold"><i class="fa-solid fa-headset"></i></div>
+            <div class="bg-sf p-5 sm:p-6 rounded-3xl border border-bd shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div class="flex items-start space-x-3">
+                    <div class="w-10 h-10 rounded-full bg-bg text-g flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-headset"></i></div>
                     <div>
-                        <h2 class="text-xl font-bold text-fg">Contacta con nuestras operadoras</h2>
-                        <p class="text-sm text-mu mt-1 max-w-xl">¿Necesitas información sobre un producto o quieres consultar tu pedido? Contacta con una de nuestras operadoras y recibe atención personalizada.</p>
+                        <h2 class="text-lg font-bold text-fg">¿Necesitas ayuda?</h2>
+                        <p class="text-sm text-mu mt-0.5">Contacta con una operadora para consultar productos o tu pedido.</p>
                     </div>
                 </div>
-                <a href="#operadoras" class="btn-primary hover:bg-g-hover hover:text-fg font-bold px-6 py-3 rounded-xl transition shadow-lg flex items-center space-x-2 text-sm shrink-0">
+                <a href="#operadoras" class="btn-primary hover:bg-g-hover hover:text-fg font-bold px-5 py-2.5 rounded-xl transition shadow-lg flex items-center space-x-2 text-sm shrink-0">
                     <span>Ver operadoras</span>
                     <i class="fa-solid fa-arrow-right"></i>
                 </a>
@@ -328,16 +179,34 @@
     <script>
         (function () {
             VX.start(function () {
+                // Cargar ofertas
                 var s = VX.$("of");
-                if (!s) return;
                 var P = VX.getP(), O = VX.getO();
                 var l = P.filter(function (p) { return Number(O[p.id]) > 0 && Number(O[p.id]) < Number(p.precio_usd) && !(p.disponibilidad === "agotado"); });
                 s.hidden = !l.length;
                 var og = VX.$("og");
                 if (og) {
-                    og.innerHTML = l.map(function (p) { return VX.pcard(p); }).join("");
+                    og.innerHTML = l.slice(0, 8).map(function (p) { return VX.pcard(p); }).join("");
                     og.querySelectorAll('.skeleton-card').forEach(function(el) { el.remove(); });
                 }
+
+                // Cargar destacados (primeros 8 productos activos no agotados)
+                var dg = VX.$("dg");
+                var destacados = P.filter(function(p) { return !(p.disponibilidad === "agotado"); }).slice(0, 8);
+                if (dg) {
+                    dg.innerHTML = destacados.map(function (p) { return VX.pcard(p); }).join("");
+                    dg.querySelectorAll('.skeleton-card').forEach(function(el) { el.remove(); });
+                }
+
+                // Cargar categorías en grid
+                var catGrid = VX.$("catGrid");
+                var Cs = VX.getCs();
+                if (catGrid && Cs.length) {
+                    catGrid.innerHTML = Cs.slice(0, 8).map(function(c) {
+                        return '<a href="catalogo.html?cat=' + encodeURIComponent(c.id) + '" class="bg-s2 border border-bd rounded-2xl p-4 text-center hover:border-g hover:bg-sf transition group"><div class="w-14 h-14 mx-auto mb-3 rounded-full bg-sf border border-bd flex items-center justify-center group-hover:border-g group-hover:bg-bg transition"><i class="fa-solid fa-box text-g text-xl group-hover:text-fg transition"></i></div><p class="text-sm font-medium text-fg line-clamp-1">' + VX.esc(c.nombre) + '</p></a>';
+                    }).join("");
+                }
+
                 VX.obs();
             });
         })();

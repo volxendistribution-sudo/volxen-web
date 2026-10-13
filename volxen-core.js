@@ -317,20 +317,22 @@ function trackDet(c) {
     if (!o) { trackLista(); return }
     const s = st(o.e), h = o.hs.slice().sort((x, y) => String(y.created_at).localeCompare(String(x.created_at)));
     pv.innerHTML =
-        '<button class="lb btn-ghost" data-a="pback" style="min-height:44px;width:auto">← Mis pedidos</button>' +
+        '<button class="lb btn-ghost" data-a="pback" style="min-height:44px;width:auto"><i class="fa-solid fa-arrow-left mr-1"></i> Mis pedidos</button>' +
         '<p class="ey" style="margin-top:1rem">Pedido</p><h3 style="margin:.5rem 0">' + esc(o.c) + '</h3>' +
         '<p>Estado actual: <b style="color:var(--g);font-weight:400">' + esc(pe(o.e)) + '</b></p>' +
         (s === -1 ? '<span class="badge-out-of-stock" style="display:inline-block;margin-top:.5rem;padding:4px 8px;border-radius:4px">Cancelado</span>' :
             s != null ? '<div class="pb">' + ["Recibido", "Confirmado", "En camino", "Entregado"].map((l, i) =>
                 '<span' + (i <= s ? ' class="on"' : '') + '><i></i>' + l + '</span>').join("") + '</div>' : '') +
         '<p class="lb" style="margin-top:2rem">Productos</p>' +
+        '<div class="space-y-0">' +
         o.it.map(p => {
             const m = img(p.producto_nombre);
-            return '<div class="li">' + (m ? '<img src="' + esc(m) + '" alt="">' : '') +
-                '<div><b>' + esc(p.producto_nombre) + '</b><span>' + esc(p.cantidad) +
+            return '<div class="track-item">' + (m ? '<img src="' + esc(m) + '" alt="" class="track-thumb">' : '') +
+                '<div class="track-info"><b>' + esc(p.producto_nombre) + '</b><span>' + esc(p.cantidad) +
                 (Number(p.cantidad) > 1 ? ' unidades' : ' unidad') +
-                (p.subtotal != null ? ' · ' + fm(Number(p.subtotal)) : '') + '</span></div></div>';
+                (p.subtotal != null ? ' <span class="track-subtotal">· ' + fm(Number(p.subtotal)) + '</span>' : '') + '</span></div></div>';
         }).join("") +
+        '</div>' +
         (o.t != null ? '<p class="tt">Total: <b>' + fm(Number(o.t)) + '</b></p>' : '') +
         (o.n ? '<p>Cliente: ' + esc(o.n) + '</p>' : '') +
         (h.length ? '<p class="lb" style="margin-top:2rem">Seguimiento</p><div class="tl">' +

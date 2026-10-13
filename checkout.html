@@ -25,7 +25,7 @@
 <body class="h-full bg-bg text-fg flex flex-col font-sans antialiased selection:bg-g selection:text-white" data-page="checkout">
 
     <main class="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div class="grid md:grid-cols-2 gap-8 items-start">
+        <div class="grid md:grid-cols-2 gap-8 items-start" id="checkoutGrid">
 
             <div class="bg-s2 border border-bd rounded-2xl shadow-sm p-6 sticky top-24">
                 <div class="flex items-center justify-between mb-4">
@@ -48,7 +48,7 @@
             <div class="bg-s2 border border-bd rounded-2xl shadow-sm p-6" id="cf" style="display:none;">
                 <div class="flex items-center justify-between mb-6">
                     <p class="ey">Vale de pedido</p>
-                    <span id="bd" class="bg-fg text-g text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">0</span>
+                    <span id="bd2" class="bg-fg text-g text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">0</span>
                 </div>
                 <div class="space-y-4">
                     <input id="fn" class="input-base w-full" placeholder="Nombre y apellidos *" autocomplete="name" required>
@@ -93,7 +93,22 @@
     <script src="pedido.js"></script>
     <script>
         (function () {
-            VX.start(function () { VX.cart(); });
+            VX.start(function () { 
+                VX.cart(); 
+                // Mobile: when form shows, ensure proper stacking
+                var cf = VX.$('cf');
+                if (cf) {
+                    var observer = new MutationObserver(function() {
+                        if (cf.style.display !== 'none') {
+                            var grid = VX.$('checkoutGrid');
+                            if (grid && window.innerWidth < 768) {
+                                grid.style.gridTemplateColumns = '1fr';
+                            }
+                        }
+                    });
+                    observer.observe(cf, { attributes: true, attributeFilter: ['style'] });
+                }
+            });
         })();
     </script>
 </body>
