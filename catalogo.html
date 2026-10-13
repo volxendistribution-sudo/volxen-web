@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Catálogo - Volxen</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="volxen-tailwind.js"></script>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Inter+Tight:wght@300;400;500;600&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    >
+
+    <link rel="stylesheet" href="volxen.css">
+</head>
+
+<body class="h-full bg-slate-50 text-slate-800 flex flex-col font-sans antialiased selection:bg-volxen-500 selection:text-white" data-page="catalogo">
+
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <section id="catalogo" class="space-y-6 scroll-mt-44">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
+                <div>
+                    <h1 id="catalogTitle" class="text-2xl sm:text-3xl font-bold text-slate-900">Catálogo de Productos</h1>
+                    <p class="text-sm text-slate-500">Nuestro catálogo reúne opciones para el hogar, el trabajo, la movilidad y otras necesidades. Queremos que cada cliente pueda encontrar lo que busca, consultar sus dudas y conocer las condiciones de compra antes de confirmar su pedido.</p>
+                </div>
+                <div class="flex items-center space-x-3 shrink-0">
+                    <label for="sortSelect" class="text-xs font-semibold text-slate-600">Ordenar por:</label>
+                    <select id="sortSelect" class="bg-white border border-slate-300 text-slate-700 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-volxen-500 shadow-sm">
+                        <option value="featured">Más Destacados</option>
+                        <option value="precio-asc">Precio: Menor a Mayor</option>
+                        <option value="precio-desc">Precio: Mayor a Menor</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="gr" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+
+            <div id="emptyState" class="hidden flex flex-col items-center justify-center py-16 text-center bg-white rounded-3xl border border-slate-200 shadow-sm">
+                <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 text-2xl mb-4">
+                    <i class="fa-solid fa-box-open"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800">No encontramos resultados.</h3>
+                <p class="text-slate-500 text-sm max-w-sm mt-1">Prueba otra búsqueda o consulta a nuestra operadora.</p>
+                <div class="mt-4 flex flex-wrap items-center justify-center gap-3">
+                    <a href="#operadoras" class="bg-volxen-500 hover:bg-volxen-600 text-darkblue-900 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2"><i class="fa-brands fa-whatsapp"></i><span>Consultar a una operadora</span></a>
+                    <button data-reset="1" class="bg-darkblue-900 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-slate-800 transition">Ver todos los productos</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="config.js"></script>
+    <script src="volxen-core.js"></script>
+    <script>
+        (function () {
+            VX.start(function () {
+                var so = VX.$("sortSelect"), em = VX.$("emptyState"), gr = VX.$("gr"),
+                    q1 = VX.$("searchInput"), q2 = VX.$("searchMobileInput"),
+                    title = VX.$("catalogTitle");
+                var params = new URLSearchParams(location.search);
+                var c0 = params.get("cat") || "", qv = params.get("q") || "";
+                if (so) so.value = params.get("sort") || "featured";
+                if (q1) q1.value = qv;
+                if (q2) q2.value = qv;
+                VX.setCat(c0);
+
+                function url() {
+                    var p = new URLSearchParams();
+                    if (qv) p.set("q", qv);
+                    if (c0) p.set("cat", c0);
+                    if (so && so.value !== "featured") p.set("sort", so.value);
+                    var s = p.toString();
+                    history.replaceState(null, "", location.pathname + (s ? "?" + s : ""));
+                }
+                function mk() {
+                    var P = VX.getP();
+                    var t = qv.trim().toLowerCase(), o = so ? so.value : "featured";
+                    var v = P.filter(function (p) {
+                        return (!c0 || p.categoria_id === c0) && (!t || (p.nombre + " " + (p.descripcion || "")).toLowerCase().indexOf(t) > -1);
+                    }).sort(function (a, b) {
+                        if (o === "precio-asc") return Number(a.precio_usd || 0) - Number(b.precio_usd || 0);
+                        if (o === "precio-desc") return Number(b.precio_usd || 0) - Number(a.precio_usd || 0);
+                        if (o === "nombre") return String(a.nombre || "").localeCompare(String(b.nombre || ""));
+                        return 0;
+                    });
+                    if (em) em.classList.toggle("hidden", v.length > 0);
+                    if (gr) gr.innerHTML = v.map(function (p) { return VX.pcard(p); }).join("");
+                    if (title) title.textContent = c0 ? VX.cn(c0) : "Catálogo de Productos";
+                    VX.obs();
+                }
+                window.vxOnSearch = function (v) {
+                    qv = v || "";
+                    if (q1) q1.value = qv;
+                    if (q2) q2.value = qv;
+                    url(); mk();
+                };
+                window.vxOnCategory = function (id) {
+                    c0 = id || "";
+                    url(); mk();
+                };
+                if (so) so.addEventListener("change", function () { url(); mk(); });
+                var reset = document.querySelector('[data-reset="1"]');
+                if (reset) reset.addEventListener("click", function () {
+                    c0 = ""; qv = "";
+                    if (q1) q1.value = ""; if (q2) q2.value = "";
+                    if (so) so.value = "featured";
+                    VX.setCat(""); url(); mk();
+                });
+                mk();
+            });
+        })();
+    </script>
+</body>
+</html>

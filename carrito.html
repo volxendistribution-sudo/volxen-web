@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Su pedido - Volxen</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="volxen-tailwind.js"></script>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Inter+Tight:wght@300;400;500;600&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    >
+
+    <link rel="stylesheet" href="volxen.css">
+</head>
+
+<body class="h-full bg-slate-50 text-slate-800 flex flex-col font-sans antialiased selection:bg-volxen-500 selection:text-white" data-page="carrito">
+
+    <main class="flex-1 max-w-3xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="bx sh" style="max-width:100%">
+            <h1 style="margin-top:0">Su pedido</h1>
+            <div id="cl"></div>
+            <div class="tt" id="tt"></div>
+            <p class="nt" style="margin-top:1rem">Los precios son estimados. Su asesor confirma el precio final, la disponibilidad y las condiciones antes de cerrar el pedido.</p>
+            <a id="cartGo" class="bt" style="display:none;width:100%;margin-top:1.5rem;text-align:center;padding:16px 12px" href="checkout.html">Continuar con el pedido</a>
+        </div>
+    </main>
+
+    <script src="config.js"></script>
+    <script src="volxen-core.js"></script>
+    <script>
+        (function () {
+            VX.start(function () { VX.cart(); });
+        })();
+    </script>
+</body>
+</html>

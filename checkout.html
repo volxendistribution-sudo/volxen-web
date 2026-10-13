@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Registrar pedido - Volxen</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="volxen-tailwind.js"></script>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Inter+Tight:wght@300;400;500;600&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    >
+
+    <link rel="stylesheet" href="volxen.css">
+</head>
+
+<body class="h-full bg-slate-50 text-slate-800 flex flex-col font-sans antialiased selection:bg-volxen-500 selection:text-white" data-page="checkout">
+
+    <main class="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid md:grid-cols-2 gap-8 items-start">
+
+            <div class="bx sh" style="max-width:100%">
+                <h2 style="margin-top:0">Resumen del pedido</h2>
+                <div id="cl"></div>
+                <div class="tt" id="tt"></div>
+                <a class="sl" style="display:inline-block;margin-top:1rem" href="carrito.html">Editar el pedido</a>
+            </div>
+
+            <div class="bx sh" id="cf" style="display:none;max-width:100%">
+                <p class="ey">Vale de pedido</p>
+                <input id="fn" placeholder="Nombre y apellidos *" autocomplete="name">
+                <input id="fd" placeholder="Dirección completa (calle, número, entre calles) *" autocomplete="street-address">
+                <input id="ft" type="tel" inputmode="tel" placeholder="Teléfono *" autocomplete="tel">
+                <input id="fe" type="email" placeholder="Correo electrónico (opcional)" autocomplete="email">
+                <label class="lb" for="fp">Municipio</label>
+                <select id="fp">
+                    <option value="" selected disabled>Seleccione su municipio</option>
+                    <option>Playa</option>
+                    <option>Plaza de la Revolución</option>
+                    <option>Centro Habana</option>
+                    <option>La Habana Vieja</option>
+                    <option>Regla</option>
+                    <option>La Habana del Este</option>
+                    <option>Guanabacoa</option>
+                    <option>San Miguel del Padrón</option>
+                    <option>Diez de Octubre</option>
+                    <option>Cerro</option>
+                    <option>Marianao</option>
+                    <option>La Lisa</option>
+                    <option>Boyeros</option>
+                    <option>Arroyo Naranjo</option>
+                    <option>Cotorro</option>
+                </select>
+                <p class="nt">Por ahora solo entregamos en La Habana.</p>
+                <label class="lb" for="fc">Carnet de identidad (opcional)</label>
+                <input id="fc" inputmode="numeric" maxlength="13" autocomplete="off" placeholder="11 dígitos">
+                <textarea id="fo" placeholder="Notas (opcional)"></textarea>
+                <p id="er" style="color:#9C4F34;min-height:20px;margin-top:8px;font-size:13px"></p>
+                <button class="bt" style="width:100%" data-a="send">Registrar pedido</button>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="config.js"></script>
+    <script src="volxen-core.js"></script>
+    <script src="pedido.js"></script>
+    <script>
+        (function () {
+            VX.start(function () { VX.cart(); });
+        })();
+    </script>
+</body>
+</html>

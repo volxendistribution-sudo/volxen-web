@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Producto - Volxen</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="volxen-tailwind.js"></script>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Inter+Tight:wght@300;400;500;600&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    >
+
+    <link rel="stylesheet" href="volxen.css">
+</head>
+
+<body class="h-full bg-slate-50 text-slate-800 flex flex-col font-sans antialiased selection:bg-volxen-500 selection:text-white" data-page="producto">
+
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <a href="catalogo.html" class="lb inline-flex items-center" style="min-height:44px"><i class="fa-solid fa-arrow-left mr-2"></i> Volver al catálogo</a>
+        <div id="prod" class="mt-6"></div>
+    </main>
+
+    <script src="config.js"></script>
+    <script src="volxen-core.js"></script>
+    <script>
+        (function () {
+            VX.start(function () {
+                var host = VX.$("prod");
+                var id = new URLSearchParams(location.search).get("id") || "";
+                var P = VX.getP();
+                var p = P.find(function (x) { return String(x.id) === String(id); });
+                if (!p) {
+                    host.innerHTML = '<div class="bx sh" style="max-width:36rem;margin:2rem auto;text-align:center"><h3 style="margin-top:0">Producto no disponible</h3><p class="nt">No encontramos esta pieza. Puede que ya no esté publicada.</p><a class="bt" style="display:inline-block;margin-top:1.5rem;padding:14px 24px;width:auto" href="catalogo.html">Ver el catálogo</a></div>';
+                    return;
+                }
+                var ims = VX.ft(p), mq = 1;
+                var f = (p.caracteristicas || []).map(function (x) { return "<li>" + VX.esc(x) + "</li>"; }).join("");
+                var agotado = VX.ag(p);
+
+                function render() {
+                    host.innerHTML =
+                        '<div class="grid md:grid-cols-2 gap-8 lg:gap-12 items-start">' +
+                        '<div>' +
+                        '<div style="position:relative;border:1px solid var(--bd);background:var(--sf);aspect-ratio:1/1;display:grid;place-items:center;overflow:hidden">' +
+                        (ims[0] ? '<img class="zoomable" id="pimg" src="' + VX.esc(ims[0]) + '" alt="' + VX.esc(p.nombre) + '" style="max-width:100%;max-height:100%;object-fit:contain;cursor:zoom-in">' : '') +
+                        '</div>' +
+                        (ims.length > 1 ? '<div style="display:flex;gap:8px;margin-top:8px;overflow-x:auto">' +
+                            ims.map(function (u) { return '<img data-th="' + VX.esc(u) + '" src="' + VX.esc(u) + '" alt="" style="width:64px;height:64px;object-fit:contain;background:var(--sf);border:1px solid var(--bd);cursor:pointer;flex:none">'; }).join("") +
+                            '</div>' : '') +
+                        '</div>' +
+                        '<div>' +
+                        '<span class="ey">' + VX.esc(VX.cn(p.categoria_id)) + '</span>' +
+                        '<h1 style="font-size:1.75rem;margin:.5rem 0;font-family:var(--d)">' + VX.esc(p.nombre) + '</h1>' +
+                        '<p class="pc" style="font-family:var(--d);font-size:1.5rem;color:var(--fg)">' + VX.price(p) + '</p>' +
+                        (p.descripcion ? '<p style="margin-top:1rem;color:var(--mu);font-size:.95rem;line-height:1.7">' + VX.esc(p.descripcion) + '</p>' : '') +
+                        (f ? '<ul style="margin-top:1rem;padding-left:1.1rem;list-style:disc;color:var(--mu);font-size:.9rem;line-height:1.9">' + f + '</ul>' : '') +
+                        (p.garantia ? '<p style="margin-top:.75rem;font-size:.9rem"><span style="color:var(--fg)">Garantía:</span> ' + VX.esc(p.garantia) + '</p>' : '') +
+                        (p.transporte ? '<p style="margin-top:.25rem;font-size:.9rem"><span style="color:var(--fg)">Transporte:</span> ' + VX.esc(p.transporte) + '</p>' : '') +
+                        (agotado
+                            ? '<p class="ag" style="display:inline-block;margin-top:1.5rem">Agotado</p><a class="bt" style="display:block;text-align:center;margin-top:1rem;padding:16px 12px" href="' + VX.wa('Buenas, deseo consultar por la pieza "' + p.nombre + '" (' + VX.fm(VX.pr(p)) + ').') + '" target="_blank" rel="noopener">Consultar disponibilidad</a>'
+                            : '<div style="display:flex;align-items:center;gap:1rem;margin-top:1.75rem"><div class="q"><button data-pq="-1" aria-label="Menos cantidad">−</button><i id="pmq">' + mq + '</i><button data-pq="1" aria-label="Más cantidad">+</button></div></div>' +
+                              '<div style="display:flex;gap:.75rem;margin-top:1rem"><button class="bt h" style="padding:16px 12px" data-padd>Añadir al carrito</button><button class="bt" style="padding:16px 12px" data-pbuy>Comprar</button></div>') +
+                        '<a class="sl" style="display:inline-block;margin-top:1.5rem" target="_blank" rel="noopener" href="' + VX.wa('Buenas, deseo consultar por la pieza "' + p.nombre + '" (' + VX.fm(VX.pr(p)) + ').') + '">O consultar solo esta pieza con su asesor</a>' +
+                        '</div></div>';
+                }
+                render();
+
+                host.addEventListener("click", function (e) {
+                    var th = e.target.closest("[data-th]");
+                    if (th) { var im = VX.$("pimg"); if (im) im.src = th.getAttribute("data-th"); return; }
+                    var pq = e.target.closest("[data-pq]");
+                    if (pq) { mq = Math.max(1, mq + Number(pq.getAttribute("data-pq"))); var mi = VX.$("pmq"); if (mi) mi.textContent = mq; return; }
+                    if (e.target.closest("[data-padd]")) { VX.add(p.id, mq); return; }
+                    if (e.target.closest("[data-pbuy]")) { VX.add(p.id, mq); location.href = "checkout.html"; return; }
+                });
+            });
+        })();
+    </script>
+</body>
+</html>
