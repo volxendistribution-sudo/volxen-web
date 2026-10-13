@@ -392,7 +392,7 @@ async function load() {
     try {
         const [c, p, o] = await Promise.all([
             q("categorias?order=orden"),
-            q("productos?activo=eq.true&order=created_at.desc"),
+            q("productos?disponibilidad=eq.disponible&order=created_at.desc"),
             q("ofertas?activa=eq.true")
         ]);
         Cs = Array.isArray(c) ? c : [];

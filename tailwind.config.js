@@ -1,0 +1,79 @@
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    './*.html',
+    './js/**/*.js'
+  ],
+  theme: {
+    extend: {
+      colors: {
+        volxen: {
+          50: '#F5EFE3',
+          100: '#EFE3CB',
+          400: '#C8A165',
+          500: '#C8A165',
+          600: '#B08A4F',
+          700: '#8A6B36',
+          800: '#6B5228',
+          900: '#4A381B',
+        },
+        brand: {
+          bg: '#F8F7F4',
+          sf: '#F8F7F4',
+          fg: '#1E1D1B',
+          mu: '#6B6557',
+          gold: '#C8A165',
+          goldHover: '#B08A4F',
+          bd: '#EAE6DE',
+          pf: '#2E4A3F',
+          ox: '#B65F40',
+        },
+        slate: {
+          50: '#F8F7F4',
+          100: '#EAE6DE',
+          200: '#E3DED4',
+          300: '#CFC8BB',
+          400: '#9A907D',
+          500: '#6B6557',
+          600: '#524C40',
+          700: '#3A3834',
+          800: '#2A2823',
+          900: '#1E1D1B',
+        },
+      },
+      fontFamily: {
+        sans: ['Inter Tight', 'sans-serif'],
+        display: ['DM Sans', 'sans-serif'],
+      },
+      spacing: {
+        '1': '0.25rem',
+        '2': '0.5rem',
+        '3': '0.75rem',
+        '4': '1rem',
+        '5': '1.25rem',
+        '6': '1.5rem',
+        '8': '2rem',
+        '10': '2.5rem',
+        '12': '3rem',
+        '16': '4rem',
+      },
+      borderRadius: {
+        'sm': '0.375rem',
+        'md': '0.5rem',
+        'lg': '0.75rem',
+        'xl': '1rem',
+        '2xl': '1.5rem',
+      },
+      boxShadow: {
+        'sm': '0 1px 2px rgba(30,29,27,.04)',
+        'md': '0 4px 6px -1px rgba(30,29,27,.06), 0 2px 4px -1px rgba(30,29,27,.04)',
+        'lg': '0 10px 15px -3px rgba(30,29,27,.08), 0 4px 6px -2px rgba(30,29,27,.05)',
+        'xl': '0 20px 25px -5px rgba(30,29,27,.1), 0 10px 10px -5px rgba(30,29,27,.04)',
+      },
+      transitionTimingFunction: {
+        'brand': 'cubic-bezier(.22,1,.36,1)',
+      },
+    }
+  },
+  plugins: [],
+}
