@@ -1,4 +1,62 @@
-/* ===== Tipografía y base visual VOLXEN ===== */
+/* ===== Local Fonts (WOFF2) ===== */
+    @font-face {
+        font-family: 'DM Sans';
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: url('../public/fonts/DM-Sans-Regular.woff2') format('woff2');
+    }
+    @font-face {
+        font-family: 'DM Sans';
+        font-style: normal;
+        font-weight: 500;
+        font-display: swap;
+        src: url('../public/fonts/DM-Sans-Medium.woff2') format('woff2');
+    }
+    @font-face {
+        font-family: 'DM Sans';
+        font-style: normal;
+        font-weight: 600;
+        font-display: swap;
+        src: url('../public/fonts/DM-Sans-SemiBold.woff2') format('woff2');
+    }
+    @font-face {
+        font-family: 'DM Sans';
+        font-style: normal;
+        font-weight: 700;
+        font-display: swap;
+        src: url('../public/fonts/DM-Sans-Bold.woff2') format('woff2');
+    }
+    @font-face {
+        font-family: 'Inter Tight';
+        font-style: normal;
+        font-weight: 300;
+        font-display: swap;
+        src: url('../public/fonts/InterTight-Light.woff2') format('woff2');
+    }
+    @font-face {
+        font-family: 'Inter Tight';
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: url('../public/fonts/InterTight-Regular.woff2') format('woff2');
+    }
+    @font-face {
+        font-family: 'Inter Tight';
+        font-style: normal;
+        font-weight: 500;
+        font-display: swap;
+        src: url('../public/fonts/InterTight-Medium.woff2') format('woff2');
+    }
+    @font-face {
+        font-family: 'Inter Tight';
+        font-style: normal;
+        font-weight: 600;
+        font-display: swap;
+        src: url('../public/fonts/InterTight-SemiBold.woff2') format('woff2');
+    }
+
+    /* ===== Tipografía y base visual VOLXEN ===== */
     :root {
         --fs-h1: 3.366rem;
         --fs-h2: 2.525rem;
