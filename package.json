@@ -4,6 +4,11 @@
   "description": "Página web oficial de VOLXEN",
   "main": "config.js",
   "scripts": {
+    "dev": "npx tailwindcss -i ./volxen.css -o ./dist/volxen.css --watch",
+    "build:css": "npx tailwindcss -i ./volxen.css -o ./dist/volxen.css --minify",
+    "build:js": "npx terser js/main.js js/pages/*.js -o dist/main.min.js -c -m",
+    "build": "npm run build:css && npm run build:js",
+    "serve": "npx serve dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
