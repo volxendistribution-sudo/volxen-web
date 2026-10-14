@@ -16,6 +16,26 @@ const fm = n => "$" + Math.round(n * 100) / 100 + " USD";
 let P = [], Cs = [], O = {}, cat = "", K = {};
 try { K = JSON.parse(localStorage.getItem("vx_k") || "{}") } catch (e) {}
 const ft = p => (p.imagenes && p.imagenes.length) ? p.imagenes : (p.imagen_principal ? [p.imagen_principal] : []);
+
+// Transform Supabase image URLs for optimal delivery (WebP/AVIF, resizing)
+const imgUrl = (url, opts = {}) => {
+    if (!url) return "";
+    const { w, h, format = "webp", quality = 80 } = opts;
+    try {
+        const u = new URL(url);
+        // Only transform Supabase Storage URLs
+        if (u.hostname.includes("supabase.co") && u.pathname.includes("/storage/v1/object/public/")) {
+            const params = new URLSearchParams();
+            if (w) params.set("width", w);
+            if (h) params.set("height", h);
+            params.set("format", format);
+            params.set("quality", quality);
+            u.search = params.toString();
+            return u.toString();
+        }
+    } catch (e) {}
+    return url;
+};
 const pr = p => Number(O[p.id] || p.precio_usd) || 0;
 const ag = p => p.disponibilidad === "agotado";
 const cn = id => (Cs.find(c => c.id === id) || {}).nombre || "Volxen";
@@ -60,11 +80,12 @@ function obs() {
 
 function pcard(p) {
     const im = ft(p)[0], a = ag(p);
+    const imgSrc = im ? imgUrl(im, { w: 400, h: 300, format: "webp", quality: 80 }) : "";
     const pri = a ? '<span class="text-sm font-bold text-fg">Consultar disponibilidad</span>' :
         (O[p.id] ? '<s class="text-xs text-mu mr-1">' + fm(p.precio_usd) + '</s><span class="text-lg font-black text-fg">' + fm(O[p.id]) + '</span>' :
             '<span class="text-lg font-black text-fg">' + fm(p.precio_usd) + '</span>');
     return '<article class="pcd card-product flex flex-col overflow-hidden group"><div class="relative"><a href="producto.html?id=' + encodeURIComponent(p.id) + '" class="block"><div class="im">' +
-        (im ? '<img src="' + esc(im) + '" alt="' + esc(p.nombre) + '" loading="lazy">' : '') +
+        (im ? '<img src="' + esc(imgSrc) + '" alt="' + esc(p.nombre) + '" loading="lazy">' : '') +
         '</div></a><span class="absolute top-3 left-3 badge-category text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wide">' + esc(cn(p.categoria_id)) + '</span>' +
         (a ? '<span class="absolute top-3 right-3 badge-out-of-stock text-[10px] font-bold px-2.5 py-1 rounded-lg shadow">Agotado</span>' : '') +
         '</div><div class="p-5 flex-1 flex flex-col justify-between space-y-4"><a class="tx text-left block" href="producto.html?id=' + encodeURIComponent(p.id) + '"><h3 class="font-bold text-fg text-sm sm:text-base line-clamp-2">' + esc(p.nombre) + '</h3></a><div class="flex items-center justify-between gap-3 pt-2 border-t border-bd"><div><span class="text-[10px] text-mu block uppercase">Precio</span>' + pri + '</div><button data-a="add1" data-id="' + esc(p.id) + '" class="btn-primary px-4 py-2.5 rounded-xl font-bold text-xs transition shadow flex items-center space-x-2"><i class="fa-solid fa-cart-plus"></i><span>Añadir</span></button></div></div></article>';
@@ -137,7 +158,7 @@ function cart() {
     const el = $("cl"); if (!el) return;
     const it = cartItems();
     el.innerHTML = it.length ? it.map(p =>
-        '<div class="li"><img src="' + esc(ft(p)[0] || "") + '" alt="" class="cart-thumb"><div><b>' +
+        '<div class="li"><img src="' + esc(imgUrl(ft(p)[0] || "", { w: 80, h: 80, format: "webp", quality: 80 })) + '" alt="" class="cart-thumb"><div><b>' +
         esc(p.nombre) + '</b><span class="cart-price">' + fm(pr(p)) + '</span><div class="q">' +
         '<button data-a="qm" data-id="' + esc(p.id) + '" aria-label="Menos" class="qty-btn">−</button><i>' +
         K[p.id] + '</i><button data-a="qp" data-id="' + esc(p.id) +
@@ -356,7 +377,8 @@ function trackDet(c) {
         '<div class="space-y-0">' +
         o.it.map(p => {
             const m = img(p.producto_nombre);
-            return '<div class="track-item">' + (m ? '<img src="' + esc(m) + '" alt="" class="track-thumb">' : '') +
+            const trackImgSrc = m ? imgUrl(m, { w: 56, h: 56, format: "webp", quality: 80 }) : "";
+            return '<div class="track-item">' + (trackImgSrc ? '<img src="' + esc(trackImgSrc) + '" alt="" class="track-thumb">' : '') +
                 '<div class="track-info"><b>' + esc(p.producto_nombre) + '</b><span>' + esc(p.cantidad) +
                 (Number(p.cantidad) > 1 ? ' unidades' : ' unidad') +
                 (p.subtotal != null ? ' <span class="track-subtotal">· ' + fm(Number(p.subtotal)) + '</span>' : '') + '</span></div></div>';
