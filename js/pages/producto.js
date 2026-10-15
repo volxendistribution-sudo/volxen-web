@@ -3,11 +3,29 @@
  * Handles product rendering, gallery, quantity selector, and add to cart
  */
 
-export function initProducto() {
+export async function initProducto() {
     var host = VX.$("prod");
     var id = new URLSearchParams(location.search).get("id") || "";
     var P = VX.getP();
     var p = P.find(function (x) { return String(x.id) === String(id); });
+
+    // Fallback: fetch product directly from Supabase if not in local cache
+    // This handles direct URL access and page refresh
+    if (!p && id) {
+        try {
+            var res = await VX.q("productos?id=eq." + encodeURIComponent(id));
+            if (Array.isArray(res) && res.length > 0) {
+                p = res[0];
+                // Add to local cache for subsequent operations
+                var allP = VX.getP();
+                if (!allP.find(function(x) { return String(x.id) === String(id); })) {
+                    allP.push(p);
+                }
+            }
+        } catch (e) {
+            console.error("[VOLXEN] Failed to fetch product:", e);
+        }
+    }
 
     if (!p) {
         host.innerHTML = '<div class="bg-s2 border border-bd rounded-2xl shadow-sm p-8 max-w-md mx-auto text-center"><h3 class="text-xl font-bold text-fg mb-2">Producto no disponible</h3><p class="text-mu mb-4">No encontramos esta pieza. Puede que ya no esté publicada.</p><a class="btn-primary inline-block" href="catalogo.html">Ver el catálogo</a></div>';

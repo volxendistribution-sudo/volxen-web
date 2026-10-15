@@ -27,21 +27,29 @@
         };
 
         var moduleName = moduleMap[page];
+        var initFnName = moduleName ? 'init' + moduleName.charAt(0).toUpperCase() + moduleName.slice(1) : null;
+
+        // Global initialization - loads data first, then initializes page module
+        VX.start(function() {
+            if (initFnName) {
+                // Wait for module to load and define init function
+                function waitForInit() {
+                    if (window[initFnName]) {
+                        window[initFnName]();
+                    } else {
+                        setTimeout(waitForInit, 50);
+                    }
+                }
+                waitForInit();
+            }
+        });
+
+        // Preload page module script (but don't execute until VX.start callback)
         if (moduleName) {
             var script = document.createElement('script');
             script.type = 'module';
             script.src = 'js/pages/' + moduleName + '.js';
-            script.onload = function() {
-                if (window['init' + moduleName.charAt(0).toUpperCase() + moduleName.slice(1)]) {
-                    window['init' + moduleName.charAt(0).toUpperCase() + moduleName.slice(1)]();
-                }
-            };
             document.head.appendChild(script);
         }
-
-        // Global initialization (always runs)
-        VX.start(function() {
-            // Global init logic here if needed
-        });
     });
 })();
