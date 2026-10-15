@@ -24,9 +24,24 @@
             const cod=g(j,"codigo"),tk=g(j,"tracking_token"),tot=g(j,"total_usd");
             Object.keys(K).forEach(k=>delete K[k]);sv();cart();
             let m="Buenas, acabo de registrar el pedido "+(cod||"")+" en el sitio.";if(ci)m+="\nCarnet de identidad: "+ci;
-            $("cl").innerHTML='<div class="order-confirmation" style="margin-top:1.5rem"><p class="ey">Pedido registrado</p><h3 style="margin:.5rem 0">'+esc(cod||"")+'</h3>'+(tot!=null?'<p>Total: <b>'+fm(Number(tot))+'</b></p>':'')+(tk?'<p style="margin-top:1rem">Código de seguimiento:</p><p><b style="word-break:break-all">'+esc(tk)+'</b></p>':'')+'<p class="nt">Guarde estos datos: los necesitará para consultar su pedido. Su asesor le contactará para confirmar.</p><a class="btn-primary" style="width:100%;margin-top:1.5rem" href="'+wa(m)+'" target="_blank" rel="noopener">Avisar a mi asesor por WhatsApp</a></div>';
+            
+            // Mostrar confirmación en la página
+            const confirmation = $("orderConfirmation");
+            if (confirmation) {
+                confirmation.innerHTML = '<div class="bg-s2 border border-bd rounded-2xl shadow-sm p-6"><div class="text-center mb-4"><div class="w-16 h-16 bg-g/10 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fa-solid fa-check text-g text-2xl" aria-hidden="true"></i></div><h3 class="text-xl font-bold text-fg">¡Pedido registrado!</h3></div><p class="ey">Código de pedido</p><h3 class="text-2xl font-bold text-fg mb-2">' + esc(cod||"") + '</h3>' + (tot!=null?'<p class="mb-2">Total: <b class="text-g">' + fm(Number(tot)) + '</b></p>':'') + (tk?'<p class="ey">Código de seguimiento</p><p class="font-mono text-fg break-all mb-2">' + esc(tk) + '</p>':'') + '<p class="nt mb-4">Guarde estos datos: los necesitará para consultar su pedido. Su asesor le contactará para confirmar.</p><a class="btn-primary w-full py-3 block text-center" href="' + wa(m) + '" target="_blank" rel="noopener">Avisar a mi asesor por WhatsApp</a><a class="btn-secondary w-full py-3 block text-center mt-2" href="catalogo.html">Seguir comprando</a></div>';
+                confirmation.classList.remove("hidden");
+                // Ocultar formulario y resumen
+                const cf = $("cf");
+                const summary = $("orderSummary");
+                if (cf) cf.style.display = "none";
+                if (summary) summary.style.display = "none";
+                // Actualizar stepper
+                updateStepper(3);
+                // Scroll a la confirmación
+                confirmation.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            
             clearError(er);
-            // Dispatch event for stepper update
             window.dispatchEvent(new CustomEvent('vx:order-complete'));
         }catch(e){setError(er, e.message||"No se pudo registrar el pedido. Inténtelo de nuevo.")}
         b.disabled=false;b.textContent="Registrar pedido";

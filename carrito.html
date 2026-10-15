@@ -35,25 +35,44 @@
 
     <a href="#main" class="skip-link">Saltar al contenido principal</a>
 
-    <main id="main" class="flex-1 max-w-3xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div class="bg-s2 border border-bd rounded-2xl shadow-sm p-6">
-            <div class="flex items-center justify-between mb-6">
-                <h1 class="text-2xl font-bold text-fg">Su pedido</h1>
-                <span id="bd-cart" class="bg-fg text-g text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center" aria-live="polite" aria-atomic="true">0</span>
+    <main id="main" class="flex-1 max-w-3xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="bg-s2 border border-bd rounded-2xl shadow-sm p-5 sm:p-6">
+            <div class="flex items-center justify-between mb-5">
+                <h1 class="text-xl sm:text-2xl font-bold text-fg">Su pedido</h1>
+                <span id="bd-cart" class="bg-fg text-g text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center" aria-live="polite" aria-atomic="true">0</span>
             </div>
-            <div id="cl" role="list" aria-label="Productos en tu pedido"></div>
-            <div class="tt" id="tt" aria-live="polite"></div>
-            <p class="nt mt-4">Los precios son estimados. Su asesor confirma el precio final, la disponibilidad y las condiciones antes de cerrar el pedido.</p>
+            <div id="cl" role="list" aria-label="Productos en su pedido"></div>
+            
+            <!-- Resumen de totales -->
+            <div id="cartSummary" class="hidden mt-5 pt-4 border-t border-bd space-y-3">
+                <div class="flex justify-between text-sm">
+                    <span class="text-mu">Subtotal</span>
+                    <span id="cartSubtotal" class="font-semibold text-fg">$0.00 USD</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-mu">Descuentos</span>
+                    <span id="cartDiscount" class="font-semibold text-g">-$0.00 USD</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-mu">Envío</span>
+                    <span id="cartShipping" class="font-semibold text-fg">$0.00 USD</span>
+                </div>
+                <div class="flex justify-between pt-2 border-t border-bd">
+                    <span class="text-lg font-bold text-fg">Total</span>
+                    <span id="cartTotal" class="text-lg font-bold text-g">$0.00 USD</span>
+                </div>
+                <p class="nt text-xs text-center">Los precios son estimados. Su asesor confirma el precio final, la disponibilidad y las condiciones antes de cerrar el pedido.</p>
+            </div>
 
             <!-- Trust indicators -->
-            <div class="mt-6 pt-4 border-t border-bd flex flex-wrap gap-4 text-sm text-mu" aria-label="Garantías">
-                <div class="flex items-center gap-2"><i class="fa-solid fa-shield-halved text-g" aria-hidden="true"></i><span>Garantía por escrito</span></div>
-                <div class="flex items-center gap-2"><i class="fa-solid fa-truck-fast text-g" aria-hidden="true"></i><span>Entrega en La Habana</span></div>
-                <div class="flex items-center gap-2"><i class="fa-solid fa-headset text-g" aria-hidden="true"></i><span>Asesor personal</span></div>
-                <div class="flex items-center gap-2"><i class="fa-solid fa-lock text-g" aria-hidden="true"></i><span>Pago contra entrega</span></div>
+            <div class="mt-5 pt-4 border-t border-bd flex flex-wrap gap-3 text-xs text-mu" aria-label="Garantías">
+                <div class="flex items-center gap-1.5"><i class="fa-solid fa-shield-halved text-g" aria-hidden="true"></i><span>Garantía por escrito</span></div>
+                <div class="flex items-center gap-1.5"><i class="fa-solid fa-truck-fast text-g" aria-hidden="true"></i><span>Entrega en La Habana</span></div>
+                <div class="flex items-center gap-1.5"><i class="fa-solid fa-headset text-g" aria-hidden="true"></i><span>Asesor personal</span></div>
+                <div class="flex items-center gap-1.5"><i class="fa-solid fa-lock text-g" aria-hidden="true"></i><span>Pago contra entrega</span></div>
             </div>
 
-            <a id="cartGo" class="btn-primary mt-6 block text-center py-3" href="checkout.html" style="display:none">Continuar con el pedido</a>
+            <a id="cartGo" class="btn-primary mt-5 block text-center py-3" href="checkout.html" style="display:none">Continuar con el pedido</a>
         </div>
     </main>
 

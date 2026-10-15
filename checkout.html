@@ -33,55 +33,76 @@
 
     <a href="#main" class="skip-link">Saltar al contenido principal</a>
 
-    <main id="main" class="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div class="grid md:grid-cols-2 gap-8 items-start" id="checkoutGrid">
+    <main id="main" class="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <!-- Stepper visual -->
+        <div class="stepper mb-6" role="navigation" aria-label="Progreso del pedido">
+            <div class="stepper-step completed" data-step="1">
+                <div class="stepper-circle" aria-label="Paso 1: Carrito completado">
+                    <i class="fa-solid fa-cart-shopping" aria-hidden="true"></i>
+                </div>
+                <span class="stepper-label">Carrito</span>
+            </div>
+            <div class="stepper-connector" aria-hidden="true"></div>
+            <div class="stepper-step active" data-step="2">
+                <div class="stepper-circle" aria-label="Paso 2: Datos de envío">
+                    <i class="fa-solid fa-user" aria-hidden="true"></i>
+                </div>
+                <span class="stepper-label">Datos</span>
+            </div>
+            <div class="stepper-connector" aria-hidden="true"></div>
+            <div class="stepper-step" data-step="3">
+                <div class="stepper-circle" aria-label="Paso 3: Confirmación">
+                    <i class="fa-solid fa-check" aria-hidden="true"></i>
+                </div>
+                <span class="stepper-label">Confirmar</span>
+            </div>
+        </div>
 
-            <div class="bg-s2 border border-bd rounded-2xl shadow-sm p-6 sticky top-24">
+        <div class="grid md:grid-cols-2 gap-6 items-start" id="checkoutGrid">
+
+            <!-- Resumen del pedido (sidebar en desktop) -->
+            <div class="bg-s2 border border-bd rounded-2xl shadow-sm p-5 sticky top-20 order-2 md:order-1" id="orderSummary">
                 <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-xl font-bold text-fg">Resumen del pedido</h2>
-                    <span id="bd-cart" class="bg-fg text-g text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center" aria-live="polite" aria-atomic="true">0</span>
+                    <h2 class="text-lg font-bold text-fg">Resumen del pedido</h2>
+                    <span id="bd-cart" class="bg-fg text-g text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center" aria-live="polite" aria-atomic="true">0</span>
                 </div>
                 <div id="cl" role="list" aria-label="Productos en tu pedido"></div>
-                <div class="tt" id="tt" aria-live="polite"></div>
-                <a class="sl btn-ghost mt-4 inline-block" href="carrito.html"><i class="fa-solid fa-pen mr-1" aria-hidden="true"></i> Editar el pedido</a>
+                
+                <div id="checkoutCartSummary" class="hidden mt-4 pt-4 border-t border-bd space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-mu">Subtotal</span>
+                        <span id="checkoutSubtotal" class="font-semibold text-fg">$0.00 USD</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-mu">Descuentos</span>
+                        <span id="checkoutDiscount" class="font-semibold text-g">-$0.00 USD</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-mu">Envío</span>
+                        <span id="checkoutShipping" class="font-semibold text-fg">$0.00 USD</span>
+                    </div>
+                    <div class="flex justify-between pt-2 border-t border-bd">
+                        <span class="text-lg font-bold text-fg">Total</span>
+                        <span id="checkoutTotal" class="text-lg font-bold text-g">$0.00 USD</span>
+                    </div>
+                </div>
+
+                <a class="sl btn-ghost mt-4 inline-block w-full text-center" href="carrito.html"><i class="fa-solid fa-pen mr-1" aria-hidden="true"></i> Editar el pedido</a>
 
                 <!-- Trust indicators -->
-                <div class="mt-6 pt-4 border-t border-bd flex flex-col gap-3 text-sm text-mu" aria-label="Garantías">
-                    <div class="flex items-center gap-2"><i class="fa-solid fa-shield-halved text-g" aria-hidden="true"></i><span>Garantía por escrito en cada equipo</span></div>
-                    <div class="flex items-center gap-2"><i class="fa-solid fa-truck-fast text-g" aria-hidden="true"></i><span>Entrega coordinada en La Habana</span></div>
-                    <div class="flex items-center gap-2"><i class="fa-solid fa-headset text-g" aria-hidden="true"></i><span>Tu asesor te contacta para confirmar</span></div>
-                    <div class="flex items-center gap-2"><i class="fa-solid fa-lock text-g" aria-hidden="true"></i><span>Pago contra entrega (USD, EUR, CUP, Zelle)</span></div>
+                <div class="mt-5 pt-4 border-t border-bd flex flex-col gap-2 text-xs text-mu" aria-label="Garantías">
+                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-shield-halved text-g" aria-hidden="true"></i><span>Garantía por escrito en cada equipo</span></div>
+                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-truck-fast text-g" aria-hidden="true"></i><span>Entrega coordinada en La Habana</span></div>
+                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-headset text-g" aria-hidden="true"></i><span>Tu asesor te contacta para confirmar</span></div>
+                    <div class="flex items-center gap-1.5"><i class="fa-solid fa-lock text-g" aria-hidden="true"></i><span>Pago contra entrega (USD, EUR, CUP, Zelle)</span></div>
                 </div>
             </div>
 
-            <div class="bg-s2 border border-bd rounded-2xl shadow-sm p-6" id="cf" style="display:none;">
-                <div class="flex items-center justify-between mb-6">
+            <!-- Formulario de datos -->
+            <div class="bg-s2 border border-bd rounded-2xl shadow-sm p-5 order-1 md:order-2" id="cf">
+                <div class="flex items-center justify-between mb-5">
                     <p class="ey">Vale de pedido</p>
-                    <span id="bd-form" class="bg-fg text-g text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center" aria-live="polite" aria-atomic="true">0</span>
-                </div>
-
-                <!-- Stepper visual -->
-                <div class="stepper" role="navigation" aria-label="Progreso del pedido">
-                    <div class="stepper-step completed" data-step="1">
-                        <div class="stepper-circle" aria-label="Paso 1: Carrito completado">
-                            <i class="fa-solid fa-cart-shopping" aria-hidden="true"></i>
-                        </div>
-                        <span class="stepper-label">Carrito</span>
-                    </div>
-                    <div class="stepper-connector" aria-hidden="true"></div>
-                    <div class="stepper-step active" data-step="2">
-                        <div class="stepper-circle" aria-label="Paso 2: Datos de envío">
-                            <i class="fa-solid fa-user" aria-hidden="true"></i>
-                        </div>
-                        <span class="stepper-label">Datos</span>
-                    </div>
-                    <div class="stepper-connector" aria-hidden="true"></div>
-                    <div class="stepper-step" data-step="3">
-                        <div class="stepper-circle" aria-label="Paso 3: Confirmación">
-                            <i class="fa-solid fa-check" aria-hidden="true"></i>
-                        </div>
-                        <span class="stepper-label">Confirmar</span>
-                    </div>
+                    <span id="bd-form" class="bg-fg text-g text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center" aria-live="polite" aria-atomic="true">0</span>
                 </div>
 
                 <div class="space-y-4" role="form" aria-labelledby="form-title">
@@ -94,7 +115,7 @@
                         <label for="fd" class="lb">Dirección completa *</label>
                         <input id="fd" class="input-base w-full" placeholder="Dirección completa (calle, número, entre calles) *" autocomplete="street-address" required aria-required="true">
                     </div>
-                    <div class="grid sm:grid-cols-2 gap-4">
+                    <div class="grid sm:grid-cols-2 gap-3">
                         <div>
                             <label for="ft" class="lb">Teléfono *</label>
                             <input id="ft" type="tel" inputmode="tel" class="input-base w-full" placeholder="Teléfono *" autocomplete="tel" required aria-required="true">
@@ -135,11 +156,15 @@
                         <textarea id="fo" class="input-base w-full" placeholder="Notas (opcional)" rows="3"></textarea>
                     </div>
                     <div id="er" class="text-ox text-sm min-h-[20px]" role="alert" aria-live="assertive" aria-atomic="true"></div>
-                    <button class="btn-primary w-full py-3 mt-2" data-a="send" type="button">Registrar pedido</button>
+                    <button class="btn-primary w-full py-3" data-a="send" type="button">Registrar pedido</button>
                 </div>
             </div>
 
         </div>
+
+        <!-- Confirmación de pedido (se muestra después de registrar) -->
+        <div id="orderConfirmation" class="hidden mt-6" role="status" aria-live="polite"></div>
+
     </main>
 
     <script src="config.js"></script>

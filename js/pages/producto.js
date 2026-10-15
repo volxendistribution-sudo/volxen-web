@@ -6,12 +6,19 @@
 export async function initProducto() {
     var host = VX.$("prod");
     var id = new URLSearchParams(location.search).get("id") || "";
+
+    if (!id) {
+        host.innerHTML = '<div class="bg-s2 border border-bd rounded-2xl shadow-sm p-8 max-w-md mx-auto text-center"><h3 class="text-xl font-bold text-fg mb-2">Producto no especificado</h3><p class="text-mu mb-4">Falta el identificador del producto.</p><a class="btn-primary inline-block" href="catalogo.html">Ver el catálogo</a></div>';
+        return;
+    }
+
+    // Try to get product from local cache first
     var P = VX.getP();
     var p = P.find(function (x) { return String(x.id) === String(id); });
 
     // Fallback: fetch product directly from Supabase if not in local cache
     // This handles direct URL access and page refresh
-    if (!p && id) {
+    if (!p) {
         try {
             var res = await VX.q("productos?id=eq." + encodeURIComponent(id));
             if (Array.isArray(res) && res.length > 0) {
@@ -24,11 +31,12 @@ export async function initProducto() {
             }
         } catch (e) {
             console.error("[VOLXEN] Failed to fetch product:", e);
+            // Don't show error yet, let the final check handle it
         }
     }
 
     if (!p) {
-        host.innerHTML = '<div class="bg-s2 border border-bd rounded-2xl shadow-sm p-8 max-w-md mx-auto text-center"><h3 class="text-xl font-bold text-fg mb-2">Producto no disponible</h3><p class="text-mu mb-4">No encontramos esta pieza. Puede que ya no esté publicada.</p><a class="btn-primary inline-block" href="catalogo.html">Ver el catálogo</a></div>';
+        host.innerHTML = '<div class="bg-s2 border border-bd rounded-2xl shadow-sm p-8 max-w-md mx-auto text-center"><h3 class="text-xl font-bold text-fg mb-2">Producto no disponible</h3><p class="text-mu mb-4">No encontramos esta pieza (ID: ' + VX.esc(id) + '). Puede que ya no esté publicada o el ID sea incorrecto.</p><a class="btn-primary inline-block" href="catalogo.html">Ver el catálogo</a></div>';
         return;
     }
 

@@ -157,16 +157,34 @@ function cartTotal() { return cartItems().reduce((a, p) => a + pr(p) * K[p.id], 
 function cart() {
     const el = $("cl"); if (!el) return;
     const it = cartItems();
-    el.innerHTML = it.length ? it.map(p =>
-        '<div class="li"><img src="' + esc(imgUrl(ft(p)[0] || "", { w: 80, h: 80, format: "webp", quality: 80 })) + '" alt="" class="cart-thumb"><div><b>' +
-        esc(p.nombre) + '</b><span class="cart-price">' + fm(pr(p)) + '</span><div class="q">' +
-        '<button data-a="qm" data-id="' + esc(p.id) + '" aria-label="Menos" class="qty-btn">−</button><i>' +
-        K[p.id] + '</i><button data-a="qp" data-id="' + esc(p.id) +
-        '" aria-label="Más" class="qty-btn">+</button></div></div><button data-a="rm" data-id="' +
-        esc(p.id) + '" aria-label="Quitar" class="remove-btn">×</button></div>'
-    ).join("") : '<p style="margin-top:1.5rem;text-align:center;color:var(--mu)">Su pedido está vacío. <a class="sl btn-ghost" href="catalogo.html" style="display:inline;width:auto;padding:8px 16px">Explorar el catálogo</a></p>';
+    
+    // Render product list
+    el.innerHTML = it.length ? it.map(p => {
+        const unitPrice = pr(p);
+        const qty = K[p.id];
+        const subtotal = unitPrice * qty;
+        return '<div class="li"><img src="' + esc(imgUrl(ft(p)[0] || "", { w: 80, h: 80, format: "webp", quality: 80 })) + '" alt="" class="cart-thumb"><div class="flex-1 min-w-0"><div class="flex items-start justify-between gap-2"><b class="truncate">' + esc(p.nombre) + '</b><button data-a="rm" data-id="' + esc(p.id) + '" aria-label="Quitar" class="remove-btn flex-shrink-0">×</button></div><div class="flex items-center gap-3 mt-2 text-sm"><span class="text-mu">Precio: ' + fm(unitPrice) + '</span><div class="q"><button data-a="qm" data-id="' + esc(p.id) + '" aria-label="Menos" class="qty-btn">−</button><i>' + qty + '</i><button data-a="qp" data-id="' + esc(p.id) + '" aria-label="Más" class="qty-btn">+</button></div></div><span class="cart-subtotal font-semibold text-fg">' + fm(subtotal) + '</span></div></div>';
+    }).join("") : '<p style="margin-top:1.5rem;text-align:center;color:var(--mu)">Su pedido está vacío. <a class="sl btn-ghost" href="catalogo.html" style="display:inline;width:auto;padding:8px 16px">Explorar el catálogo</a></p>';
 
-    const t = $("tt"); if (t) t.innerHTML = it.length ? 'Total estimado: <b>' + fm(cartTotal()) + '</b>' : "";
+    // Calculate totals
+    const subtotal = it.reduce((a, p) => a + pr(p) * K[p.id], 0);
+    const discount = it.reduce((a, p) => {
+        const offer = O[p.id];
+        return a + (offer && offer < p.precio_usd ? (p.precio_usd - offer) * K[p.id] : 0);
+    }, 0);
+    const shipping = 0; // Por ahora envío gratis / coordinado
+    const total = subtotal - discount + shipping;
+
+    // Update summary
+    const summary = $("cartSummary");
+    if (summary) {
+        summary.classList.toggle("hidden", it.length === 0);
+    }
+    const st = $("cartSubtotal"); if (st) st.textContent = fm(subtotal);
+    const dc = $("cartDiscount"); if (dc) dc.textContent = discount > 0 ? '-' + fm(discount) : fm(0);
+    const sh = $("cartShipping"); if (sh) sh.textContent = fm(shipping);
+    const tt = $("cartTotal"); if (tt) tt.textContent = fm(total);
+
     const c = $("cf"); if (c) c.style.display = it.length ? "block" : "none";
     const cg = $("cartGo"); if (cg) cg.style.display = it.length ? "inline-flex" : "none";
 }
@@ -205,17 +223,15 @@ function operadoras() {
 function shell() {
     const header =
         '<header id="hd" class="sticky top-0 z-50 bg-sf text-fg border-b border-bd shadow-sm">' +
-        '<div class="bg-fg text-s2 text-xs py-1 px-4 text-center font-medium"><i class="fa-solid fa-truck-fast mr-2 text-g"></i>Transparencia y confianza en cada venta</div>' +
-        '<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="flex items-center justify-between h-16 sm:h-20 gap-3">' +
-        '<a href="index.html" class="flex items-center gap-2 sm:gap-2.5 shrink-0" aria-label="VOLXEN, comercializadora de tecnología y energía en Cuba"><img src="logo-light.svg" alt="Logo VOLXEN" class="h-8 sm:h-9 w-auto shrink-0"><span class="block leading-none"><span class="logo-wm h-[16px] sm:h-[18px]" role="img" aria-label="VOLXEN"></span><span class="block mt-1 text-[6px] sm:text-[7px] uppercase tracking-[0.42em] text-mu font-bold">Comercializadora</span></span></a>' +
-        '<div class="flex-1 max-w-2xl hidden md:flex"><div class="relative w-full"><input type="text" id="searchInput" placeholder="Buscar electrodomésticos, climatización, energía solar, TV..." class="w-full input-base placeholder-mu text-sm rounded-xl pl-4 pr-12 py-2.5 focus-ring-g"><button data-search class="absolute right-1 top-1 bottom-1 px-4 btn-primary hover:bg-g-hover hover:text-fg rounded-lg font-bold transition flex items-center justify-center"><i class="fa-solid fa-magnifying-glass"></i></button></div></div>' +
-        '<div class="flex items-center space-x-3">' +
-        '<span class="hidden lg:flex items-center space-x-2 bg-s2 px-3 py-2 rounded-xl border border-bd text-xs"><i class="fa-solid fa-location-dot text-g text-base"></i><div class="text-left"><p class="text-mu">Entregar en:</p><p class="font-semibold text-fg">La Habana, Cuba</p></div></span>' +
-        '<a href="carrito.html" aria-label="Ver su pedido" class="relative btn-primary hover:bg-g-hover hover:text-fg font-bold px-3 py-2 rounded-xl flex items-center space-x-2 transition shadow-md"><i class="fa-solid fa-cart-shopping text-lg"></i><span class="hidden sm:inline text-sm">Carrito</span><span id="bd" class="absolute -top-2 -right-2 bg-fg text-g text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-md">0</span></a>' +
-        '<button data-a="menu" aria-label="Abrir menú" class="bg-s2 hover:bg-sf border border-bd text-fg p-2 rounded-xl transition"><i class="fa-solid fa-bars text-lg"></i></button>' +
+        '<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="flex items-center justify-between h-14 sm:h-16 gap-2">' +
+        '<a href="index.html" class="flex items-center gap-1.5 sm:gap-2 shrink-0" aria-label="VOLXEN, comercializadora de tecnología y energía en Cuba"><img src="logo-light.svg" alt="Logo VOLXEN" class="h-7 sm:h-8 w-auto shrink-0"><span class="block leading-none hidden sm:block"><span class="logo-wm h-[14px] sm:h-[16px]" role="img" aria-label="VOLXEN"></span><span class="block mt-0.5 text-[5px] sm:text-[6px] uppercase tracking-[0.42em] text-mu font-bold">Comercializadora</span></span></a>' +
+        '<div class="flex-1 max-w-xl hidden md:flex"><div class="relative w-full"><input type="text" id="searchInput" placeholder="Buscar productos..." class="w-full input-base placeholder-mu text-xs sm:text-sm rounded-lg pl-3 pr-10 py-1.5 sm:py-2 focus-ring-g"><button data-search class="absolute right-1 top-1/2 -translate-y-1/2 px-3 btn-primary hover:bg-g-hover hover:text-fg rounded transition flex items-center justify-center"><i class="fa-solid fa-magnifying-glass text-xs sm:text-sm"></i></button></div></div>' +
+        '<div class="flex items-center space-x-2">' +
+        '<a href="carrito.html" aria-label="Ver su pedido" class="relative btn-primary hover:bg-g-hover hover:text-fg font-bold px-2.5 py-1.5 rounded-lg flex items-center space-x-1.5 transition shadow-sm"><i class="fa-solid fa-cart-shopping text-base"></i><span class="hidden sm:inline text-xs">Carrito</span><span id="bd" class="absolute -top-1.5 -right-1.5 bg-fg text-g text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-sm">0</span></a>' +
+        '<button data-a="menu" aria-label="Abrir menú" class="bg-s2 hover:bg-sf border border-bd text-fg p-1.5 rounded-lg transition"><i class="fa-solid fa-bars text-base"></i></button>' +
         '</div></div>' +
-        '<div class="pb-2 md:hidden"><div class="relative w-full"><input type="text" id="searchMobileInput" placeholder="Buscar productos..." class="w-full input-base placeholder-mu text-sm rounded-xl pl-4 pr-12 py-2 focus-ring-g"><button data-search class="absolute right-1 top-1 bottom-1 px-3 btn-primary text-fg rounded-lg"><i class="fa-solid fa-magnifying-glass"></i></button></div></div>' +
-        '</div><div class="bg-sf border-t border-bd px-4"><div class="max-w-7xl mx-auto flex space-x-1.5 overflow-x-auto py-2 scrollbar-none text-[10px] font-medium" id="cn"></div></div></header>';
+        '<div class="pb-1.5 md:hidden border-t border-bd"><div class="relative w-full"><input type="text" id="searchMobileInput" placeholder="Buscar productos..." class="w-full input-base placeholder-mu text-sm rounded-lg pl-3 pr-10 py-1.5 focus-ring-g"><button data-search class="absolute right-1 top-1/2 -translate-y-1/2 px-3 btn-primary text-fg rounded"><i class="fa-solid fa-magnifying-glass text-sm"></i></button></div></div>' +
+        '<div class="bg-sf border-t border-bd px-4"><div class="max-w-7xl mx-auto flex space-x-1 overflow-x-auto py-1.5 scrollbar-none text-[9px] font-medium" id="cn"></div></div></header>';
 
     const footer =
         '<footer class="bg-fg text-mu pt-16 pb-12 mt-16 border-t border-bd"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">' +
