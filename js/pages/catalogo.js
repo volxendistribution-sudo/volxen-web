@@ -3,7 +3,7 @@
  * Handles filtering, sorting, search, and category navigation
  */
 
-export function initCatalogo() {
+export async function initCatalogo() {
     var so = VX.$("sortSelect"), em = VX.$("emptyState"), gr = VX.$("gr"),
         q1 = VX.$("searchInput"), q2 = VX.$("searchMobileInput"),
         title = VX.$("catalogTitle");

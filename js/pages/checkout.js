@@ -3,7 +3,7 @@
  * Handles form validation, stepper updates, and mobile stacking
  */
 
-export function initCheckout() {
+export async function initCheckout() {
     VX.cart();
 
     // Mobile: when form shows, ensure proper stacking
@@ -22,6 +22,16 @@ export function initCheckout() {
 
     // Initialize stepper functionality
     initStepper();
+
+    // Listen for successful order registration to advance to step 3
+    window.addEventListener('vx:order-complete', function() {
+        updateStepper(3);
+        // Scroll to confirmation on mobile
+        if (window.innerWidth < 768) {
+            var confirmation = document.querySelector('.order-confirmation');
+            if (confirmation) confirmation.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    });
 }
 
 function initStepper() {

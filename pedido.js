@@ -24,8 +24,10 @@
             const cod=g(j,"codigo"),tk=g(j,"tracking_token"),tot=g(j,"total_usd");
             Object.keys(K).forEach(k=>delete K[k]);sv();cart();
             let m="Buenas, acabo de registrar el pedido "+(cod||"")+" en el sitio.";if(ci)m+="\nCarnet de identidad: "+ci;
-            $("cl").innerHTML='<div style="margin-top:1.5rem"><p class="ey">Pedido registrado</p><h3 style="margin:.5rem 0">'+esc(cod||"")+'</h3>'+(tot!=null?'<p>Total: <b>'+fm(Number(tot))+'</b></p>':'')+(tk?'<p style="margin-top:1rem">Código de seguimiento:</p><p><b style="word-break:break-all">'+esc(tk)+'</b></p>':'')+'<p class="nt">Guarde estos datos: los necesitará para consultar su pedido. Su asesor le contactará para confirmar.</p><a class="btn-primary" style="width:100%;margin-top:1.5rem" href="'+wa(m)+'" target="_blank" rel="noopener">Avisar a mi asesor por WhatsApp</a></div>';
+            $("cl").innerHTML='<div class="order-confirmation" style="margin-top:1.5rem"><p class="ey">Pedido registrado</p><h3 style="margin:.5rem 0">'+esc(cod||"")+'</h3>'+(tot!=null?'<p>Total: <b>'+fm(Number(tot))+'</b></p>':'')+(tk?'<p style="margin-top:1rem">Código de seguimiento:</p><p><b style="word-break:break-all">'+esc(tk)+'</b></p>':'')+'<p class="nt">Guarde estos datos: los necesitará para consultar su pedido. Su asesor le contactará para confirmar.</p><a class="btn-primary" style="width:100%;margin-top:1.5rem" href="'+wa(m)+'" target="_blank" rel="noopener">Avisar a mi asesor por WhatsApp</a></div>';
             clearError(er);
+            // Dispatch event for stepper update
+            window.dispatchEvent(new CustomEvent('vx:order-complete'));
         }catch(e){setError(er, e.message||"No se pudo registrar el pedido. Inténtelo de nuevo.")}
         b.disabled=false;b.textContent="Registrar pedido";
         b.removeAttribute("aria-busy");

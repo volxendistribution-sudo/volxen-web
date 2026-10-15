@@ -20,25 +20,27 @@ export function initProducto() {
 
     function render() {
         var priceHtml = VX.price(p);
-        var categoryBadge = '<span class="ey">' + VX.esc(VX.cn(p.categoria_id)) + '</span>';
-        var titleHtml = '<h1 class="text-2xl sm:text-3xl font-bold text-fg mt-2 mb-4">' + VX.esc(p.nombre) + '</h1>';
-        var priceDisplay = '<div class="pc text-2xl font-bold text-fg">' + priceHtml + '</div>';
         var descHtml = p.descripcion ? '<p class="text-mu leading-relaxed mt-4">' + VX.esc(p.descripcion) + '</p>' : '';
         var specsHtml = f ? '<ul class="list-disc pl-5 space-y-2 text-mu mt-4">' + f + '</ul>' : '';
         var garantiaHtml = p.garantia ? '<p class="mt-3"><span class="text-fg font-medium">Garantía:</span> ' + VX.esc(p.garantia) + '</p>' : '';
         var transporteHtml = p.transporte ? '<p class="mt-1"><span class="text-fg font-medium">Transporte:</span> ' + VX.esc(p.transporte) + '</p>' : '';
 
+        var mainImgSrc = ims[0] ? VX.imgUrl(ims[0], { w: 800, h: 800, format: "webp", quality: 85 }) : "";
+        var thumbImgs = ims.map(function(u) {
+            return VX.imgUrl(u, { w: 120, h: 120, format: "webp", quality: 80 });
+        });
+
         var galleryHtml = '';
         if (ims[0]) {
             galleryHtml +=
                 '<div class="product-gallery">' +
-                '<div class="main-image-container" style="border:1px solid var(--bd);background:var(--sf);aspect-ratio:1/1;border-radius:var(--radius-xl);overflow:hidden;display:grid;place-items:center;">' +
-                '<img class="zoomable" id="pimg" src="' + VX.esc(ims[0]) + '" alt="' + VX.esc(p.nombre) + '" style="max-width:100%;max-height:100%;object-fit:contain;padding:var(--space-4);cursor:zoom-in">' +
+                '<div class="main-image-container" style="border:1px solid var(--bd);background:var(--sf);aspect-ratio:1/1;border-radius:var(--radius-xl);overflow:hidden;position:relative;">' +
+                '<img class="zoomable" id="pimg" src="' + VX.esc(mainImgSrc) + '" alt="' + VX.esc(p.nombre) + '" style="width:100%;height:100%;object-fit:contain;padding:var(--space-4);cursor:zoom-in;">' +
                 '</div>';
             if (ims.length > 1) {
-                galleryHtml += '<div class="thumbnails" style="display:flex;gap:var(--space-2);margin-top:var(--space-3);overflow-x:auto">';
-                ims.forEach(function(u) {
-                    galleryHtml += '<img data-th="' + VX.esc(u) + '" src="' + VX.esc(u) + '" alt="" class="thumb-img" style="width:72px;height:72px;object-fit:cover;background:var(--sf);border:1px solid var(--bd);border-radius:var(--radius-md);cursor:pointer;flex:none;transition:border-color .2s,transform .2s;">';
+                galleryHtml += '<div class="thumbnails" style="display:flex;gap:var(--space-2);margin-top:var(--space-3);overflow-x:auto;padding-bottom:var(--space-1);">';
+                thumbImgs.forEach(function(u, idx) {
+                    galleryHtml += '<img data-th="' + VX.esc(ims[idx]) + '" data-th-opt="' + VX.esc(u) + '" src="' + VX.esc(u) + '" alt="" class="thumb-img" style="width:72px;height:72px;object-fit:cover;background:var(--sf);border:1px solid var(--bd);border-radius:var(--radius-md);cursor:pointer;flex:none;transition:border-color .2s,transform .2s;">';
                 });
                 galleryHtml += '</div>';
             }
@@ -69,12 +71,8 @@ export function initProducto() {
             '<span class="ey">' + VX.esc(VX.cn(p.categoria_id)) + '</span>' +
             '<h1 class="text-2xl sm:text-3xl font-bold text-fg mt-2 mb-4">' + VX.esc(p.nombre) + '</h1>' +
             '<div class="pc text-2xl font-bold text-fg">' + VX.price(p) + '</div>' +
-            (p.descripcion ? '<p class="text-mu leading-relaxed mt-4">' + VX.esc(p.descripcion) + '</p>' : '') +
-            (f ? '<ul class="list-disc pl-5 space-y-2 text-mu mt-4">' + f + '</ul>' : '') +
-            (p.garantia ? '<p class="mt-3"><span class="text-fg font-medium">Garantía:</span> ' + VX.esc(p.garantia) + '</p>' : '') +
-            (p.transporte ? '<p class="mt-1"><span class="text-fg font-medium">Transporte:</span> ' + VX.esc(p.transporte) + '</p>' : '') +
-            actionHtml +
-            '<a class="sl btn-ghost inline-block mt-6" target="_blank" rel="noopener" href="' + VX.wa('Buenas, deseo consultar por la pieza "' + p.nombre + '" (' + VX.fm(VX.pr(p)) + ').') + '">O consultar solo esta pieza con su asesor</a>' +
+            descHtml + specsHtml + garantiaHtml + transporteHtml +
+            actionHtml + waLink +
             '</div></div>';
 
         injectProductJsonLd(p, ims[0]);
@@ -85,7 +83,12 @@ export function initProducto() {
 
     host.addEventListener("click", function (e) {
         var th = e.target.closest("[data-th]");
-        if (th) { var im = VX.$("pimg"); if (im) im.src = th.getAttribute("data-th"); return; }
+        if (th) {
+            var im = VX.$("pimg");
+            var optSrc = th.getAttribute("data-th-opt");
+            if (im && optSrc) im.src = optSrc;
+            return;
+        }
         var pq = e.target.closest("[data-pq]");
         if (pq) { mq = Math.max(1, mq + Number(pq.getAttribute("data-pq"))); var mi = VX.$("pmq"); if (mi) mi.textContent = mq; return; }
         if (e.target.closest("[data-padd]")) { VX.add(p.id, mq); return; }
@@ -98,12 +101,13 @@ export function initProducto() {
         var price = product.precio_usd || 0;
         var offerPrice = VX.getO()[product.id] || price;
         var inStock = product.disponibilidad !== "agotado";
+        var mainImg = image ? VX.imgUrl(image, { w: 800, h: 800, format: "webp", quality: 85 }) : "https://volxen.com/logo-light.svg";
         var jsonLd = {
             "@context": "https://schema.org",
             "@type": "Product",
             "name": product.nombre,
             "description": product.descripcion || "Producto de tecnología y energía en VOLXEN Cuba",
-            "image": image || "https://volxen.com/logo-light.svg",
+            "image": mainImg,
             "brand": { "@type": "Brand", "name": "VOLXEN" },
             "sku": product.id,
             "offers": {

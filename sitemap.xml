@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://volxen.com/</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1</priority>
     <xhtml:link rel="alternate" hreflang="es-CU" href="https://volxen.com/" />
@@ -10,7 +10,7 @@
   </url>
   <url>
     <loc>https://volxen.com/catalogo.html</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="es-CU" href="https://volxen.com/catalogo.html" />
@@ -18,7 +18,7 @@
   </url>
   <url>
     <loc>https://volxen.com/producto.html</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="es-CU" href="https://volxen.com/producto.html" />
@@ -26,7 +26,7 @@
   </url>
   <url>
     <loc>https://volxen.com/carrito.html</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
     <xhtml:link rel="alternate" hreflang="es-CU" href="https://volxen.com/carrito.html" />
@@ -34,7 +34,7 @@
   </url>
   <url>
     <loc>https://volxen.com/checkout.html</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
     <xhtml:link rel="alternate" hreflang="es-CU" href="https://volxen.com/checkout.html" />
@@ -42,7 +42,7 @@
   </url>
   <url>
     <loc>https://volxen.com/pedidos.html</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
     <xhtml:link rel="alternate" hreflang="es-CU" href="https://volxen.com/pedidos.html" />
@@ -105,19 +105,11 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://volxen.com/catalogo.html?cat=ef424c1f-0f53-45af-82d2-81a896517018" />
   </url>
   <url>
-    <loc>https://volxen.com/producto.html?id=6560f597-2275-4c98-9f88-4818aa73e1a8</loc>
-    <lastmod>2026-10-13</lastmod>
+    <loc>https://volxen.com/producto.html?id=86f947df-ad25-48b6-84e8-36b2441ac995</loc>
+    <lastmod>2026-10-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="es-CU" href="https://volxen.com/producto.html?id=6560f597-2275-4c98-9f88-4818aa73e1a8" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://volxen.com/producto.html?id=6560f597-2275-4c98-9f88-4818aa73e1a8" />
-  </url>
-  <url>
-    <loc>https://volxen.com/producto.html?id=6c0f1fed-009c-4cdc-8e1e-d96753dd547d</loc>
-    <lastmod>2026-10-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="es-CU" href="https://volxen.com/producto.html?id=6c0f1fed-009c-4cdc-8e1e-d96753dd547d" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://volxen.com/producto.html?id=6c0f1fed-009c-4cdc-8e1e-d96753dd547d" />
+    <xhtml:link rel="alternate" hreflang="es-CU" href="https://volxen.com/producto.html?id=86f947df-ad25-48b6-84e8-36b2441ac995" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://volxen.com/producto.html?id=86f947df-ad25-48b6-84e8-36b2441ac995" />
   </url>
 </urlset>

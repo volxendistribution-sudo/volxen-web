@@ -504,7 +504,7 @@ async function start(pageInit) {
     wireGlobal();
     await load();
     renderNav();
-    if (typeof pageInit === "function") pageInit();
+    if (typeof pageInit === "function") await pageInit();
     obs();
 }
 

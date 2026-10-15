@@ -315,10 +315,6 @@
         padding: 0.5rem;
         transition: transform .3s var(--e);
     }
-    .pcd:hover .im img {
-        transform: scale(1.03);
-    }
-
     /* ===== Toast Error ===== */
     #ts.toast-error {
         background: #FEF2F2;
@@ -446,19 +442,76 @@
         background: none;
     }
 
-    /* ===== Imágenes y tarjetas de productos ===== */
+    /* ===== Product Gallery (producto.html) ===== */
+    .product-gallery .main-image-container {
+        border: 1px solid var(--bd);
+        background: var(--sf);
+        aspect-ratio: 1 / 1;
+        border-radius: var(--radius-xl);
+        overflow: hidden;
+        position: relative;
+    }
+    .product-gallery .main-image-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        padding: var(--space-4);
+    }
+    .product-gallery .thumbnails {
+        display: flex;
+        gap: var(--space-2);
+        margin-top: var(--space-3);
+        overflow-x: auto;
+        padding-bottom: var(--space-1);
+        scrollbar-width: thin;
+        scrollbar-color: var(--g) var(--bg);
+    }
+    .product-gallery .thumbnails::-webkit-scrollbar {
+        height: 6px;
+    }
+    .product-gallery .thumbnails::-webkit-scrollbar-track {
+        background: var(--bg);
+    }
+    .product-gallery .thumbnails::-webkit-scrollbar-thumb {
+        background: var(--g);
+        border-radius: 3px;
+    }
+    .product-gallery .thumb-img {
+        width: 72px;
+        height: 72px;
+        object-fit: cover;
+        background: var(--sf);
+        border: 1px solid var(--bd);
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        flex: none;
+        transition: border-color .2s, transform .2s, box-shadow .2s;
+    }
+    .product-gallery .thumb-img:hover,
+    .product-gallery .thumb-img.active {
+        border-color: var(--g);
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(200,161,101,.2);
+    }
+
+    /* ===== Imágenes y tarjetas de productos (catalogo) ===== */
     .im {
         aspect-ratio: 4 / 3;
         border-bottom: 1px solid var(--bd);
         background: var(--sf);
         overflow: hidden;
+        border-radius: 1rem 1rem 0 0;
     }
 
     .im img {
         width: 100%;
         height: 100%;
         object-fit: contain;
-        padding: 1rem;
+        padding: 0.5rem;
+        transition: transform .3s var(--e);
+    }
+    .pcd:hover .im img {
+        transform: scale(1.03);
     }
 
     .pc {
