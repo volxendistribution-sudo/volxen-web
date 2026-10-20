@@ -36,7 +36,7 @@
                 if (cf) cf.style.display = "none";
                 if (summary) summary.style.display = "none";
                 // Actualizar stepper
-                updateStepper(3);
+                if (typeof updateStepper === "function") updateStepper(3);
                 // Scroll a la confirmación
                 confirmation.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }

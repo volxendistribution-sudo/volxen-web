@@ -69,3 +69,4 @@ function updateStepper(step) {
 
 // Make available globally for backward compatibility
 window.initCheckout = initCheckout;
+window.updateStepper = updateStepper;

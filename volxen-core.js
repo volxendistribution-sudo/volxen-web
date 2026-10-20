@@ -25,11 +25,13 @@ const imgUrl = (url, opts = {}) => {
         const u = new URL(url);
         // Only transform Supabase Storage URLs
         if (u.hostname.includes("supabase.co") && u.pathname.includes("/storage/v1/object/public/")) {
+            u.pathname = u.pathname.replace("/storage/v1/object/public/", "/storage/v1/render/image/public/");
             const params = new URLSearchParams();
             if (w) params.set("width", w);
             if (h) params.set("height", h);
             params.set("format", format);
             params.set("quality", quality);
+            params.set("resize", "contain");
             u.search = params.toString();
             return u.toString();
         }
@@ -240,12 +242,12 @@ function shell() {
         '<div class="flex space-x-3 pt-2"><a href="https://www.facebook.com/share/1M1HdetBFY/" target="_blank" rel="noopener noreferrer" aria-label="Facebook de VOLXEN" title="Facebook de VOLXEN" class="w-9 h-9 rounded-lg bg-s2 hover:bg-g hover:text-fg text-fg flex items-center justify-center transition"><i class="fa-brands fa-facebook-f"></i></a></div></div>' +
         '<div><h4 class="text-s2 font-semibold text-sm mb-4 uppercase tracking-wider">Departamentos</h4><ul id="fdp" class="space-y-2 text-xs"></ul></div>' +
         '<div><h4 class="text-s2 font-semibold text-sm mb-4 uppercase tracking-wider">Atención al Cliente</h4><ul class="space-y-2 text-xs"><li><a href="#operadoras" class="hover:text-g transition">Contacta con nuestras operadoras</a></li></ul></div>' +
-        '<div><h4 class="text-s2 font-semibold text-sm mb-4 uppercase tracking-wider">Información</h4><ul class="space-y-2 text-xs"><li><a href="index.html#comoTrabajamos" class="hover:text-g transition">Cómo trabajamos</a></li><li><a href="index.html#condiciones" class="hover:text-g transition">Condiciones de compra</a></li><li><a href="index.html#faq" class="hover:text-g transition">Preguntas Frecuentes</a></li><li><a href="index.html#quienes-somos" class="hover:text-g transition">Quiénes somos</a></li></ul></div>' +
+        '<div><h4 class="text-s2 font-semibold text-sm mb-4 uppercase tracking-wider">Información</h4><ul class="space-y-2 text-xs"><li><a href="index.html#comoTrabajamos" class="hover:text-g transition">Cómo trabajamos</a></li></ul></div>' +
         '</div><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-bd pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-mu"><p>&copy; <span id="yr">2026</span> Volxen Comercializadora Cuba. Todos los derechos reservados.</p></div></footer>';
 
     const menu =
         '<div class="ov" id="mnv"><div class="bx sh lf"><button class="xb" data-a="close" aria-label="Cerrar">×</button><span class="ey" style="margin-top:.5rem">Menú</span><nav class="mn" aria-label="Menú principal">' +
-        '<a href="catalogo.html">Colección</a><a href="index.html#faq">Información</a><a href="index.html#quienes-somos">Quiénes somos</a>' +
+        '<a href="catalogo.html">Colección</a>' +
         '<a href="carrito.html">Carrito</a><a href="pedidos.html">Mis pedidos</a>' +
         '<button data-a="cq">Consulta general</button><button data-a="ci">Reportar incidencia</button>' +
         '<a href="admin.html">Acceso al panel</a></nav></div></div>';
@@ -437,6 +439,12 @@ async function load() {
         P = Array.isArray(p) ? p : [];
         (Array.isArray(o) ? o : []).forEach(x => O[x.producto_id] = x.precio_oferta_usd);
         loadRetry = 0;
+        const stale = Object.keys(K).filter(id => !P.some(x => x.id === id));
+        if (stale.length) {
+            stale.forEach(id => delete K[id]);
+            sv();
+            toast("Algunos productos ya no están disponibles y se quitaron de su pedido.", "error");
+        }
     } catch (err) {
         loadRetry++;
         if (loadRetry <= MAX_LOAD_RETRIES) {
@@ -524,4 +532,4 @@ async function start(pageInit) {
     obs();
 }
 
-window.VX = { $, q, esc, wa, fm, ft, pr, ag, cn, price, toast, bd, sv, obs, pcard, show, hide, go, add, setQty, cart, cartItems, cartTotal, load, renderNav, setCat, trackLista, trackDet, operadoras, start, getP: () => P, getCs: () => Cs, getO: () => O, getK: () => K, PAGE };
+window.VX = { $, q, esc, wa, fm, ft, imgUrl, pr, ag, cn, price, toast, bd, sv, obs, pcard, show, hide, go, add, setQty, cart, cartItems, cartTotal, load, renderNav, setCat, trackLista, trackDet, operadoras, start, getP: () => P, getCs: () => Cs, getO: () => O, getK: () => K, PAGE };

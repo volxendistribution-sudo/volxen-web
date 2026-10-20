@@ -1,0 +1,23 @@
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+.env*
+!.env.example
+
+# Build output
+dist/
+
+# Dependencies
+node_modules/
+
+# Config with secrets
+config.js
+
+# Logs
+*.log
+*.local
+
+# OS
+.DS_Store
+Thumbs.db

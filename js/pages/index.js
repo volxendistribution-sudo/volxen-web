@@ -70,3 +70,4 @@ export function initHome() {
 }
 
 window.initHome = initHome;
+window.initIndex = initHome;

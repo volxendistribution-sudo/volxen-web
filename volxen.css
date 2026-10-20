@@ -4,56 +4,56 @@
         font-style: normal;
         font-weight: 400;
         font-display: swap;
-        src: url('../public/fonts/DM-Sans-Regular.woff2') format('woff2');
+        src: url('fonts/DM-Sans-Regular.woff2') format('woff2');
     }
     @font-face {
         font-family: 'DM Sans';
         font-style: normal;
         font-weight: 500;
         font-display: swap;
-        src: url('../public/fonts/DM-Sans-Medium.woff2') format('woff2');
+        src: url('fonts/DM-Sans-Medium.woff2') format('woff2');
     }
     @font-face {
         font-family: 'DM Sans';
         font-style: normal;
         font-weight: 600;
         font-display: swap;
-        src: url('../public/fonts/DM-Sans-SemiBold.woff2') format('woff2');
+        src: url('fonts/DM-Sans-SemiBold.woff2') format('woff2');
     }
     @font-face {
         font-family: 'DM Sans';
         font-style: normal;
         font-weight: 700;
         font-display: swap;
-        src: url('../public/fonts/DM-Sans-Bold.woff2') format('woff2');
+        src: url('fonts/DM-Sans-Bold.woff2') format('woff2');
     }
     @font-face {
         font-family: 'Inter Tight';
         font-style: normal;
         font-weight: 300;
         font-display: swap;
-        src: url('../public/fonts/InterTight-Light.woff2') format('woff2');
+        src: url('fonts/InterTight-Light.woff2') format('woff2');
     }
     @font-face {
         font-family: 'Inter Tight';
         font-style: normal;
         font-weight: 400;
         font-display: swap;
-        src: url('../public/fonts/InterTight-Regular.woff2') format('woff2');
+        src: url('fonts/InterTight-Regular.woff2') format('woff2');
     }
     @font-face {
         font-family: 'Inter Tight';
         font-style: normal;
         font-weight: 500;
         font-display: swap;
-        src: url('../public/fonts/InterTight-Medium.woff2') format('woff2');
+        src: url('fonts/InterTight-Medium.woff2') format('woff2');
     }
     @font-face {
         font-family: 'Inter Tight';
         font-style: normal;
         font-weight: 600;
         font-display: swap;
-        src: url('../public/fonts/InterTight-SemiBold.woff2') format('woff2');
+        src: url('fonts/InterTight-SemiBold.woff2') format('woff2');
     }
 
     /* ===== Tipografía y base visual VOLXEN ===== */
@@ -354,6 +354,28 @@
 
     h3.text-base {
         font-size: var(--fs-h5);
+    }
+
+    .logo-wm,
+    .logo-wm-claro {
+        display: inline-flex;
+        align-items: center;
+        color: var(--fg);
+        font-family: var(--d);
+        font-size: 1.25rem;
+        font-weight: 600;
+        letter-spacing: .16em;
+        line-height: 1;
+        white-space: nowrap;
+    }
+
+    .logo-wm::before,
+    .logo-wm-claro::before {
+        content: "VOLXEN";
+    }
+
+    .logo-wm-claro {
+        color: var(--s2);
     }
 
     ::-webkit-scrollbar {
