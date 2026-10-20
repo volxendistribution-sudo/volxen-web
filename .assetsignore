@@ -1,0 +1,16 @@
+node_modules
+package.json
+package-lock.json
+skills-lock.json
+tailwind.config.js
+postcss.config.js
+subset-fonts.js
+scripts
+tests
+docs
+.agents
+.opencode
+.dev.vars.example
+.github
+.git
+README.md
