@@ -16,7 +16,7 @@
     "lint": "npm run lint:css && npm run lint:js",
     "typecheck": "echo \"No TypeScript configured\" && exit 0",
     "predeploy": "npm run build && npm run lint",
-    "deploy": "wrangler deploy",
+    "deploy": "wrangler deploy --name volxen-tienda",
     "preview": "wrangler dev",
     "test": "node --test"
   },
