@@ -1,3 +1,6 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 /* ===== Local Fonts (WOFF2) ===== */
     @font-face {
         font-family: 'DM Sans';
