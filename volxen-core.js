@@ -226,7 +226,24 @@ function renderNav() {
     ).join("");
 }
 
-const OP_IC = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="3" y="13" width="4" height="6"/><rect x="17" y="13" width="4" height="6"/><path d="M19 19c0 1.7-2 2.5-5 2.5"/></svg>';
+function opIcon(size, cls) {
+    const s = Number(size) || 40;
+    return '<svg class="op-icon' + (cls ? ' ' + cls : '') + '" width="' + s + '" height="' + s + '" viewBox="0 0 64 64" aria-hidden="true" focusable="false">' +
+        '<circle cx="32" cy="32" r="32" fill="var(--mu)"/>' +
+        '<path fill="var(--s2)" d="M32 16.5a7.8 7.8 0 0 0-7.8 7.8v3.2h15.6v-3.2a7.8 7.8 0 0 0-7.8-7.8Z"/>' +
+        '<path fill="var(--s2)" d="M16.5 52v-1.5c0-8.6 7-15.5 15.5-15.5s15.5 6.9 15.5 15.5V52h-31Z"/>' +
+        '<path d="M18.2 29.5v-4.8C18.2 17.4 24.4 12 32 12s13.8 5.4 13.8 12.7v4.8" fill="none" stroke="var(--s2)" stroke-width="3" stroke-linecap="round"/>' +
+        '<rect x="15.2" y="27" width="5.8" height="11.2" rx="2.9" fill="var(--s2)"/>' +
+        '<rect x="43" y="27" width="5.8" height="11.2" rx="2.9" fill="var(--s2)"/>' +
+        '<path d="M46.4 38.2c1.4 3.2 1.6 6 .2 8.2" fill="none" stroke="var(--s2)" stroke-width="2.6" stroke-linecap="round"/>' +
+        '<circle cx="47.8" cy="47.5" r="2.4" fill="var(--s2)"/>' +
+        '</svg>';
+}
+function hydrateOpIcons(root) {
+    (root || document).querySelectorAll("[data-op-icon]").forEach(el => {
+        if (!el.querySelector("svg")) el.innerHTML = opIcon(el.getAttribute("data-op-icon"));
+    });
+}
 function operadoras() {
     const ops = [
         ["Operadora 1", "5 6581114", "5356581114"],
@@ -241,7 +258,7 @@ function operadoras() {
         '<div class="relative min-h-full flex items-center justify-center p-4 pointer-events-none"><div class="relative bg-s2 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl z-10 space-y-6 pointer-events-auto">' +
         '<div class="flex items-center justify-between"><div class="flex items-center space-x-3"><img src="logo-light.svg" alt="" class="h-8 w-auto shrink-0"><h3 class="font-bold text-lg text-fg">Contacte con nuestras operadoras</h3></div><a href="#" aria-label="Cerrar" class="text-mu hover:text-fg"><i class="fa-solid fa-xmark text-lg"></i></a></div>' +
         '<p class="text-sm text-mu leading-relaxed">¿Necesita información sobre un producto o quiere consultar su pedido? Contacte con una de nuestras operadoras y reciba atención personalizada.</p><div class="space-y-3">' +
-        ops.map(o => '<div class="p-4 rounded-2xl border border-bd flex items-center justify-between gap-4"><div class="flex items-center space-x-4"><div class="w-14 h-14 rounded-full bg-sf border border-bd flex items-center justify-center shrink-0 shadow-sm"><img src="logo-light.svg" alt="VOLXEN" class="h-7 w-7 shrink-0"></div><div><p class="text-[10px] font-bold uppercase tracking-wider text-gi">' + o[0] + '</p><p class="font-bold text-fg text-base">' + o[1] + '</p></div></div><a href="https://wa.me/' + o[2] + '" target="_blank" rel="noopener" class="btn-primary hover:bg-g-hover hover:text-fg px-4 py-2.5 rounded-xl font-bold text-xs transition shadow flex items-center space-x-2"><i class="fa-brands fa-whatsapp"></i><span>WhatsApp</span></a></div>').join("") +
+        ops.map(o => '<div class="p-4 rounded-2xl border border-bd flex items-center justify-between gap-4"><div class="flex items-center space-x-4">' + opIcon(40) + '<div><p class="text-[10px] font-bold uppercase tracking-wider text-gi">' + o[0] + '</p><p class="font-bold text-fg text-base">' + o[1] + '</p></div></div><a href="https://wa.me/' + o[2] + '" target="_blank" rel="noopener" class="btn-primary hover:bg-g-hover hover:text-fg px-4 py-2.5 rounded-xl font-bold text-xs transition shadow flex items-center space-x-2"><i class="fa-brands fa-whatsapp"></i><span>WhatsApp</span></a></div>').join("") +
         '</div></div></div></div>';
 }
 
@@ -264,7 +281,7 @@ function shell() {
         '<p class="text-xs text-mu leading-relaxed">VOLXEN es una comercializadora de tecnología y energía en Cuba, con sede en La Habana. Transparencia y confianza en cada venta.</p>' +
         '<div class="flex space-x-3 pt-2"><a href="https://www.facebook.com/share/1M1HdetBFY/" target="_blank" rel="noopener noreferrer" aria-label="Facebook de VOLXEN" title="Facebook de VOLXEN" class="w-9 h-9 rounded-lg bg-s2 hover:bg-g hover:text-fg text-fg flex items-center justify-center transition"><i class="fa-brands fa-facebook-f"></i></a></div></div>' +
         '<div><h4 class="text-s2 font-semibold text-sm mb-4 uppercase tracking-wider">Departamentos</h4><ul id="fdp" class="space-y-2 text-xs"></ul></div>' +
-        '<div><h4 class="text-s2 font-semibold text-sm mb-4 uppercase tracking-wider">Atención al Cliente</h4><ul class="space-y-2 text-xs"><li><a href="#operadoras" class="hover:text-g transition">Contacte con nuestras operadoras</a></li></ul></div>' +
+        '<div><h4 class="text-s2 font-semibold text-sm mb-4 uppercase tracking-wider">Atención al Cliente</h4><ul class="space-y-2 text-xs"><li><a href="#operadoras" class="hover:text-g transition inline-flex items-center gap-2">' + opIcon(24) + '<span>Contacte con nuestras operadoras</span></a></li></ul></div>' +
         '<div><h4 class="text-s2 font-semibold text-sm mb-4 uppercase tracking-wider">Información</h4><ul class="space-y-2 text-xs"><li><a href="index.html#comoTrabajamos" class="hover:text-g transition">Cómo trabajamos</a></li></ul></div>' +
         '</div><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-bd pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-mu"><p>&copy; <span id="yr">2026</span> Volxen Comercializadora Cuba. Todos los derechos reservados.</p></div></footer>';
 
@@ -546,6 +563,7 @@ function doSearch() {
 
 async function start(pageInit) {
     shell();
+    hydrateOpIcons();
     bd();
     consultas();
     wireGlobal();
@@ -556,4 +574,4 @@ async function start(pageInit) {
     obs();
 }
 
-window.VX = { $, q, esc, wa, fm, ft, imgUrl, pr, ag, cn, price, toast, bd, sv, syncCart, obs, pcard, show, hide, go, add, setQty, cart, cartItems, cartTotal, load, renderNav, setCat, trackLista, trackDet, operadoras, start, getP: () => P, getCs: () => Cs, getO: () => O, getK: () => K, PAGE };
+window.VX = { $, q, esc, wa, fm, ft, imgUrl, pr, ag, cn, price, toast, bd, sv, syncCart, obs, pcard, show, hide, go, add, setQty, cart, cartItems, cartTotal, load, renderNav, setCat, trackLista, trackDet, operadoras, opIcon, hydrateOpIcons, start, getP: () => P, getCs: () => Cs, getO: () => O, getK: () => K, PAGE };

@@ -1268,7 +1268,7 @@ th.innerHTML = IM.map((u,i) =>
 
 '<img src="'+
 esc(u)+
-'" style="width:72px;height:72px;object-fit:cover;border:1px solid #bbb">'+
+'" style="width:72px;height:72px;object-fit:contain;background:#fff;border:0">'+
 
 '<button class="x" style="width:auto;padding:0 7px;margin:0;position:absolute;top:0;right:0" onclick="rmI('+i+')">'+
 '×'+
@@ -1295,7 +1295,7 @@ function syncShipping(){
   if(!st || !sc || !wrap) return;
   const paid = st.value === "paid";
   wrap.style.display = paid ? "" : "none";
-  sc.required = paid;
+  sc.required = false;
   if(!paid) sc.value = "";
 }
 
@@ -1391,11 +1391,11 @@ esc(p.precio_usd)+
 (st === "paid" ? "" : ' style="display:none"')+
 '>'+
 
-'<input id="sc" type="number" min="0.01" step="0.01" placeholder="Costo de envío (USD)" value="'+
+'<label for="sc" style="display:block;margin-top:8px;font-weight:600">Costo de envío (USD) <span style="font-weight:400">(opcional)</span></label>'+
+
+'<input id="sc" type="number" min="0" step="0.01" placeholder="0.00" value="'+
 esc(p.shipping_cost)+
-'"'+
-(st === "paid" ? " required" : "")+
-'>'+
+'">'+
 
 '</div>'+
 
@@ -1521,17 +1521,22 @@ let shippingCost = null;
 
 if(shippingType === "paid"){
 
-shippingCost =
-Number($("sc").value);
+const raw =
+$("sc").value.trim();
 
 
-if(!$("sc").value || !isFinite(shippingCost) || shippingCost <= 0){
+if(raw){
 
-msg(
-"Indique un costo de envío mayor que 0."
-);
+const cost = Number(raw);
 
-return;
+if(isFinite(cost) && cost > 0){
+
+const rounded =
+Math.round(cost * 100) / 100;
+
+if(rounded > 0) shippingCost = rounded;
+
+}
 
 }
 

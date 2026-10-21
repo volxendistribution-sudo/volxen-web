@@ -168,22 +168,47 @@ test("la ficha de producto muestra el envío configurado y usa dots", () => {
     assert.match(js, /shipping_type === "paid"/);
     assert.match(js, /Envío: \+US\$/);
     assert.match(js, /Envío gratis/);
+    assert.match(js, /Envío por costo adicional/);
     assert.match(js, /pdp-dot/);
 });
 
-test("el admin configura el tipo y el costo de envío", () => {
+test("el admin permite el costo de envío opcional", () => {
     const admin = read("admin.html");
 
     assert.match(admin, /id="st"/);
     assert.match(admin, /id="sc"/);
+    assert.match(admin, /Costo de envío \(USD\) <span[^>]*>\(opcional\)<\/span>/);
+    assert.match(admin, /sc\.required = false/);
+    assert.doesNotMatch(admin, /Indique un costo de envío/);
     assert.match(admin, /shipping_type:/);
     assert.match(admin, /shipping_cost:/);
 });
 
-test("la migración declara los campos de envío", () => {
+test("la migración permite envío pagado sin monto", () => {
     const sql = read("supabase/migrations/20261021_add_product_shipping.sql");
 
     assert.match(sql, /shipping_type text not null default 'free'/);
     assert.match(sql, /shipping_cost numeric/);
     assert.match(sql, /shipping_type in \('free', 'paid'\)/);
+    assert.match(sql, /shipping_cost is null or shipping_cost > 0/);
+});
+
+test("las imágenes se muestran completas y sin recorte", () => {
+    const css = read("volxen.css");
+
+    assert.match(css, /\.pdp-img[\s\S]*?object-fit:\s*contain/);
+    assert.match(css, /\.cart-thumb[\s\S]*?object-fit:\s*contain/);
+    assert.doesNotMatch(css, /object-fit:\s*cover/);
+});
+
+test("el icono de operadoras es un SVG reutilizable", () => {
+    const core = read("volxen-core.js");
+    const html = ["index.html", "carrito.html", "checkout.html", "catalogo.html"]
+        .map(read)
+        .join("\n");
+
+    assert.match(core, /function opIcon\(size, cls\)/);
+    assert.match(core, /viewBox="0 0 64 64"/);
+    assert.match(core, /hydrateOpIcons/);
+    assert.doesNotMatch(html, /fa-headset/);
 });

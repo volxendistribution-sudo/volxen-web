@@ -470,8 +470,8 @@
         width: 64px;
         height: 64px;
         object-fit: contain;
-        background: var(--sf);
-        border: 1px solid var(--bd);
+        background: var(--s2);
+        border: 0;
         border-radius: 0.5rem;
         flex: none;
     }
@@ -534,8 +534,8 @@
     /* ===== Product Image Container ===== */
     .im {
         aspect-ratio: 4 / 3;
-        border-bottom: 1px solid var(--bd);
-        background: var(--sf);
+        border-bottom: 0;
+        background: var(--s2);
         overflow: hidden;
         border-radius: 1rem 1rem 0 0;
     }
@@ -713,8 +713,9 @@
     .pdp-img {
         display: block;
         width: 100%;
-        aspect-ratio: 16 / 9;
-        object-fit: cover;
+        height: auto;
+        max-height: 70vh;
+        object-fit: contain;
         background: var(--s2);
         cursor: zoom-in;
     }
@@ -946,6 +947,37 @@
     .pdp-help:hover {
         color: var(--fg);
     }
+    .op-icon {
+        display: inline-block;
+        flex: none;
+        vertical-align: middle;
+        border-radius: 50%;
+        line-height: 0;
+    }
+    [data-op-icon] {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: none;
+        line-height: 0;
+    }
+    [data-op-icon="24"] {
+        width: 24px;
+        height: 24px;
+    }
+    [data-op-icon="40"] {
+        width: 40px;
+        height: 40px;
+    }
+    [data-op-icon="64"] {
+        width: 64px;
+        height: 64px;
+    }
+    @media (max-width: 640px) {
+        .pdp-img {
+            max-height: 60vh;
+        }
+    }
     @media (max-width: 360px) {
         .pdp-price {
             font-size: 1.75rem;
@@ -955,8 +987,8 @@
     /* ===== Imágenes y tarjetas de productos (catalogo) ===== */
     .im {
         aspect-ratio: 4 / 3;
-        border-bottom: 1px solid var(--bd);
-        background: var(--sf);
+        border-bottom: 0;
+        background: var(--s2);
         overflow: hidden;
         border-radius: 1rem 1rem 0 0;
     }
@@ -1037,7 +1069,7 @@
     }
 
     .bx .im {
-        border: 1px solid var(--bd);
+        border: 0;
     }
 
     .bx h3 {
@@ -1127,7 +1159,7 @@
         width: 64px;
         height: 64px;
         object-fit: contain;
-        background: var(--sf);
+        background: var(--s2);
         flex: none;
     }
 
@@ -1402,7 +1434,7 @@
 .od:hover{border-color:rgba(122,94,46,.55)}
     .od b{font:400 16px var(--d);color:var(--fg)}
     .od .th{display:flex;gap:6px}
-    .od .th img{width:48px;height:48px;object-fit:contain;background:var(--s2);border:1px solid var(--bd)}
+    .od .th img{width:48px;height:48px;object-fit:contain;background:var(--s2);border:0}
     .pb{display:flex;gap:4px;margin-top:1.25rem}
     .pb span{flex:1;font-size:10px}
     .pb i{display:block;height:3px;background:var(--bd);margin-bottom:6px}
@@ -1426,8 +1458,8 @@
         width: 56px;
         height: 56px;
         object-fit: contain;
-        background: var(--sf);
-        border: 1px solid var(--bd);
+        background: var(--s2);
+        border: 0;
         border-radius: 0.5rem;
         flex: none;
     }

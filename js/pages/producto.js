@@ -51,7 +51,7 @@ export async function initProducto() {
             if (isFinite(cost) && cost > 0) {
                 return "Envío: +US$" + (Math.round(cost * 100) / 100);
             }
-            return "Envío por coordinar";
+            return "Envío por costo adicional";
         }
         return "Envío gratis";
     }
