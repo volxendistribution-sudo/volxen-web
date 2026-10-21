@@ -24,7 +24,8 @@
             'carrito': 'carrito',
             'checkout': 'checkout',
             'pedidos': 'pedidos',
-            'consulta': 'consulta'
+            'consulta': 'consulta',
+            'operadoras': 'operadoras'
         };
 
         var moduleName = moduleMap[page];

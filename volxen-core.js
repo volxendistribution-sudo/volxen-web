@@ -15,7 +15,7 @@ const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&am
 const wa = t => "https://wa.me/" + (C.WHATSAPP || "") + "?text=" + encodeURIComponent(t);
 const fm = n => "$" + Math.round(n * 100) / 100 + " USD";
 const CART_KEY = "vx_k";
-let P = [], Cs = [], O = {}, cat = "", K = readCart();
+let P = [], Cs = [], O = {}, OPS = [], opsError = false, cat = "", K = readCart();
 
 function readCart() {
     try {
@@ -244,22 +244,57 @@ function hydrateOpIcons(root) {
         if (!el.querySelector("svg")) el.innerHTML = opIcon(el.getAttribute("data-op-icon"));
     });
 }
+const OP_MSG = "Buenas, necesito información sobre un producto.";
+const opDigits = n => String(n || "").replace(/\D/g, "");
+function opCard(o, size, compact) {
+    const d = opDigits(o.whatsapp);
+    const on = !!o.disponible;
+    const horario = o.horario && String(o.horario).trim() ? "Horario: " + String(o.horario).trim() : "Horario por confirmar";
+    return '<article class="op-card' + (compact ? ' op-card-compact' : '') + '">' +
+        '<div class="op-card-head">' + opIcon(size || 64) +
+        '<div class="op-card-id"><h3>' + esc(o.nombre) + '</h3><p class="op-hours">' + esc(horario) + '</p>' +
+        '<span class="op-status ' + (on ? "on" : "off") + '"><i aria-hidden="true"></i>' + (on ? "Disponible" : "No disponible") + '</span></div></div>' +
+        (d ? '<a class="btn-primary op-wa" href="https://wa.me/' + d + '?text=' + encodeURIComponent(OP_MSG) + '" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i><span>Escribir por WhatsApp</span></a>' : '') +
+        '</article>';
+}
+function opLista(size) {
+    if (opsError) return '<div class="op-empty"><p>No se pudieron cargar las operadoras.</p><a href="consulta.html" class="btn-secondary">Enviar una consulta</a></div>';
+    if (!OPS.length) return '<div class="op-empty"><p>No hay operadoras disponibles en este momento.</p><a href="consulta.html" class="btn-secondary">Enviar una consulta</a></div>';
+    return OPS.map(o => opCard(o, size)).join("");
+}
 function operadoras() {
-    const ops = [
-        ["Operadora 1", "5 6581114", "5356581114"],
-        ["Operadora 2", "5 6193681", "5356193681"],
-        ["Operadora 3", "5 2405395", "5352405395"],
-        ["Operadora 4", "63990666", "5363990666"],
-        ["Operadora 5", "5 2842030", "5352842030"],
-        ["Operadora 6", "5 5500209", "5355500209"],
-    ];
     return '<div id="operadoras" class="pantalla fixed inset-0 z-50 overflow-y-auto">' +
         '<a href="#" aria-label="Cerrar" class="fixed inset-0 bg-fg/70 backdrop-blur-sm cursor-default"></a>' +
         '<div class="relative min-h-full flex items-center justify-center p-4 pointer-events-none"><div class="relative bg-s2 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl z-10 space-y-6 pointer-events-auto">' +
         '<div class="flex items-center justify-between"><div class="flex items-center space-x-3"><img src="logo-light.svg" alt="" class="h-8 w-auto shrink-0"><h3 class="font-bold text-fg">Contacte con nuestras operadoras</h3></div><a href="#" aria-label="Cerrar" class="text-mu hover:text-fg"><i class="fa-solid fa-xmark text-lg"></i></a></div>' +
-        '<p class="text-sm text-mu leading-relaxed">¿Necesita información sobre un producto o quiere consultar su pedido? Contacte con una de nuestras operadoras y reciba atención personalizada.</p><div class="space-y-3">' +
-        ops.map(o => '<div class="p-4 rounded-2xl border border-bd flex items-center justify-between gap-4"><div class="flex items-center space-x-4">' + opIcon(40) + '<div><p class="text-xs font-bold uppercase tracking-wider text-gi">' + o[0] + '</p><p class="font-bold text-fg text-base">' + o[1] + '</p></div></div><a href="https://wa.me/' + o[2] + '" target="_blank" rel="noopener" class="btn-primary hover:bg-g-hover hover:text-fg px-4 py-2.5 font-bold text-sm transition shadow flex items-center space-x-2"><i class="fa-brands fa-whatsapp"></i><span>WhatsApp</span></a></div>').join("") +
-        '</div></div></div></div>';
+        '<p class="text-sm text-mu leading-relaxed">¿Necesita información sobre un producto o quiere consultar su pedido? Contacte con una de nuestras operadoras y reciba atención personalizada.</p>' +
+        '<div id="operadorasLista" class="op-list">' + opLista(40) + '</div>' +
+        '</div></div></div>';
+}
+function renderOperadoras() {
+    const lista = $("operadorasLista");
+    if (lista) lista.innerHTML = opLista(40);
+    const grid = $("opsPageGrid");
+    if (grid) {
+        grid.innerHTML = OPS.length
+            ? OPS.map(o => opCard(o, 64)).join("")
+            : '<div class="op-empty op-empty-page"><p>' + (opsError ? "No se pudieron cargar las operadoras." : "No hay operadoras disponibles en este momento.") + '</p><div class="op-empty-actions">' + (opsError ? '<button type="button" class="btn-secondary" data-ops-retry>Reintentar</button>' : '') + '<a class="btn-secondary" href="consulta.html">Enviar una consulta</a></div></div>';
+        obs();
+    }
+}
+async function loadOperadoras() {
+    try {
+        const res = await fetch(C.SUPABASE_URL + "/rest/v1/operadoras?activa=eq.true&order=orden", { headers: H });
+        if (!res.ok) throw new Error("No se pudieron cargar las operadoras.");
+        const j = await res.json();
+        OPS = Array.isArray(j) ? j : [];
+        opsError = false;
+    } catch (e) {
+        OPS = [];
+        opsError = true;
+    }
+    renderOperadoras();
+    return OPS;
 }
 
 function minimalHeader() {
@@ -297,7 +332,7 @@ function shell() {
         '<p class="text-xs text-mu leading-relaxed">VOLXEN es una comercializadora de tecnología y energía en Cuba, con sede en La Habana. Transparencia y confianza en cada venta.</p>' +
         '<div class="flex space-x-3 pt-2"><a href="https://www.facebook.com/share/1M1HdetBFY/" target="_blank" rel="noopener noreferrer" aria-label="Facebook de VOLXEN" title="Facebook de VOLXEN" class="w-9 h-9 rounded-lg bg-s2 hover:bg-g hover:text-fg text-fg flex items-center justify-center transition"><i class="fa-brands fa-facebook-f"></i></a></div></div>' +
         '<div><h4 class="text-s2 font-semibold text-sm mb-4 uppercase tracking-wider">Departamentos</h4><ul id="fdp" class="space-y-2 text-xs"></ul></div>' +
-        '<div><h4 class="text-s2 font-semibold text-sm mb-4 uppercase tracking-wider">Atención al Cliente</h4><ul class="space-y-2 text-xs"><li><a href="#operadoras" class="hover:text-g transition inline-flex items-center gap-2">' + opIcon(24) + '<span>Contacte con nuestras operadoras</span></a></li><li><a href="consulta.html" class="hover:text-g transition">Consulta general e incidencias</a></li></ul></div>' +
+        '<div><h4 class="text-s2 font-semibold text-sm mb-4 uppercase tracking-wider">Atención al Cliente</h4><ul class="space-y-2 text-xs"><li><a href="operadoras.html" class="hover:text-g transition inline-flex items-center gap-2">' + opIcon(24) + '<span>Hablar con una operadora</span></a></li><li><a href="consulta.html" class="hover:text-g transition">Consulta general e incidencias</a></li></ul></div>' +
         '<div><h4 class="text-s2 font-semibold text-sm mb-4 uppercase tracking-wider">Información</h4><ul class="space-y-2 text-xs"><li><a href="index.html#comoTrabajamos" class="hover:text-g transition">Cómo trabajamos</a></li></ul></div>' +
         '</div><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-bd pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-mu"><p>&copy; <span id="yr">2026</span> Volxen Comercializadora Cuba. Todos los derechos reservados.</p></div></footer>';
 
@@ -305,7 +340,7 @@ function shell() {
         '<div class="ov" id="mnv"><div class="bx sh lf"><button class="xb" data-a="close" aria-label="Cerrar">×</button><span class="ey" style="margin-top:.5rem">Menú</span><nav class="mn" aria-label="Menú principal">' +
         '<a href="catalogo.html">Catálogo</a>' +
         '<a href="carrito.html">Carrito</a><a href="pedidos.html">Mis pedidos</a>' +
-        '<a href="consulta.html">Consulta general</a><a href="consulta.html?tipo=incidencia">Reportar incidencia</a><a href="consulta.html?tipo=queja">Queja u opinión</a>' +
+        '<a href="consulta.html">Consulta general</a><a href="consulta.html?tipo=incidencia">Reportar incidencia</a><a href="consulta.html?tipo=queja">Queja u opinión</a><a href="operadoras.html">Operadoras</a>' +
         '<a href="admin.html">Acceso al panel</a></nav></div></div>';
 
     const overlays =
@@ -502,8 +537,9 @@ async function start(pageInit) {
     obs();
     await load();
     renderNav();
+    await loadOperadoras();
     if (typeof pageInit === "function") await pageInit();
     obs();
 }
 
-window.VX = { $, q, esc, wa, fm, ft, imgUrl, pr, ag, cn, price, toast, bd, sv, syncCart, obs, pcard, show, hide, go, add, setQty, cart, cartItems, cartTotal, load, renderNav, setCat, trackDet, consultarPedido, estadoLargo, operadoras, opIcon, hydrateOpIcons, start, getP: () => P, getCs: () => Cs, getO: () => O, getK: () => K, PAGE };
+window.VX = { $, q, esc, wa, fm, ft, imgUrl, pr, ag, cn, price, toast, bd, sv, syncCart, obs, pcard, show, hide, go, add, setQty, cart, cartItems, cartTotal, load, renderNav, setCat, trackDet, consultarPedido, estadoLargo, operadoras, opIcon, hydrateOpIcons, start, loadOperadoras, renderOperadoras, getOps: () => OPS, getP: () => P, getCs: () => Cs, getO: () => O, getK: () => K, PAGE };

@@ -261,7 +261,9 @@ test("Fase 2: no quedan textos de 9, 10 u 11 píxeles", () => {
         "js/pages/checkout.js",
         "js/pages/pedidos.js",
         "consulta.html",
-        "js/pages/consulta.js"
+        "js/pages/consulta.js",
+        "operadoras.html",
+        "js/pages/operadoras.js"
     ];
 
     files.forEach((file) => {
@@ -424,4 +426,91 @@ test("Fase 3: build y módulos incluyen consulta.html", () => {
 
     assert.match(pkg.scripts["build:html"], /consulta\.html/);
     assert.match(main, /'consulta': 'consulta'/);
+});
+
+
+test("Fase 4: operadoras dinámicas desde Supabase y enlace del pie", async () => {
+    const core = read("volxen-core.js");
+
+    assert.match(core, /async function loadOperadoras\(\)/);
+    assert.match(core, /operadoras\?activa=eq\.true&order=orden/);
+    assert.match(core, /Escribir por WhatsApp/);
+    assert.match(core, /Horario por confirmar/);
+    assert.match(core, /Hablar con una operadora/);
+    assert.match(core, /href="operadoras\.html"/);
+    assert.doesNotMatch(core, /\["Operadora 1", "5 6581114"/);
+
+    const { win } = loadCore({
+        fetchImpl: async () => ({
+            ok: true,
+            json: async () => [{
+                id: "op-1",
+                nombre: "Operadora 1",
+                whatsapp: "5356581114",
+                horario: "",
+                disponible: true,
+                activa: true,
+                orden: 1
+            }]
+        })
+    });
+
+    assert.equal(typeof win.VX.loadOperadoras, "function");
+    assert.equal(typeof win.VX.renderOperadoras, "function");
+    const ops = await win.VX.loadOperadoras();
+    assert.equal(ops.length, 1);
+    assert.equal(ops[0].whatsapp, "5356581114");
+});
+
+test("Fase 4: página independiente de operadoras", () => {
+    const html = read("operadoras.html");
+    const js = read("js/pages/operadoras.js");
+
+    assert.match(html, /data-page="operadoras"/);
+    assert.match(html, /id="opsPageGrid"/);
+    assert.match(html, />Operadoras</);
+    assert.match(js, /export async function initOperadoras/);
+    assert.match(js, /VX\.renderOperadoras/);
+    assert.match(js, /data-ops-retry/);
+});
+
+test("Fase 4: admin con pestaña y CRUD de operadoras", () => {
+    const admin = read("admin.html");
+
+    assert.match(admin, /onclick="tab\('w'\)"/);
+    assert.match(admin, /function opsAdmin\(/);
+    assert.match(admin, /async function opsCargar\(/);
+    assert.match(admin, /async function opSave\(/);
+    assert.match(admin, /async function opToggle\(/);
+    assert.match(admin, /async function opDelete\(/);
+    assert.match(admin, /askDeleteCon\(/);
+    assert.match(admin, /class="admin-form"/);
+    assert.match(admin, /id="opForm"/);
+    assert.match(admin, /id="opw"/);
+    assert.match(admin, /id="opd"/);
+    assert.match(admin, /id="opa"/);
+});
+
+test("Fase 4: migración de operadoras con RLS y carga inicial", () => {
+    const sql = read("supabase/migrations/20261021_fase4_operadoras.sql");
+
+    assert.match(sql, /CREATE TABLE IF NOT EXISTS public\.operadoras/);
+    assert.match(sql, /ENABLE ROW LEVEL SECURITY/);
+    assert.match(sql, /operadoras_lectura_publica/);
+    assert.match(sql, /USING \(activa = true\)/);
+    assert.match(sql, /TO authenticated/);
+    ["5356581114", "5356193681", "5352405395", "5363990666", "5352842030", "5355500209"].forEach(n => {
+        assert.match(sql, new RegExp(n));
+    });
+    assert.match(sql, /WHERE NOT EXISTS \(SELECT 1 FROM public\.operadoras\)/);
+});
+
+test("Fase 4: build, módulo y sitemap incluyen operadoras.html", () => {
+    const pkg = JSON.parse(read("package.json"));
+    const main = read("js/main.js");
+    const sitemap = read("sitemap.xml");
+
+    assert.match(pkg.scripts["build:html"], /operadoras\.html/);
+    assert.match(main, /'operadoras': 'operadoras'/);
+    assert.match(sitemap, /operadoras\.html/);
 });
