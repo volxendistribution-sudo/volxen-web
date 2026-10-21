@@ -8,92 +8,139 @@
 <title>VOLXEN · Panel</title>
 
 <style>
+@font-face{font-family:'DM Sans';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/DM-Sans-Regular.woff2') format('woff2')}
+@font-face{font-family:'DM Sans';font-style:normal;font-weight:600;font-display:swap;src:url('fonts/DM-Sans-SemiBold.woff2') format('woff2')}
+@font-face{font-family:'DM Sans';font-style:normal;font-weight:700;font-display:swap;src:url('fonts/DM-Sans-Bold.woff2') format('woff2')}
+@font-face{font-family:'Inter Tight';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/InterTight-Regular.woff2') format('woff2')}
+@font-face{font-family:'Inter Tight';font-style:normal;font-weight:600;font-display:swap;src:url('fonts/InterTight-SemiBold.woff2') format('woff2')}
+
+:root{
+--bg:#F7F2E8;--sf:#EEE5D6;--s2:#FFFCF6;--fg:#171410;--mu:#5A5449;
+--bd:#DFD3C0;--g:#C8A165;--gi:#6E5327;--pf:#1F4036;--ox:#A64B30;--ox-hover:#8A3D26;
+--d:'DM Sans',system-ui,sans-serif;--s:'Inter Tight',system-ui,sans-serif;
+--shadow-sm:0 1px 2px rgba(18,16,12,.04);
+--radius-field:12px;--radius-card:24px;--radius-pill:999px;--control-h:48px
+}
+
+*{box-sizing:border-box}
 
 body{
-font:15px sans-serif;
+font:400 14px/1.6 var(--s);
 margin:0;
-background:#f6f1e7;
-color:#0e0e0e
+background:var(--bg);
+color:var(--fg)
 }
 
 header{
-background:#0e0e0e;
-color:#c9a96e;
-padding:14px;
-letter-spacing:.3em
+background:var(--pf);
+color:var(--s2);
+padding:20px 16px;
+font:700 14px/1.4 var(--d);
+letter-spacing:.18em;
+text-transform:uppercase
 }
 
 main{
-padding:14px;
-max-width:640px;
+padding:16px;
+max-width:720px;
 margin:auto
 }
 
-input,
-select,
-textarea,
-button{
+h1,h2,h3,h4{font-family:var(--d);margin:20px 0 8px;line-height:1.3}
+h1{font-size:24px}
+h2,h3{font-size:16px}
+h4{font-size:14px}
+p{margin:8px 0}
+
+input,select,textarea{
 width:100%;
-padding:11px;
-margin:5px 0;
-font:inherit;
-border:1px solid #bbb;
-background:#fff;
+min-height:var(--control-h);
+padding:12px 16px;
+margin:8px 0;
+font:400 16px var(--s);
+border:1px solid var(--bd);
+border-radius:var(--radius-field);
+background:var(--s2);
+color:var(--fg);
 box-sizing:border-box
 }
 
+textarea{min-height:96px;padding-top:12px;resize:vertical}
+
+input:focus,select:focus,textarea:focus{
+outline:none;
+border-color:var(--gi);
+box-shadow:0 0 0 3px rgba(110,83,39,.24)
+}
+
 button{
-background:#c9a96e;
-border:0;
-font-weight:600;
-cursor:pointer
+width:100%;
+min-height:var(--control-h);
+padding:12px 18px;
+margin:8px 0;
+font:600 14px var(--s);
+border:1px solid transparent;
+border-radius:var(--radius-pill);
+background:var(--pf);
+color:var(--s2);
+cursor:pointer;
+transition:background .2s,border-color .2s,color .2s
 }
 
-.t{
-display:flex;
-gap:6px;
-flex-wrap:wrap
-}
+button:hover{background:var(--g);border-color:var(--g);color:var(--fg)}
+button:active{transform:translateY(1px)}
 
-.t button{
-background:#0e0e0e;
-color:#c9a96e;
-flex:1;
-min-width:100px
-}
+.t{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.t button{flex:1;min-width:110px;background:var(--s2);color:var(--fg);border-color:var(--bd)}
+.t button:hover{background:var(--g);border-color:var(--g)}
 
 .r{
-background:#fff;
-padding:10px;
-margin:8px 0;
-border:1px solid #e4dccb
+background:var(--s2);
+padding:16px;
+margin:12px 0;
+border:1px solid var(--bd);
+border-radius:var(--radius-card);
+box-shadow:var(--shadow-sm)
 }
 
 .r button{
 width:auto;
-padding:6px 12px;
-margin-right:6px
+min-height:44px;
+padding:8px 14px;
+margin:8px 6px 0 0;
+font-size:12px
 }
 
-.x{
-background:#b3261e!important;
-color:#fff
+.x{background:var(--ox)!important;border-color:var(--ox)!important;color:#fff}
+.x:hover{background:var(--ox-hover)!important;border-color:var(--ox-hover)!important}
+
+.back{background:var(--s2);color:var(--fg);border-color:var(--bd)}
+.back:hover{background:var(--sf);border-color:var(--bd);color:var(--fg)}
+
+.estado{font-weight:600}
+
+small{font-size:12px;line-height:1.5;color:var(--mu)}
+
+#lg{background:var(--s2);border:1px solid var(--bd);border-radius:var(--radius-card);padding:24px;margin-top:24px}
+
+#ms{min-height:20px;color:var(--ox)}
+
+#dlg{
+width:340px;
+max-width:calc(100vw - 32px);
+padding:24px;
+border:1px solid var(--bd);
+border-radius:var(--radius-card);
+background:var(--s2);
+color:var(--fg);
+box-shadow:0 20px 40px -12px rgba(18,16,12,.35)
 }
 
-.back{
-background:#ddd;
-color:#111
-}
-
-.estado{
-font-weight:600;
-margin:6px 0
-}
-
-small{
-line-height:1.5
-}
-
+#dlg::backdrop{background:rgba(18,16,12,.55)}
+#dlg h3{margin-top:0}
+#dlg p{color:var(--mu)}
+.dlg-a{display:flex;gap:8px;margin-top:8px}
+.dlg-a button{flex:1}
 </style>
 </head>
 
@@ -167,6 +214,15 @@ Pedidos
 </main>
 
 
+<dialog id="dlg" aria-labelledby="dlgt" aria-describedby="dlgm">
+<h3 id="dlgt">Confirmar eliminación</h3>
+<p id="dlgm"></p>
+<div class="dlg-a">
+<button type="button" class="back" id="dlgc">Cancelar</button>
+<button type="button" class="x" id="dlgo">Eliminar</button>
+</div>
+</dialog>
+
 <script src="config.js"></script>
 
 <script>
@@ -196,6 +252,66 @@ let OD = null;
 ========================= */
 
 const $ = i => document.getElementById(i);
+
+/* =========================
+   MODAL DE CONFIRMACIÓN
+========================= */
+
+let dlgResolver = null;
+
+function dlgCerrar(valor){
+
+const d = $("dlg");
+
+if(d && d.open){
+d.close();
+}
+
+if(dlgResolver){
+const r = dlgResolver;
+dlgResolver = null;
+r(valor);
+}
+
+}
+
+function askDelete(texto){
+
+const d = $("dlg");
+const m = $("dlgm");
+
+if(!d || typeof d.showModal !== "function"){
+return Promise.resolve(window.confirm(texto));
+}
+
+m.textContent = texto;
+
+if(!d.open){
+d.showModal();
+}
+
+return new Promise(resolver => {
+
+if(dlgResolver){
+const previo = dlgResolver;
+dlgResolver = null;
+previo(false);
+}
+
+dlgResolver = resolver;
+
+});
+
+}
+
+const dlg = $("dlg");
+
+if(dlg){
+$("dlgc").addEventListener("click",()=>dlgCerrar(false));
+$("dlgo").addEventListener("click",()=>dlgCerrar(true));
+dlg.addEventListener("cancel",e=>{e.preventDefault();dlgCerrar(false)});
+dlg.addEventListener("click",e=>{if(e.target===dlg)dlgCerrar(false)});
+}
 
 
 const esc = s =>
@@ -1737,7 +1853,7 @@ scrollTo(0,0);
 
 async function delP(id){
 
-if(!confirm("¿Borrar producto?"))return;
+if(!await askDelete("¿Borrar producto? Esta acción no se puede deshacer."))return;
 
 
 try{
@@ -1810,7 +1926,7 @@ alert(
 
 async function delC(id){
 
-if(!confirm("¿Borrar categoría?"))return;
+if(!await askDelete("¿Borrar categoría? Esta acción no se puede deshacer."))return;
 
 
 try{
@@ -1913,7 +2029,7 @@ alert(
 
 async function delO(id){
 
-if(!confirm("¿Borrar oferta?"))return;
+if(!await askDelete("¿Borrar oferta? Esta acción no se puede deshacer."))return;
 
 
 try{
@@ -1961,7 +2077,7 @@ $("ql").innerHTML=a.length?a.map(x=>'<div class="r"><strong>'+esc(QT[x.tipo]||x.
 function qVer(id){const x=Q.find(y=>y.id===id);if(!x)return;
 $("v").innerHTML='<button class="back" onclick="consultas()">← VOLVER</button><h3>'+esc(QT[x.tipo]||x.tipo)+'</h3><div class="r"><strong>CONTACTO</strong><br>'+esc(x.nombre||"Sin nombre")+'<br>'+esc(x.contacto||"—")+(x.codigo_pedido?'<br>Pedido: '+esc(x.codigo_pedido):'')+'<br><small>'+qf(x.created_at)+'</small></div><div class="r"><strong>MENSAJE</strong><br>'+esc(x.mensaje).replace(/\n/g,"<br>")+'</div><div class="r"><strong>ESTADO</strong><select id="qe2">'+Object.keys(QE).map(k=>'<option value="'+k+'"'+(k===x.estado?" selected":"")+'>'+QE[k]+'</option>').join("")+'</select><button onclick="qGuardar(\''+x.id+'\')">GUARDAR ESTADO</button></div>'+(x.contacto?'<button onclick="qWa(\''+x.id+'\')">CONTACTAR POR WHATSAPP</button>':'')+'<button class="x" onclick="qBorrar(\''+x.id+'\')">BORRAR</button>'}
 async function qGuardar(id){try{const s=$("qe2").value;await api("consultas?id=eq."+encodeURIComponent(id),"PATCH",{estado:s});const x=Q.find(y=>y.id===id);if(x)x.estado=s;qBadge();qVer(id);msg("Estado actualizado correctamente.")}catch(e){alert("No se pudo actualizar el estado.")}}
-async function qBorrar(id){if(!confirm("¿Borrar este mensaje?"))return;try{await api("consultas?id=eq."+encodeURIComponent(id),"DELETE");Q=Q.filter(y=>y.id!==id);qBadge();consultas()}catch(e){alert("No se pudo borrar el mensaje.")}}
+async function qBorrar(id){if(!await askDelete("¿Borrar este mensaje? Esta acción no se puede deshacer."))return;try{await api("consultas?id=eq."+encodeURIComponent(id),"DELETE");Q=Q.filter(y=>y.id!==id);qBadge();consultas()}catch(e){alert("No se pudo borrar el mensaje.")}}
 function qWa(id){const x=Q.find(y=>y.id===id);if(!x)return;let n=String(x.contacto||"").replace(/\D/g,"");if(!n)return;if(n.length===8)n="53"+n;
 window.open("https://wa.me/"+n+"?text="+encodeURIComponent("Hola, le contactamos desde VOLXEN sobre su "+(x.tipo==="incidencia"?"incidencia":"consulta")+(x.codigo_pedido?" del pedido "+x.codigo_pedido:"")+"."),"_blank")}
 
@@ -1970,7 +2086,7 @@ window.open("https://wa.me/"+n+"?text="+encodeURIComponent("Hola, le contactamos
    ========================================================= */
 async function borrarPedido(id){
 const o=(D||[]).find(x=>x.id===id);
-if(!confirm("¿Borrar el pedido "+(o?o.codigo:"")+"? También se borrarán sus productos y su historial. No se puede deshacer."))return;
+if(!await askDelete("¿Borrar el pedido "+(o?o.codigo:"")+"? También se borrarán sus productos y su historial."))return;
 try{
 await api("pedido_items?pedido_id=eq."+encodeURIComponent(id),"DELETE");
 await api("pedido_historial?pedido_id=eq."+encodeURIComponent(id),"DELETE");

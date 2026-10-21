@@ -212,3 +212,74 @@ test("el icono de operadoras es un SVG reutilizable", () => {
     assert.match(core, /hydrateOpIcons/);
     assert.doesNotMatch(html, /fa-headset/);
 });
+
+test("Fase 2: escala tipográfica 24/16/14/16/12", () => {
+    const css = read("volxen.css");
+
+    assert.match(css, /--fs-title:\s*1\.5rem/);
+    assert.match(css, /--fs-subtitle:\s*1rem/);
+    assert.match(css, /--fs-body:\s*0\.875rem/);
+    assert.match(css, /--fs-input:\s*1rem/);
+    assert.match(css, /--fs-help:\s*0\.75rem/);
+    assert.match(css, /h1\s*\{[\s\S]*?font-size:\s*var\(--fs-title\)/);
+    assert.match(css, /h2,\s*h3\s*\{[\s\S]*?font-size:\s*var\(--fs-subtitle\)/);
+    assert.match(css, /\.hero-title[\s\S]*?font-size:\s*var\(--fs-title\)/);
+    assert.match(css, /\.pdp-title[\s\S]*?font-size:\s*var\(--fs-title\)/);
+});
+
+test("Fase 2: tarjetas 24, campos 48/12 y botones píldora", () => {
+    const css = read("volxen.css");
+
+    assert.match(css, /--radius-field:\s*0\.75rem/);
+    assert.match(css, /--radius-card:\s*1\.5rem/);
+    assert.match(css, /--radius-pill:\s*999px/);
+    assert.match(css, /--control-h:\s*3rem/);
+    assert.match(css, /\.card-product\s*\{[\s\S]*?border-radius:\s*var\(--radius-card\)/);
+    assert.match(css, /\.input-base\s*\{[\s\S]*?min-height:\s*var\(--control-h\)[\s\S]*?border-radius:\s*var\(--radius-field\)[\s\S]*?font-size:\s*var\(--fs-input\)/);
+    assert.match(css, /\.btn-primary\s*\{[\s\S]*?border-radius:\s*var\(--radius-pill\)/);
+    assert.match(css, /\.btn-secondary\s*\{[\s\S]*?border-radius:\s*var\(--radius-pill\)/);
+    assert.match(css, /\.pdp-buy[\s\S]*?border-radius:\s*var\(--radius-pill\)/);
+});
+
+test("Fase 2: no quedan textos de 9, 10 u 11 píxeles", () => {
+    const files = [
+        "volxen.css",
+        "admin.html",
+        "volxen-core.js",
+        "pedido.js",
+        "index.html",
+        "catalogo.html",
+        "producto.html",
+        "carrito.html",
+        "checkout.html",
+        "pedidos.html",
+        "404.html",
+        "js/pages/index.js",
+        "js/pages/catalogo.js",
+        "js/pages/producto.js",
+        "js/pages/carrito.js",
+        "js/pages/checkout.js",
+        "js/pages/pedidos.js"
+    ];
+
+    files.forEach((file) => {
+        const src = read(file);
+        assert.doesNotMatch(src, /text-\[(?:9|10|11)px\]/, file);
+        assert.doesNotMatch(src, /font-size:\s*(?:9|10|11)px/, file);
+        assert.doesNotMatch(src, /font:\s*[^;{}]*?\b(?:9|10|11)px\b/, file);
+    });
+});
+
+test("Fase 2: el admin usa modal accesible en vez de confirm()", () => {
+    const admin = read("admin.html");
+
+    assert.match(admin, /<dialog id="dlg"[^>]*aria-labelledby="dlgt"/);
+    assert.match(admin, /function askDelete\(texto\)/);
+    assert.match(admin, /await askDelete\(/);
+    assert.doesNotMatch(admin, /if\s*\(\s*!confirm\(/);
+    assert.match(admin, /\.dlg-a\s*\{[\s\S]*?display:\s*flex/);
+
+    const dialogBlock = admin.match(/#dlg\s*\{[\s\S]*?\}/)[0];
+    assert.match(dialogBlock, /width:\s*340px/);
+    assert.match(dialogBlock, /border-radius:\s*var\(--radius-card\)/);
+});

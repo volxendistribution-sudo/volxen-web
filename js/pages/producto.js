@@ -8,7 +8,7 @@ export async function initProducto() {
     var id = new URLSearchParams(location.search).get("id") || "";
 
     if (!id) {
-        host.innerHTML = '<div class="bg-s2 border border-bd rounded-2xl shadow-sm p-8 max-w-md mx-auto text-center"><h3 class="text-xl font-bold text-fg mb-2">Producto no especificado</h3><p class="text-mu mb-4">Falta el identificador del producto.</p><a class="btn-primary inline-block" href="catalogo.html">Ver el catálogo</a></div>';
+        host.innerHTML = '<div class="bg-s2 border border-bd rounded-2xl shadow-sm p-8 max-w-md mx-auto text-center"><h3 class="font-bold text-fg mb-2">Producto no especificado</h3><p class="text-mu mb-4">Falta el identificador del producto.</p><a class="btn-primary inline-flex px-5 py-3" href="catalogo.html">Ver el catálogo</a></div>';
         return;
     }
 
@@ -36,7 +36,7 @@ export async function initProducto() {
     }
 
     if (!p) {
-        host.innerHTML = '<div class="bg-s2 border border-bd rounded-2xl shadow-sm p-8 max-w-md mx-auto text-center"><h3 class="text-xl font-bold text-fg mb-2">Producto no disponible</h3><p class="text-mu mb-4">No encontramos esta pieza (ID: ' + VX.esc(id) + '). Puede que ya no esté publicada o el ID sea incorrecto.</p><a class="btn-primary inline-block" href="catalogo.html">Ver el catálogo</a></div>';
+        host.innerHTML = '<div class="bg-s2 border border-bd rounded-2xl shadow-sm p-8 max-w-md mx-auto text-center"><h3 class="font-bold text-fg mb-2">Producto no disponible</h3><p class="text-mu mb-4">No encontramos esta pieza (ID: ' + VX.esc(id) + '). Puede que ya no esté publicada o el ID sea incorrecto.</p><a class="btn-primary inline-flex px-5 py-3" href="catalogo.html">Ver el catálogo</a></div>';
         return;
     }
 
