@@ -2,7 +2,9 @@
 module.exports = {
   content: [
     './*.html',
-    './js/**/*.js'
+    './js/**/*.js',
+    './volxen-core.js',
+    './pedido.js'
   ],
   theme: {
     extend: {
@@ -40,6 +42,16 @@ module.exports = {
           800: '#2A2823',
           900: '#1E1D1B',
         },
+        g: '#C8A165',
+        'g-hover': '#B08A4F',
+        fg: '#1E1D1B',
+        mu: '#6B6557',
+        s2: '#FFFFFF',
+        sf: '#F8F7F4',
+        bg: '#F8F7F4',
+        bd: '#EAE6DE',
+        ox: '#B65F40',
+        pf: '#2E4A3F',
       },
       fontFamily: {
         sans: ['Inter Tight', 'sans-serif'],
