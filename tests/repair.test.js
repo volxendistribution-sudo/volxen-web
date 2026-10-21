@@ -259,7 +259,9 @@ test("Fase 2: no quedan textos de 9, 10 u 11 píxeles", () => {
         "js/pages/producto.js",
         "js/pages/carrito.js",
         "js/pages/checkout.js",
-        "js/pages/pedidos.js"
+        "js/pages/pedidos.js",
+        "consulta.html",
+        "js/pages/consulta.js"
     ];
 
     files.forEach((file) => {
@@ -282,4 +284,144 @@ test("Fase 2: el admin usa modal accesible en vez de confirm()", () => {
     const dialogBlock = admin.match(/#dlg\s*\{[\s\S]*?\}/)[0];
     assert.match(dialogBlock, /width:\s*340px/);
     assert.match(dialogBlock, /border-radius:\s*var\(--radius-card\)/);
+});
+
+test("Fase 3: cabecera con Mi cuenta, búsqueda única y acceso Catálogo", () => {
+    const core = read("volxen-core.js");
+
+    assert.match(core, /function minimalHeader\(\)/);
+    assert.match(core, /dataset\.shell === "minimal"/);
+    assert.match(core, /href="pedidos.html"[^>]*aria-label="Mi cuenta"/);
+    assert.match(core, /\[\{ id: "", nombre: "Catálogo" \}\]/);
+    assert.match(core, /href="consulta\.html">Consulta general/);
+    assert.doesNotMatch(core, /searchMobileInput/);
+    assert.doesNotMatch(core, /id="cqv"/);
+    assert.doesNotMatch(core, /function consultas\(\)/);
+});
+
+test("Fase 3: seguimiento con estados canónicos y consulta pública", async () => {
+    const core = read("volxen-core.js");
+    assert.match(core, /const estadoLargo = e =>/);
+    assert.match(core, /Pedido recibido/);
+    assert.match(core, /Confirmando pedido/);
+    assert.match(core, /Preparando pedido/);
+    assert.match(core, /Hablar con una operadora/);
+    assert.match(core, /async function consultarPedido\(c, t\)/);
+    assert.match(core, /consultarPedido, estadoLargo/);
+
+    const { win, storage } = loadCore({
+        fetchImpl: async () => ({
+            ok: true,
+            clone() { return this; },
+            json: async () => ({
+                codigo: "VX-2026-000001",
+                estado: "confirmado",
+                nombre_cliente: "Ana",
+                total_usd: 10,
+                pedido_items: [{ producto_nombre: "Producto", cantidad: 1, subtotal: 10 }],
+                pedido_historial: [
+                    { estado: "pendiente", created_at: "2026-10-20T10:00:00Z" },
+                    { estado: "confirmado", created_at: "2026-10-21T10:00:00Z" }
+                ]
+            })
+        })
+    });
+
+    assert.equal(win.VX.estadoLargo("pendiente"), "Pedido recibido");
+    assert.equal(win.VX.estadoLargo("confirmado"), "Confirmando pedido");
+    assert.equal(win.VX.estadoLargo("preparando"), "Preparando pedido");
+    assert.equal(win.VX.estadoLargo("en_camino"), "En camino");
+    assert.equal(win.VX.estadoLargo("entregado"), "Entregado");
+    assert.equal(win.VX.estadoLargo("cancelado"), "Cancelado");
+
+    const order = await win.VX.consultarPedido(" vx-2026-000001 ", "token");
+    assert.equal(order.c, "VX-2026-000001");
+    assert.match(storage._data.get("vx_pedidos"), /VX-2026-000001/);
+});
+
+test("Fase 3: catálogo con ofertas, categorías y productos filtrables", () => {
+    const html = read("catalogo.html");
+    const js = read("js/pages/catalogo.js");
+
+    assert.match(html, />Catálogo</);
+    assert.match(html, /id="offersRow"/);
+    assert.match(html, /id="categoryGrid"/);
+    assert.match(html, /id="productos"/);
+    assert.match(js, /function renderOfertas\(\)/);
+    assert.match(js, /function renderCategorias\(\)/);
+    assert.match(js, /c\.imagen/);
+    assert.match(js, /scrollIntoView/);
+    assert.doesNotMatch(js, /searchMobileInput/);
+});
+
+test("Fase 3: Mis pedidos es una página independiente con formulario y resultado", () => {
+    const html = read("pedidos.html");
+    const js = read("js/pages/pedidos.js");
+
+    assert.match(html, /data-shell="minimal"/);
+    assert.match(html, /id="trackForm"/);
+    assert.match(html, /id="tc"/);
+    assert.match(html, /id="tt"/);
+    assert.match(html, /id="trackResult"/);
+    assert.match(js, /VX\.consultarPedido/);
+    assert.doesNotMatch(js, /trackLista/);
+});
+
+test("Fase 3: consulta general e incidencias con cuatro tipos", () => {
+    const html = read("consulta.html");
+    const js = read("js/pages/consulta.js");
+
+    assert.match(html, /data-shell="minimal"/);
+    assert.match(html, /id="cnombre"/);
+    assert.match(html, /id="ct"/);
+    assert.match(html, /id="ce"/);
+    assert.match(html, /value="consulta"/);
+    assert.match(html, /value="incidencia"/);
+    assert.match(html, /value="queja"/);
+    assert.match(html, /value="opinion"/);
+    assert.match(html, /id="cp"/);
+    assert.match(html, /id="cm"/);
+    assert.match(js, /registrar_consulta_v2/);
+    assert.match(js, /registrar_consulta"/);
+    assert.match(js, /tel \+ " · " \+ email/);
+});
+
+test("Fase 3: admin sube imagen de categoría y filtra quejas/opiniones", () => {
+    const admin = read("admin.html");
+
+    assert.match(admin, /id="cf"/);
+    assert.match(admin, /function catUpload\(file\)/);
+    assert.match(admin, /async function setCImg\(id\)/);
+    assert.match(admin, /queja:"Queja"/);
+    assert.match(admin, /opinion:"Opinión"/);
+    assert.match(admin, /split\("·"\)/);
+});
+
+test("Fase 3: estilos de formulario, ofertas, categorías y seguimiento", () => {
+    const css = read("volxen.css");
+
+    assert.match(css, /\.form-card\s*\{[\s\S]*?border-radius:\s*var\(--radius-card\)/);
+    assert.match(css, /\.form-actions\s*\{[\s\S]*?display:\s*flex/);
+    assert.match(css, /\.offers-row\s*\{[\s\S]*?overflow-x:\s*auto/);
+    assert.match(css, /\.category-grid\s*\{[\s\S]*?display:\s*grid/);
+    assert.match(css, /\.track-action\s*\{[\s\S]*?min-height:\s*var\(--control-h\)/);
+});
+
+test("Fase 3: migración de imagen, tipos y RPC de consulta", () => {
+    const sql = read("supabase/migrations/20261021_fase3_catalogo_consultas.sql");
+
+    assert.match(sql, /ADD COLUMN IF NOT EXISTS imagen text/);
+    assert.match(sql, /'consulta', 'incidencia', 'queja', 'opinion'/);
+    assert.match(sql, /CREATE OR REPLACE FUNCTION public\.registrar_consulta_v2/);
+    assert.match(sql, /GRANT EXECUTE ON FUNCTION public\.registrar_consulta_v2/);
+    assert.match(sql, /attname = 'codigo'/);
+    assert.match(sql, /'nueva'/);
+});
+
+test("Fase 3: build y módulos incluyen consulta.html", () => {
+    const pkg = JSON.parse(read("package.json"));
+    const main = read("js/main.js");
+
+    assert.match(pkg.scripts["build:html"], /consulta\.html/);
+    assert.match(main, /'consulta': 'consulta'/);
 });

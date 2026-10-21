@@ -31,18 +31,34 @@
     <link rel="stylesheet" href="dist/volxen.css">
 </head>
 
-<body class="h-full bg-bg text-fg flex flex-col font-sans antialiased selection:bg-g selection:text-fg" data-page="pedidos">
+<body class="h-full bg-bg text-fg flex flex-col font-sans antialiased selection:bg-g selection:text-fg" data-page="pedidos" data-shell="minimal">
 
     <a href="#main" class="skip-link">Saltar al contenido principal</a>
 
     <main id="main" class="flex-1 max-w-3xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div class="bg-s2 border border-bd rounded-2xl shadow-sm p-6">
-            <div class="flex items-center justify-between mb-6">
-                <h1 class="font-bold text-fg">Mis pedidos</h1>
-                <a href="catalogo.html" class="btn-ghost text-sm"><i class="fa-solid fa-plus mr-1" aria-hidden="true"></i> Nuevo pedido</a>
-            </div>
+        <section id="trackCard" class="form-card">
+            <h1>Mis pedidos</h1>
+            <p class="form-intro">Consulte el estado de su pedido con el código que recibió al confirmar su compra y su código de seguimiento.</p>
+            <form id="trackForm" novalidate>
+                <div class="field">
+                    <label for="tc">Código del pedido</label>
+                    <input id="tc" name="codigo" class="input-base" type="text" placeholder="VX-2026-000001" autocomplete="off" autocapitalize="characters" spellcheck="false" required>
+                </div>
+                <div class="field">
+                    <label for="tt">Código de seguimiento</label>
+                    <input id="tt" name="seguimiento" class="input-base" type="text" placeholder="Escriba su código de seguimiento" autocomplete="off" spellcheck="false" required>
+                </div>
+                <p id="te" class="form-error" role="alert"></p>
+                <div class="form-actions">
+                    <a href="index.html" class="btn-secondary">Cancelar</a>
+                    <button type="submit" id="tsub" class="btn-primary">Consultar pedido</button>
+                </div>
+            </form>
+        </section>
+
+        <section id="trackResult" class="form-card hidden" aria-live="polite">
             <div id="pv"></div>
-        </div>
+        </section>
     </main>
 
     <script src="config.js"></script>

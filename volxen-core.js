@@ -217,7 +217,7 @@ function cart() {
 /* ===== Cabecera, pie y overlays compartidos ===== */
 function renderNav() {
     const nav = $("cn");
-    if (nav) nav.innerHTML = [{ id: "", nombre: "Todos los Departamentos" }].concat(Cs).map(c =>
+    if (nav) nav.innerHTML = [{ id: "", nombre: "Catálogo" }].concat(Cs).map(c =>
         '<a href="catalogo.html' + (c.id ? '?cat=' + encodeURIComponent(c.id) : '') + '" data-a="cat" data-id="' + esc(c.id) + '" class="nav-chip whitespace-nowrap px-3.5 py-1.5 rounded-lg transition ' + (c.id === cat ? "nav-chip-on" : "nav-chip-off") + '">' + esc(c.nombre) + '</a>'
     ).join("");
     const fdp = $("fdp");
@@ -262,18 +262,34 @@ function operadoras() {
         '</div></div></div></div>';
 }
 
+function minimalHeader() {
+    return '<header id="hd" class="sticky top-0 z-50 bg-sf text-fg border-b border-bd shadow-sm">' +
+        '<div class="max-w-3xl mx-auto px-4 sm:px-6"><div class="flex items-center justify-between h-16 gap-4">' +
+        '<a href="index.html" class="flex items-center gap-2 shrink-0" aria-label="VOLXEN, comercializadora de tecnología y energía en Cuba"><img src="logo-light.svg" alt="Logo VOLXEN" class="h-8 w-auto shrink-0"><span class="logo-wm" role="img" aria-label="VOLXEN"></span></a>' +
+        '<a href="index.html" class="btn-secondary hover:bg-sf px-4 py-2.5 text-sm font-bold transition flex items-center gap-2"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>Volver al inicio</span></a>' +
+        '</div></div></header>';
+}
+
 function shell() {
+    if (document.body.dataset.shell === "minimal") {
+        document.body.insertAdjacentHTML("afterbegin", minimalHeader());
+        document.body.insertAdjacentHTML("beforeend", '<div id="ts"></div>' + operadoras() +
+            '<div class="zm" id="zm"><button class="zx" aria-label="Cerrar">×</button><img alt=""></div>');
+        return;
+    }
+
     const header =
         '<header id="hd" class="sticky top-0 z-50 bg-sf text-fg border-b border-bd shadow-sm">' +
-        '<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="flex items-center justify-between h-14 sm:h-16 gap-2">' +
+        '<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="flex items-center justify-between h-14 sm:h-16 gap-3">' +
         '<a href="index.html" class="flex items-center gap-1.5 sm:gap-2 shrink-0" aria-label="VOLXEN, comercializadora de tecnología y energía en Cuba"><img src="logo-light.svg" alt="Logo VOLXEN" class="h-7 sm:h-8 w-auto shrink-0"><span class="block leading-none hidden sm:block"><span class="logo-wm" role="img" aria-label="VOLXEN"></span><span class="logo-tagline block mt-0.5 text-mu font-bold">Comercializadora</span></span></a>' +
-        '<div class="flex-1 max-w-xl hidden md:flex"><div class="relative w-full"><input type="text" id="searchInput" placeholder="Buscar productos..." class="w-full input-base placeholder-mu text-xs sm:text-sm rounded-lg pl-3 pr-10 py-1.5 sm:py-2 focus-ring-g"><button data-search class="absolute right-1 top-1/2 -translate-y-1/2 px-3 btn-primary hover:bg-g-hover hover:text-fg rounded transition flex items-center justify-center"><i class="fa-solid fa-magnifying-glass text-xs sm:text-sm"></i></button></div></div>' +
         '<div class="flex items-center space-x-2">' +
-        '<a href="carrito.html" aria-label="Ver su pedido" class="relative btn-primary hover:bg-g-hover hover:text-fg font-bold px-2.5 py-1.5 rounded-lg flex items-center space-x-1.5 transition shadow-sm"><i class="fa-solid fa-cart-shopping text-base"></i><span class="hidden sm:inline text-xs">Carrito</span><span id="bd" class="absolute -top-1.5 -right-1.5 bg-fg text-g text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-sm">0</span></a>' +
-        '<button data-a="menu" aria-label="Abrir menú" class="bg-s2 hover:bg-sf border border-bd text-fg p-1.5 rounded-lg transition"><i class="fa-solid fa-bars text-base"></i></button>' +
+        '<button data-a="menu" aria-label="Abrir menú" class="bg-s2 hover:bg-sf border border-bd text-fg px-2.5 py-2 rounded-lg transition flex items-center gap-1.5"><i class="fa-solid fa-bars text-base"></i><span class="hidden sm:inline text-xs font-bold">Menú</span></button>' +
+        '<a href="pedidos.html" aria-label="Mi cuenta" class="bg-s2 hover:bg-sf border border-bd text-fg px-2.5 py-2 rounded-lg transition flex items-center gap-1.5"><i class="fa-regular fa-user text-base"></i><span class="hidden sm:inline text-xs font-bold">Mi cuenta</span></a>' +
+        '<a href="carrito.html" aria-label="Ver su pedido" class="relative btn-primary hover:bg-g-hover hover:text-fg font-bold px-2.5 py-2 rounded-lg flex items-center space-x-1.5 transition shadow-sm"><i class="fa-solid fa-cart-shopping text-base"></i><span class="hidden sm:inline text-xs">Carrito</span><span id="bd" class="absolute -top-1.5 -right-1.5 bg-fg text-g text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-sm">0</span></a>' +
         '</div></div>' +
-        '<div class="pb-1.5 md:hidden border-t border-bd"><div class="relative w-full"><input type="text" id="searchMobileInput" placeholder="Buscar productos..." class="w-full input-base placeholder-mu text-sm rounded-lg pl-3 pr-10 py-1.5 focus-ring-g"><button data-search class="absolute right-1 top-1/2 -translate-y-1/2 px-3 btn-primary text-fg rounded"><i class="fa-solid fa-magnifying-glass text-sm"></i></button></div></div>' +
-        '<div class="bg-sf border-t border-bd px-4"><div class="max-w-7xl mx-auto flex space-x-1 overflow-x-auto py-1.5 scrollbar-none font-medium" id="cn"></div></div></header>';
+        '<div class="pb-2"><div class="relative w-full"><input type="text" id="searchInput" placeholder="Buscar productos..." class="w-full input-base placeholder-mu pr-12 focus-ring-g"><button data-search aria-label="Buscar" class="absolute right-1 top-1/2 -translate-y-1/2 px-3 py-2 btn-primary hover:bg-g-hover hover:text-fg rounded transition flex items-center justify-center"><i class="fa-solid fa-magnifying-glass"></i></button></div></div>' +
+        '<div class="border-t border-bd"><div class="flex space-x-1 overflow-x-auto py-1.5 scrollbar-none font-medium" id="cn"></div></div>' +
+        '</div></header>';
 
     const footer =
         '<footer class="bg-fg text-mu pt-16 pb-12 mt-16 border-t border-bd"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">' +
@@ -281,88 +297,23 @@ function shell() {
         '<p class="text-xs text-mu leading-relaxed">VOLXEN es una comercializadora de tecnología y energía en Cuba, con sede en La Habana. Transparencia y confianza en cada venta.</p>' +
         '<div class="flex space-x-3 pt-2"><a href="https://www.facebook.com/share/1M1HdetBFY/" target="_blank" rel="noopener noreferrer" aria-label="Facebook de VOLXEN" title="Facebook de VOLXEN" class="w-9 h-9 rounded-lg bg-s2 hover:bg-g hover:text-fg text-fg flex items-center justify-center transition"><i class="fa-brands fa-facebook-f"></i></a></div></div>' +
         '<div><h4 class="text-s2 font-semibold text-sm mb-4 uppercase tracking-wider">Departamentos</h4><ul id="fdp" class="space-y-2 text-xs"></ul></div>' +
-        '<div><h4 class="text-s2 font-semibold text-sm mb-4 uppercase tracking-wider">Atención al Cliente</h4><ul class="space-y-2 text-xs"><li><a href="#operadoras" class="hover:text-g transition inline-flex items-center gap-2">' + opIcon(24) + '<span>Contacte con nuestras operadoras</span></a></li></ul></div>' +
+        '<div><h4 class="text-s2 font-semibold text-sm mb-4 uppercase tracking-wider">Atención al Cliente</h4><ul class="space-y-2 text-xs"><li><a href="#operadoras" class="hover:text-g transition inline-flex items-center gap-2">' + opIcon(24) + '<span>Contacte con nuestras operadoras</span></a></li><li><a href="consulta.html" class="hover:text-g transition">Consulta general e incidencias</a></li></ul></div>' +
         '<div><h4 class="text-s2 font-semibold text-sm mb-4 uppercase tracking-wider">Información</h4><ul class="space-y-2 text-xs"><li><a href="index.html#comoTrabajamos" class="hover:text-g transition">Cómo trabajamos</a></li></ul></div>' +
         '</div><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-bd pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-mu"><p>&copy; <span id="yr">2026</span> Volxen Comercializadora Cuba. Todos los derechos reservados.</p></div></footer>';
 
     const menu =
         '<div class="ov" id="mnv"><div class="bx sh lf"><button class="xb" data-a="close" aria-label="Cerrar">×</button><span class="ey" style="margin-top:.5rem">Menú</span><nav class="mn" aria-label="Menú principal">' +
-        '<a href="catalogo.html">Colección</a>' +
+        '<a href="catalogo.html">Catálogo</a>' +
         '<a href="carrito.html">Carrito</a><a href="pedidos.html">Mis pedidos</a>' +
-        '<button data-a="cq">Consulta general</button><button data-a="ci">Reportar incidencia</button>' +
+        '<a href="consulta.html">Consulta general</a><a href="consulta.html?tipo=incidencia">Reportar incidencia</a><a href="consulta.html?tipo=queja">Queja u opinión</a>' +
         '<a href="admin.html">Acceso al panel</a></nav></div></div>';
 
     const overlays =
         '<div id="ts"></div>' + operadoras() +
-        '<div class="ov" id="cqv"><div class="bx sh"><button class="xb" data-a="close" aria-label="Cerrar">×</button><h3 id="cqt" style="margin-top:0"></h3><p class="nt" style="margin-top:1rem">Su mensaje queda registrado y un asesor se comunicará con usted por el teléfono o correo que indique.</p><input id="cqn" placeholder="Nombre y apellidos *" autocomplete="name" class="input-base"><input id="cqc" placeholder="Teléfono o correo *" autocomplete="on" class="input-base"><input id="cqp" placeholder="Código del pedido (opcional)" autocomplete="off" autocapitalize="characters" class="input-base"><textarea id="cqm" placeholder="Escriba su mensaje *" class="input-base"></textarea><p id="cqe" style="color:var(--ox);min-height:20px;margin-top:8px;font-size:var(--fs-help)"></p><button class="btn-primary" style="width:100%" id="cqs" data-a="cqsend">Enviar</button><button class="btn-secondary" style="width:100%" data-a="cqseg">Ver seguimiento de mis consultas</button></div></div>' +
-        '<div class="ov" id="cgv"><div class="bx sh"><button class="xb" data-a="close" aria-label="Cerrar">×</button><h3 style="margin-top:0">Mis consultas</h3><div id="cgl"></div></div></div>' +
-        '<div class="av" id="av"></div><div class="zm" id="zm"><button class="zx" aria-label="Cerrar">×</button><img alt=""></div>';
+        '<div class="zm" id="zm"><button class="zx" aria-label="Cerrar">×</button><img alt=""></div>';
 
     document.body.insertAdjacentHTML("afterbegin", header);
     document.body.insertAdjacentHTML("beforeend", footer + menu + overlays);
-}
-
-/* ===== Consulta general e incidencias ===== */
-const LK = "vx_consultas";
-const rdc = () => { try { return JSON.parse(localStorage.getItem(LK) || "[]") } catch (e) { return [] } };
-const wrc = a => { try { localStorage.setItem(LK, JSON.stringify(a.slice(0, 30))) } catch (e) {} };
-const fk = x => {
-    if (x && typeof x === "object") {
-        for (const [k, v] of Object.entries(x))
-            if (/codigo|ticket|folio|referencia/i.test(k) && typeof v === "string" && v) return v;
-        for (const v of Object.values(x)) { const r = fk(v); if (r) return r }
-    }
-};
-let cqBusy = false, cqAt;
-function cqAviso(t) {
-    const a = $("av"); if (!a) return;
-    clearTimeout(cqAt);
-    a.innerHTML = '<b>Recibimos su ' + (t === "consulta" ? "consulta" : "incidencia") + '</b><p>Un asesor se comunicará con usted por el teléfono o correo que indicó. No necesita hacer nada más: puede ver el estado cuando quiera en «Ver seguimiento».</p><button data-a="cqseg" style="min-height:44px;margin-top:6px;color:var(--gi);font:600 var(--fs-help)/1.4 var(--s);letter-spacing:.14em;text-transform:uppercase">Ver seguimiento</button><i></i>';
-    a.setAttribute("role", "status");
-    a.setAttribute("aria-live", "polite");
-    a.setAttribute("aria-atomic", "true");
-    a.classList.add("on");
-    cqAt = setTimeout(() => a.classList.remove("on"), 5000);
-}
-function cqLista() {
-    const a = rdc(), el = $("cgl"); if (!el) return;
-    el.innerHTML = a.length ? a.map(x =>
-        '<div style="border-top:1px solid var(--gl);padding:1.25rem 0"><span class="ey">' +
-        (x.t === "consulta" ? "Consulta general" : "Incidencia") + (x.c ? " · " + esc(x.c) : "") +
-        '</span><p style="margin-top:8px;color:var(--fg)">' +
-        esc(x.m.length > 90 ? x.m.slice(0, 90) + "…" : x.m) + '</p><p class="nt" style="margin-top:6px">' +
-        new Date(x.f).toLocaleDateString("es", { day: "numeric", month: "long", year: "numeric" }) +
-        ' · Estado: <span style="color:var(--gi)">Recibida</span></p><p class="nt">Un asesor se comunicará con usted por el contacto que indicó.</p></div>'
-    ).join("") : '<p style="margin-top:1rem">Aún no ha enviado consultas desde este dispositivo.</p>';
-}
-function consultas() {
-    document.addEventListener("click", async e => {
-        const t = e.target.closest('[data-a="cqsend"]');
-        if (!t) return;
-        e.stopPropagation();
-        if (cqBusy) return;
-        const n = $("cqn").value.trim(), c = $("cqc").value.trim(),
-            p = $("cqp").value.trim().toUpperCase(), m = $("cqm").value.trim(), b = $("cqs"), er = $("cqe");
-        if (n.length < 2 || c.length < 6 || m.length < 5) { er.textContent = "Complete su nombre, su teléfono o correo y el mensaje."; return; }
-        er.textContent = "";
-        cqBusy = true; b.disabled = true; b.textContent = "Enviando…";
-        const ty = $("cqt").textContent === "Consulta general" ? "consulta" : "incidencia";
-        let ok = false, cod;
-        try {
-            const r = await fetch(C.SUPABASE_URL + "/rest/v1/rpc/registrar_consulta", {
-                method: "POST", headers: { apikey: C.SUPABASE_KEY, "Content-Type": "application/json" },
-                body: JSON.stringify({ p_tipo: ty, p_nombre: n, p_contacto: c, p_codigo_pedido: p, p_mensaje: m })
-            });
-            ok = r.ok;
-            if (ok) { try { cod = fk(await r.clone().json()) } catch (x) {} }
-        } catch (x) {}
-        cqBusy = false; b.disabled = false; b.textContent = "Enviar";
-        if (!ok) { er.textContent = "No se pudo enviar. Revise su conexión e inténtelo de nuevo."; return; }
-        const a = rdc(); a.unshift({ t: ty, m: m, f: Date.now(), c: cod || "" }); wrc(a);
-        $("cqm").value = "";
-        hide();
-        setTimeout(() => cqAviso(ty), 350);
-    }, true);
 }
 
 /* ===== Seguimiento de pedidos ===== */
@@ -390,47 +341,40 @@ window.fetch = function (u, o) {
     return r;
 };
 const pe = s => { s = String(s || "").replace(/_/g, " "); return s.charAt(0).toUpperCase() + s.slice(1) };
+const estadoLargo = e => {
+    const x = String(e || "").toLowerCase();
+    if (/cancel|rechaz/.test(x)) return "Cancelado";
+    if (/entreg|complet/.test(x)) return "Entregado";
+    if (/camino|ruta|envi|transp|despach/.test(x)) return "En camino";
+    if (/prepar|proces|aprob|list/.test(x)) return "Preparando pedido";
+    if (/confirm/.test(x)) return "Confirmando pedido";
+    if (/pend|recib|regist|nuev/.test(x)) return "Pedido recibido";
+    return pe(e);
+};
 const dt = o => { const h = o.hs.map(x => x.created_at).filter(Boolean).sort()[0]; return h ? new Date(h) : null };
 const img = n => { const p = P.find(x => x.nombre === n); return p ? ft(p)[0] || "" : "" };
 const fd = d => d.toLocaleDateString("es", { day: "numeric", month: "long", year: "numeric" });
-const D = {}; let L = 0;
+const fh = d => d ? d.toLocaleString("es", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "";
+const D = {};
 const ask = (c, t) => fetch(C.SUPABASE_URL + "/rest/v1/rpc/consultar_pedido_tracking", { method: "POST", headers: { apikey: C.SUPABASE_KEY, "Content-Type": "application/json" }, body: JSON.stringify({ p_codigo: c, p_tracking_token: t }) }).then(async r => { const j = await r.json(); if (!r.ok) throw new Error((j && j.message) || "No se pudo consultar el pedido."); if (!j || !findValue(j, "codigo")) throw new Error("No encontramos un pedido con esos códigos."); return j });
 const inf = j => ({ c: findValue(j, "codigo"), e: findValue(j, "estado"), n: findValue(j, "nombre_cliente"), t: findValue(j, "total_usd"), it: fa(j, "producto_nombre") || [], hs: fa(j, "estado") || [] });
-const st = e => { e = String(e || "").toLowerCase(); return /cancel|rechaz/.test(e) ? -1 : /entreg|complet/.test(e) ? 3 : /camino|ruta|envi|transp|despach/.test(e) ? 2 : /confirm|prepar|proces|aprob/.test(e) ? 1 : /pend|recib|regist|nuev/.test(e) ? 0 : null };
 
-function trackLista() {
-    const pv = $("pv"); if (!pv) return;
-    const k = ++L, a = rdp();
-    pv.innerHTML = '<h3 style="margin-top:0">Mis pedidos</h3>' +
-        (a.length ? '<div id="ol"><p class="nt">Cargando sus pedidos…</p></div>' :
-            '<p style="margin-top:1rem">Aún no tiene pedidos guardados en este dispositivo.</p>') +
-        '<details style="margin-top:2rem"><summary class="lb" style="min-height:44px;display:flex;align-items:center;cursor:pointer">Agregar un pedido con sus códigos</summary><input id="sc" class="input-base" placeholder="Código del pedido (VX-2026-000001)" autocomplete="off" autocapitalize="characters"><input id="st" class="input-base" placeholder="Código de seguimiento" autocomplete="off"><p id="se" style="color:var(--ox);min-height:20px;margin-top:8px;font-size:var(--fs-help)"></p><button class="btn-primary" style="width:100%" data-a="padd">Agregar pedido</button></details>';
-    Promise.all(a.map(x => ask(x.c, x.t).then(j => { D[x.c] = inf(j) }).catch(() => { D[x.c] = null }))).then(() => {
-        const ol = $("ol"); if (k !== L || !ol) return;
-        ol.innerHTML = a.map(x => {
-            const o = D[x.c];
-            if (!o) return '<button class="od" data-a="pdet" data-id="' + esc(x.c) + '"><span class="ey">' + esc(x.c) + '</span><span class="nt">No se pudo actualizar. Toque para reintentar.</span></button>';
-            const d = dt(o) || new Date(x.f);
-            return '<button class="od" data-a="pdet" data-id="' + esc(x.c) + '"><span class="ey">' + esc(x.c) + '</span><b>' + esc(pe(o.e)) + '</b><span class="th">' +
-                o.it.slice(0, 3).map(p => img(p.producto_nombre) ? '<img src="' + esc(img(p.producto_nombre)) + '" alt="">' : "").join("") +
-                '</span><span>' + (o.it.length > 1 ? o.it.length + ' productos' : o.it[0] ? esc(o.it[0].producto_nombre) : '') +
-                '</span><span class="nt">' + fd(d) + (o.t != null ? ' · ' + fm(Number(o.t)) : '') + '</span></button>';
-        }).join("");
-    });
-}
 function trackDet(c) {
     const pv = $("pv"); if (!pv) return;
-    L++;
     const o = D[c];
-    if (!o) { trackLista(); return }
-    const s = st(o.e), h = o.hs.slice().sort((x, y) => String(y.created_at).localeCompare(String(x.created_at)));
+    if (!o) { pv.innerHTML = '<p class="form-error" role="alert">No encontramos un pedido con esos códigos.</p>'; return; }
+    const cancelado = /cancel|rechaz/.test(String(o.e || "").toLowerCase());
+    const fecha = dt(o) || (o.f ? new Date(o.f) : null);
+    const h = o.hs.slice().sort((x, y) => String(y.created_at).localeCompare(String(x.created_at)));
     pv.innerHTML =
-        '<button class="lb btn-ghost" data-a="pback" style="min-height:44px;width:auto"><i class="fa-solid fa-arrow-left mr-1"></i> Mis pedidos</button>' +
-        '<p class="ey" style="margin-top:1rem">Pedido</p><h3 style="margin:.5rem 0">' + esc(o.c) + '</h3>' +
-        '<p>Estado actual: <b style="color:var(--gi);font-weight:400">' + esc(pe(o.e)) + '</b></p>' +
-        (s === -1 ? '<span class="badge-out-of-stock" style="display:inline-block;margin-top:.5rem;padding:4px 8px;border-radius:4px">Cancelado</span>' :
-            s != null ? '<div class="pb">' + ["Recibido", "Confirmado", "En camino", "Entregado"].map((l, i) =>
-                '<span' + (i <= s ? ' class="on"' : '') + '><i></i>' + l + '</span>').join("") + '</div>' : '') +
+        '<div class="track-head"><div><p class="ey">Pedido</p><h2 class="order-code">' + esc(o.c) + '</h2></div>' +
+        '<span class="' + (cancelado ? 'badge-out-of-stock' : 'badge-category') + ' track-badge">' + esc(estadoLargo(o.e)) + '</span></div>' +
+        '<div class="track-summary">' +
+        '<div><span class="ey">Estado actual</span><b>' + esc(estadoLargo(o.e)) + '</b></div>' +
+        (o.t != null ? '<div><span class="ey">Total de productos</span><b>' + fm(Number(o.t)) + '</b></div>' : '') +
+        (o.n ? '<div><span class="ey">Cliente</span><b>' + esc(o.n) + '</b></div>' : '') +
+        (fecha ? '<div><span class="ey">Registrado</span><b>' + esc(fd(fecha)) + '</b></div>' : '') +
+        '</div>' +
         '<p class="lb" style="margin-top:2rem">Productos</p>' +
         '<div class="space-y-0">' +
         o.it.map(p => {
@@ -442,24 +386,28 @@ function trackDet(c) {
                 (p.subtotal != null ? ' <span class="track-subtotal">· ' + fm(Number(p.subtotal)) + '</span>' : '') + '</span></div></div>';
         }).join("") +
         '</div>' +
-        (o.t != null ? '<p class="tt">Total de productos: <b>' + fm(Number(o.t)) + '</b></p>' : '') +
-        (o.n ? '<p>Cliente: ' + esc(o.n) + '</p>' : '') +
-        (h.length ? '<p class="lb" style="margin-top:2rem">Seguimiento</p><div class="tl">' +
-            h.map(x => '<p><span style="color:var(--fg)">' + esc(pe(x.estado)) + '</span>' +
-                (x.created_at ? '<br>' + esc(new Date(x.created_at).toLocaleString("es")) : '') +
-                (x.comentario ? '<br><span class="nt">' + esc(x.comentario) + '</span>' : '') + '</p>'
-            ).join("") + '</div>' : '') +
-        '<a class="btn-secondary" style="width:100%;margin-top:2rem;display:flex;align-items:center;justify-content:center" href="' + wa("Buenas, consulto por mi pedido " + o.c) + '" target="_blank" rel="noopener">Consultar con su asesor</a>' +
-        '<button class="btn-destructive" style="width:100%;margin-top:.75rem" data-a="prm" data-id="' + esc(c) + '">Quitar de esta lista</button>';
+        '<p class="lb" style="margin-top:2rem">Línea de tiempo</p>' +
+        (h.length ? '<div class="tl">' + h.map(x =>
+            '<p><span style="color:var(--fg)">' + esc(estadoLargo(x.estado)) + '</span>' +
+            (x.created_at ? '<br><time datetime="' + esc(x.created_at) + '">' + esc(fh(new Date(x.created_at))) + '</time>' : '') +
+            (x.comentario ? '<br><span class="nt">' + esc(x.comentario) + '</span>' : '') + '</p>'
+        ).join("") + '</div>' :
+            '<div class="tl"><p><span style="color:var(--fg)">Pedido recibido</span>' + (fecha ? '<br><time datetime="' + esc(fecha.toISOString()) + '">' + esc(fh(fecha)) + '</time>' : '') + '</p></div>') +
+        '<a class="btn-primary track-action" href="' + wa("Buenas, necesito ayuda con mi pedido " + o.c) + '" target="_blank" rel="noopener">Hablar con una operadora</a>' +
+        '<button class="btn-secondary track-action" type="button" id="trackNew">Consultar otro pedido</button>';
 }
-async function trackAgr() {
-    const c = $("sc").value.trim().toUpperCase(), t = $("st").value.trim();
-    if (!c || !t) { $("se").textContent = "Escriba ambos códigos."; return }
-    $("se").textContent = "Consultando…";
-    try {
-        const j = await ask(c, t);
-        gp(c, t); D[c] = inf(j); trackDet(c);
-    } catch (x) { $("se").textContent = x.message || "No se pudo consultar el pedido."; }
+
+async function consultarPedido(c, t) {
+    c = String(c || "").trim().toUpperCase();
+    t = String(t || "").trim();
+    if (!c || !t) throw new Error("Escriba el código del pedido y el código de seguimiento.");
+    const j = await ask(c, t);
+    gp(c, t);
+    const o = inf(j);
+    o.f = (rdp().find(x => x.c === c) || {}).f || Date.now();
+    D[c] = o;
+    trackDet(c);
+    return o;
 }
 
 /* ===== Carga de datos y arranque ===== */
@@ -514,19 +462,6 @@ function wireGlobal() {
             setCat(id || "");
             if (window.vxOnCategory) { e.preventDefault(); window.vxOnCategory(id || ""); }
         }
-        else if (a === "cq" || a === "ci") {
-            hide();
-            setTimeout(() => {
-                $("cqt").textContent = a === "cq" ? "Consulta general" : "Reportar incidencia";
-                $("cqe").textContent = "";
-                show("cqv");
-            }, 320);
-        }
-        else if (a === "cqseg") { $("av").classList.remove("on"); hide(); cqLista(); setTimeout(() => show("cgv"), 320); }
-        else if (a === "pdet") trackDet(id);
-        else if (a === "pback") trackLista();
-        else if (a === "padd") trackAgr();
-        else if (a === "prm") { wrp(rdp().filter(x => x.c !== id)); trackLista(); }
     });
 
     document.querySelectorAll(".ov").forEach(o => o.addEventListener("click", e => { if (e.target === o) hide() }));
@@ -537,10 +472,8 @@ function wireGlobal() {
     const yr = $("yr"); if (yr) yr.textContent = new Date().getFullYear();
 
     document.querySelectorAll("[data-search]").forEach(b => b.addEventListener("click", doSearch));
-    ["searchInput", "searchMobileInput"].forEach(id => {
-        const el = $(id);
-        if (el) el.addEventListener("keydown", e => { if (e.key === "Enter") doSearch(); });
-    });
+    const si = $("searchInput");
+    if (si) si.addEventListener("keydown", e => { if (e.key === "Enter") doSearch(); });
 
     const zm = $("zm");
     if (zm) { zm.addEventListener("click", () => zm.classList.remove("on")); }
@@ -556,7 +489,7 @@ function wireGlobal() {
 }
 
 function doSearch() {
-    const v = (($("searchInput") || {}).value || ($("searchMobileInput") || {}).value || "").trim();
+    const v = (($("searchInput") || {}).value || "").trim();
     if (window.vxOnSearch) { window.vxOnSearch(v); return; }
     location.href = "catalogo.html" + (v ? "?q=" + encodeURIComponent(v) : "");
 }
@@ -565,7 +498,6 @@ async function start(pageInit) {
     shell();
     hydrateOpIcons();
     bd();
-    consultas();
     wireGlobal();
     obs();
     await load();
@@ -574,4 +506,4 @@ async function start(pageInit) {
     obs();
 }
 
-window.VX = { $, q, esc, wa, fm, ft, imgUrl, pr, ag, cn, price, toast, bd, sv, syncCart, obs, pcard, show, hide, go, add, setQty, cart, cartItems, cartTotal, load, renderNav, setCat, trackLista, trackDet, operadoras, opIcon, hydrateOpIcons, start, getP: () => P, getCs: () => Cs, getO: () => O, getK: () => K, PAGE };
+window.VX = { $, q, esc, wa, fm, ft, imgUrl, pr, ag, cn, price, toast, bd, sv, syncCart, obs, pcard, show, hide, go, add, setQty, cart, cartItems, cartTotal, load, renderNav, setCat, trackDet, consultarPedido, estadoLargo, operadoras, opIcon, hydrateOpIcons, start, getP: () => P, getCs: () => Cs, getO: () => O, getK: () => K, PAGE };

@@ -23,7 +23,8 @@
             'producto': 'producto',
             'carrito': 'carrito',
             'checkout': 'checkout',
-            'pedidos': 'pedidos'
+            'pedidos': 'pedidos',
+            'consulta': 'consulta'
         };
 
         var moduleName = moduleMap[page];

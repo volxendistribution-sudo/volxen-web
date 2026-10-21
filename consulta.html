@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Consulta general, incidencias, quejas y opiniones de VOLXEN. Envíe su mensaje y un asesor se comunicará con usted.">
+    <meta name="theme-color" content="#1F4036">
+    <meta property="og:title" content="Consulta general e incidencias - VOLXEN">
+    <meta property="og:description" content="Envíe su consulta, incidencia, queja u opinión a VOLXEN. Un asesor se comunicará con usted.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://volxen.com/consulta.html">
+    <meta property="og:image" content="https://volxen.com/logo-light.svg">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Consulta general e incidencias - VOLXEN">
+    <meta name="twitter:description" content="Envíe su consulta, incidencia, queja u opinión a VOLXEN.">
+    <link rel="canonical" href="https://volxen.com/consulta.html">
+
+    <!-- Font Preloads -->
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="dist/fonts/DM-Sans-Regular.woff2">
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="dist/fonts/DM-Sans-Medium.woff2">
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="dist/fonts/DM-Sans-SemiBold.woff2">
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="dist/fonts/DM-Sans-Bold.woff2">
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="dist/fonts/InterTight-Regular.woff2">
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="dist/fonts/InterTight-Medium.woff2">
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="dist/fonts/InterTight-SemiBold.woff2">
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="dist/fonts/InterTight-Light.woff2">
+
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
+
+    <link rel="stylesheet" href="dist/volxen.css">
+</head>
+
+<body class="h-full bg-bg text-fg flex flex-col font-sans antialiased selection:bg-g selection:text-fg" data-page="consulta" data-shell="minimal">
+
+    <a href="#main" class="skip-link">Saltar al contenido principal</a>
+
+    <main id="main" class="flex-1 max-w-3xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <section id="consultaCard" class="form-card">
+            <h1>Consulta general e incidencias</h1>
+            <p class="form-intro">Escriba su mensaje y un asesor se comunicará con usted por el teléfono o correo que indique.</p>
+            <form id="consultaForm" novalidate>
+                <div class="field">
+                    <label for="cnombre">Nombre completo</label>
+                    <input id="cnombre" name="nombre" class="input-base" type="text" placeholder="Nombre y apellidos" autocomplete="name" required>
+                </div>
+                <div class="field">
+                    <label for="ct">Teléfono</label>
+                    <input id="ct" name="telefono" class="input-base" type="tel" placeholder="Número de teléfono" autocomplete="tel" inputmode="tel" required>
+                </div>
+                <div class="field">
+                    <label for="ce">Correo electrónico</label>
+                    <input id="ce" name="correo" class="input-base" type="email" placeholder="nombre@correo.com" autocomplete="email" inputmode="email" required>
+                </div>
+                <div class="field">
+                    <label for="cqt">Tipo de consulta</label>
+                    <select id="cqt" name="tipo" class="input-base" required>
+                        <option value="consulta">Consulta general</option>
+                        <option value="incidencia">Reportar incidencia</option>
+                        <option value="queja">Queja</option>
+                        <option value="opinion">Opinión</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="cp">Número de pedido <span class="field-optional">(opcional)</span></label>
+                    <input id="cp" name="codigo_pedido" class="input-base" type="text" placeholder="VX-2026-000001" autocomplete="off" autocapitalize="characters" spellcheck="false">
+                </div>
+                <div class="field">
+                    <label for="cm">Mensaje</label>
+                    <textarea id="cm" name="mensaje" class="input-base" placeholder="Escriba su consulta, incidencia, queja u opinión" required></textarea>
+                </div>
+                <p id="cerr" class="form-error" role="alert"></p>
+                <div class="form-actions">
+                    <a href="index.html" class="btn-secondary">Cancelar</a>
+                    <button type="submit" id="csub" class="btn-primary">Enviar</button>
+                </div>
+            </form>
+        </section>
+
+        <section id="consultaOk" class="form-card hidden" aria-live="polite">
+            <div class="form-success-icon"><i class="fa-solid fa-check" aria-hidden="true"></i></div>
+            <h2>Mensaje recibido</h2>
+            <p class="form-intro">Un asesor se comunicará con usted por el teléfono o correo indicado. No necesita hacer nada más.</p>
+            <div class="form-actions">
+                <a href="index.html" class="btn-secondary">Volver al inicio</a>
+                <button type="button" id="cnew" class="btn-primary">Enviar otra consulta</button>
+            </div>
+        </section>
+    </main>
+
+    <script src="config.js"></script>
+    <script src="volxen-core.js"></script>
+    <script type="module" src="dist/main.min.js"></script>
+</body>
+</html>

@@ -42,11 +42,19 @@
   </url>
   <url>
     <loc>https://volxen.com/pedidos.html</loc>
-    <lastmod>2026-10-15</lastmod>
+    <lastmod>2026-10-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
     <xhtml:link rel="alternate" hreflang="es-CU" href="https://volxen.com/pedidos.html" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://volxen.com/pedidos.html" />
+  </url>
+  <url>
+    <loc>https://volxen.com/consulta.html</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+    <xhtml:link rel="alternate" hreflang="es-CU" href="https://volxen.com/consulta.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://volxen.com/consulta.html" />
   </url>
   <url>
     <loc>https://volxen.com/catalogo.html?cat=7fe1b919-cd0b-4a6c-93f6-001c04ee4610</loc>

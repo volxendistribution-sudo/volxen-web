@@ -556,6 +556,8 @@ v.innerHTML =
 
 '<input id="cn" placeholder="Nueva categoría">'+
 
+'<label for="cf">Imagen de la categoría (opcional)</label><input id="cf" type="file" accept="image/*">'+
+
 '<button onclick="addC()">'+
 'AÑADIR CATEGORÍA'+
 '</button>'+
@@ -564,9 +566,19 @@ K.map(k =>
 
 '<div class="r">'+
 
+(k.imagen?'<img src="'+esc(k.imagen)+'" alt="" style="width:84px;height:60px;object-fit:contain;border-radius:8px;display:block;margin-bottom:8px">':'')+
+
 esc(k.nombre)+
 
 '<br>'+
+
+'<input id="cf-'+k.id+'" type="file" accept="image/*" style="margin-top:8px">'+
+
+'<button onclick="setCImg(\''+
+k.id+
+'\')">'+
+'Subir imagen'+
+'</button>'+
 
 '<button class="x" onclick="delC(\''+
 k.id+
@@ -1886,6 +1898,58 @@ alert(
    CATEGORÍAS
 ========================================================= */
 
+async function catUpload(file){
+
+const nm = "cat-"+Date.now()+"-"+file.name.replace(/[^a-z0-9.]/gi,"_");
+
+const r = await fetch(B+"/storage/v1/object/productos/"+nm,{
+
+method:"POST",
+
+headers:{
+apikey:C.SUPABASE_KEY,
+Authorization:"Bearer "+T,
+"Content-Type":file.type
+},
+
+body:file
+
+});
+
+if(!r.ok)throw new Error("No se pudo subir la imagen.");
+
+return B+"/storage/v1/object/public/productos/"+nm;
+
+}
+
+async function setCImg(id){
+
+const f = $("cf-"+id);
+
+if(!f || !f.files || !f.files[0])return alert("Seleccione una imagen para la categoría.");
+
+try{
+
+msg("Subiendo imagen...");
+
+const url = await catUpload(f.files[0]);
+
+await api("categorias?id=eq."+encodeURIComponent(id),"PATCH",{imagen:url});
+
+await load();
+
+tab("c");
+
+msg("Imagen actualizada correctamente.");
+
+}catch(e){
+
+alert("No se pudo subir la imagen. Compruebe que la columna imagen exista en categorias.");
+
+}
+
+}
+
 async function addC(){
 
 const n =
@@ -1895,17 +1959,55 @@ $("cn").value.trim();
 if(!n)return;
 
 
+let imagen = null;
+
+
+try{
+
+
+if($("cf") && $("cf").files && $("cf").files[0]){
+
+msg("Subiendo imagen...");
+
+imagen = await catUpload($("cf").files[0]);
+
+}
+
+
+const b = {
+nombre:n,
+slug:slug(n),
+orden:K.length
+};
+
+if(imagen)b.imagen = imagen;
+
+
 try{
 
 await api(
 "categorias",
 "POST",
-{
-nombre:n,
-slug:slug(n),
-orden:K.length
-}
+b
 );
+
+}catch(e){
+
+if(!imagen)throw e;
+
+delete b.imagen;
+
+await api(
+"categorias",
+"POST",
+b
+);
+
+imagen = null;
+
+alert("La categoría se creó, pero la imagen no se guardó. Compruebe que la columna imagen exista en categorias.");
+
+}
 
 
 await load();
@@ -2061,14 +2163,14 @@ alert(
    ========================================================= */
 let Q=[];
 const QE={nueva:"Nueva",en_atencion:"En atención",resuelta:"Resuelta"};
-const QT={consulta:"Consulta general",incidencia:"Incidencia"};
+const QT={consulta:"Consulta general",incidencia:"Incidencia",queja:"Queja",opinion:"Opinión"};
 const qf=d=>new Date(d).toLocaleString("es-ES");
 function qBadge(){const n=Q.filter(x=>x.estado==="nueva").length,b=$("tq");if(b)b.textContent="Consultas"+(n?" ("+n+")":"")}
 document.querySelector(".t").insertAdjacentHTML("beforeend",'<button id="tq" onclick="tab(\'q\')">Consultas</button>');
 const tab0=tab;tab=function(n){if(n==="q"){consultas();return}tab0(n)};
 const load0=load;load=async function(){await load0();try{Q=await api("consultas?order=created_at.desc");qBadge()}catch(e){}};
 function consultas(){msg("");
-$("v").innerHTML='<h3>Consultas e incidencias</h3><select id="qt" onchange="qFilt()"><option value="">Todas</option><option value="consulta">Consultas generales</option><option value="incidencia">Incidencias</option></select><select id="qe" onchange="qFilt()"><option value="">Todos los estados</option><option value="nueva">Nuevas</option><option value="en_atencion">En atención</option><option value="resuelta">Resueltas</option></select><input id="qs" placeholder="Buscar por nombre, contacto, pedido o mensaje" oninput="qFilt()"><div id="ql"><div class="r">Cargando...</div></div>';
+$("v").innerHTML='<h3>Consultas e incidencias</h3><select id="qt" onchange="qFilt()"><option value="">Todas</option><option value="consulta">Consultas generales</option><option value="incidencia">Incidencias</option><option value="queja">Quejas</option><option value="opinion">Opiniones</option></select><select id="qe" onchange="qFilt()"><option value="">Todos los estados</option><option value="nueva">Nuevas</option><option value="en_atencion">En atención</option><option value="resuelta">Resueltas</option></select><input id="qs" placeholder="Buscar por nombre, contacto, pedido o mensaje" oninput="qFilt()"><div id="ql"><div class="r">Cargando...</div></div>';
 qCargar()}
 async function qCargar(){try{Q=await api("consultas?order=created_at.desc");qBadge();qFilt()}catch(e){const l=$("ql");if(l)l.innerHTML='<div class="r"><strong>No se pudieron cargar las consultas.</strong><br><small>'+esc(e.message||"")+'</small></div>'}}
 function qFilt(){const t=$("qt"),e=$("qe"),s=$("qs");if(!t||!e||!s)return;const q=s.value.trim().toLowerCase();
@@ -2078,8 +2180,9 @@ function qVer(id){const x=Q.find(y=>y.id===id);if(!x)return;
 $("v").innerHTML='<button class="back" onclick="consultas()">← VOLVER</button><h3>'+esc(QT[x.tipo]||x.tipo)+'</h3><div class="r"><strong>CONTACTO</strong><br>'+esc(x.nombre||"Sin nombre")+'<br>'+esc(x.contacto||"—")+(x.codigo_pedido?'<br>Pedido: '+esc(x.codigo_pedido):'')+'<br><small>'+qf(x.created_at)+'</small></div><div class="r"><strong>MENSAJE</strong><br>'+esc(x.mensaje).replace(/\n/g,"<br>")+'</div><div class="r"><strong>ESTADO</strong><select id="qe2">'+Object.keys(QE).map(k=>'<option value="'+k+'"'+(k===x.estado?" selected":"")+'>'+QE[k]+'</option>').join("")+'</select><button onclick="qGuardar(\''+x.id+'\')">GUARDAR ESTADO</button></div>'+(x.contacto?'<button onclick="qWa(\''+x.id+'\')">CONTACTAR POR WHATSAPP</button>':'')+'<button class="x" onclick="qBorrar(\''+x.id+'\')">BORRAR</button>'}
 async function qGuardar(id){try{const s=$("qe2").value;await api("consultas?id=eq."+encodeURIComponent(id),"PATCH",{estado:s});const x=Q.find(y=>y.id===id);if(x)x.estado=s;qBadge();qVer(id);msg("Estado actualizado correctamente.")}catch(e){alert("No se pudo actualizar el estado.")}}
 async function qBorrar(id){if(!await askDelete("¿Borrar este mensaje? Esta acción no se puede deshacer."))return;try{await api("consultas?id=eq."+encodeURIComponent(id),"DELETE");Q=Q.filter(y=>y.id!==id);qBadge();consultas()}catch(e){alert("No se pudo borrar el mensaje.")}}
-function qWa(id){const x=Q.find(y=>y.id===id);if(!x)return;let n=String(x.contacto||"").replace(/\D/g,"");if(!n)return;if(n.length===8)n="53"+n;
-window.open("https://wa.me/"+n+"?text="+encodeURIComponent("Hola, le contactamos desde VOLXEN sobre su "+(x.tipo==="incidencia"?"incidencia":"consulta")+(x.codigo_pedido?" del pedido "+x.codigo_pedido:"")+"."),"_blank")}
+function qWa(id){const x=Q.find(y=>y.id===id);if(!x)return;let raw=String(x.contacto||"").split("·")[0],n=raw.replace(/\D/g,"");if(!n)return;if(n.length===8)n="53"+n;
+const tx=x.tipo==="incidencia"?"incidencia":x.tipo==="queja"?"queja":x.tipo==="opinion"?"opinión":"consulta";
+window.open("https://wa.me/"+n+"?text="+encodeURIComponent("Hola, le contactamos desde VOLXEN sobre su "+tx+(x.codigo_pedido?" del pedido "+x.codigo_pedido:"")+"."),"_blank")}
 
    /* =========================================================
    BORRAR PEDIDOS

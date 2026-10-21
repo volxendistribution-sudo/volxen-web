@@ -62,8 +62,18 @@ export function initHome() {
     var catGrid = VX.$("catGrid");
     if (catGrid && Cs.length) {
         catGrid.innerHTML = Cs.slice(0, 8).map(function(c) {
-            return '<a href="catalogo.html?cat=' + encodeURIComponent(c.id) + '" class="bg-s2 border border-bd rounded-2xl p-4 text-center hover:border-g hover:bg-sf transition group"><div class="w-14 h-14 mx-auto mb-3 rounded-full bg-sf border border-bd flex items-center justify-center group-hover:border-g group-hover:bg-bg transition"><i class="fa-solid fa-box text-gi text-xl group-hover:text-fg transition" aria-hidden="true"></i></div><p class="text-sm font-medium text-fg line-clamp-1">' + VX.esc(c.nombre) + '</p></a>';
+            var src = c.imagen ? VX.imgUrl(c.imagen, { w: 400, h: 300, format: "webp", quality: 80 }) : "";
+            var icon = src ? '<img src="' + VX.esc(src) + '" alt="" class="w-full h-full object-contain" loading="lazy">' : '<i class="fa-solid fa-box text-gi text-xl group-hover:text-fg transition" aria-hidden="true"></i>';
+            return '<a href="catalogo.html?cat=' + encodeURIComponent(c.id) + '" class="bg-s2 border border-bd rounded-2xl p-4 text-center hover:border-g hover:bg-sf transition group"><div class="w-14 h-14 mx-auto mb-3 rounded-full overflow-hidden bg-sf border border-bd flex items-center justify-center group-hover:border-g group-hover:bg-bg transition">' + icon + '</div><p class="text-sm font-medium text-fg line-clamp-1">' + VX.esc(c.nombre) + '</p></a>';
         }).join("");
+        catGrid.querySelectorAll("img").forEach(function(img) {
+            img.addEventListener("error", function() {
+                var fb = document.createElement("i");
+                fb.className = "fa-solid fa-box text-gi text-xl group-hover:text-fg transition";
+                fb.setAttribute("aria-hidden", "true");
+                img.replaceWith(fb);
+            });
+        });
     }
 
     render();
