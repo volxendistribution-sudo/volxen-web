@@ -4,7 +4,7 @@
  */
 
 export function initHome() {
-    var P = VX.getP(), O = VX.getO(), Cs = VX.getCs();
+    var P = VX.getP(), Cs = VX.getCs();
 
     var grid = VX.$("homeProductGrid");
     var emptyState = VX.$("homeEmptyState");
@@ -62,7 +62,7 @@ export function initHome() {
     var catGrid = VX.$("catGrid");
     if (catGrid && Cs.length) {
         catGrid.innerHTML = Cs.slice(0, 8).map(function(c) {
-            return '<a href="catalogo.html?cat=' + encodeURIComponent(c.id) + '" class="bg-s2 border border-bd rounded-2xl p-4 text-center hover:border-g hover:bg-sf transition group"><div class="w-14 h-14 mx-auto mb-3 rounded-full bg-sf border border-bd flex items-center justify-center group-hover:border-g group-hover:bg-bg transition"><i class="fa-solid fa-box text-g text-xl group-hover:text-fg transition" aria-hidden="true"></i></div><p class="text-sm font-medium text-fg line-clamp-1">' + VX.esc(c.nombre) + '</p></a>';
+            return '<a href="catalogo.html?cat=' + encodeURIComponent(c.id) + '" class="bg-s2 border border-bd rounded-2xl p-4 text-center hover:border-g hover:bg-sf transition group"><div class="w-14 h-14 mx-auto mb-3 rounded-full bg-sf border border-bd flex items-center justify-center group-hover:border-g group-hover:bg-bg transition"><i class="fa-solid fa-box text-gi text-xl group-hover:text-fg transition" aria-hidden="true"></i></div><p class="text-sm font-medium text-fg line-clamp-1">' + VX.esc(c.nombre) + '</p></a>';
         }).join("");
     }
 

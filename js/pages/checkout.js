@@ -3,32 +3,19 @@
  * Handles form validation, stepper updates, and mobile stacking
  */
 
+var stepperObserver = null;
+
 export async function initCheckout() {
     VX.cart();
-
-    // Mobile: when form shows, ensure proper stacking
-    var cf = VX.$('cf');
-    if (cf) {
-        var observer = new MutationObserver(function() {
-            if (cf.style.display !== 'none') {
-                var grid = VX.$('checkoutGrid');
-                if (grid && window.innerWidth < 768) {
-                    grid.style.gridTemplateColumns = '1fr';
-                }
-            }
-        });
-        observer.observe(cf, { attributes: true, attributeFilter: ['style'] });
-    }
-
-    // Initialize stepper functionality
     initStepper();
 
     // Listen for successful order registration to advance to step 3
     window.addEventListener('vx:order-complete', function() {
+        if (stepperObserver) { stepperObserver.disconnect(); stepperObserver = null; }
         updateStepper(3);
         // Scroll to confirmation on mobile
         if (window.innerWidth < 768) {
-            var confirmation = document.querySelector('.order-confirmation');
+            var confirmation = document.getElementById('orderConfirmation');
             if (confirmation) confirmation.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     });
@@ -38,14 +25,14 @@ function initStepper() {
     var cf = VX.$('cf');
     if (!cf) return;
 
-    var observer = new MutationObserver(function() {
+    stepperObserver = new MutationObserver(function() {
         if (cf.style.display !== 'none') {
             updateStepper(2); // Step 2 active when form is visible
         } else {
             updateStepper(1); // Step 1 when form hidden
         }
     });
-    observer.observe(cf, { attributes: true, attributeFilter: ['style'] });
+    stepperObserver.observe(cf, { attributes: true, attributeFilter: ['style'] });
 
     // Initial state
     if (cf.style.display !== 'none') {

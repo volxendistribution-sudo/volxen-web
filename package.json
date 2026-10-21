@@ -6,9 +6,9 @@
   "scripts": {
     "dev": "npx tailwindcss -i ./volxen.css -o ./dist/volxen.css --watch",
     "build:css": "npx tailwindcss -i ./volxen.css -o ./dist/volxen.css --minify",
-    "build:js": "npx terser js/main.js js/pages/*.js -o dist/main.min.js -c -m",
+    "build:js": "npx terser js/main.js -o dist/main.min.js -c -m",
     "copy:fonts": "mkdir -p dist/fonts && cp public/fonts/*.woff2 dist/fonts/",
-    "build:html": "mkdir -p dist/js/pages && for f in index.html catalogo.html producto.html carrito.html checkout.html pedidos.html 404.html admin.html; do sed -e 's|dist/fonts/|fonts/|g' -e 's|dist/volxen.css|volxen.css|g' -e 's|dist/main.min.js|main.min.js|g' \"$f\" > \"dist/$f\"; done && cp config.js volxen-core.js pedido.js logo.svg logo-light.svg logo-dark.svg robots.txt sitemap.xml dist/ && cp js/pages/*.js dist/js/pages/",
+    "build:html": "mkdir -p dist/js/pages && for f in index.html catalogo.html producto.html carrito.html checkout.html pedidos.html 404.html admin.html; do sed -e 's|dist/fonts/|fonts/|g' -e 's|dist/volxen.css|volxen.css|g' -e 's|dist/main.min.js|main.min.js|g' \"$f\" > \"dist/$f\"; done && cp config.js volxen-core.js pedido.js entrada.js logo.svg logo-light.svg logo-dark.svg robots.txt sitemap.xml dist/ && cp js/pages/*.js dist/js/pages/",
     "build": "npm run build:css && npm run build:js && npm run copy:fonts && npm run build:html",
     "serve": "npx serve dist",
     "lint:css": "npx stylelint volxen.css 2>/dev/null || echo 'stylelint not installed, skipping'",

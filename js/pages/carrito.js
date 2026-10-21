@@ -9,7 +9,7 @@ export async function initCarrito() {
     // Re-render cart when storage changes (e.g., from other tabs)
     window.addEventListener('storage', function(e) {
         if (e.key === 'vx_k') {
-            try { K = JSON.parse(localStorage.getItem('vx_k') || '{}') } catch (e) {}
+            VX.syncCart();
             VX.cart();
         }
     });

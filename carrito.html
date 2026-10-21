@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Tu carrito de compras en VOLXEN. Revisa tus productos, cantidades y totales antes de continuar al vale de pedido. Entrega en La Habana, pago contra entrega.">
-    <meta name="theme-color" content="#C8A165">
+    <meta name="description" content="Su carrito de compras en VOLXEN. Revise sus productos, cantidades y totales antes de continuar al vale de pedido. Entrega coordinada en La Habana, pago contra entrega.">
+    <meta name="theme-color" content="#1F4036">
     <meta property="og:title" content="Su pedido - VOLXEN">
-    <meta property="og:description" content="Revisa tu carrito de compras en VOLXEN. Entrega en La Habana, pago contra entrega, garantía por escrito.">
+    <meta property="og:description" content="Revise su carrito de compras en VOLXEN. Entrega coordinada en La Habana, pago contra entrega, garantía por escrito.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://volxen.com/carrito.html">
     <meta property="og:image" content="https://volxen.com/logo-light.svg">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="Su pedido - VOLXEN">
-    <meta name="twitter:description" content="Revisa tu carrito de compras en VOLXEN.">
+    <meta name="twitter:description" content="Revise su carrito de compras en VOLXEN.">
     <link rel="canonical" href="https://volxen.com/carrito.html">
 
     <!-- Font Preloads -->
@@ -31,7 +31,7 @@
     <link rel="stylesheet" href="dist/volxen.css">
 </head>
 
-<body class="h-full bg-bg text-fg flex flex-col font-sans antialiased selection:bg-g selection:text-white" data-page="carrito">
+<body class="h-full bg-bg text-fg flex flex-col font-sans antialiased selection:bg-g selection:text-fg" data-page="carrito">
 
     <a href="#main" class="skip-link">Saltar al contenido principal</a>
 
@@ -51,25 +51,25 @@
                 </div>
                 <div class="flex justify-between text-sm">
                     <span class="text-mu">Descuentos</span>
-                    <span id="cartDiscount" class="font-semibold text-g">-$0.00 USD</span>
+                    <span id="cartDiscount" class="font-semibold text-gi">-$0.00 USD</span>
                 </div>
                 <div class="flex justify-between text-sm">
-                    <span class="text-mu">Envío</span>
-                    <span id="cartShipping" class="font-semibold text-fg">$0.00 USD</span>
+                    <span class="text-mu">Mensajería</span>
+                    <span id="cartShipping" class="font-semibold text-fg">Por coordinar</span>
                 </div>
                 <div class="flex justify-between pt-2 border-t border-bd">
-                    <span class="text-lg font-bold text-fg">Total</span>
-                    <span id="cartTotal" class="text-lg font-bold text-g">$0.00 USD</span>
+                    <span class="text-lg font-bold text-fg">Total de productos</span>
+                    <span id="cartTotal" class="text-lg font-bold text-gi">$0.00 USD</span>
                 </div>
-                <p class="nt text-xs text-center">Los precios son estimados. Su asesor confirma el precio final, la disponibilidad y las condiciones antes de cerrar el pedido.</p>
+                <p class="nt text-xs text-center">Los precios publicados son fijos. La mensajería y el horario de entrega se coordinan con su asesor.</p>
             </div>
 
             <!-- Trust indicators -->
             <div class="mt-5 pt-4 border-t border-bd flex flex-wrap gap-3 text-xs text-mu" aria-label="Garantías">
-                <div class="flex items-center gap-1.5"><i class="fa-solid fa-shield-halved text-g" aria-hidden="true"></i><span>Garantía por escrito</span></div>
-                <div class="flex items-center gap-1.5"><i class="fa-solid fa-truck-fast text-g" aria-hidden="true"></i><span>Entrega en La Habana</span></div>
-                <div class="flex items-center gap-1.5"><i class="fa-solid fa-headset text-g" aria-hidden="true"></i><span>Asesor personal</span></div>
-                <div class="flex items-center gap-1.5"><i class="fa-solid fa-lock text-g" aria-hidden="true"></i><span>Pago contra entrega</span></div>
+                <div class="flex items-center gap-1.5"><i class="fa-solid fa-shield-halved text-gi" aria-hidden="true"></i><span>Garantía por escrito</span></div>
+                <div class="flex items-center gap-1.5"><i class="fa-solid fa-truck-fast text-gi" aria-hidden="true"></i><span>Entrega en La Habana</span></div>
+                <div class="flex items-center gap-1.5"><i class="fa-solid fa-headset text-gi" aria-hidden="true"></i><span>Asesor personal</span></div>
+                <div class="flex items-center gap-1.5"><i class="fa-solid fa-lock text-gi" aria-hidden="true"></i><span>Pago contra entrega</span></div>
             </div>
 
             <a id="cartGo" class="btn-primary mt-5 block text-center py-3" href="checkout.html" style="display:none">Continuar con el pedido</a>

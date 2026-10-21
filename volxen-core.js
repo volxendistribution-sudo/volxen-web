@@ -1,4 +1,5 @@
 /* VOLXEN - nucleo compartido (config, estado, carrito, cabecera/pie, overlays) */
+if (document.documentElement) document.documentElement.classList.add("js");
 const C = window.VOLXEN_CONFIG, H = { apikey: C.SUPABASE_KEY }, $ = i => document.getElementById(i);
 
 async function q(path) {
@@ -13,8 +14,26 @@ async function q(path) {
 const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const wa = t => "https://wa.me/" + (C.WHATSAPP || "") + "?text=" + encodeURIComponent(t);
 const fm = n => "$" + Math.round(n * 100) / 100 + " USD";
-let P = [], Cs = [], O = {}, cat = "", K = {};
-try { K = JSON.parse(localStorage.getItem("vx_k") || "{}") } catch (e) {}
+const CART_KEY = "vx_k";
+let P = [], Cs = [], O = {}, cat = "", K = readCart();
+
+function readCart() {
+    try {
+        const saved = JSON.parse(localStorage.getItem(CART_KEY) || "{}");
+        return saved && typeof saved === "object" ? saved : {};
+    } catch (e) {
+        return {};
+    }
+}
+
+function syncCart() {
+    K = readCart();
+    bd();
+    return K;
+}
+window.addEventListener("storage", e => {
+    if (e.key === CART_KEY) syncCart();
+});
 const ft = p => (p.imagenes && p.imagenes.length) ? p.imagenes : (p.imagen_principal ? [p.imagen_principal] : []);
 
 // Transform Supabase image URLs for optimal delivery (WebP/AVIF, resizing)
@@ -69,7 +88,7 @@ function bd() {
 }
 
 function sv() {
-    try { localStorage.setItem("vx_k", JSON.stringify(K)) } catch (e) {}
+    try { localStorage.setItem(CART_KEY, JSON.stringify(K)) } catch (e) {}
     bd();
 }
 
@@ -137,7 +156,7 @@ function add(id, n) {
     K[id] = (K[id] || 0) + n;
     sv();
     const p = P.find(x => x.id === id);
-    toast((p ? p.nombre + " — " : "") + "añadido a su pedido");
+    toast((p ? p.nombre + ": " : "") + "añadido a su pedido");
     const e = $("ts");
     if (e) {
         e.insertAdjacentHTML("beforeend", '<a class="vp" href="carrito.html">Ver pedido</a>');
@@ -169,23 +188,27 @@ function cart() {
     }).join("") : '<p style="margin-top:1.5rem;text-align:center;color:var(--mu)">Su pedido está vacío. <a class="sl btn-ghost" href="catalogo.html" style="display:inline;width:auto;padding:8px 16px">Explorar el catálogo</a></p>';
 
     // Calculate totals
-    const subtotal = it.reduce((a, p) => a + pr(p) * K[p.id], 0);
+    const subtotal = it.reduce((a, p) => a + Number(p.precio_usd) * K[p.id], 0);
     const discount = it.reduce((a, p) => {
         const offer = O[p.id];
         return a + (offer && offer < p.precio_usd ? (p.precio_usd - offer) * K[p.id] : 0);
     }, 0);
-    const shipping = 0; // Por ahora envío gratis / coordinado
-    const total = subtotal - discount + shipping;
+    const total = subtotal - discount;
 
-    // Update summary
-    const summary = $("cartSummary");
-    if (summary) {
-        summary.classList.toggle("hidden", it.length === 0);
-    }
-    const st = $("cartSubtotal"); if (st) st.textContent = fm(subtotal);
-    const dc = $("cartDiscount"); if (dc) dc.textContent = discount > 0 ? '-' + fm(discount) : fm(0);
-    const sh = $("cartShipping"); if (sh) sh.textContent = fm(shipping);
-    const tt = $("cartTotal"); if (tt) tt.textContent = fm(total);
+    // Update both cart and checkout summaries with the same source of truth
+    ["cartSummary", "checkoutCartSummary"].forEach(id => {
+        const el = $(id);
+        if (el) el.classList.toggle("hidden", it.length === 0);
+    });
+    const setText = (id, text) => { const el = $(id); if (el) el.textContent = text; };
+    setText("cartSubtotal", fm(subtotal));
+    setText("checkoutSubtotal", fm(subtotal));
+    setText("cartDiscount", discount > 0 ? '-' + fm(discount) : fm(0));
+    setText("checkoutDiscount", discount > 0 ? '-' + fm(discount) : fm(0));
+    setText("cartShipping", "Por coordinar");
+    setText("checkoutShipping", "Por coordinar");
+    setText("cartTotal", fm(total));
+    setText("checkoutTotal", fm(total));
 
     const c = $("cf"); if (c) c.style.display = it.length ? "block" : "none";
     const cg = $("cartGo"); if (cg) cg.style.display = it.length ? "inline-flex" : "none";
@@ -199,7 +222,7 @@ function renderNav() {
     ).join("");
     const fdp = $("fdp");
     if (fdp) fdp.innerHTML = Cs.map(c =>
-        '<li><a href="catalogo.html?cat=' + encodeURIComponent(c.id) + '" class="hover:text-g transition text-left">' + esc(c.nombre) + '</a></li>'
+        '<li><a href="catalogo.html?cat=' + encodeURIComponent(c.id) + '" class="hover:text-gi transition text-left">' + esc(c.nombre) + '</a></li>'
     ).join("");
 }
 
@@ -216,9 +239,9 @@ function operadoras() {
     return '<div id="operadoras" class="pantalla fixed inset-0 z-50 overflow-y-auto">' +
         '<a href="#" aria-label="Cerrar" class="fixed inset-0 bg-fg/70 backdrop-blur-sm cursor-default"></a>' +
         '<div class="relative min-h-full flex items-center justify-center p-4 pointer-events-none"><div class="relative bg-s2 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl z-10 space-y-6 pointer-events-auto">' +
-        '<div class="flex items-center justify-between"><div class="flex items-center space-x-3"><img src="logo-light.svg" alt="" class="h-8 w-auto shrink-0"><h3 class="font-bold text-lg text-fg">Contacta con nuestras operadoras</h3></div><a href="#" aria-label="Cerrar" class="text-mu hover:text-fg"><i class="fa-solid fa-xmark text-lg"></i></a></div>' +
-        '<p class="text-sm text-mu leading-relaxed">¿Necesitas información sobre un producto o quieres consultar tu pedido? Contacta con una de nuestras operadoras y recibe atención personalizada.</p><div class="space-y-3">' +
-        ops.map(o => '<div class="p-4 rounded-2xl border border-bd flex items-center justify-between gap-4"><div class="flex items-center space-x-4"><div class="w-14 h-14 rounded-full bg-sf border border-bd flex items-center justify-center shrink-0 shadow-sm"><img src="logo-light.svg" alt="VOLXEN" class="h-7 w-7 shrink-0"></div><div><p class="text-[10px] font-bold uppercase tracking-wider text-g">' + o[0] + '</p><p class="font-bold text-fg text-base">' + o[1] + '</p></div></div><a href="https://wa.me/' + o[2] + '" target="_blank" rel="noopener" class="btn-primary hover:bg-g-hover hover:text-fg px-4 py-2.5 rounded-xl font-bold text-xs transition shadow flex items-center space-x-2"><i class="fa-brands fa-whatsapp"></i><span>WhatsApp</span></a></div>').join("") +
+        '<div class="flex items-center justify-between"><div class="flex items-center space-x-3"><img src="logo-light.svg" alt="" class="h-8 w-auto shrink-0"><h3 class="font-bold text-lg text-fg">Contacte con nuestras operadoras</h3></div><a href="#" aria-label="Cerrar" class="text-mu hover:text-fg"><i class="fa-solid fa-xmark text-lg"></i></a></div>' +
+        '<p class="text-sm text-mu leading-relaxed">¿Necesita información sobre un producto o quiere consultar su pedido? Contacte con una de nuestras operadoras y reciba atención personalizada.</p><div class="space-y-3">' +
+        ops.map(o => '<div class="p-4 rounded-2xl border border-bd flex items-center justify-between gap-4"><div class="flex items-center space-x-4"><div class="w-14 h-14 rounded-full bg-sf border border-bd flex items-center justify-center shrink-0 shadow-sm"><img src="logo-light.svg" alt="VOLXEN" class="h-7 w-7 shrink-0"></div><div><p class="text-[10px] font-bold uppercase tracking-wider text-gi">' + o[0] + '</p><p class="font-bold text-fg text-base">' + o[1] + '</p></div></div><a href="https://wa.me/' + o[2] + '" target="_blank" rel="noopener" class="btn-primary hover:bg-g-hover hover:text-fg px-4 py-2.5 rounded-xl font-bold text-xs transition shadow flex items-center space-x-2"><i class="fa-brands fa-whatsapp"></i><span>WhatsApp</span></a></div>').join("") +
         '</div></div></div></div>';
 }
 
@@ -241,7 +264,7 @@ function shell() {
         '<p class="text-xs text-mu leading-relaxed">VOLXEN es una comercializadora de tecnología y energía en Cuba, con sede en La Habana. Transparencia y confianza en cada venta.</p>' +
         '<div class="flex space-x-3 pt-2"><a href="https://www.facebook.com/share/1M1HdetBFY/" target="_blank" rel="noopener noreferrer" aria-label="Facebook de VOLXEN" title="Facebook de VOLXEN" class="w-9 h-9 rounded-lg bg-s2 hover:bg-g hover:text-fg text-fg flex items-center justify-center transition"><i class="fa-brands fa-facebook-f"></i></a></div></div>' +
         '<div><h4 class="text-s2 font-semibold text-sm mb-4 uppercase tracking-wider">Departamentos</h4><ul id="fdp" class="space-y-2 text-xs"></ul></div>' +
-        '<div><h4 class="text-s2 font-semibold text-sm mb-4 uppercase tracking-wider">Atención al Cliente</h4><ul class="space-y-2 text-xs"><li><a href="#operadoras" class="hover:text-g transition">Contacta con nuestras operadoras</a></li></ul></div>' +
+        '<div><h4 class="text-s2 font-semibold text-sm mb-4 uppercase tracking-wider">Atención al Cliente</h4><ul class="space-y-2 text-xs"><li><a href="#operadoras" class="hover:text-g transition">Contacte con nuestras operadoras</a></li></ul></div>' +
         '<div><h4 class="text-s2 font-semibold text-sm mb-4 uppercase tracking-wider">Información</h4><ul class="space-y-2 text-xs"><li><a href="index.html#comoTrabajamos" class="hover:text-g transition">Cómo trabajamos</a></li></ul></div>' +
         '</div><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-bd pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-mu"><p>&copy; <span id="yr">2026</span> Volxen Comercializadora Cuba. Todos los derechos reservados.</p></div></footer>';
 
@@ -277,7 +300,7 @@ let cqBusy = false, cqAt;
 function cqAviso(t) {
     const a = $("av"); if (!a) return;
     clearTimeout(cqAt);
-    a.innerHTML = '<b>Recibimos su ' + (t === "consulta" ? "consulta" : "incidencia") + '</b><p>Un asesor se comunicará con usted por el teléfono o correo que indicó. No necesita hacer nada más: puede ver el estado cuando quiera en «Ver seguimiento».</p><button data-a="cqseg" style="min-height:44px;margin-top:6px;color:var(--g);font:500 10px var(--s);letter-spacing:.28em;text-transform:uppercase">Ver seguimiento</button><i></i>';
+    a.innerHTML = '<b>Recibimos su ' + (t === "consulta" ? "consulta" : "incidencia") + '</b><p>Un asesor se comunicará con usted por el teléfono o correo que indicó. No necesita hacer nada más: puede ver el estado cuando quiera en «Ver seguimiento».</p><button data-a="cqseg" style="min-height:44px;margin-top:6px;color:var(--gi);font:500 10px var(--s);letter-spacing:.28em;text-transform:uppercase">Ver seguimiento</button><i></i>';
     a.setAttribute("role", "status");
     a.setAttribute("aria-live", "polite");
     a.setAttribute("aria-atomic", "true");
@@ -292,7 +315,7 @@ function cqLista() {
         '</span><p style="margin-top:8px;color:var(--fg)">' +
         esc(x.m.length > 90 ? x.m.slice(0, 90) + "…" : x.m) + '</p><p class="nt" style="margin-top:6px">' +
         new Date(x.f).toLocaleDateString("es", { day: "numeric", month: "long", year: "numeric" }) +
-        ' · Estado: <span style="color:var(--g)">Recibida</span></p><p class="nt">Un asesor se comunicará con usted por el contacto que indicó.</p></div>'
+        ' · Estado: <span style="color:var(--gi)">Recibida</span></p><p class="nt">Un asesor se comunicará con usted por el contacto que indicó.</p></div>'
     ).join("") : '<p style="margin-top:1rem">Aún no ha enviado consultas desde este dispositivo.</p>';
 }
 function consultas() {
@@ -331,6 +354,9 @@ const rdp = () => { try { return JSON.parse(localStorage.getItem(LSP) || "[]") }
 const wrp = a => { try { localStorage.setItem(LSP, JSON.stringify(a)) } catch (e) {} };
 function gp(c, t) { c = String(c).toUpperCase(); const a = rdp(); if (!a.some(x => x.c === c)) { a.unshift({ c: c, t: t, f: Date.now() }); wrp(a) } }
 window.vxGuardarPedido = gp;
+const fa = (x, k) => { if (Array.isArray(x)) return x.length && x.every(o => o && typeof o === "object" && k in o) ? x : null; if (x && typeof x === "object") { for (const v of Object.values(x)) { const r = fa(v, k); if (r) return r } } return null };
+const findValue = (x, k) => x && typeof x === "object" ? (k in x ? x[k] : Object.values(x).map(v => findValue(v, k)).find(v => v != null)) : undefined;
+const findTracking = x => { if (x && typeof x === "object") { for (const [k, v] of Object.entries(x)) if (/track|token/i.test(k) && typeof v === "string") return v; for (const v of Object.values(x)) { const r = findTracking(v); if (r) return r } } };
 const f0 = window.fetch;
 window.fetch = function (u, o) {
     const r = f0.apply(this, arguments);
@@ -339,23 +365,20 @@ window.fetch = function (u, o) {
         if (/\/rest\/v1\//.test(s) && !/consultar_pedido_tracking/.test(s) &&
             String(o && o.method || u && u.method || "GET").toUpperCase() === "POST") {
             r.then(x => x.clone().json()).then(j => {
-                const c = g(j, "codigo"), t = gt(j);
+                const c = findValue(j, "codigo"), t = findTracking(j);
                 if (c && t) gp(c, t);
             }).catch(() => {});
         }
     } catch (e) {}
     return r;
 };
-const fa = (x, k) => { if (Array.isArray(x)) return x.length && x.every(o => o && typeof o === "object" && k in o) ? x : null; if (x && typeof x === "object") { for (const v of Object.values(x)) { const r = fa(v, k); if (r) return r } } return null };
-const g = (x, k) => x && typeof x === "object" ? (k in x ? x[k] : Object.values(x).map(v => g(v, k)).find(v => v != null)) : undefined;
-const gt = x => { if (x && typeof x === "object") { for (const [k, v] of Object.entries(x)) if (/track|token/i.test(k) && typeof v === "string") return v; for (const v of Object.values(x)) { const r = gt(v); if (r) return r } } };
 const pe = s => { s = String(s || "").replace(/_/g, " "); return s.charAt(0).toUpperCase() + s.slice(1) };
 const dt = o => { const h = o.hs.map(x => x.created_at).filter(Boolean).sort()[0]; return h ? new Date(h) : null };
 const img = n => { const p = P.find(x => x.nombre === n); return p ? ft(p)[0] || "" : "" };
 const fd = d => d.toLocaleDateString("es", { day: "numeric", month: "long", year: "numeric" });
 const D = {}; let L = 0;
-const ask = (c, t) => fetch(C.SUPABASE_URL + "/rest/v1/rpc/consultar_pedido_tracking", { method: "POST", headers: { apikey: C.SUPABASE_KEY, "Content-Type": "application/json" }, body: JSON.stringify({ p_codigo: c, p_tracking_token: t }) }).then(async r => { const j = await r.json(); if (!r.ok) throw new Error((j && j.message) || "No se pudo consultar el pedido."); if (!j || !g(j, "codigo")) throw new Error("No encontramos un pedido con esos códigos."); return j });
-const inf = j => ({ c: g(j, "codigo"), e: g(j, "estado"), n: g(j, "nombre_cliente"), t: g(j, "total_usd"), it: fa(j, "producto_nombre") || [], hs: fa(j, "estado") || [] });
+const ask = (c, t) => fetch(C.SUPABASE_URL + "/rest/v1/rpc/consultar_pedido_tracking", { method: "POST", headers: { apikey: C.SUPABASE_KEY, "Content-Type": "application/json" }, body: JSON.stringify({ p_codigo: c, p_tracking_token: t }) }).then(async r => { const j = await r.json(); if (!r.ok) throw new Error((j && j.message) || "No se pudo consultar el pedido."); if (!j || !findValue(j, "codigo")) throw new Error("No encontramos un pedido con esos códigos."); return j });
+const inf = j => ({ c: findValue(j, "codigo"), e: findValue(j, "estado"), n: findValue(j, "nombre_cliente"), t: findValue(j, "total_usd"), it: fa(j, "producto_nombre") || [], hs: fa(j, "estado") || [] });
 const st = e => { e = String(e || "").toLowerCase(); return /cancel|rechaz/.test(e) ? -1 : /entreg|complet/.test(e) ? 3 : /camino|ruta|envi|transp|despach/.test(e) ? 2 : /confirm|prepar|proces|aprob/.test(e) ? 1 : /pend|recib|regist|nuev/.test(e) ? 0 : null };
 
 function trackLista() {
@@ -387,7 +410,7 @@ function trackDet(c) {
     pv.innerHTML =
         '<button class="lb btn-ghost" data-a="pback" style="min-height:44px;width:auto"><i class="fa-solid fa-arrow-left mr-1"></i> Mis pedidos</button>' +
         '<p class="ey" style="margin-top:1rem">Pedido</p><h3 style="margin:.5rem 0">' + esc(o.c) + '</h3>' +
-        '<p>Estado actual: <b style="color:var(--g);font-weight:400">' + esc(pe(o.e)) + '</b></p>' +
+        '<p>Estado actual: <b style="color:var(--gi);font-weight:400">' + esc(pe(o.e)) + '</b></p>' +
         (s === -1 ? '<span class="badge-out-of-stock" style="display:inline-block;margin-top:.5rem;padding:4px 8px;border-radius:4px">Cancelado</span>' :
             s != null ? '<div class="pb">' + ["Recibido", "Confirmado", "En camino", "Entregado"].map((l, i) =>
                 '<span' + (i <= s ? ' class="on"' : '') + '><i></i>' + l + '</span>').join("") + '</div>' : '') +
@@ -402,7 +425,7 @@ function trackDet(c) {
                 (p.subtotal != null ? ' <span class="track-subtotal">· ' + fm(Number(p.subtotal)) + '</span>' : '') + '</span></div></div>';
         }).join("") +
         '</div>' +
-        (o.t != null ? '<p class="tt">Total: <b>' + fm(Number(o.t)) + '</b></p>' : '') +
+        (o.t != null ? '<p class="tt">Total de productos: <b>' + fm(Number(o.t)) + '</b></p>' : '') +
         (o.n ? '<p>Cliente: ' + esc(o.n) + '</p>' : '') +
         (h.length ? '<p class="lb" style="margin-top:2rem">Seguimiento</p><div class="tl">' +
             h.map(x => '<p><span style="color:var(--fg)">' + esc(pe(x.estado)) + '</span>' +
@@ -452,7 +475,7 @@ async function load() {
             await new Promise(r => setTimeout(r, 1000 * loadRetry));
             return load();
         }
-        toast("No se pudo cargar el catálogo. Verifica tu conexión.", "error");
+        toast("No se pudo cargar el catálogo. Verifique su conexión.", "error");
         console.error("[VOLXEN] Load failed:", err);
         Cs = []; P = []; O = {};
     }
@@ -526,10 +549,11 @@ async function start(pageInit) {
     bd();
     consultas();
     wireGlobal();
+    obs();
     await load();
     renderNav();
     if (typeof pageInit === "function") await pageInit();
     obs();
 }
 
-window.VX = { $, q, esc, wa, fm, ft, imgUrl, pr, ag, cn, price, toast, bd, sv, obs, pcard, show, hide, go, add, setQty, cart, cartItems, cartTotal, load, renderNav, setCat, trackLista, trackDet, operadoras, start, getP: () => P, getCs: () => Cs, getO: () => O, getK: () => K, PAGE };
+window.VX = { $, q, esc, wa, fm, ft, imgUrl, pr, ag, cn, price, toast, bd, sv, syncCart, obs, pcard, show, hide, go, add, setQty, cart, cartItems, cartTotal, load, renderNav, setCat, trackLista, trackDet, operadoras, start, getP: () => P, getCs: () => Cs, getO: () => O, getK: () => K, PAGE };

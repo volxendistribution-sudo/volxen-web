@@ -45,11 +45,11 @@ export async function initProducto() {
     var agotado = VX.ag(p);
 
     function render() {
-        var priceHtml = VX.price(p);
+        var priceNoteHtml = agotado ? '' : '<p class="mt-1 text-xs text-mu">Precio fijo. La mensajería se coordina con su asesor.</p>';
         var descHtml = p.descripcion ? '<p class="text-mu leading-relaxed mt-4">' + VX.esc(p.descripcion) + '</p>' : '';
         var specsHtml = f ? '<ul class="list-disc pl-5 space-y-2 text-mu mt-4">' + f + '</ul>' : '';
         var garantiaHtml = p.garantia ? '<p class="mt-3"><span class="text-fg font-medium">Garantía:</span> ' + VX.esc(p.garantia) + '</p>' : '';
-        var transporteHtml = p.transporte ? '<p class="mt-1"><span class="text-fg font-medium">Transporte:</span> ' + VX.esc(p.transporte) + '</p>' : '';
+        var transporteHtml = p.transporte ? '<p class="mt-1"><span class="text-fg font-medium">Mensajería:</span> ' + VX.esc(p.transporte) + '</p>' : '';
 
         var mainImgSrc = ims[0] ? VX.imgUrl(ims[0], { w: 800, h: 800, format: "webp", quality: 85 }) : "";
         var thumbImgs = ims.map(function(u) {
@@ -75,7 +75,7 @@ export async function initProducto() {
 
         var actionHtml = agotado
             ? '<p class="badge-out-of-stock inline-block mt-6 px-4 py-2 rounded-lg">Agotado</p>' +
-              '<a class="btn-secondary block text-center mt-4 py-3" href="' + VX.wa('Buenas, deseo consultar por la pieza "' + p.nombre + '" (' + VX.fm(VX.pr(p)) + ').') + '" target="_blank" rel="noopener">Consultar disponibilidad</a>'
+              '<a class="btn-secondary block text-center mt-4 py-3" href="' + VX.wa('Buenas, deseo consultar la disponibilidad y la entrega de la pieza "' + p.nombre + '".') + '" target="_blank" rel="noopener">Consultar disponibilidad</a>'
             : '<div class="mt-6 flex items-center gap-3">' +
               '<div class="q">' +
               '<button data-pq="-1" aria-label="Menos cantidad" class="qty-btn">−</button>' +
@@ -88,7 +88,7 @@ export async function initProducto() {
               '<button class="btn-primary flex-1 py-3" data-pbuy>Comprar</button>' +
               '</div>';
 
-        var waLink = '<a class="sl btn-ghost inline-block mt-6" target="_blank" rel="noopener" href="' + VX.wa('Buenas, deseo consultar por la pieza "' + p.nombre + '" (' + VX.fm(VX.pr(p)) + ').') + '">O consultar solo esta pieza con su asesor</a>';
+        var waLink = '<a class="sl btn-ghost inline-block mt-6" target="_blank" rel="noopener" href="' + VX.wa('Buenas, deseo consultar la disponibilidad y la entrega de la pieza "' + p.nombre + '".') + '">Consultar disponibilidad y entrega con su asesor</a>';
 
         host.innerHTML =
             '<div class="grid md:grid-cols-2 gap-8 lg:gap-12 items-start">' +
@@ -96,7 +96,7 @@ export async function initProducto() {
             '<div>' +
             '<span class="ey">' + VX.esc(VX.cn(p.categoria_id)) + '</span>' +
             '<h1 class="text-2xl sm:text-3xl font-bold text-fg mt-2 mb-4">' + VX.esc(p.nombre) + '</h1>' +
-            '<div class="pc text-2xl font-bold text-fg">' + VX.price(p) + '</div>' +
+            '<div class="pc text-2xl font-bold text-fg">' + VX.price(p) + '</div>' + priceNoteHtml +
             descHtml + specsHtml + garantiaHtml + transporteHtml +
             actionHtml + waLink +
             '</div></div>';
