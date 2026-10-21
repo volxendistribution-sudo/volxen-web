@@ -161,3 +161,29 @@ test("el build incluye la generación de un dist autocontenido", () => {
     assert.match(pkg.scripts.build, /build:html/);
     assert.equal(pkg.scripts.test, "node --test");
 });
+
+test("la ficha de producto muestra el envío configurado y usa dots", () => {
+    const js = read("js/pages/producto.js");
+
+    assert.match(js, /shipping_type === "paid"/);
+    assert.match(js, /Envío: \+US\$/);
+    assert.match(js, /Envío gratis/);
+    assert.match(js, /pdp-dot/);
+});
+
+test("el admin configura el tipo y el costo de envío", () => {
+    const admin = read("admin.html");
+
+    assert.match(admin, /id="st"/);
+    assert.match(admin, /id="sc"/);
+    assert.match(admin, /shipping_type:/);
+    assert.match(admin, /shipping_cost:/);
+});
+
+test("la migración declara los campos de envío", () => {
+    const sql = read("supabase/migrations/20261021_add_product_shipping.sql");
+
+    assert.match(sql, /shipping_type text not null default 'free'/);
+    assert.match(sql, /shipping_cost numeric/);
+    assert.match(sql, /shipping_type in \('free', 'paid'\)/);
+});

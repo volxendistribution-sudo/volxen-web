@@ -43,63 +43,112 @@ export async function initProducto() {
     var ims = VX.ft(p), mq = 1;
     var f = (p.caracteristicas || []).map(function (x) { return "<li>" + VX.esc(x) + "</li>"; }).join("");
     var agotado = VX.ag(p);
+    var waHref = VX.wa('Buenas, deseo consultar la disponibilidad y la entrega de la pieza "' + p.nombre + '".');
+
+    function shippingLabel() {
+        if (p.shipping_type === "paid") {
+            var cost = Number(p.shipping_cost);
+            if (isFinite(cost) && cost > 0) {
+                return "Envío: +US$" + (Math.round(cost * 100) / 100);
+            }
+            return "Envío por coordinar";
+        }
+        return "Envío gratis";
+    }
+
+    function ratingHtml() {
+        var value = Number(p.calificacion);
+        if (!isFinite(value) || value <= 0) return "";
+        var count = Number(p.calificacion_count);
+        var countHtml = isFinite(count) && count > 0 ? " (" + count + ")" : "";
+        return '<div class="pdp-rating"><i class="fa-solid fa-star" aria-hidden="true"></i><span>' +
+            value.toFixed(1).replace(".", ",") + countHtml + '</span></div>';
+    }
+
+    function metaHtml() {
+        var category = VX.esc(VX.cn(p.categoria_id)) + " · La Habana";
+        var specs = (p.caracteristicas || []).slice(0, 3).map(function (x) {
+            return VX.esc(x);
+        }).filter(Boolean).join(" · ");
+        return '<p class="pdp-meta">' + category + '</p>' +
+            (specs ? '<p class="pdp-meta">' + specs + '</p>' : '');
+    }
+
+    function galleryHtml() {
+        if (!ims[0]) {
+            return '<div class="pdp-media pdp-media-empty" aria-hidden="true"><i class="fa-regular fa-image"></i></div>';
+        }
+        var mainSrc = VX.imgUrl(ims[0], { w: 1200, format: "webp", quality: 85 });
+        var html = '<div class="pdp-media">' +
+            '<img id="pimg" class="zoomable pdp-img" src="' + VX.esc(mainSrc) + '" alt="' + VX.esc(p.nombre) + '" fetchpriority="high">';
+        if (ims.length > 1) {
+            html += '<div class="pdp-dots" role="group" aria-label="Imágenes del producto">';
+            ims.forEach(function (u, idx) {
+                html += '<button type="button" class="pdp-dot' + (idx === 0 ? " is-active" : "") + '" data-dot="' + idx + '" aria-label="Ver imagen ' + (idx + 1) + '"' + (idx === 0 ? ' aria-current="true"' : "") + '></button>';
+            });
+            html += '</div>';
+        }
+        return html + '</div>';
+    }
+
+    function priceHtml() {
+        if (agotado) {
+            return '<span class="pdp-price pdp-price-consult">Consultar disponibilidad</span>';
+        }
+        var base = Number(p.precio_usd) || 0;
+        var current = VX.pr(p);
+        var hasOffer = current > 0 && current < base;
+        return '<span class="pdp-price">' + VX.fm(current) + '</span>' +
+            (hasOffer ? '<s class="pdp-price-old">' + VX.fm(base) + '</s>' : '');
+    }
+
+    function actionsHtml() {
+        if (agotado) {
+            return '<a class="btn-secondary pdp-consult" href="' + waHref + '" target="_blank" rel="noopener">Consultar disponibilidad</a>';
+        }
+        return '<div class="pdp-cart-row">' +
+            '<div class="q">' +
+            '<button type="button" data-pq="-1" aria-label="Menos cantidad" class="qty-btn">−</button>' +
+            '<i id="pmq">' + mq + '</i>' +
+            '<button type="button" data-pq="1" aria-label="Más cantidad" class="qty-btn">+</button>' +
+            '</div>' +
+            '<button type="button" class="btn-secondary pdp-add" data-padd>Añadir al carrito</button>' +
+            '</div>';
+    }
+
+    function detailsHtml() {
+        var html = "";
+        if (p.descripcion) {
+            html += '<h2>Descripción</h2><p>' + VX.esc(p.descripcion) + '</p>';
+        }
+        if (f) {
+            html += '<h2>Características</h2><ul>' + f + '</ul>';
+        }
+        if (p.garantia) {
+            html += '<p class="pdp-note"><strong>Garantía:</strong> ' + VX.esc(p.garantia) + '</p>';
+        }
+        return html ? '<div class="pdp-details">' + html + '</div>' : "";
+    }
 
     function render() {
-        var priceNoteHtml = agotado ? '' : '<p class="mt-1 text-xs text-mu">Precio fijo. La mensajería se coordina con su asesor.</p>';
-        var descHtml = p.descripcion ? '<p class="text-mu leading-relaxed mt-4">' + VX.esc(p.descripcion) + '</p>' : '';
-        var specsHtml = f ? '<ul class="list-disc pl-5 space-y-2 text-mu mt-4">' + f + '</ul>' : '';
-        var garantiaHtml = p.garantia ? '<p class="mt-3"><span class="text-fg font-medium">Garantía:</span> ' + VX.esc(p.garantia) + '</p>' : '';
-        var transporteHtml = p.transporte ? '<p class="mt-1"><span class="text-fg font-medium">Mensajería:</span> ' + VX.esc(p.transporte) + '</p>' : '';
-
-        var mainImgSrc = ims[0] ? VX.imgUrl(ims[0], { w: 800, h: 800, format: "webp", quality: 85 }) : "";
-        var thumbImgs = ims.map(function(u) {
-            return VX.imgUrl(u, { w: 120, h: 120, format: "webp", quality: 80 });
-        });
-
-        var galleryHtml = '';
-        if (ims[0]) {
-            galleryHtml +=
-                '<div class="product-gallery">' +
-                '<div class="main-image-container" style="border:1px solid var(--bd);background:var(--sf);aspect-ratio:1/1;border-radius:var(--radius-xl);overflow:hidden;position:relative;">' +
-                '<img class="zoomable" id="pimg" src="' + VX.esc(mainImgSrc) + '" alt="' + VX.esc(p.nombre) + '" style="width:100%;height:100%;object-fit:contain;padding:var(--space-4);cursor:zoom-in;">' +
-                '</div>';
-            if (ims.length > 1) {
-                galleryHtml += '<div class="thumbnails" style="display:flex;gap:var(--space-2);margin-top:var(--space-3);overflow-x:auto;padding-bottom:var(--space-1);">';
-                thumbImgs.forEach(function(u, idx) {
-                    galleryHtml += '<img data-th="' + VX.esc(ims[idx]) + '" data-th-opt="' + VX.esc(u) + '" src="' + VX.esc(u) + '" alt="" class="thumb-img" style="width:72px;height:72px;object-fit:cover;background:var(--sf);border:1px solid var(--bd);border-radius:var(--radius-md);cursor:pointer;flex:none;transition:border-color .2s,transform .2s;">';
-                });
-                galleryHtml += '</div>';
-            }
-            galleryHtml += '</div>';
-        }
-
-        var actionHtml = agotado
-            ? '<p class="badge-out-of-stock inline-block mt-6 px-4 py-2 rounded-lg">Agotado</p>' +
-              '<a class="btn-secondary block text-center mt-4 py-3" href="' + VX.wa('Buenas, deseo consultar la disponibilidad y la entrega de la pieza "' + p.nombre + '".') + '" target="_blank" rel="noopener">Consultar disponibilidad</a>'
-            : '<div class="mt-6 flex items-center gap-3">' +
-              '<div class="q">' +
-              '<button data-pq="-1" aria-label="Menos cantidad" class="qty-btn">−</button>' +
-              '<i id="pmq" style="min-width:28px;text-align:center;font-style:normal;color:var(--fg)">' + mq + '</i>' +
-              '<button data-pq="1" aria-label="Más cantidad" class="qty-btn">+</button>' +
-              '</div>' +
-              '</div>' +
-              '<div class="mt-4 flex gap-3">' +
-              '<button class="btn-secondary flex-1 py-3" data-padd>Añadir al carrito</button>' +
-              '<button class="btn-primary flex-1 py-3" data-pbuy>Comprar</button>' +
-              '</div>';
-
-        var waLink = '<a class="sl btn-ghost inline-block mt-6" target="_blank" rel="noopener" href="' + VX.wa('Buenas, deseo consultar la disponibilidad y la entrega de la pieza "' + p.nombre + '".') + '">Consultar disponibilidad y entrega con su asesor</a>';
+        var buyHtml = agotado
+            ? '<span class="badge-out-of-stock pdp-stock">Agotado</span>'
+            : '<button type="button" class="btn-primary pdp-buy" data-pbuy>Comprar</button>';
+        var helpHtml = agotado ? "" :
+            '<a class="pdp-help" href="' + waHref + '" target="_blank" rel="noopener">¿Dudas? Consulte la entrega con su asesor</a>';
 
         host.innerHTML =
-            '<div class="grid md:grid-cols-2 gap-8 lg:gap-12 items-start">' +
-            '<div>' + galleryHtml + '</div>' +
-            '<div>' +
-            '<span class="ey">' + VX.esc(VX.cn(p.categoria_id)) + '</span>' +
-            '<h1 class="text-2xl sm:text-3xl font-bold text-fg mt-2 mb-4">' + VX.esc(p.nombre) + '</h1>' +
-            '<div class="pc text-2xl font-bold text-fg">' + VX.price(p) + '</div>' + priceNoteHtml +
-            descHtml + specsHtml + garantiaHtml + transporteHtml +
-            actionHtml + waLink +
-            '</div></div>';
+            '<article class="pdp-card">' +
+            galleryHtml() +
+            '<div class="pdp-body">' +
+            '<div class="pdp-head"><h1 class="pdp-title">' + VX.esc(p.nombre) + '</h1>' + ratingHtml() + '</div>' +
+            metaHtml() +
+            '<div class="pdp-buy-row"><div class="pdp-price-block">' + priceHtml() + '</div>' + buyHtml + '</div>' +
+            '<p class="pdp-shipping"><span class="pdp-check" aria-hidden="true">✓</span><span>' + VX.esc(shippingLabel()) + '</span></p>' +
+            actionsHtml() +
+            detailsHtml() +
+            helpHtml +
+            '</div></article>';
 
         injectProductJsonLd(p, ims[0]);
         VX.obs();
@@ -108,11 +157,18 @@ export async function initProducto() {
     render();
 
     host.addEventListener("click", function (e) {
-        var th = e.target.closest("[data-th]");
-        if (th) {
-            var im = VX.$("pimg");
-            var optSrc = th.getAttribute("data-th-opt");
-            if (im && optSrc) im.src = optSrc;
+        var dot = e.target.closest("[data-dot]");
+        if (dot) {
+            var idx = Number(dot.getAttribute("data-dot"));
+            var main = VX.$("pimg");
+            if (main && ims[idx]) {
+                main.src = VX.imgUrl(ims[idx], { w: 1200, format: "webp", quality: 85 });
+            }
+            host.querySelectorAll("[data-dot]").forEach(function (item) {
+                item.classList.toggle("is-active", item === dot);
+                if (item === dot) item.setAttribute("aria-current", "true");
+                else item.removeAttribute("aria-current");
+            });
             return;
         }
         var pq = e.target.closest("[data-pq]");
@@ -124,10 +180,9 @@ export async function initProducto() {
     function injectProductJsonLd(product, image) {
         var script = document.createElement('script');
         script.type = 'application/ld+json';
-        var price = product.precio_usd || 0;
-        var offerPrice = VX.getO()[product.id] || price;
+        var price = Number(VX.pr(product)) || Number(product.precio_usd) || 0;
         var inStock = product.disponibilidad !== "agotado";
-        var mainImg = image ? VX.imgUrl(image, { w: 800, h: 800, format: "webp", quality: 85 }) : "https://volxen.com/logo-light.svg";
+        var mainImg = image ? VX.imgUrl(image, { w: 1200, format: "webp", quality: 85 }) : "https://volxen.com/logo-light.svg";
         var jsonLd = {
             "@context": "https://schema.org",
             "@type": "Product",
@@ -140,12 +195,19 @@ export async function initProducto() {
                 "@type": "Offer",
                 "url": window.location.href,
                 "priceCurrency": "USD",
-                "price": offerPrice.toFixed(2),
+                "price": price.toFixed(2),
                 "availability": inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
                 "seller": { "@type": "Organization", "name": "VOLXEN Comercializadora Cuba" }
             }
         };
         if (product.garantia) jsonLd.warranty = product.garantia;
+        if (Number(product.calificacion) > 0 && Number(product.calificacion_count) > 0) {
+            jsonLd.aggregateRating = {
+                "@type": "AggregateRating",
+                "ratingValue": Number(product.calificacion),
+                "reviewCount": Number(product.calificacion_count)
+            };
+        }
         script.textContent = JSON.stringify(jsonLd);
         document.head.appendChild(script);
     }
