@@ -8,6 +8,8 @@ export async function initPedidos() {
         code = VX.$("tc"), token = VX.$("tt"), err = VX.$("te"), sub = VX.$("tsub"),
         pv = VX.$("pv");
 
+    await initAccount();
+
     var params = new URLSearchParams(location.search);
     if (params.get("codigo") && code) code.value = params.get("codigo");
     if (params.get("seguimiento") && token) token.value = params.get("seguimiento");
@@ -47,6 +49,71 @@ export async function initPedidos() {
         if (err) err.textContent = "";
         if (code) code.focus();
         window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+}
+
+async function initAccount() {
+    var panel = VX.$("accountPanel"), guest = VX.$("accountGuest"),
+        emailEl = VX.$("accountEmail"), list = VX.$("accountOrders"),
+        logout = VX.$("accountLogout");
+
+    if (!panel || !window.VXAUTH) return;
+
+    var session = null;
+    try {
+        session = await VXAUTH.getSession();
+    } catch (e) {}
+
+    if (!session) {
+        if (guest) guest.hidden = false;
+        return;
+    }
+
+    panel.hidden = false;
+    if (emailEl) emailEl.textContent = session.user && session.user.email ? session.user.email : "";
+
+    if (logout) {
+        logout.addEventListener("click", async function () {
+            logout.disabled = true;
+            logout.textContent = "Cerrando sesión…";
+            try {
+                await VXAUTH.signOut();
+            } catch (e) {}
+            location.href = "login.html";
+        });
+    }
+
+    if (!list) return;
+
+    try {
+        var orders = await VXAUTH.rest("/rpc/mis_pedidos", { method: "POST", body: {} });
+        if (!Array.isArray(orders) || !orders.length) {
+            list.innerHTML = '<p class="account-empty">Todavía no tienes pedidos vinculados a tu cuenta. Los pedidos realizados sin iniciar sesión pueden consultarse con su código y código de seguimiento.</p>';
+            return;
+        }
+        list.innerHTML = '<p class="account-orders-title">Historial de pedidos</p>' + orders.map(function (order) {
+            var items = Array.isArray(order.items) ? order.items : [];
+            var units = items.reduce(function (total, item) {
+                return total + (Number(item.cantidad) || 0);
+            }, 0);
+            var date = order.created_at ? new Date(order.created_at) : null;
+            var fecha = date && !isNaN(date.getTime())
+                ? date.toLocaleDateString("es", { day: "numeric", month: "long", year: "numeric" })
+                : "";
+            var total = Number(order.total_usd) || 0;
+            return '<div class="account-order"><div><p class="account-order-code">' + esc(order.codigo) + '</p><p class="account-order-meta">' +
+                (fecha ? esc(fecha) + ' · ' : '') + esc(VX.estadoLargo(order.estado)) +
+                (units ? ' · ' + units + (units === 1 ? ' unidad' : ' unidades') : '') +
+                '</p></div><span class="account-order-total">' + VX.fm(total) + '</span></div>';
+        }).join("");
+    } catch (e) {
+        list.innerHTML = '<p class="account-empty" role="alert">No se pudieron cargar tus pedidos en este momento. Inténtalo de nuevo más tarde.</p>';
+    }
+}
+
+function esc(value) {
+    return String(value == null ? "" : value).replace(/[&<>"]/g, function (character) {
+        return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[character];
     });
 }
 

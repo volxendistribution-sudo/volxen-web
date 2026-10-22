@@ -232,6 +232,10 @@ Operadoras
 Pedidos
 </button>
 
+<button class="back" onclick="cerrarSesion()">
+Salir
+</button>
+
 </div>
 
 <p id="ms"></p>
@@ -405,6 +409,61 @@ $("loginmsg").textContent = t || "";
 };
 
 
+function salirLocal(texto){
+
+T = "";
+
+K = [];
+P = [];
+O = [];
+D = [];
+OD = null;
+OP = [];
+OPEDIT = null;
+E = null;
+IM = [];
+
+const ad = $("ad");
+const lg = $("lg");
+const pw = $("pw");
+const v = $("v");
+
+if(ad) ad.style.display = "none";
+if(lg) lg.style.display = "block";
+if(pw) pw.value = "";
+if(v) v.innerHTML = "";
+
+loginMsg(texto || "");
+
+}
+
+
+async function cerrarSesion(){
+
+const token = T;
+
+salirLocal("Sesión cerrada.");
+
+if(!token) return;
+
+try{
+
+await fetch(
+B + "/auth/v1/logout",
+{
+method:"POST",
+headers:{
+apikey:C.SUPABASE_KEY,
+Authorization:"Bearer " + token
+}
+}
+);
+
+}catch(e){}
+
+}
+
+
 const slug = s =>
 s.toLowerCase()
 .normalize("NFD")
@@ -440,6 +499,15 @@ body:b !== undefined
 
 }
 );
+
+
+if(r.status === 401){
+
+salirLocal("La sesión expiró. Vuelve a entrar.");
+
+throw new Error("Sesión expirada");
+
+}
 
 
 /*
@@ -539,6 +607,19 @@ loginMsg(
 j.message ||
 "Correo o contraseña incorrectos."
 );
+
+return;
+
+}
+
+
+const rol = j.user && j.user.app_metadata && j.user.app_metadata.role;
+
+if(rol !== "admin"){
+
+T = "";
+
+loginMsg("Esta cuenta no tiene acceso al panel.");
 
 return;
 
@@ -892,11 +973,9 @@ o.id+
 (
 o.telefono
 ?
-'<button onclick="waPedido(\''+
-o.telefono+
-'\',\''+
-o.codigo+
-'\')">'+
+'<button data-pedido-wa="'+
+esc(o.id)+
+'">'+
 'WHATSAPP'+
 '</button>'
 :
@@ -1228,11 +1307,9 @@ esc(h.comentario)
 o.telefono
 ?
 
-'<button onclick="waPedido(\''+
-o.telefono+
-'\',\''+
-o.codigo+
-'\')">'+
+'<button data-pedido-wa="'+
+esc(o.id)+
+'">'+
 'CONTACTAR POR WHATSAPP'+
 '</button>'
 
@@ -1451,6 +1528,23 @@ encodeURIComponent(texto),
 );
 
 }
+
+
+document.addEventListener("click", e => {
+
+const b = e.target && e.target.closest
+? e.target.closest("[data-pedido-wa]")
+: null;
+
+if(!b) return;
+
+const o = (D || []).find(x =>
+x.id === b.getAttribute("data-pedido-wa")
+);
+
+if(o) waPedido(o.telefono, o.codigo);
+
+});
 
 
 /* =========================================================

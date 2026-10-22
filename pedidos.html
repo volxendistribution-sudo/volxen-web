@@ -29,6 +29,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
 
     <link rel="stylesheet" href="dist/volxen.css">
+    <link rel="stylesheet" href="cuenta.css">
 </head>
 
 <body class="h-full bg-bg text-fg flex flex-col font-sans antialiased selection:bg-g selection:text-fg" data-page="pedidos" data-shell="minimal">
@@ -36,6 +37,27 @@
     <a href="#main" class="skip-link">Saltar al contenido principal</a>
 
     <main id="main" class="flex-1 max-w-3xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <section id="accountGuest" class="form-card account-panel" aria-labelledby="guestTitle" hidden>
+            <h2 id="guestTitle">Tu cuenta</h2>
+            <p class="form-intro">Inicia sesión para ver los pedidos vinculados a tu cuenta. También puedes consultar cualquier pedido con su código y código de seguimiento.</p>
+            <div class="form-actions">
+                <a href="login.html?next=pedidos.html" class="btn-secondary">Iniciar sesión</a>
+                <a href="registro.html" class="btn-primary">Crear cuenta</a>
+            </div>
+        </section>
+
+        <section id="accountPanel" class="form-card account-panel" aria-labelledby="accountTitle" hidden>
+            <div class="account-head">
+                <div>
+                    <p class="ey">Mi cuenta</p>
+                    <h2 id="accountTitle">Tus pedidos</h2>
+                    <p id="accountEmail" class="account-email"></p>
+                </div>
+                <button id="accountLogout" class="account-logout" type="button">Cerrar sesión</button>
+            </div>
+            <div id="accountOrders" class="account-orders" aria-live="polite"></div>
+        </section>
+
         <section id="trackCard" class="form-card">
             <h1>Mis pedidos</h1>
             <p class="form-intro">Consulte el estado de su pedido con el código que recibió al confirmar su compra y su código de seguimiento.</p>
@@ -62,6 +84,7 @@
     </main>
 
     <script src="config.js"></script>
+    <script src="auth.js"></script>
     <script src="volxen-core.js"></script>
     <script type="module" src="dist/main.min.js"></script>
 </body>

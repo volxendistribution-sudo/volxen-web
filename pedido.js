@@ -15,7 +15,11 @@
         b.disabled=true;b.textContent="Registrando…";
         b.setAttribute("aria-busy", "true");
         try{
-            const r=await fetch(C.SUPABASE_URL+"/rest/v1/rpc/crear_pedido",{method:"POST",headers:{apikey:C.SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify({p_nombre_cliente:n,p_email:em,p_telefono:tl,p_direccion:d,p_municipio:pv,p_notas:o,p_items:it.map(p=>({producto_id:p.id,cantidad:K[p.id]}))})});
+            let tk=null;
+            if(window.VXAUTH){try{tk=await window.VXAUTH.accessToken()}catch(e){}}
+            const h={apikey:C.SUPABASE_KEY,"Content-Type":"application/json"};
+            if(tk)h.Authorization="Bearer "+tk;
+            const r=await fetch(C.SUPABASE_URL+"/rest/v1/rpc/crear_pedido",{method:"POST",headers:h,body:JSON.stringify({p_nombre_cliente:n,p_email:em,p_telefono:tl,p_direccion:d,p_municipio:pv,p_notas:o,p_items:it.map(p=>({producto_id:p.id,cantidad:K[p.id]}))})});
             const j=await r.json();
             if(!r.ok)throw new Error((j&&j.message)||"No se pudo registrar el pedido.");
             const g=(x,k)=>x&&typeof x==="object"?(k in x?x[k]:Object.values(x).map(v=>g(v,k)).find(v=>v!=null)):undefined;

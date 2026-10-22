@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Recupera el acceso a tu cuenta de VOLXEN.">
+    <meta name="theme-color" content="#2E4A3F">
+    <meta name="robots" content="noindex, follow">
+    <title>Recuperar cuenta · VOLXEN</title>
+
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="dist/fonts/DM-Sans-Regular.woff2">
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="dist/fonts/DM-Sans-SemiBold.woff2">
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="dist/fonts/DM-Sans-Bold.woff2">
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="dist/fonts/InterTight-Regular.woff2">
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="dist/fonts/InterTight-SemiBold.woff2">
+
+    <link rel="stylesheet" href="dist/volxen.css">
+    <link rel="stylesheet" href="cuenta.css">
+</head>
+
+<body class="auth-page" data-auth-page="recuperar">
+    <main class="auth-shell">
+        <section class="auth-card" aria-labelledby="authTitle">
+            <h1 id="authTitle">Recuperar cuenta</h1>
+
+            <div id="authNotice" class="auth-notice" role="status" hidden></div>
+
+            <div id="requestView">
+                <p class="auth-intro">Introduce tu correo electrónico para recibir las instrucciones de recuperación</p>
+
+                <form id="recoverForm" novalidate>
+                    <div class="auth-field">
+                        <label for="email">Correo electrónico</label>
+                        <input id="email" name="email" class="auth-input" type="email" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false" required>
+                    </div>
+
+                    <p id="recoverError" class="auth-error" role="alert" aria-live="assertive" aria-atomic="true"></p>
+
+                    <button type="submit" id="recoverBtn" class="auth-primary">Enviar instrucciones</button>
+                </form>
+
+                <p class="auth-back"><a class="auth-link" href="login.html">Volver al inicio de sesión</a></p>
+            </div>
+
+            <div id="updateView" hidden>
+                <p class="auth-intro">Introduce una nueva contraseña para tu cuenta</p>
+
+                <form id="updateForm" novalidate>
+                    <div class="auth-field">
+                        <label for="newPassword">Nueva contraseña</label>
+                        <input id="newPassword" name="newPassword" class="auth-input" type="password" autocomplete="new-password" minlength="8" required>
+                    </div>
+
+                    <div class="auth-field">
+                        <label for="newPasswordConfirm">Confirmar nueva contraseña</label>
+                        <input id="newPasswordConfirm" name="newPasswordConfirm" class="auth-input" type="password" autocomplete="new-password" minlength="8" required>
+                    </div>
+
+                    <p id="updateError" class="auth-error" role="alert" aria-live="assertive" aria-atomic="true"></p>
+
+                    <button type="submit" id="updateBtn" class="auth-primary">Guardar nueva contraseña</button>
+                </form>
+
+                <p class="auth-back"><a class="auth-link" href="login.html">Volver al inicio de sesión</a></p>
+            </div>
+        </section>
+    </main>
+
+    <script src="config.js"></script>
+    <script src="auth.js"></script>
+    <script type="module" src="js/pages/auth-recover.js"></script>
+</body>
+</html>
