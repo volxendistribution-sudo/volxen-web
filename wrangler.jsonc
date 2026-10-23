@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "volxen-web",
+  "name": "volxen-tienda",
   "compatibility_date": "2026-10-12",
   "observability": {
     "enabled": true

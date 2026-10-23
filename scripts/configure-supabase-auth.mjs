@@ -2,8 +2,8 @@ import { readFile } from "node:fs/promises";
 
 const token = process.env.SUPABASE_ACCESS_TOKEN;
 const ref = process.env.SUPABASE_PROJECT_REF || "zyszkujnpbievjapsuyy";
-const siteUrl = String(process.env.SITE_URL || "https://volxen.com").replace(/\/+$/, "");
-const extraRedirects = String(process.env.EXTRA_REDIRECTS || "https://volxen-web.pages.dev,http://localhost:3000")
+const siteUrl = String(process.env.SITE_URL || "https://volxen-web.pages.dev").replace(/\/+$/, "");
+const extraRedirects = String(process.env.EXTRA_REDIRECTS || "https://volxen-tienda.pages.dev,http://localhost:3000")
     .split(",")
     .map((value) => value.trim().replace(/\/+$/, ""))
     .filter(Boolean);
@@ -31,7 +31,10 @@ const [recovery, confirmation] = await Promise.all([
 const basePayload = {
     site_url: siteUrl,
     uri_allow_list: redirects,
-    mailer_autoconfirm: false
+    mailer_autoconfirm: false,
+    mailer_otp_length: 6,
+    mailer_otp_exp: 3600,
+    password_min_length: 8
 };
 
 const templatePayload = {
@@ -65,12 +68,15 @@ const smtpHost = process.env.SMTP_HOST;
 const smtpUser = process.env.SMTP_USER;
 const smtpPass = process.env.SMTP_PASS;
 if (smtpHost && smtpUser && smtpPass) {
-    basePayload.smtp_host = smtpHost;
-    basePayload.smtp_port = Number(process.env.SMTP_PORT || 587);
-    basePayload.smtp_user = smtpUser;
-    basePayload.smtp_pass = smtpPass;
-    basePayload.smtp_admin_email = process.env.SMTP_ADMIN_EMAIL || smtpUser;
-    basePayload.smtp_sender_name = process.env.SMTP_SENDER_NAME || "VOLXEN";
+    Object.assign(basePayload, {
+        smtp_host: smtpHost,
+        smtp_port: Number(process.env.SMTP_PORT || 465),
+        smtp_user: smtpUser,
+        smtp_pass: smtpPass,
+        smtp_admin_email: process.env.SMTP_ADMIN_EMAIL || smtpUser,
+        smtp_sender_name: process.env.SMTP_SENDER_NAME || "VOLXEN",
+        rate_limit_email_sent: 30
+    });
 } else if (smtpHost || smtpUser || smtpPass) {
     console.warn("SMTP se omite: faltan SMTP_HOST, SMTP_USER o SMTP_PASS.");
 }

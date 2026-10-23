@@ -97,8 +97,9 @@ test("la recuperación usa un código OTP dentro de la web", () => {
     assert.match(recover, /verifyRecoveryCode/);
     assert.match(recover, /recoverCode/);
     assert.match(recover, /function recoveryRedirect\(\)/);
-    assert.match(recover, /VXAUTH\.recover\(email, recoveryRedirect\(\)\)/);
+    assert.match(recover, /async function requestRecoveryCode\(\)/);
     assert.match(recover, /VXAUTH\.recover\(recoveryEmail, recoveryRedirect\(\)\)/);
+    assert.match(recover, /await requestRecoveryCode\(\)/);
     assert.match(page, /id="recoverCode"/);
     assert.match(page, /código de 6 dígitos/);
     assert.doesNotMatch(page, /incluye un enlace/);

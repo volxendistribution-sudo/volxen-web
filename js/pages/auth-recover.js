@@ -21,8 +21,54 @@ const requestError = $("recoverError");
 const codeError = $("codeError");
 const updateError = $("updateError");
 
+const ATTEMPT_KEY = "vx_recuperacion_intentos";
+const MAX_CODE_ATTEMPTS = 5;
+const CODE_LOCK_MS = 10 * 60 * 1000;
+
 let recoveryEmail = "";
 let resendTimer = null;
+
+function readAttemptState() {
+    if (!recoveryEmail) return null;
+    try {
+        const raw = window.localStorage.getItem(ATTEMPT_KEY);
+        const state = raw ? JSON.parse(raw) : null;
+        if (!state || state.email !== recoveryEmail) return null;
+        return state;
+    } catch (error) {
+        return null;
+    }
+}
+
+function saveAttemptState(count, lockedUntil) {
+    try {
+        window.localStorage.setItem(ATTEMPT_KEY, JSON.stringify({
+            email: recoveryEmail,
+            count: count,
+            lockedUntil: lockedUntil || 0
+        }));
+    } catch (error) {}
+}
+
+function clearAttemptState() {
+    try {
+        window.localStorage.removeItem(ATTEMPT_KEY);
+    } catch (error) {}
+}
+
+function lockRemaining() {
+    const state = readAttemptState();
+    const until = state ? Number(state.lockedUntil) || 0 : 0;
+    return until > Date.now() ? until - Date.now() : 0;
+}
+
+function registerFailedAttempt() {
+    const state = readAttemptState();
+    const count = (state ? Number(state.count) || 0 : 0) + 1;
+    const lockedUntil = count >= MAX_CODE_ATTEMPTS ? Date.now() + CODE_LOCK_MS : 0;
+    saveAttemptState(count, lockedUntil);
+    return { count: count, lockedUntil: lockedUntil };
+}
 
 function setNotice(message, type) {
     if (!notice) return;
@@ -71,6 +117,7 @@ function showCode(message, type) {
     if (updateView) updateView.hidden = true;
     if (codeView) codeView.hidden = false;
     if (emailText) emailText.textContent = recoveryEmail;
+    clearAttemptState();
     setError(requestError, "");
     setError(updateError, "");
     setNotice(message || "", type);
@@ -84,6 +131,7 @@ function showUpdate() {
     if (requestView) requestView.hidden = true;
     if (codeView) codeView.hidden = true;
     if (updateView) updateView.hidden = false;
+    clearAttemptState();
     setError(requestError, "");
     setError(codeError, "");
     setNotice("Código verificado. Ya puedes crear una nueva contraseña.");
@@ -113,12 +161,21 @@ function recoveryErrorMessage(error) {
     if (error && error.status === 429) {
         return "Se alcanzó el límite de envío de correos. Espera una hora antes de volver a intentarlo.";
     }
-    return (error && error.message) || "No pudimos enviar el código en este momento. Espera un momento e inténtalo de nuevo.";
+    return "No pudimos enviar el código en este momento. Revisa tu conexión e inténtalo de nuevo.";
+}
+
+async function requestRecoveryCode() {
+    try {
+        await VXAUTH.recover(recoveryEmail, recoveryRedirect());
+    } catch (error) {
+        const status = Number(error && error.status);
+        if (status === 400 || status === 422) return;
+        throw error;
+    }
 }
 
 async function sendRecoveryCode(message) {
-    const email = recoveryEmail;
-    await VXAUTH.recover(email, recoveryRedirect());
+    await requestRecoveryCode();
     showCode(message || "Si el correo está registrado, recibirás un código de 6 dígitos para restablecer tu contraseña.");
     startResendCooldown();
 }
@@ -162,6 +219,7 @@ if (requestForm) {
         markInvalid(emailInput, false);
 
         recoveryEmail = email;
+        clearAttemptState();
         setBusy(requestButton, true, "Enviar código", "Enviando…");
         try {
             await sendRecoveryCode("Si el correo está registrado, recibirás un código de 6 dígitos para restablecer tu contraseña.");
@@ -179,6 +237,12 @@ if (codeForm) {
         setError(codeError, "");
         setNotice("");
 
+        const locked = lockRemaining();
+        if (locked) {
+            setError(codeError, "Has agotado los intentos. Solicita un código nuevo o espera " + Math.ceil(locked / 60000) + " minutos.");
+            return;
+        }
+
         const code = codeInput ? codeInput.value.replace(/\D/g, "") : "";
         if (code.length !== 6) {
             markInvalid(codeInput, true);
@@ -190,10 +254,16 @@ if (codeForm) {
         setBusy(codeButton, true, "Verificar código", "Verificando…");
         try {
             await VXAUTH.verifyRecoveryCode(recoveryEmail, code);
+            clearAttemptState();
             showUpdate();
         } catch (error) {
             markInvalid(codeInput, true);
-            setError(codeError, error.message);
+            const attempt = registerFailedAttempt();
+            if (attempt.lockedUntil) {
+                setError(codeError, "Has agotado los 5 intentos. Solicita un código nuevo o espera 10 minutos.");
+            } else {
+                setError(codeError, error.message);
+            }
             setBusy(codeButton, false, "Verificar código", "Verificando…");
         }
     });
@@ -229,8 +299,8 @@ if (updateForm) {
         setBusy(updateButton, true, "Guardar nueva contraseña", "Guardando…");
         try {
             await VXAUTH.updatePassword(password);
-            await VXAUTH.signOut();
-            location.replace("login.html?reset=1");
+            clearAttemptState();
+            location.replace("pedidos.html");
         } catch (error) {
             setError(updateError, error.message);
             setBusy(updateButton, false, "Guardar nueva contraseña", "Guardando…");
@@ -243,12 +313,15 @@ if (resendButton) {
         if (!recoveryEmail || resendButton.disabled) return;
         setError(codeError, "");
         setNotice("");
+        resendButton.disabled = true;
         try {
-            await VXAUTH.recover(recoveryEmail, recoveryRedirect());
+            await requestRecoveryCode();
+            clearAttemptState();
             if (codeInput) codeInput.value = "";
             startResendCooldown();
             setNotice("Enviamos un mensaje nuevo. Usa el código más reciente.");
         } catch (error) {
+            resendButton.disabled = false;
             setNotice(recoveryErrorMessage(error), "error");
         }
     });
@@ -257,6 +330,7 @@ if (resendButton) {
 if (changeEmailButton) {
     changeEmailButton.addEventListener("click", function () {
         recoveryEmail = "";
+        clearAttemptState();
         if (codeInput) codeInput.value = "";
         showRequest("");
         if (emailInput) {
