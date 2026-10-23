@@ -43,6 +43,15 @@ test("la pantalla de recuperación informa la caducidad real del código", () =>
     assert.match(page, /maxlength="6"/);
 });
 
+test("la plantilla incluye contacto de atención y un código destacado sin enlaces", () => {
+    const template = read("supabase/templates/recovery.html");
+
+    assert.match(template, /WhatsApp: \+53 5076 0258/);
+    assert.match(template, /font-size:40px/);
+    assert.doesNotMatch(template, /href=/);
+    assert.doesNotMatch(template, /https?:\/\//);
+});
+
 test("la configuración de Supabase aplica el flujo OTP y la política de contraseña", () => {
     const script = read("scripts/configure-supabase-auth.mjs");
 
@@ -51,6 +60,15 @@ test("la configuración de Supabase aplica el flujo OTP y la política de contra
     assert.match(script, /password_min_length: 8/);
     assert.match(script, /smtp_port: Number\(process\.env\.SMTP_PORT \|\| 465\)/);
     assert.match(script, /rate_limit_email_sent: 30/);
+});
+
+test("la configuración usa la URL real y las redirecciones de las páginas", () => {
+    const script = read("scripts/configure-supabase-auth.mjs");
+
+    assert.match(script, /https:\/\/volxen-tienda\.volxen-distribution\.workers\.dev/);
+    assert.match(script, /defaultRedirects/);
+    assert.match(script, /\/recuperar\.html/);
+    assert.match(script, /\/pedidos\.html/);
 });
 
 test("el proyecto de Cloudflare y el deploy apuntan a volxen-tienda", () => {

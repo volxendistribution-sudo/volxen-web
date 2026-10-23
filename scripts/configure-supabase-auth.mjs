@@ -2,8 +2,25 @@ import { readFile } from "node:fs/promises";
 
 const token = process.env.SUPABASE_ACCESS_TOKEN;
 const ref = process.env.SUPABASE_PROJECT_REF || "zyszkujnpbievjapsuyy";
-const siteUrl = String(process.env.SITE_URL || "https://volxen-web.pages.dev").replace(/\/+$/, "");
-const extraRedirects = String(process.env.EXTRA_REDIRECTS || "https://volxen-tienda.pages.dev,http://localhost:3000")
+const siteUrl = String(process.env.SITE_URL || "https://volxen-tienda.volxen-distribution.workers.dev").replace(/\/+$/, "");
+const pagePaths = [
+    "",
+    "/login.html",
+    "/recuperar.html",
+    "/registro.html",
+    "/pedidos.html",
+    "/carrito.html",
+    "/checkout.html",
+    "/consulta.html",
+    "/catalogo.html",
+    "/producto.html",
+    "/admin.html"
+];
+const defaultRedirects = [
+    ...pagePaths.map((page) => siteUrl + page),
+    ...pagePaths.map((page) => "http://localhost:3000" + page)
+].join(",");
+const extraRedirects = String(process.env.EXTRA_REDIRECTS || defaultRedirects)
     .split(",")
     .map((value) => value.trim().replace(/\/+$/, ""))
     .filter(Boolean);
