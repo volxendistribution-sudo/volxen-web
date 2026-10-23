@@ -2,8 +2,8 @@
 if (document.documentElement) document.documentElement.classList.add("js");
 const C = window.VOLXEN_CONFIG, H = { apikey: C.SUPABASE_KEY }, $ = i => document.getElementById(i);
 
-async function q(path) {
-    const res = await fetch(C.SUPABASE_URL + "/rest/v1/" + path, { headers: H });
+async function q(path, options) {
+    const res = await fetch(C.SUPABASE_URL + "/rest/v1/" + path, Object.assign({ headers: H }, options || {}));
     if (!res.ok) {
         const err = await res.json().catch(() => ({ message: res.statusText }));
         console.error("[VOLXEN] Supabase error:", res.status, path, err);
@@ -224,7 +224,6 @@ function renderNav() {
     if (fdp) fdp.innerHTML = Cs.map(c =>
         '<li><a href="catalogo.html?cat=' + encodeURIComponent(c.id) + '" class="hover:text-gi transition text-left">' + esc(c.nombre) + '</a></li>'
     ).join("");
-    renderMenuCategories();
 }
 
 function opIcon(size, cls) {
@@ -367,7 +366,7 @@ async function loadOperadoras() {
     return OPS;
 }
 
-const MENU_CATEGORY_IMAGES = {
+const CATEGORY_IMAGES = {
     "electrodomesticos": "categorias/electrodomesticos.svg",
     "climatizacion": "categorias/climatizacion.svg",
     "refrigeracion": "categorias/refrigeracion.svg",
@@ -381,29 +380,8 @@ function categorySlug(name) {
     return String(name || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 }
 
-function menuCategoryImage(category) {
-    return MENU_CATEGORY_IMAGES[categorySlug(category && category.nombre)] || "categorias/categoria.svg";
-}
-
-function renderMenuCategories() {
-    const wrap = $("menuCats"), grid = $("menuCatGrid");
-    if (!wrap || !grid) return;
-    wrap.hidden = Cs.length === 0;
-    grid.innerHTML = Cs.map((c, i) => {
-        const fallback = menuCategoryImage(c);
-        const src = c.imagen ? imgUrl(c.imagen, { w: 360, h: 260, format: "webp", quality: 78 }) : fallback;
-        return '<a class="menu-cat" href="catalogo.html?cat=' + encodeURIComponent(c.id) + '" style="--mc-i:' + i + '">' +
-            '<span class="menu-cat-img"><img src="' + esc(src) + '" data-fallback="' + esc(fallback) + '" alt="" loading="lazy" decoding="async"></span>' +
-            '<span class="menu-cat-name">' + esc(c.nombre) + '</span></a>';
-    }).join("");
-    grid.querySelectorAll("img").forEach(img => img.addEventListener("error", function () {
-        if (this.dataset.fallback) {
-            this.src = this.dataset.fallback;
-            this.removeAttribute("data-fallback");
-        } else {
-            this.remove();
-        }
-    }));
+function categoryImage(category) {
+    return CATEGORY_IMAGES[categorySlug(category && category.nombre)] || "categorias/categoria.svg";
 }
 
 function menuOverlay() {
@@ -422,7 +400,6 @@ function menuOverlay() {
         '<span class="ey menu-ey">Navegar</span><nav class="mn" aria-label="Menú principal">' +
         links.map((link, i) => '<a href="' + link.href + '"' + (link.admin ? ' data-admin-only hidden' : '') + ' style="--mn-i:' + i + '"><i class="fa-solid ' + link.icon + ' mn-ico" aria-hidden="true"></i><span>' + link.text + '</span></a>').join("") +
         '</nav>' +
-        '<div class="menu-cats" id="menuCats" hidden><span class="ey menu-ey">Categorías</span><div class="menu-cat-grid" id="menuCatGrid"></div></div>' +
         '</div></div>';
 }
 
@@ -579,7 +556,7 @@ const MAX_LOAD_RETRIES = 2;
 async function load() {
     try {
         const [c, p, o] = await Promise.all([
-            q("categorias?order=orden"),
+            q("categorias?order=orden", { cache: "no-store" }),
             q("productos?disponibilidad=eq.disponible&order=created_at.desc"),
             q("ofertas?activa=eq.true")
         ]);
@@ -685,4 +662,4 @@ async function start(pageInit) {
     obs();
 }
 
-window.VX = { $, q, esc, wa, fm, ft, imgUrl, pr, ag, cn, price, toast, bd, sv, syncCart, obs, pcard, show, hide, go, add, setQty, cart, cartItems, cartTotal, load, renderNav, setCat, trackDet, consultarPedido, estadoLargo, operadoras, opIcon, hydrateOpIcons, hydrateAccount, avatarHtml, start, loadOperadoras, renderOperadoras, getOps: () => OPS, getP: () => P, getCs: () => Cs, getO: () => O, getK: () => K, PAGE };
+window.VX = { $, q, esc, wa, fm, ft, imgUrl, pr, ag, cn, price, toast, bd, sv, syncCart, obs, pcard, show, hide, go, add, setQty, cart, cartItems, cartTotal, load, renderNav, setCat, trackDet, consultarPedido, estadoLargo, operadoras, opIcon, hydrateOpIcons, hydrateAccount, avatarHtml, start, loadOperadoras, renderOperadoras, getOps: () => OPS, getP: () => P, getCs: () => Cs, getO: () => O, getK: () => K, categoryImage, PAGE };

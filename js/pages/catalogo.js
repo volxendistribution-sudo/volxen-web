@@ -48,14 +48,21 @@ export async function initCatalogo() {
         if (!categoryGrid) return;
         var Cs = VX.getCs();
         categoryGrid.innerHTML = Cs.map(function (c) {
-            var src = c.imagen ? VX.imgUrl(c.imagen, { w: 600, h: 420, format: "webp", quality: 80 }) : "";
+            var fallback = VX.categoryImage(c);
+            var src = c.imagen ? VX.imgUrl(c.imagen, { w: 600, h: 420, format: "webp", quality: 80 }) : fallback;
             return '<a class="category-card" href="catalogo.html?cat=' + encodeURIComponent(c.id) + '" data-a="cat" data-id="' + VX.esc(c.id) + '">' +
-                '<div class="category-img"><span class="category-fallback"><i class="fa-solid fa-layer-group" aria-hidden="true"></i></span>' +
-                (src ? '<img src="' + VX.esc(src) + '" alt="" loading="lazy">' : "") + '</div>' +
+                '<div class="category-img"><img src="' + VX.esc(src) + '" data-fallback="' + VX.esc(fallback) + '" alt="" loading="lazy" decoding="async"></div>' +
                 '<div class="category-info"><b>' + VX.esc(c.nombre) + '</b><span>Ver productos</span></div></a>';
         }).join("");
         categoryGrid.querySelectorAll("img").forEach(function (img) {
-            img.addEventListener("error", function () { img.remove() });
+            img.addEventListener("error", function () {
+                if (this.dataset.fallback) {
+                    this.src = this.dataset.fallback;
+                    this.removeAttribute("data-fallback");
+                } else {
+                    this.remove();
+                }
+            });
         });
     }
 

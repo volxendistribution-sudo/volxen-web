@@ -100,7 +100,8 @@ test("la recuperación usa un código OTP dentro de la web", () => {
     assert.match(recover, /VXAUTH\.recover\(email, recoveryRedirect\(\)\)/);
     assert.match(recover, /VXAUTH\.recover\(recoveryEmail, recoveryRedirect\(\)\)/);
     assert.match(page, /id="recoverCode"/);
-    assert.match(page, /incluye un enlace/);
+    assert.match(page, /código de 6 dígitos/);
+    assert.doesNotMatch(page, /incluye un enlace/);
     assert.match(template, /\{\{ \.Token \}\}/);
     assert.match(template, /Tu código es:/);
     assert.doesNotMatch(template, /ConfirmationURL/);
@@ -108,17 +109,15 @@ test("la recuperación usa un código OTP dentro de la web", () => {
     assert.doesNotMatch(template, /href=/);
 });
 
-test("el menú muestra las categorías con imagen y animación", () => {
+test("el menú lateral ya no muestra la sección de categorías", () => {
     const core = read("volxen-core.js");
     const css = read("volxen.css");
 
-    assert.match(core, /function renderMenuCategories/);
-    assert.match(core, /id="menuCats"/);
-    assert.match(core, /id="menuCatGrid"/);
-    assert.match(core, /c\.imagen/);
-    assert.match(css, /\.menu-cat-grid/);
+    assert.doesNotMatch(core, /renderMenuCategories/);
+    assert.doesNotMatch(core, /id="menuCats"/);
+    assert.doesNotMatch(core, /id="menuCatGrid"/);
+    assert.doesNotMatch(css, /\.menu-cat/);
     assert.match(css, /@keyframes menuLinkIn/);
-    assert.match(css, /@keyframes menuCatIn/);
 });
 
 test("el login oculta Google y Facebook con la bandera de configuración", () => {
@@ -130,8 +129,9 @@ test("el login oculta Google y Facebook con la bandera de configuración", () =>
     assert.match(js, /element\.hidden = true/);
 });
 
-test("el menú usa imágenes locales para cada categoría", () => {
+test("el catálogo usa imágenes locales para todas las categorías", () => {
     const core = read("volxen-core.js");
+    const catalog = read("js/pages/catalogo.js");
     const images = [
         "electrodomesticos.svg",
         "climatizacion.svg",
@@ -143,12 +143,38 @@ test("el menú usa imágenes locales para cada categoría", () => {
         "categoria.svg"
     ];
 
-    assert.match(core, /const MENU_CATEGORY_IMAGES/);
-    assert.match(core, /movilidad-electrica\.svg/);
-    assert.doesNotMatch(core, /menu-cat-img"><i class="fa-solid fa-layer-group/);
+    assert.match(core, /const CATEGORY_IMAGES/);
+    assert.match(core, /function categoryImage/);
+    assert.match(catalog, /VX\.categoryImage\(c\)/);
+    assert.match(catalog, /data-fallback/);
+    assert.match(catalog, /var Cs = VX\.getCs\(\)/);
+    assert.doesNotMatch(catalog, /fa-layer-group/);
+    assert.doesNotMatch(catalog, /slice\(0, 5\)/);
+    assert.doesNotMatch(catalog, /Cs\.filter|Cs\.slice/);
+    const mapped = {
+        "electrodomesticos": "electrodomesticos.svg",
+        "climatizacion": "climatizacion.svg",
+        "refrigeracion": "refrigeracion.svg",
+        "energia-paneles-solares": "energia-paneles-solares.svg",
+        "movilidad-electrica": "movilidad-electrica.svg",
+        "linea-de-cocina": "linea-de-cocina.svg",
+        "tv-y-audio": "tv-y-audio.svg"
+    };
     images.forEach(function (image) {
         assert.equal(fs.existsSync(path.join(ROOT, "public", "categorias", image)), true, image);
     });
+    Object.keys(mapped).forEach(function (slug) {
+        assert.match(core, new RegExp('"' + slug + '": "categorias/' + mapped[slug] + '"'));
+    });
+});
+
+test("la pantalla de bienvenida ya no se carga", () => {
+    const home = read("index.html");
+    const pkg = read("package.json");
+
+    assert.doesNotMatch(home, /entrada\.js/);
+    assert.doesNotMatch(pkg, /entrada\.js/);
+    assert.equal(fs.existsSync(path.join(ROOT, "entrada.js")), false);
 });
 
 test("la cabecera muestra el nombre y el menú de cuenta", () => {

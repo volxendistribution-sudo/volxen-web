@@ -119,7 +119,7 @@ function recoveryErrorMessage(error) {
 async function sendRecoveryCode(message) {
     const email = recoveryEmail;
     await VXAUTH.recover(email, recoveryRedirect());
-    showCode(message || "Si el correo está registrado, recibirás un mensaje para restablecer tu contraseña. Si incluye un código de 6 dígitos, introdúcelo aquí.");
+    showCode(message || "Si el correo está registrado, recibirás un código de 6 dígitos para restablecer tu contraseña.");
     startResendCooldown();
 }
 
@@ -143,7 +143,7 @@ async function start() {
             showUpdate();
             return;
         }
-        showRequest("El enlace anterior ya no es válido. Solicita un código nuevo para continuar.", "error");
+        showRequest("La solicitud anterior ya no es válida. Solicita un código nuevo para continuar.", "error");
     }
 }
 
@@ -164,7 +164,7 @@ if (requestForm) {
         recoveryEmail = email;
         setBusy(requestButton, true, "Enviar código", "Enviando…");
         try {
-            await sendRecoveryCode("Si el correo está registrado, recibirás un mensaje para restablecer tu contraseña. Si incluye un código de 6 dígitos, introdúcelo aquí.");
+            await sendRecoveryCode("Si el correo está registrado, recibirás un código de 6 dígitos para restablecer tu contraseña.");
         } catch (error) {
             showRequest(recoveryErrorMessage(error), "error");
         } finally {
@@ -247,7 +247,7 @@ if (resendButton) {
             await VXAUTH.recover(recoveryEmail, recoveryRedirect());
             if (codeInput) codeInput.value = "";
             startResendCooldown();
-            setNotice("Enviamos un mensaje nuevo. Usa el código o enlace más reciente.");
+            setNotice("Enviamos un mensaje nuevo. Usa el código más reciente.");
         } catch (error) {
             setNotice(recoveryErrorMessage(error), "error");
         }
