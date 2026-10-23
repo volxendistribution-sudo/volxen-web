@@ -18,7 +18,8 @@
     "predeploy": "npm run build && npm run lint",
     "deploy": "wrangler deploy --name volxen-tienda",
     "preview": "wrangler dev",
-    "test": "node --test"
+    "test": "node --test",
+    "auth:configure": "node scripts/configure-supabase-auth.mjs"
   },
   "repository": {
     "type": "git",

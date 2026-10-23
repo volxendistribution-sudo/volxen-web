@@ -29,6 +29,24 @@ export async function initConsulta() {
         return { ok: r.ok, status: r.status, body: j };
     }
 
+    function failureMessage(result) {
+        var raw = result && result.body && (result.body.message || result.body.error_description || result.body.error);
+        raw = raw ? String(raw) : "";
+        if (/consultas_tipo_check|tipo no válido/i.test(raw)) {
+            return "El tipo de mensaje no está habilitado en este momento. Inténtelo de nuevo más tarde.";
+        }
+        if (/rate limit|too many/i.test(raw)) {
+            return "Ha enviado varios mensajes seguidos. Espere unos minutos e inténtelo de nuevo.";
+        }
+        if (/row-level security|permission denied/i.test(raw)) {
+            return "No se pudo registrar el mensaje por un problema de permisos. Escríbanos por WhatsApp.";
+        }
+        if (raw) {
+            return "No se pudo enviar su mensaje: " + raw;
+        }
+        return "No se pudo enviar su mensaje. Inténtelo de nuevo en unos minutos.";
+    }
+
     form.addEventListener("submit", async function (e) {
         e.preventDefault();
         if (sub && sub.disabled) return;
@@ -56,22 +74,29 @@ export async function initConsulta() {
             p_mensaje: msg
         };
         var sent = false;
+        var failure = "";
 
         try {
             var r = await rpc("registrar_consulta_v2", payload);
             sent = r.ok;
-            if (!sent && (r.status === 404 || (r.body && r.body.code === "PGRST202")) && (ty === "consulta" || ty === "incidencia")) {
-                var old = await rpc("registrar_consulta", payload);
-                sent = old.ok;
+            if (!sent) {
+                failure = failureMessage(r);
+                if ((r.status === 404 || (r.body && r.body.code === "PGRST202")) && (ty === "consulta" || ty === "incidencia")) {
+                    var old = await rpc("registrar_consulta", payload);
+                    sent = old.ok;
+                    if (!sent) failure = failureMessage(old);
+                }
             }
         } catch (x) {
             sent = false;
+            failure = "No se pudo conectar con el servidor. Revise su conexión e inténtelo de nuevo.";
+            if (window.console) console.warn("No se pudo registrar la consulta", x);
         }
 
         if (sub) { sub.disabled = false; sub.textContent = "Enviar"; }
 
         if (!sent) {
-            if (err) err.textContent = "No se pudo enviar su mensaje. Revise su conexión e inténtelo de nuevo.";
+            if (err) err.textContent = failure || "No se pudo enviar su mensaje. Inténtelo de nuevo en unos minutos.";
             return;
         }
 

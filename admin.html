@@ -119,6 +119,16 @@ font-size:12px
 
 .estado{font-weight:600}
 
+.cancel-alert{
+margin:10px 0;
+padding:10px 12px;
+color:var(--ox);
+font:700 12px/1.45 var(--s);
+background:rgba(166,75,48,.08);
+border:1px solid rgba(166,75,48,.3);
+border-radius:10px
+}
+
 small{font-size:12px;line-height:1.5;color:var(--mu)}
 
 #lg{background:var(--s2);border:1px solid var(--bd);border-radius:var(--radius-card);padding:24px;margin-top:24px}
@@ -950,6 +960,10 @@ esc(o.telefono)+
 esc(o.estado)+
 '</span>'+
 
+(o.cancelado_por_cliente ?
+'<div class="cancel-alert">El cliente canceló el pedido</div>' :
+'')+
+
 '<br>'+
 
 '<strong>$'+
@@ -1174,6 +1188,10 @@ $("v").innerHTML =
 esc(o.codigo)+
 '</h3>'+
 
+(o.cancelado_por_cliente ?
+'<div class="cancel-alert">El cliente canceló el pedido</div>' :
+'')+
+
 '<div class="r">'+
 
 '<strong>CLIENTE</strong>'+
@@ -1355,15 +1373,16 @@ const estado = select.value;
 
 try{
 
+const datos = { estado: estado };
+if(estado !== "Cancelado") datos.cancelado_por_cliente = false;
+
 await api(
 "pedidos?id=eq."+
 encodeURIComponent(id),
 
 "PATCH",
 
-{
-estado:estado
-}
+datos
 
 );
 
@@ -1452,15 +1471,16 @@ return;
 
 try{
 
+const datos = { estado: estado };
+if(estado !== "Cancelado") datos.cancelado_por_cliente = false;
+
 await api(
 "pedidos?id=eq."+
 encodeURIComponent(id),
 
 "PATCH",
 
-{
-estado:estado
-}
+datos
 
 );
 

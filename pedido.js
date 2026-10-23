@@ -23,14 +23,14 @@
             const j=await r.json();
             if(!r.ok)throw new Error((j&&j.message)||"No se pudo registrar el pedido.");
             const g=(x,k)=>x&&typeof x==="object"?(k in x?x[k]:Object.values(x).map(v=>g(v,k)).find(v=>v!=null)):undefined;
-            const cod=g(j,"codigo"),tk=g(j,"tracking_token"),tot=g(j,"total_usd");
+            const cod=g(j,"codigo"),tot=g(j,"total_usd"),tracking=g(j,"tracking_token");
             Object.keys(K).forEach(k=>delete K[k]);sv();cart();
             let m="Buenas, acabo de registrar el pedido "+(cod||"")+" en el sitio.";if(ci)m+="\nCarnet de identidad: "+ci;
             
             // Mostrar confirmación en la página
             const confirmation = $("orderConfirmation");
             if (confirmation) {
-                confirmation.innerHTML = '<div class="bg-s2 border border-bd rounded-2xl shadow-sm p-6"><div class="text-center mb-4"><div class="w-16 h-16 bg-g/10 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fa-solid fa-check text-gi text-2xl" aria-hidden="true"></i></div><h3 class="font-bold text-fg">¡Pedido registrado!</h3></div><p class="ey">Código de pedido</p><p class="order-code mb-2">' + esc(cod||"") + '</p>' + (tot!=null?'<p class="mb-2">Total de productos: <b class="text-gi">' + fm(Number(tot)) + '</b></p>':'') + (tk?'<p class="ey">Código de seguimiento</p><p class="font-mono text-fg break-all mb-2">' + esc(tk) + '</p>':'') + '<p class="nt mb-4">Guarde estos datos: los necesitará para consultar su pedido. Su asesor le contactará para coordinar la mensajería.</p><a class="btn-primary w-full py-3 block text-center" href="' + wa(m) + '" target="_blank" rel="noopener">Avisar a su asesor por WhatsApp</a><a class="btn-secondary w-full py-3 block text-center mt-2" href="catalogo.html">Seguir comprando</a></div>';
+                confirmation.innerHTML = '<div class="bg-s2 border border-bd rounded-2xl shadow-sm p-6"><div class="text-center mb-4"><div class="w-16 h-16 bg-g/10 rounded-full flex items-center justify-center mx-auto mb-3"><i class="fa-solid fa-check text-gi text-2xl" aria-hidden="true"></i></div><h3 class="font-bold text-fg">¡Pedido registrado!</h3></div><p class="ey">Código de pedido</p><p class="order-code mb-2">' + esc(cod||"") + '</p>' + (tot!=null?'<p class="mb-2">Total de productos: <b class="text-gi">' + fm(Number(tot)) + '</b></p>':'') + (tracking?'<p class="ey">Código de seguimiento</p><p class="font-mono text-fg break-all mb-2">' + esc(tracking) + '</p>':'') + '<p class="nt mb-4">Guarde estos datos: los necesitará para consultar su pedido. Su asesor le contactará para coordinar la mensajería.</p><a class="btn-primary w-full py-3 block text-center" href="' + wa(m) + '" target="_blank" rel="noopener">Avisar a su asesor por WhatsApp</a>' + (tk?'<a class="btn-secondary w-full py-3 block text-center mt-2" href="pedidos.html">Ver mis pedidos</a>':'') + '<a class="btn-secondary w-full py-3 block text-center mt-2" href="catalogo.html">Seguir comprando</a></div>';
                 confirmation.classList.remove("hidden");
                 // Ocultar formulario y resumen
                 const cf = $("cf");

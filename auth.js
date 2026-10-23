@@ -61,7 +61,8 @@
             id: user && user.id ? user.id : "",
             email: user && user.email ? user.email : "",
             role: meta.role === "admin" ? "admin" : "",
-            nombre: profile.nombre || profile.full_name || profile.name || ""
+            nombre: profile.nombre || profile.full_name || profile.name || "",
+            avatar: profile.avatar_url || profile.picture || profile.avatar || ""
         };
     }
 

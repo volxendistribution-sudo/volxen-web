@@ -48,13 +48,17 @@
 
         <section id="accountPanel" class="form-card account-panel" aria-labelledby="accountTitle" hidden>
             <div class="account-head">
-                <div>
-                    <p class="ey">Mi cuenta</p>
-                    <h2 id="accountTitle">Tus pedidos</h2>
-                    <p id="accountEmail" class="account-email"></p>
+                <div class="account-identity">
+                    <span id="accountAvatar" class="account-avatar vx-avatar" aria-hidden="true"></span>
+                    <div>
+                        <p class="ey">Mi cuenta</p>
+                        <h2 id="accountTitle">Tus pedidos</h2>
+                        <p id="accountEmail" class="account-email"></p>
+                    </div>
                 </div>
                 <button id="accountLogout" class="account-logout" type="button">Cerrar sesión</button>
             </div>
+            <p id="accountNotice" class="account-notice" role="status" aria-live="polite" hidden></p>
             <div id="accountOrders" class="account-orders" aria-live="polite"></div>
         </section>
 

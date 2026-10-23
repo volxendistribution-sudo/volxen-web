@@ -244,6 +244,30 @@ function hydrateOpIcons(root) {
         if (!el.querySelector("svg")) el.innerHTML = opIcon(el.getAttribute("data-op-icon"));
     });
 }
+
+function avatarHtml(user, cls) {
+    const profile = user || {};
+    const name = String(profile.nombre || profile.name || profile.email || "").trim();
+    const initial = (name.charAt(0) || "V").toUpperCase();
+    const url = String(profile.avatar || profile.avatar_url || profile.picture || "");
+    return '<span class="' + (cls || "vx-avatar") + '" aria-hidden="true"><span>' + esc(initial) + '</span>' +
+        (url ? '<img src="' + esc(url) + '" alt="" loading="lazy" onerror="this.remove()">' : "") + '</span>';
+}
+
+function hydrateAccount() {
+    const link = $("accountLink");
+    if (!link) return;
+    let session = null;
+    try {
+        session = JSON.parse(localStorage.getItem("vx_sesion") || "null");
+    } catch (e) {}
+    const user = session && session.user;
+    if (!user) return;
+    const holder = link.querySelector("[data-account-avatar]");
+    if (holder) holder.outerHTML = avatarHtml(user, "nav-account-avatar vx-avatar");
+    const name = user.nombre || user.email || "";
+    if (name) link.setAttribute("aria-label", "Mi cuenta de " + name);
+}
 const OP_MSG = "Buenas, necesito información sobre un producto.";
 const opDigits = n => String(n || "").replace(/\D/g, "");
 function opCard(o, size, compact) {
@@ -319,7 +343,7 @@ function shell() {
         '<a href="index.html" class="flex items-center gap-1.5 sm:gap-2 shrink-0" aria-label="VOLXEN, comercializadora de tecnología y energía en Cuba"><img src="logo-light.svg" alt="Logo VOLXEN" class="h-7 sm:h-8 w-auto shrink-0"><span class="block leading-none hidden sm:block"><span class="logo-wm" role="img" aria-label="VOLXEN"></span><span class="logo-tagline block mt-0.5 text-mu font-bold">Comercializadora</span></span></a>' +
         '<div class="flex items-center space-x-2">' +
         '<button data-a="menu" aria-label="Abrir menú" class="bg-s2 hover:bg-sf border border-bd text-fg px-2.5 py-2 rounded-lg transition flex items-center gap-1.5"><i class="fa-solid fa-bars text-base"></i><span class="hidden sm:inline text-xs font-bold">Menú</span></button>' +
-        '<a href="pedidos.html" aria-label="Mi cuenta" class="bg-s2 hover:bg-sf border border-bd text-fg px-2.5 py-2 rounded-lg transition flex items-center gap-1.5"><i class="fa-regular fa-user text-base"></i><span class="hidden sm:inline text-xs font-bold">Mi cuenta</span></a>' +
+        '<a href="pedidos.html" id="accountLink" aria-label="Mi cuenta" class="bg-s2 hover:bg-sf border border-bd text-fg px-2.5 py-2 rounded-lg transition flex items-center gap-1.5"><span id="accountAvatar" class="nav-account-avatar vx-avatar" data-account-avatar aria-hidden="true"><i class="fa-regular fa-user" style="font-size:.85rem"></i></span><span class="hidden sm:inline text-xs font-bold">Mi cuenta</span></a>' +
         '<a href="carrito.html" aria-label="Ver su pedido" class="relative btn-primary hover:bg-g-hover hover:text-fg font-bold px-2.5 py-2 rounded-lg flex items-center space-x-1.5 transition shadow-sm"><i class="fa-solid fa-cart-shopping text-base"></i><span class="hidden sm:inline text-xs">Carrito</span><span id="bd" class="absolute -top-1.5 -right-1.5 bg-fg text-g text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-sm">0</span></a>' +
         '</div></div>' +
         '<div class="pb-2"><div class="relative w-full"><input type="text" id="searchInput" placeholder="Buscar productos..." class="w-full input-base placeholder-mu pr-12 focus-ring-g"><button data-search aria-label="Buscar" class="absolute right-1 top-1/2 -translate-y-1/2 px-3 py-2 btn-primary hover:bg-g-hover hover:text-fg rounded transition flex items-center justify-center"><i class="fa-solid fa-magnifying-glass"></i></button></div></div>' +
@@ -532,6 +556,7 @@ function doSearch() {
 async function start(pageInit) {
     shell();
     hydrateOpIcons();
+    hydrateAccount();
     bd();
     wireGlobal();
     obs();
@@ -542,4 +567,4 @@ async function start(pageInit) {
     obs();
 }
 
-window.VX = { $, q, esc, wa, fm, ft, imgUrl, pr, ag, cn, price, toast, bd, sv, syncCart, obs, pcard, show, hide, go, add, setQty, cart, cartItems, cartTotal, load, renderNav, setCat, trackDet, consultarPedido, estadoLargo, operadoras, opIcon, hydrateOpIcons, start, loadOperadoras, renderOperadoras, getOps: () => OPS, getP: () => P, getCs: () => Cs, getO: () => O, getK: () => K, PAGE };
+window.VX = { $, q, esc, wa, fm, ft, imgUrl, pr, ag, cn, price, toast, bd, sv, syncCart, obs, pcard, show, hide, go, add, setQty, cart, cartItems, cartTotal, load, renderNav, setCat, trackDet, consultarPedido, estadoLargo, operadoras, opIcon, hydrateOpIcons, hydrateAccount, avatarHtml, start, loadOperadoras, renderOperadoras, getOps: () => OPS, getP: () => P, getCs: () => Cs, getO: () => O, getK: () => K, PAGE };

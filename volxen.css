@@ -2196,6 +2196,36 @@
         padding: 0 1.25rem;
     }
 
+    /* ===== Cuenta / avatares ===== */
+    .vx-avatar {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        border-radius: 999px;
+        background-color: var(--g);
+        color: var(--fg);
+        font-family: 'DM Sans', sans-serif;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    .vx-avatar img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    .nav-account-avatar {
+        width: 1.5rem;
+        height: 1.5rem;
+        flex: 0 0 auto;
+        font-size: .6875rem;
+    }
+
     /* ===== Print ===== */
     @media print {
         .ov, .sh, .av, .zm, #hd, footer { display: none !important; }
