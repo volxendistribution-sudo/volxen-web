@@ -36,6 +36,13 @@ function safeDestination() {
 }
 
 const next = safeDestination();
+const socialEnabled = !(window.VOLXEN_CONFIG && window.VOLXEN_CONFIG.ENABLE_SOCIAL_LOGIN === false);
+
+if (!socialEnabled) {
+    document.querySelectorAll(".auth-social, .auth-sep").forEach(function (element) {
+        element.hidden = true;
+    });
+}
 
 function setNotice(message, type) {
     if (!notice) return;

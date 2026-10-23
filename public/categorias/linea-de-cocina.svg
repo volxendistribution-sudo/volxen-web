@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" role="img" aria-label="Cocina">
+<rect width="320" height="240" fill="#F7F2E8"/>
+<circle cx="64" cy="50" r="46" fill="#EFE6D7"/>
+<ellipse cx="160" cy="205" rx="98" ry="10" fill="#E8DCC8"/>
+<rect x="68" y="86" width="184" height="112" rx="15" fill="#FFFCF6" stroke="#DED7CA" stroke-width="2"/>
+<rect x="82" y="98" width="156" height="36" rx="8" fill="#E8EFEA"/>
+<circle cx="118" cy="116" r="10" fill="#CFE0D7" stroke="#2E4A3F" stroke-width="3"/>
+<circle cx="168" cy="116" r="10" fill="#CFE0D7" stroke="#2E4A3F" stroke-width="3"/>
+<rect x="82" y="146" width="156" height="38" rx="8" fill="#F7F2E8" stroke="#DED7CA" stroke-width="2"/>
+<rect x="145" y="154" width="30" height="5" rx="2.5" fill="#C8A165"/>
+<path d="M208 92h44v-8h8v8h8v22h-60z" fill="#2E4A3F"/>
+<path d="M216 84h28" stroke="#1F3A31" stroke-width="4" stroke-linecap="round"/>
+<path d="M220 70c-5-7 5-9 0-16M236 70c-5-7 5-9 0-16" fill="none" stroke="#9AB5A8" stroke-width="4" stroke-linecap="round"/>
+<rect x="86" y="184" width="20" height="8" rx="4" fill="#DED7CA"/>
+<rect x="214" y="184" width="20" height="8" rx="4" fill="#DED7CA"/>
+</svg>

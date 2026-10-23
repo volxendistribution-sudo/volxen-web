@@ -109,6 +109,13 @@ function startResendCooldown() {
     }, 1000);
 }
 
+function recoveryErrorMessage(error) {
+    if (error && error.status === 429) {
+        return "Se alcanzó el límite de envío de correos. Espera una hora antes de volver a intentarlo.";
+    }
+    return (error && error.message) || "No pudimos enviar el código en este momento. Espera un momento e inténtalo de nuevo.";
+}
+
 async function sendRecoveryCode(message) {
     const email = recoveryEmail;
     await VXAUTH.recover(email, recoveryRedirect());
@@ -159,7 +166,7 @@ if (requestForm) {
         try {
             await sendRecoveryCode("Si el correo está registrado, recibirás un mensaje para restablecer tu contraseña. Si incluye un código de 6 dígitos, introdúcelo aquí.");
         } catch (error) {
-            showRequest("No pudimos enviar el código en este momento. Espera un momento e inténtalo de nuevo.", "error");
+            showRequest(recoveryErrorMessage(error), "error");
         } finally {
             setBusy(requestButton, false, "Enviar código", "Enviando…");
         }
@@ -242,7 +249,7 @@ if (resendButton) {
             startResendCooldown();
             setNotice("Enviamos un mensaje nuevo. Usa el código o enlace más reciente.");
         } catch (error) {
-            setNotice("No pudimos reenviar el código. Espera un momento e inténtalo de nuevo.", "error");
+            setNotice(recoveryErrorMessage(error), "error");
         }
     });
 }

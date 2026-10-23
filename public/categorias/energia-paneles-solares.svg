@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" role="img" aria-label="Paneles solares">
+<rect width="320" height="240" fill="#F7F2E8"/>
+<circle cx="250" cy="52" r="28" fill="#C8A165"/>
+<g stroke="#C8A165" stroke-width="4" stroke-linecap="round">
+<path d="M250 12v-0"/><path d="M250 92v0"/><path d="M210 52h0"/><path d="M290 52h0"/>
+<path d="M222 24l-8-8"/><path d="M278 24l8-8"/><path d="M222 80l-8 8"/><path d="M278 80l8 8"/>
+</g>
+<ellipse cx="150" cy="206" rx="94" ry="10" fill="#E8DCC8"/>
+<g transform="rotate(-8 150 135)">
+<rect x="62" y="82" width="180" height="104" rx="8" fill="#2E4A3F"/>
+<path d="M96 82v104M130 82v104M164 82v104M198 82v104M62 112h180M62 144h180" stroke="#9AB5A8" stroke-width="3"/>
+<rect x="62" y="82" width="180" height="104" rx="8" fill="none" stroke="#1F3A31" stroke-width="7"/>
+</g>
+<path d="M110 204l26-6M152 204l26-6" stroke="#2E4A3F" stroke-width="6" stroke-linecap="round"/>
+</svg>

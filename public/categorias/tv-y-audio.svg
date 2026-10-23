@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" role="img" aria-label="Televisor y audio">
+<rect width="320" height="240" fill="#F7F2E8"/>
+<circle cx="270" cy="46" r="52" fill="#EFE6D7"/>
+<ellipse cx="160" cy="204" rx="100" ry="10" fill="#E8DCC8"/>
+<rect x="52" y="42" width="164" height="108" rx="10" fill="#2E4A3F"/>
+<rect x="62" y="52" width="144" height="86" rx="5" fill="#CFE0D7"/>
+<path d="M126 78l38 22-38 22z" fill="#2E4A3F"/>
+<path d="M134 150v14M100 174h68" stroke="#1F3A31" stroke-width="8" stroke-linecap="round"/>
+<rect x="232" y="74" width="42" height="110" rx="10" fill="#FFFCF6" stroke="#DED7CA" stroke-width="2"/>
+<circle cx="253" cy="98" r="10" fill="#2E4A3F"/>
+<circle cx="253" cy="128" r="10" fill="#9AB5A8"/>
+<circle cx="253" cy="158" r="10" fill="#C8A165"/>
+</svg>

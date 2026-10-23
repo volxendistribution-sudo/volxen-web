@@ -93,7 +93,10 @@
         if (/weak_password|password should be/.test(code) || /password should be/i.test(raw)) {
             return "La contraseña no cumple los requisitos mínimos de seguridad.";
         }
-        if (/over_email_send_rate_limit|rate limit/.test(code) || /rate limit/i.test(raw)) {
+        if (/over_email_send_rate_limit|email rate limit/.test(code) || /email rate limit/i.test(raw)) {
+            return "Se alcanzó el límite de envío de correos. Espera una hora antes de volver a intentarlo.";
+        }
+        if (/rate limit/.test(code) || /rate limit/i.test(raw)) {
             return "Demasiadas solicitudes. Espera unos minutos e inténtalo de nuevo.";
         }
         if (/signups not allowed|signup_disabled/.test(code) || /signups not allowed/i.test(raw)) {

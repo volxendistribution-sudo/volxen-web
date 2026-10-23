@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" role="img" aria-label="Refrigerador">
+<rect width="320" height="240" fill="#F7F2E8"/>
+<circle cx="266" cy="54" r="54" fill="#EFE6D7"/>
+<ellipse cx="160" cy="211" rx="72" ry="9" fill="#E8DCC8"/>
+<rect x="106" y="28" width="108" height="178" rx="16" fill="#FFFCF6" stroke="#DED7CA" stroke-width="2"/>
+<path d="M106 102h108" stroke="#DED7CA" stroke-width="2"/>
+<rect x="118" y="50" width="7" height="30" rx="3.5" fill="#C8A165"/>
+<rect x="118" y="125" width="7" height="42" rx="3.5" fill="#C8A165"/>
+<path d="M139 139c8-18 31-18 39 0" fill="none" stroke="#CFE0D7" stroke-width="6" stroke-linecap="round"/>
+<circle cx="158" cy="84" r="5" fill="#9AB5A8"/>
+<rect x="150" y="72" width="18" height="4" rx="2" fill="#C8A165"/>
+</svg>

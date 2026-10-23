@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" role="img" aria-label="Aire acondicionado">
+<rect width="320" height="240" fill="#F7F2E8"/>
+<circle cx="60" cy="52" r="46" fill="#EFE6D7"/>
+<ellipse cx="160" cy="202" rx="96" ry="10" fill="#E8DCC8"/>
+<rect x="74" y="44" width="172" height="58" rx="15" fill="#FFFCF6" stroke="#DED7CA" stroke-width="2"/>
+<rect x="90" y="72" width="140" height="9" rx="4.5" fill="#DCE7E1"/>
+<path d="M104 87h112" stroke="#C8A165" stroke-width="3" stroke-linecap="round"/>
+<circle cx="222" cy="62" r="4" fill="#2E4A3F"/>
+<path d="M104 128c-16 12-16 30 0 42" fill="none" stroke="#9AB5A8" stroke-width="6" stroke-linecap="round"/>
+<path d="M140 128c-16 12-16 30 0 42" fill="none" stroke="#9AB5A8" stroke-width="6" stroke-linecap="round"/>
+<path d="M176 128c-16 12-16 30 0 42" fill="none" stroke="#9AB5A8" stroke-width="6" stroke-linecap="round"/>
+<path d="M212 128c-16 12-16 30 0 42" fill="none" stroke="#9AB5A8" stroke-width="6" stroke-linecap="round"/>
+<circle cx="118" cy="164" r="5" fill="#C8A165"/>
+<circle cx="158" cy="172" r="4" fill="#C8A165"/>
+<circle cx="198" cy="164" r="5" fill="#C8A165"/>
+</svg>

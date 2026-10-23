@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" role="img" aria-label="Categoría VOLXEN">
+<rect width="320" height="240" fill="#F7F2E8"/>
+<circle cx="268" cy="46" r="54" fill="#EFE6D7"/>
+<ellipse cx="160" cy="202" rx="92" ry="10" fill="#E8DCC8"/>
+<rect x="86" y="104" width="88" height="82" rx="10" fill="#2E4A3F"/>
+<rect x="182" y="80" width="58" height="106" rx="10" fill="#C8A165"/>
+<rect x="126" y="58" width="82" height="62" rx="10" fill="#FFFCF6" stroke="#DED7CA" stroke-width="2"/>
+<path d="M144 84h46M144 98h30" stroke="#9AB5A8" stroke-width="5" stroke-linecap="round"/>
+</svg>

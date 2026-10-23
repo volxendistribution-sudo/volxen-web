@@ -367,17 +367,43 @@ async function loadOperadoras() {
     return OPS;
 }
 
+const MENU_CATEGORY_IMAGES = {
+    "electrodomesticos": "categorias/electrodomesticos.svg",
+    "climatizacion": "categorias/climatizacion.svg",
+    "refrigeracion": "categorias/refrigeracion.svg",
+    "energia-paneles-solares": "categorias/energia-paneles-solares.svg",
+    "movilidad-electrica": "categorias/movilidad-electrica.svg",
+    "linea-de-cocina": "categorias/linea-de-cocina.svg",
+    "tv-y-audio": "categorias/tv-y-audio.svg"
+};
+
+function categorySlug(name) {
+    return String(name || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+}
+
+function menuCategoryImage(category) {
+    return MENU_CATEGORY_IMAGES[categorySlug(category && category.nombre)] || "categorias/categoria.svg";
+}
+
 function renderMenuCategories() {
     const wrap = $("menuCats"), grid = $("menuCatGrid");
     if (!wrap || !grid) return;
     wrap.hidden = Cs.length === 0;
     grid.innerHTML = Cs.map((c, i) => {
-        const src = c.imagen ? imgUrl(c.imagen, { w: 360, h: 260, format: "webp", quality: 78 }) : "";
+        const fallback = menuCategoryImage(c);
+        const src = c.imagen ? imgUrl(c.imagen, { w: 360, h: 260, format: "webp", quality: 78 }) : fallback;
         return '<a class="menu-cat" href="catalogo.html?cat=' + encodeURIComponent(c.id) + '" style="--mc-i:' + i + '">' +
-            '<span class="menu-cat-img">' + (src ? '<img src="' + esc(src) + '" alt="" loading="lazy">' : '<i class="fa-solid fa-layer-group" aria-hidden="true"></i>') + '</span>' +
+            '<span class="menu-cat-img"><img src="' + esc(src) + '" data-fallback="' + esc(fallback) + '" alt="" loading="lazy" decoding="async"></span>' +
             '<span class="menu-cat-name">' + esc(c.nombre) + '</span></a>';
     }).join("");
-    grid.querySelectorAll("img").forEach(img => img.addEventListener("error", () => img.remove()));
+    grid.querySelectorAll("img").forEach(img => img.addEventListener("error", function () {
+        if (this.dataset.fallback) {
+            this.src = this.dataset.fallback;
+            this.removeAttribute("data-fallback");
+        } else {
+            this.remove();
+        }
+    }));
 }
 
 function menuOverlay() {

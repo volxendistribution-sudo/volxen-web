@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" role="img" aria-label="Lavadora">
+<rect width="320" height="240" fill="#F7F2E8"/>
+<circle cx="272" cy="42" r="58" fill="#EFE6D7"/>
+<ellipse cx="160" cy="204" rx="92" ry="10" fill="#E8DCC8"/>
+<rect x="76" y="42" width="168" height="154" rx="20" fill="#FFFCF6" stroke="#DED7CA" stroke-width="2"/>
+<rect x="94" y="58" width="132" height="22" rx="8" fill="#E8EFEA"/>
+<circle cx="110" cy="69" r="5" fill="#2E4A3F"/>
+<circle cx="130" cy="69" r="5" fill="#C8A165"/>
+<circle cx="160" cy="138" r="48" fill="#E8EFEA" stroke="#2E4A3F" stroke-width="7"/>
+<circle cx="160" cy="138" r="35" fill="#CFE0D7"/>
+<path d="M132 149c14-18 42-18 56 0" fill="none" stroke="#FFFCF6" stroke-width="6" stroke-linecap="round" opacity=".8"/>
+<circle cx="145" cy="124" r="6" fill="#FFFCF6" opacity=".75"/>
+<rect x="94" y="183" width="20" height="8" rx="4" fill="#DED7CA"/>
+<rect x="206" y="183" width="20" height="8" rx="4" fill="#DED7CA"/>
+</svg>

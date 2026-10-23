@@ -121,6 +121,36 @@ test("el menú muestra las categorías con imagen y animación", () => {
     assert.match(css, /@keyframes menuCatIn/);
 });
 
+test("el login oculta Google y Facebook con la bandera de configuración", () => {
+    const config = read("config.js");
+    const js = read("js/pages/auth-page.js");
+
+    assert.match(config, /ENABLE_SOCIAL_LOGIN:\s*false/);
+    assert.match(js, /querySelectorAll\("\.auth-social, \.auth-sep"\)/);
+    assert.match(js, /element\.hidden = true/);
+});
+
+test("el menú usa imágenes locales para cada categoría", () => {
+    const core = read("volxen-core.js");
+    const images = [
+        "electrodomesticos.svg",
+        "climatizacion.svg",
+        "refrigeracion.svg",
+        "energia-paneles-solares.svg",
+        "movilidad-electrica.svg",
+        "linea-de-cocina.svg",
+        "tv-y-audio.svg",
+        "categoria.svg"
+    ];
+
+    assert.match(core, /const MENU_CATEGORY_IMAGES/);
+    assert.match(core, /movilidad-electrica\.svg/);
+    assert.doesNotMatch(core, /menu-cat-img"><i class="fa-solid fa-layer-group/);
+    images.forEach(function (image) {
+        assert.equal(fs.existsSync(path.join(ROOT, "public", "categorias", image)), true, image);
+    });
+});
+
 test("la cabecera muestra el nombre y el menú de cuenta", () => {
     const core = read("volxen-core.js");
 
