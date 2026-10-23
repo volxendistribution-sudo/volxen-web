@@ -32,7 +32,7 @@ export async function initConsulta() {
     function failureMessage(result) {
         var raw = result && result.body && (result.body.message || result.body.error_description || result.body.error);
         raw = raw ? String(raw) : "";
-        if (/consultas_tipo_check|tipo no válido/i.test(raw)) {
+        if (/consultas_tipo.*check|tipo no válido/i.test(raw)) {
             return "El tipo de mensaje no está habilitado en este momento. Inténtelo de nuevo más tarde.";
         }
         if (/rate limit|too many/i.test(raw)) {

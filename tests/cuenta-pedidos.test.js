@@ -63,5 +63,6 @@ test("consulta.js muestra el error real y no solo la conexión", () => {
 
     assert.match(js, /function failureMessage/);
     assert.match(js, /No se pudo enviar su mensaje: /);
+    assert.match(js, /consultas_tipo\.\*check/i);
     assert.match(js, /rate limit\|too many/i);
 });
