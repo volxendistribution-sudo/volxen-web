@@ -105,8 +105,11 @@
         if (/access_denied/.test(code) || /access_denied/i.test(raw)) {
             return "Has cancelado el acceso. Puedes intentarlo de nuevo cuando quieras.";
         }
+        if (/invalid otp|otp.*invalid|invalid.*token/.test(code) || /invalid otp|código.*no.*válido/i.test(raw)) {
+            return "El código no es válido o ha expirado. Solicita uno nuevo.";
+        }
         if (/invalid or has expired|otp_expired|token has expired/.test(code) || /expired/i.test(raw)) {
-            return "El enlace no es válido o ha expirado. Solicita uno nuevo.";
+            return "El enlace o código no es válido o ha expirado. Solicita uno nuevo.";
         }
         if (status === 429) {
             return "Demasiadas solicitudes. Espera unos minutos e inténtalo de nuevo.";
@@ -220,9 +223,24 @@
         });
     }
 
+    async function verifyRecoveryCode(email, token) {
+        const data = await authRequest("/verify", {
+            method: "POST",
+            body: {
+                type: "recovery",
+                email: email,
+                token: String(token || "").trim()
+            }
+        });
+        if (!data || !data.access_token) {
+            throw new Error("El código no es válido o ha expirado. Solicita uno nuevo.");
+        }
+        return saveSession(normalizeSession(data));
+    }
+
     async function updatePassword(password) {
         const session = await getSession();
-        if (!session) throw new Error("Tu enlace de recuperación ha expirado. Solicita uno nuevo.");
+        if (!session) throw new Error("Tu código de recuperación ha expirado. Solicita uno nuevo.");
         await authRequest("/user", {
             method: "PUT",
             token: session.access_token,
@@ -467,6 +485,7 @@
         signUp: signUp,
         signInWithOAuth: signInWithOAuth,
         recover: recover,
+        verifyRecoveryCode: verifyRecoveryCode,
         updatePassword: updatePassword,
         signOut: signOut,
         getSession: getSession,

@@ -295,7 +295,7 @@ test("Fase 3: cabecera con Mi cuenta, búsqueda única y acceso Catálogo", () =
     assert.match(core, /dataset\.shell === "minimal"/);
     assert.match(core, /href="pedidos.html"[^>]*aria-label="Mi cuenta"/);
     assert.match(core, /\[\{ id: "", nombre: "Catálogo" \}\]/);
-    assert.match(core, /href="consulta\.html">Consulta general/);
+    assert.match(core, /href="consulta\.html"[^>]*>[\s\S]*?Consulta general/);
     assert.doesNotMatch(core, /searchMobileInput/);
     assert.doesNotMatch(core, /id="cqv"/);
     assert.doesNotMatch(core, /function consultas\(\)/);

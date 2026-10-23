@@ -42,7 +42,7 @@
             <p class="form-intro">Inicia sesión para ver los pedidos vinculados a tu cuenta. También puedes consultar cualquier pedido con su código y código de seguimiento.</p>
             <div class="form-actions">
                 <a href="login.html?next=pedidos.html" class="btn-secondary">Iniciar sesión</a>
-                <a href="registro.html" class="btn-primary">Crear cuenta</a>
+                <a href="login.html?modo=registro&amp;next=pedidos.html" class="btn-primary">Crear cuenta</a>
             </div>
         </section>
 
@@ -56,7 +56,10 @@
                         <p id="accountEmail" class="account-email"></p>
                     </div>
                 </div>
-                <button id="accountLogout" class="account-logout" type="button">Cerrar sesión</button>
+                <div class="account-head-actions">
+                    <a class="account-logout" href="consulta.html">Mis consultas</a>
+                    <button id="accountLogout" class="account-logout" type="button">Cerrar sesión</button>
+                </div>
             </div>
             <p id="accountNotice" class="account-notice" role="status" aria-live="polite" hidden></p>
             <div id="accountOrders" class="account-orders" aria-live="polite"></div>
@@ -86,6 +89,17 @@
             <div id="pv"></div>
         </section>
     </main>
+
+    <dialog id="cancelDlg" class="cancel-dialog" aria-labelledby="cancelTitle" aria-describedby="cancelMessage">
+        <div class="cancel-dialog-icon" aria-hidden="true"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <h2 id="cancelTitle">Cancelar pedido</h2>
+        <p id="cancelMessage"></p>
+        <span id="cancelCode" class="cancel-dialog-code"></span>
+        <div class="cancel-dialog-actions">
+            <button type="button" id="cancelKeep" class="cancel-dialog-keep">Conservar pedido</button>
+            <button type="button" id="cancelConfirm" class="cancel-dialog-confirm">Sí, cancelar</button>
+        </div>
+    </dialog>
 
     <script src="config.js"></script>
     <script src="auth.js"></script>

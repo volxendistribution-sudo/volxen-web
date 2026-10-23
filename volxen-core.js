@@ -254,19 +254,64 @@ function avatarHtml(user, cls) {
         (url ? '<img src="' + esc(url) + '" alt="" loading="lazy" onerror="this.remove()">' : "") + '</span>';
 }
 
-function hydrateAccount() {
-    const link = $("accountLink");
-    if (!link) return;
-    let session = null;
+function readAccountUser() {
     try {
-        session = JSON.parse(localStorage.getItem("vx_sesion") || "null");
-    } catch (e) {}
-    const user = session && session.user;
-    if (!user) return;
-    const holder = link.querySelector("[data-account-avatar]");
-    if (holder) holder.outerHTML = avatarHtml(user, "nav-account-avatar vx-avatar");
-    const name = user.nombre || user.email || "";
-    if (name) link.setAttribute("aria-label", "Mi cuenta de " + name);
+        const session = JSON.parse(localStorage.getItem("vx_sesion") || "null");
+        return session && session.user ? session.user : null;
+    } catch (e) {
+        return null;
+    }
+}
+
+function accountFirstName(user) {
+    const name = String((user && (user.nombre || user.name || user.email)) || "").trim();
+    if (!name) return "";
+    return (name.indexOf("@") > 0 ? name.split("@")[0] : name).split(/\s+/)[0];
+}
+
+function menuAccountHtml(user) {
+    if (!user) {
+        return '<div class="menu-account menu-account-guest">' +
+            '<p class="menu-account-kicker">Tu cuenta</p>' +
+            '<p class="menu-account-title">Entra para ver tus pedidos y consultas.</p>' +
+            '<div class="menu-account-actions">' +
+            '<a href="login.html" class="menu-account-primary">Iniciar sesión</a>' +
+            '<a href="login.html?modo=registro" class="menu-account-secondary">Crear cuenta</a>' +
+            '</div></div>';
+    }
+
+    const name = String(user.nombre || user.name || "Mi cuenta").trim();
+    const email = String(user.email || "").trim();
+    return '<div class="menu-account">' +
+        '<span class="menu-account-avatar">' + avatarHtml(user, "menu-avatar vx-avatar") + '</span>' +
+        '<div class="menu-account-id"><strong>' + esc(name) + '</strong>' +
+        (email ? '<small>' + esc(email) + '</small>' : '') + '</div>' +
+        '<button type="button" class="menu-account-logout" data-menu-logout aria-label="Cerrar sesión">' +
+        '<i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i><span>Salir</span></button>' +
+        '</div>';
+}
+
+function hydrateAccount() {
+    const user = readAccountUser();
+    const link = $("accountLink");
+
+    if (link) {
+        if (user) {
+            const holder = link.querySelector("[data-account-avatar]");
+            if (holder) holder.outerHTML = avatarHtml(user, "nav-account-avatar vx-avatar");
+            const label = link.querySelector("[data-account-name]");
+            const firstName = accountFirstName(user);
+            if (label && firstName) label.textContent = firstName;
+            const name = user.nombre || user.email || "";
+            if (name) link.setAttribute("aria-label", "Mi cuenta de " + name);
+        }
+    }
+
+    const menu = $("menuAccount");
+    if (menu) menu.innerHTML = menuAccountHtml(user);
+
+    const adminLink = document.querySelector("[data-admin-only]");
+    if (adminLink) adminLink.hidden = !(user && user.role === "admin");
 }
 const OP_MSG = "Buenas, necesito información sobre un producto.";
 const opDigits = n => String(n || "").replace(/\D/g, "");
@@ -321,18 +366,36 @@ async function loadOperadoras() {
     return OPS;
 }
 
+function menuOverlay() {
+    return '<div class="ov" id="mnv"><div class="bx sh lf"><button class="xb" data-a="close" aria-label="Cerrar">×</button>' +
+        '<div id="menuAccount" class="menu-account-slot"></div>' +
+        '<span class="ey menu-ey">Navegar</span><nav class="mn" aria-label="Menú principal">' +
+        '<a href="catalogo.html"><i class="fa-solid fa-store mn-ico" aria-hidden="true"></i><span>Catálogo</span></a>' +
+        '<a href="carrito.html"><i class="fa-solid fa-cart-shopping mn-ico" aria-hidden="true"></i><span>Carrito</span></a>' +
+        '<a href="pedidos.html"><i class="fa-solid fa-box mn-ico" aria-hidden="true"></i><span>Mis pedidos</span></a>' +
+        '<a href="consulta.html"><i class="fa-solid fa-circle-question mn-ico" aria-hidden="true"></i><span>Consulta general</span></a>' +
+        '<a href="consulta.html?tipo=incidencia"><i class="fa-solid fa-triangle-exclamation mn-ico" aria-hidden="true"></i><span>Reportar incidencia</span></a>' +
+        '<a href="consulta.html?tipo=queja"><i class="fa-solid fa-comment-dots mn-ico" aria-hidden="true"></i><span>Queja u opinión</span></a>' +
+        '<a href="operadoras.html"><i class="fa-solid fa-headset mn-ico" aria-hidden="true"></i><span>Operadoras</span></a>' +
+        '<a href="admin.html" data-admin-only hidden><i class="fa-solid fa-shield-halved mn-ico" aria-hidden="true"></i><span>Acceso al panel</span></a>' +
+        '</nav></div></div>';
+}
+
 function minimalHeader() {
     return '<header id="hd" class="sticky top-0 z-50 bg-sf text-fg border-b border-bd shadow-sm">' +
-        '<div class="max-w-3xl mx-auto px-4 sm:px-6"><div class="flex items-center justify-between h-16 gap-4">' +
+        '<div class="max-w-3xl mx-auto px-4 sm:px-6"><div class="flex items-center justify-between h-16 gap-3">' +
         '<a href="index.html" class="flex items-center gap-2 shrink-0" aria-label="VOLXEN, comercializadora de tecnología y energía en Cuba"><img src="logo-light.svg" alt="Logo VOLXEN" class="h-8 w-auto shrink-0"><span class="logo-wm" role="img" aria-label="VOLXEN"></span></a>' +
-        '<a href="index.html" class="btn-secondary hover:bg-sf px-4 py-2.5 text-sm font-bold transition flex items-center gap-2"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>Volver al inicio</span></a>' +
-        '</div></div></header>';
+        '<div class="flex items-center gap-2">' +
+        '<button data-a="menu" aria-label="Abrir menú de la cuenta" class="bg-s2 hover:bg-sf border border-bd text-fg px-2.5 py-2 rounded-lg transition flex items-center gap-1.5"><i class="fa-solid fa-bars text-base"></i><span class="hidden sm:inline text-xs font-bold">Menú</span></button>' +
+        '<a href="pedidos.html" id="accountLink" aria-label="Mi cuenta" class="bg-s2 hover:bg-sf border border-bd text-fg px-2.5 py-2 rounded-lg transition flex items-center gap-1.5"><span id="navAccountAvatar" class="nav-account-avatar vx-avatar" data-account-avatar aria-hidden="true"><i class="fa-regular fa-user" style="font-size:.85rem"></i></span><span class="nav-account-name text-xs font-bold" data-account-name>Mi cuenta</span></a>' +
+        '<a href="index.html" aria-label="Volver al inicio" class="hidden sm:flex btn-secondary hover:bg-sf px-3 py-2 text-xs font-bold transition items-center gap-1.5"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>Inicio</span></a>' +
+        '</div></div></div></header>';
 }
 
 function shell() {
     if (document.body.dataset.shell === "minimal") {
         document.body.insertAdjacentHTML("afterbegin", minimalHeader());
-        document.body.insertAdjacentHTML("beforeend", '<div id="ts"></div>' + operadoras() +
+        document.body.insertAdjacentHTML("beforeend", '<div id="ts"></div>' + menuOverlay() + operadoras() +
             '<div class="zm" id="zm"><button class="zx" aria-label="Cerrar">×</button><img alt=""></div>');
         return;
     }
@@ -343,7 +406,7 @@ function shell() {
         '<a href="index.html" class="flex items-center gap-1.5 sm:gap-2 shrink-0" aria-label="VOLXEN, comercializadora de tecnología y energía en Cuba"><img src="logo-light.svg" alt="Logo VOLXEN" class="h-7 sm:h-8 w-auto shrink-0"><span class="block leading-none hidden sm:block"><span class="logo-wm" role="img" aria-label="VOLXEN"></span><span class="logo-tagline block mt-0.5 text-mu font-bold">Comercializadora</span></span></a>' +
         '<div class="flex items-center space-x-2">' +
         '<button data-a="menu" aria-label="Abrir menú" class="bg-s2 hover:bg-sf border border-bd text-fg px-2.5 py-2 rounded-lg transition flex items-center gap-1.5"><i class="fa-solid fa-bars text-base"></i><span class="hidden sm:inline text-xs font-bold">Menú</span></button>' +
-        '<a href="pedidos.html" id="accountLink" aria-label="Mi cuenta" class="bg-s2 hover:bg-sf border border-bd text-fg px-2.5 py-2 rounded-lg transition flex items-center gap-1.5"><span id="accountAvatar" class="nav-account-avatar vx-avatar" data-account-avatar aria-hidden="true"><i class="fa-regular fa-user" style="font-size:.85rem"></i></span><span class="hidden sm:inline text-xs font-bold">Mi cuenta</span></a>' +
+        '<a href="pedidos.html" id="accountLink" aria-label="Mi cuenta" class="bg-s2 hover:bg-sf border border-bd text-fg px-2.5 py-2 rounded-lg transition flex items-center gap-1.5"><span id="navAccountAvatar" class="nav-account-avatar vx-avatar" data-account-avatar aria-hidden="true"><i class="fa-regular fa-user" style="font-size:.85rem"></i></span><span class="nav-account-name text-xs font-bold" data-account-name>Mi cuenta</span></a>' +
         '<a href="carrito.html" aria-label="Ver su pedido" class="relative btn-primary hover:bg-g-hover hover:text-fg font-bold px-2.5 py-2 rounded-lg flex items-center space-x-1.5 transition shadow-sm"><i class="fa-solid fa-cart-shopping text-base"></i><span class="hidden sm:inline text-xs">Carrito</span><span id="bd" class="absolute -top-1.5 -right-1.5 bg-fg text-g text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-sm">0</span></a>' +
         '</div></div>' +
         '<div class="pb-2"><div class="relative w-full"><input type="text" id="searchInput" placeholder="Buscar productos..." class="w-full input-base placeholder-mu pr-12 focus-ring-g"><button data-search aria-label="Buscar" class="absolute right-1 top-1/2 -translate-y-1/2 px-3 py-2 btn-primary hover:bg-g-hover hover:text-fg rounded transition flex items-center justify-center"><i class="fa-solid fa-magnifying-glass"></i></button></div></div>' +
@@ -360,19 +423,12 @@ function shell() {
         '<div><h4 class="text-s2 font-semibold text-sm mb-4 uppercase tracking-wider">Información</h4><ul class="space-y-2 text-xs"><li><a href="index.html#comoTrabajamos" class="hover:text-g transition">Cómo trabajamos</a></li></ul></div>' +
         '</div><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-bd pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-mu"><p>&copy; <span id="yr">2026</span> Volxen Comercializadora Cuba. Todos los derechos reservados.</p></div></footer>';
 
-    const menu =
-        '<div class="ov" id="mnv"><div class="bx sh lf"><button class="xb" data-a="close" aria-label="Cerrar">×</button><span class="ey" style="margin-top:.5rem">Menú</span><nav class="mn" aria-label="Menú principal">' +
-        '<a href="catalogo.html">Catálogo</a>' +
-        '<a href="carrito.html">Carrito</a><a href="pedidos.html">Mis pedidos</a>' +
-        '<a href="consulta.html">Consulta general</a><a href="consulta.html?tipo=incidencia">Reportar incidencia</a><a href="consulta.html?tipo=queja">Queja u opinión</a><a href="operadoras.html">Operadoras</a>' +
-        '<a href="admin.html">Acceso al panel</a></nav></div></div>';
-
     const overlays =
         '<div id="ts"></div>' + operadoras() +
         '<div class="zm" id="zm"><button class="zx" aria-label="Cerrar">×</button><img alt=""></div>';
 
     document.body.insertAdjacentHTML("afterbegin", header);
-    document.body.insertAdjacentHTML("beforeend", footer + menu + overlays);
+    document.body.insertAdjacentHTML("beforeend", footer + menuOverlay() + overlays);
 }
 
 /* ===== Seguimiento de pedidos ===== */
@@ -507,6 +563,23 @@ async function load() {
 
 function wireGlobal() {
     document.addEventListener("click", e => {
+        const logout = e.target.closest("[data-menu-logout]");
+        if (logout) {
+            e.preventDefault();
+            logout.disabled = true;
+            let session = null;
+            try { session = JSON.parse(localStorage.getItem("vx_sesion") || "null"); } catch (err) {}
+            try { localStorage.removeItem("vx_sesion"); } catch (err) {}
+            if (session && session.access_token) {
+                fetch(C.SUPABASE_URL + "/auth/v1/logout", {
+                    method: "POST",
+                    headers: { apikey: C.SUPABASE_KEY, Authorization: "Bearer " + session.access_token }
+                }).catch(() => {});
+            }
+            location.href = "login.html";
+            return;
+        }
+
         const t = e.target.closest("[data-a]");
         if (!t) return;
         const a = t.dataset.a, id = t.dataset.id;

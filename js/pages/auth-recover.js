@@ -2,16 +2,27 @@ const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
 const notice = $("authNotice");
 const requestView = $("requestView");
+const codeView = $("codeView");
 const updateView = $("updateView");
 const requestForm = $("recoverForm");
+const codeForm = $("codeForm");
 const updateForm = $("updateForm");
 const requestButton = $("recoverBtn");
+const codeButton = $("codeBtn");
 const updateButton = $("updateBtn");
+const resendButton = $("resendCode");
+const changeEmailButton = $("changeEmail");
 const emailInput = $("email");
+const codeInput = $("recoverCode");
+const emailText = $("recoverEmailText");
 const passwordInput = $("newPassword");
 const confirmInput = $("newPasswordConfirm");
 const requestError = $("recoverError");
+const codeError = $("codeError");
 const updateError = $("updateError");
+
+let recoveryEmail = "";
+let resendTimer = null;
 
 function setNotice(message, type) {
     if (!notice) return;
@@ -42,18 +53,67 @@ function validEmail(value) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value);
 }
 
-function showUpdate() {
-    if (requestView) requestView.hidden = true;
-    if (updateView) updateView.hidden = false;
-    setError(requestError, "");
-    setNotice("");
+function recoveryRedirect() {
+    return new URL("recuperar.html", location.href).href;
 }
 
 function showRequest(message, type) {
     if (updateView) updateView.hidden = true;
+    if (codeView) codeView.hidden = true;
     if (requestView) requestView.hidden = false;
+    setError(codeError, "");
     setError(updateError, "");
     setNotice(message || "", type);
+}
+
+function showCode(message, type) {
+    if (requestView) requestView.hidden = true;
+    if (updateView) updateView.hidden = true;
+    if (codeView) codeView.hidden = false;
+    if (emailText) emailText.textContent = recoveryEmail;
+    setError(requestError, "");
+    setError(updateError, "");
+    setNotice(message || "", type);
+    if (codeInput) {
+        codeInput.value = "";
+        window.setTimeout(function () { codeInput.focus(); }, 80);
+    }
+}
+
+function showUpdate() {
+    if (requestView) requestView.hidden = true;
+    if (codeView) codeView.hidden = true;
+    if (updateView) updateView.hidden = false;
+    setError(requestError, "");
+    setError(codeError, "");
+    setNotice("Código verificado. Ya puedes crear una nueva contraseña.");
+    if (passwordInput) window.setTimeout(function () { passwordInput.focus(); }, 80);
+}
+
+function startResendCooldown() {
+    if (!resendButton) return;
+    let remaining = 60;
+    clearInterval(resendTimer);
+    resendButton.disabled = true;
+    resendButton.textContent = "Reenviar en " + remaining + " s";
+    resendTimer = window.setInterval(function () {
+        remaining -= 1;
+        if (remaining <= 0) {
+            clearInterval(resendTimer);
+            resendTimer = null;
+            resendButton.disabled = false;
+            resendButton.textContent = "Reenviar código";
+            return;
+        }
+        resendButton.textContent = "Reenviar en " + remaining + " s";
+    }, 1000);
+}
+
+async function sendRecoveryCode(message) {
+    const email = recoveryEmail;
+    await VXAUTH.recover(email, recoveryRedirect());
+    showCode(message || "Si el correo está registrado, recibirás un mensaje para restablecer tu contraseña. Si incluye un código de 6 dígitos, introdúcelo aquí.");
+    startResendCooldown();
 }
 
 async function start() {
@@ -65,16 +125,19 @@ async function start() {
         return;
     }
 
-    const wantsUpdate = params.get("modo") === "actualizar" || (result && result.type === "recovery");
-    if (!wantsUpdate) return;
-
-    const session = await VXAUTH.getSession();
-    if (!session) {
-        showRequest("El enlace de recuperación no es válido o ha expirado. Solicita uno nuevo.", "error");
+    if (result && result.type === "recovery") {
+        showUpdate();
         return;
     }
 
-    showUpdate();
+    if (params.get("modo") === "actualizar") {
+        const session = await VXAUTH.getSession();
+        if (session) {
+            showUpdate();
+            return;
+        }
+        showRequest("El enlace anterior ya no es válido. Solicita un código nuevo para continuar.", "error");
+    }
 }
 
 if (requestForm) {
@@ -91,15 +154,40 @@ if (requestForm) {
         }
         markInvalid(emailInput, false);
 
-        setBusy(requestButton, true, "Enviar instrucciones", "Enviando…");
+        recoveryEmail = email;
+        setBusy(requestButton, true, "Enviar código", "Enviando…");
         try {
-            const redirect = new URL("recuperar.html?modo=actualizar", location.href).href;
-            await VXAUTH.recover(email, redirect);
-            setNotice("Si el correo está registrado, recibirás las instrucciones de recuperación. Revisa también la carpeta de correo no deseado.");
+            await sendRecoveryCode("Si el correo está registrado, recibirás un mensaje para restablecer tu contraseña. Si incluye un código de 6 dígitos, introdúcelo aquí.");
         } catch (error) {
-            setNotice("No pudimos procesar la solicitud en este momento. Inténtalo de nuevo más tarde.", "error");
+            showRequest("No pudimos enviar el código en este momento. Espera un momento e inténtalo de nuevo.", "error");
         } finally {
-            setBusy(requestButton, false, "Enviar instrucciones", "Enviando…");
+            setBusy(requestButton, false, "Enviar código", "Enviando…");
+        }
+    });
+}
+
+if (codeForm) {
+    codeForm.addEventListener("submit", async function (event) {
+        event.preventDefault();
+        setError(codeError, "");
+        setNotice("");
+
+        const code = codeInput ? codeInput.value.replace(/\D/g, "") : "";
+        if (code.length !== 6) {
+            markInvalid(codeInput, true);
+            setError(codeError, "Introduce el código de 6 dígitos que recibiste.");
+            return;
+        }
+        markInvalid(codeInput, false);
+
+        setBusy(codeButton, true, "Verificar código", "Verificando…");
+        try {
+            await VXAUTH.verifyRecoveryCode(recoveryEmail, code);
+            showUpdate();
+        } catch (error) {
+            markInvalid(codeInput, true);
+            setError(codeError, error.message);
+            setBusy(codeButton, false, "Verificar código", "Verificando…");
         }
     });
 }
@@ -140,6 +228,43 @@ if (updateForm) {
             setError(updateError, error.message);
             setBusy(updateButton, false, "Guardar nueva contraseña", "Guardando…");
         }
+    });
+}
+
+if (resendButton) {
+    resendButton.addEventListener("click", async function () {
+        if (!recoveryEmail || resendButton.disabled) return;
+        setError(codeError, "");
+        setNotice("");
+        try {
+            await VXAUTH.recover(recoveryEmail, recoveryRedirect());
+            if (codeInput) codeInput.value = "";
+            startResendCooldown();
+            setNotice("Enviamos un mensaje nuevo. Usa el código o enlace más reciente.");
+        } catch (error) {
+            setNotice("No pudimos reenviar el código. Espera un momento e inténtalo de nuevo.", "error");
+        }
+    });
+}
+
+if (changeEmailButton) {
+    changeEmailButton.addEventListener("click", function () {
+        recoveryEmail = "";
+        if (codeInput) codeInput.value = "";
+        showRequest("");
+        if (emailInput) {
+            emailInput.value = "";
+            window.setTimeout(function () { emailInput.focus(); }, 80);
+        }
+    });
+}
+
+if (codeInput) {
+    codeInput.addEventListener("input", function () {
+        const clean = codeInput.value.replace(/\D/g, "").slice(0, 6);
+        if (codeInput.value !== clean) codeInput.value = clean;
+        markInvalid(codeInput, false);
+        if (codeError && codeError.textContent) setError(codeError, "");
     });
 }
 

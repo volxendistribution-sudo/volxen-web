@@ -1,3 +1,20 @@
 # Cloudflare credentials (copy to .dev.vars and fill in)
 CLOUDFLARE_API_TOKEN=your_api_token_here
 CLOUDFLARE_ACCOUNT_ID=your_account_id_here
+
+# Supabase Auth / OAuth (for scripts/configure-supabase-auth.mjs)
+SUPABASE_ACCESS_TOKEN=your_supabase_access_token_here
+SUPABASE_PROJECT_REF=zyszkujnpbievjapsuyy
+SITE_URL=https://your-site.pages.dev
+EXTRA_REDIRECTS=https://your-domain.com,http://localhost:3000
+# GOOGLE_CLIENT_ID=...
+# GOOGLE_CLIENT_SECRET=...
+# FACEBOOK_CLIENT_ID=...
+# FACEBOOK_CLIENT_SECRET=...
+# Custom SMTP for Supabase Auth (free tier requires this to edit templates)
+# SMTP_HOST=smtp.resend.com
+# SMTP_PORT=587
+# SMTP_USER=resend
+# SMTP_PASS=...
+# SMTP_ADMIN_EMAIL=no-reply@volxen.com
+# SMTP_SENDER_NAME=VOLXEN

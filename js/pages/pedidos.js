@@ -82,6 +82,8 @@ async function initAccount() {
     }
 
     panel.hidden = false;
+    var titleEl = VX.$("accountTitle");
+    if (titleEl && session.user && session.user.nombre) titleEl.textContent = session.user.nombre;
     if (emailEl) emailEl.textContent = session.user && session.user.email ? session.user.email : "";
     if (avatarEl && VX.avatarHtml) {
         avatarEl.outerHTML = VX.avatarHtml(session.user, "account-avatar vx-avatar");
@@ -123,7 +125,7 @@ async function initAccount() {
         var id = button.getAttribute("data-cancel-order");
         var code = button.getAttribute("data-order-code") || "";
         if (!id) return;
-        if (!window.confirm("¿Cancelar el pedido " + code + "? Esta acción no se puede deshacer.")) return;
+        if (!await askCancelOrder(code)) return;
 
         button.disabled = true;
         button.textContent = "Cancelando…";
@@ -153,6 +155,48 @@ async function initAccount() {
 
     await loadOrders();
     return session;
+}
+
+function askCancelOrder(code) {
+    var dialog = document.getElementById("cancelDlg");
+    var message = document.getElementById("cancelMessage");
+    var codeElement = document.getElementById("cancelCode");
+    var keep = document.getElementById("cancelKeep");
+    var confirmButton = document.getElementById("cancelConfirm");
+
+    if (!dialog || typeof dialog.showModal !== "function" || !keep || !confirmButton) {
+        return Promise.resolve(window.confirm("¿Cancelar el pedido " + code + "? Esta acción no se puede deshacer."));
+    }
+
+    if (message) message.textContent = "Vas a cancelar este pedido. Esta acción no se puede deshacer y el equipo de VOLXEN verá que lo cancelaste.";
+    if (codeElement) codeElement.textContent = code || "";
+    confirmButton.disabled = false;
+
+    return new Promise(function (resolve) {
+        var settled = false;
+
+        function cleanup(value) {
+            if (settled) return;
+            settled = true;
+            keep.removeEventListener("click", onKeep);
+            confirmButton.removeEventListener("click", onConfirm);
+            dialog.removeEventListener("cancel", onCancel);
+            dialog.removeEventListener("close", onClose);
+            if (dialog.open) dialog.close();
+            resolve(value);
+        }
+
+        function onKeep() { cleanup(false); }
+        function onConfirm() { cleanup(true); }
+        function onCancel(event) { event.preventDefault(); cleanup(false); }
+        function onClose() { cleanup(false); }
+
+        keep.addEventListener("click", onKeep);
+        confirmButton.addEventListener("click", onConfirm);
+        dialog.addEventListener("cancel", onCancel);
+        dialog.addEventListener("close", onClose);
+        dialog.showModal();
+    });
 }
 
 function stateClass(estado) {

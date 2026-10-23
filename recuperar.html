@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Recupera el acceso a tu cuenta de VOLXEN.">
+    <meta name="description" content="Recupera el acceso a tu cuenta de VOLXEN con un código enviado a tu correo.">
     <meta name="theme-color" content="#2E4A3F">
     <meta name="robots" content="noindex, follow">
     <title>Recuperar cuenta · VOLXEN</title>
@@ -26,7 +26,7 @@
             <div id="authNotice" class="auth-notice" role="status" hidden></div>
 
             <div id="requestView">
-                <p class="auth-intro">Introduce tu correo electrónico para recibir las instrucciones de recuperación</p>
+                <p class="auth-intro">Escribe tu correo electrónico y te enviaremos un mensaje para restablecer tu contraseña. Si incluye un código de 6 dígitos, introdúcelo aquí; si incluye un enlace, puedes abrirlo.</p>
 
                 <form id="recoverForm" novalidate>
                     <div class="auth-field">
@@ -36,14 +36,35 @@
 
                     <p id="recoverError" class="auth-error" role="alert" aria-live="assertive" aria-atomic="true"></p>
 
-                    <button type="submit" id="recoverBtn" class="auth-primary">Enviar instrucciones</button>
+                    <button type="submit" id="recoverBtn" class="auth-primary">Enviar código</button>
                 </form>
 
                 <p class="auth-back"><a class="auth-link" href="login.html">Volver al inicio de sesión</a></p>
             </div>
 
+            <div id="codeView" hidden>
+                <p class="auth-intro">Si el mensaje enviado a <strong id="recoverEmailText"></strong> incluye un código, introdúcelo aquí. También puedes abrir el enlace del correo. El código caduca en pocos minutos.</p>
+
+                <form id="codeForm" novalidate>
+                    <div class="auth-field">
+                        <label for="recoverCode">Código de recuperación</label>
+                        <input id="recoverCode" name="code" class="auth-input auth-code-input" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="6" placeholder="000000" required>
+                    </div>
+
+                    <p id="codeError" class="auth-error" role="alert" aria-live="assertive" aria-atomic="true"></p>
+
+                    <button type="submit" id="codeBtn" class="auth-primary">Verificar código</button>
+                </form>
+
+                <div class="auth-code-actions">
+                    <button type="button" id="resendCode">Reenviar código</button>
+                </div>
+
+                <p class="auth-back"><button type="button" class="auth-link auth-link-btn" id="changeEmail">Usar otro correo</button></p>
+            </div>
+
             <div id="updateView" hidden>
-                <p class="auth-intro">Introduce una nueva contraseña para tu cuenta</p>
+                <p class="auth-intro">Código verificado. Introduce una nueva contraseña para tu cuenta.</p>
 
                 <form id="updateForm" novalidate>
                     <div class="auth-field">

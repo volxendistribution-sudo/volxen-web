@@ -46,7 +46,8 @@ body.auth-page {
     box-shadow: 0 24px 70px -32px rgba(30, 29, 27, .45), 0 2px 8px rgba(30, 29, 27, .05);
 }
 
-.auth-card h1 {
+.auth-card h1,
+.auth-title {
     margin: 0 0 1.5rem;
     color: var(--auth-text);
     font-family: 'DM Sans', sans-serif;
@@ -55,6 +56,116 @@ body.auth-page {
     letter-spacing: -.02em;
     line-height: 1.2;
     text-align: center;
+}
+
+.auth-switch-head {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .25rem;
+    margin-bottom: 1.5rem;
+    padding: .25rem;
+    background-color: var(--auth-surface);
+    border: 1px solid var(--auth-border);
+    border-radius: .8rem;
+}
+
+.auth-tab {
+    min-height: 2.65rem;
+    padding: .5rem .75rem;
+    color: var(--auth-muted);
+    font-family: 'Inter Tight', system-ui, sans-serif;
+    font-size: .875rem;
+    font-weight: 700;
+    line-height: 1.2;
+    background-color: transparent;
+    border: 0;
+    border-radius: .6rem;
+    cursor: pointer;
+    transition: color .2s ease, background-color .2s ease, box-shadow .2s ease;
+}
+
+.auth-tab:hover {
+    color: var(--auth-text);
+}
+
+.auth-tab.is-active {
+    color: var(--auth-text);
+    background-color: var(--auth-bg);
+    box-shadow: 0 2px 8px rgba(30, 29, 27, .08);
+}
+
+.auth-tab:focus-visible {
+    outline: 2px solid var(--auth-gold);
+    outline-offset: 2px;
+}
+
+.auth-view {
+    will-change: transform, opacity;
+}
+
+.auth-title {
+    margin-bottom: .5rem;
+}
+
+.auth-link-btn {
+    padding: 0;
+    font: inherit;
+    font-weight: 600;
+    color: var(--auth-green);
+    background: none;
+    border: 0;
+    cursor: pointer;
+}
+
+.auth-link-btn:hover {
+    text-decoration: underline;
+}
+
+.auth-link-btn:focus-visible {
+    outline: 2px solid var(--auth-gold);
+    outline-offset: 2px;
+}
+
+.auth-code-input {
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: .45em;
+    text-indent: .45em;
+}
+
+.auth-code-note {
+    margin: .75rem 0 0;
+    color: var(--auth-muted);
+    font-size: .8125rem;
+    line-height: 1.5;
+    text-align: center;
+}
+
+.auth-code-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.auth-code-actions button {
+    padding: 0;
+    font: inherit;
+    font-size: .8125rem;
+    font-weight: 600;
+    color: var(--auth-green);
+    background: none;
+    border: 0;
+    cursor: pointer;
+}
+
+.auth-code-actions button:hover {
+    text-decoration: underline;
+}
+
+.auth-code-actions button:disabled {
+    opacity: .55;
+    cursor: wait;
 }
 
 .auth-intro {
@@ -337,12 +448,23 @@ body.auth-page {
     min-width: 0;
 }
 
+.account-head-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: .4rem;
+}
+
 .account-avatar {
-    width: 3rem;
-    height: 3rem;
+    width: 3.5rem;
+    height: 3.5rem;
     flex: 0 0 auto;
-    font-size: 1.15rem;
-    border: 1px solid rgba(200, 161, 101, .35);
+    color: #fff;
+    font-size: 1.5rem;
+    background-color: var(--auth-green);
+    border: 2px solid var(--auth-gold);
+    box-shadow: 0 5px 16px rgba(30, 29, 27, .14);
 }
 
 .account-avatar img {
@@ -385,6 +507,9 @@ body.auth-page {
 }
 
 .account-logout {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     flex: 0 0 auto;
     min-height: 2.5rem;
     padding: .5rem .875rem;
@@ -392,6 +517,8 @@ body.auth-page {
     font-family: 'Inter Tight', system-ui, sans-serif;
     font-size: .8125rem;
     font-weight: 600;
+    line-height: 1.2;
+    text-decoration: none;
     background-color: transparent;
     border: 1px solid rgba(46, 74, 63, .4);
     border-radius: .625rem;
@@ -685,6 +812,110 @@ body.auth-page {
     border-radius: .625rem;
 }
 
+.cancel-dialog {
+    width: min(22rem, calc(100vw - 2rem));
+    padding: 1.5rem;
+    color: var(--auth-text);
+    font-family: 'Inter Tight', system-ui, sans-serif;
+    background-color: var(--auth-bg);
+    border: 1px solid var(--auth-border);
+    border-radius: 1.25rem;
+    box-shadow: 0 24px 70px -30px rgba(30, 29, 27, .55);
+    text-align: center;
+}
+
+.cancel-dialog::backdrop {
+    background-color: rgba(30, 29, 27, .58);
+}
+
+.cancel-dialog-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    margin: 0 auto .75rem;
+    color: var(--auth-error);
+    font-size: 1.25rem;
+    background-color: var(--auth-error-soft);
+    border: 1px solid rgba(166, 75, 48, .24);
+    border-radius: 1rem;
+}
+
+.cancel-dialog h2 {
+    margin: 0 0 .5rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.cancel-dialog p {
+    margin: 0;
+    color: var(--auth-muted);
+    font-size: .875rem;
+    line-height: 1.55;
+}
+
+.cancel-dialog .cancel-dialog-code {
+    display: inline-block;
+    margin-top: .55rem;
+    padding: .2rem .55rem;
+    color: var(--auth-text);
+    font-size: .8125rem;
+    font-weight: 700;
+    background-color: var(--auth-surface);
+    border-radius: .4rem;
+}
+
+.cancel-dialog-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .55rem;
+    margin-top: 1.25rem;
+}
+
+.cancel-dialog-actions button {
+    min-height: 2.7rem;
+    padding: .6rem .8rem;
+    font-family: 'Inter Tight', system-ui, sans-serif;
+    font-size: .8125rem;
+    font-weight: 700;
+    line-height: 1.2;
+    border-radius: .65rem;
+    cursor: pointer;
+}
+
+.cancel-dialog-keep {
+    color: var(--auth-green);
+    background-color: transparent;
+    border: 1px solid rgba(46, 74, 63, .4);
+}
+
+.cancel-dialog-keep:hover {
+    background-color: var(--auth-green-soft);
+}
+
+.cancel-dialog-confirm {
+    color: #fff;
+    background-color: var(--auth-error);
+    border: 1px solid var(--auth-error);
+}
+
+.cancel-dialog-confirm:hover {
+    background-color: #8f3f27;
+}
+
+.cancel-dialog-actions button:disabled {
+    opacity: .6;
+    cursor: wait;
+}
+
+.cancel-dialog-actions button:focus-visible {
+    outline: 2px solid var(--auth-gold);
+    outline-offset: 2px;
+}
+
 @media (max-width: 380px) {
     body.auth-page {
         padding-left: 1rem;
@@ -699,4 +930,108 @@ body.auth-page {
     .account-head {
         flex-direction: column;
     }
+}
+.consulta-code-box {
+    display: flex;
+    flex-direction: column;
+    gap: .2rem;
+    margin: 0 0 1rem;
+    padding: .85rem .95rem;
+    color: var(--auth-muted);
+    font-size: .8125rem;
+    line-height: 1.45;
+    background-color: var(--auth-surface);
+    border: 1px solid var(--auth-border);
+    border-radius: .8rem;
+}
+
+.consulta-code-box strong {
+    color: var(--auth-green);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.0625rem;
+    letter-spacing: .04em;
+    overflow-wrap: anywhere;
+}
+
+.consulta-lookup-result {
+    margin-top: 1rem;
+    padding: .9rem;
+    background-color: var(--auth-surface);
+    border: 1px solid var(--auth-border);
+    border-radius: .8rem;
+}
+
+.consulta-lookup-result p {
+    margin: 0;
+    color: var(--auth-text);
+    font-size: .875rem;
+    line-height: 1.55;
+}
+
+.consulta-lookup-result .consulta-status {
+    margin-left: .35rem;
+}
+
+.consulta-item {
+    margin-top: .65rem;
+    padding: .85rem .9rem;
+    background-color: var(--auth-bg);
+    border: 1px solid var(--auth-border);
+    border-radius: .9rem;
+}
+
+.consulta-item-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+}
+
+.consulta-item-type {
+    color: var(--auth-text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: .875rem;
+    font-weight: 700;
+}
+
+.consulta-item-meta {
+    margin: .3rem 0 0;
+    color: var(--auth-muted);
+    font-size: .75rem;
+    line-height: 1.45;
+}
+
+.consulta-item-message {
+    margin: .65rem 0 0;
+    color: var(--auth-text);
+    font-size: .8125rem;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+}
+
+.consulta-status {
+    display: inline-flex;
+    align-items: center;
+    padding: .12rem .55rem;
+    font-size: .6875rem;
+    font-weight: 700;
+    line-height: 1.6;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+.consulta-status.is-nueva {
+    color: var(--auth-green);
+    background-color: var(--auth-green-soft);
+}
+
+.consulta-status.is-atencion {
+    color: #7a5a1d;
+    background-color: rgba(200, 161, 101, .2);
+}
+
+.consulta-status.is-resuelta {
+    color: #fff;
+    background-color: var(--auth-green);
 }

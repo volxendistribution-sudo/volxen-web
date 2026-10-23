@@ -29,6 +29,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
 
     <link rel="stylesheet" href="dist/volxen.css">
+    <link rel="stylesheet" href="cuenta.css">
 </head>
 
 <body class="h-full bg-bg text-fg flex flex-col font-sans antialiased selection:bg-g selection:text-fg" data-page="consulta" data-shell="minimal">
@@ -36,6 +37,21 @@
     <a href="#main" class="skip-link">Saltar al contenido principal</a>
 
     <main id="main" class="flex-1 max-w-3xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <section id="misConsultas" class="form-card account-panel" aria-labelledby="misConsultasTitle" hidden>
+            <div class="account-head">
+                <div class="account-identity">
+                    <span id="consultaAvatar" class="account-avatar vx-avatar" aria-hidden="true"></span>
+                    <div>
+                        <p class="ey">Mi cuenta</p>
+                        <h2 id="misConsultasTitle">Mis consultas</h2>
+                        <p id="consultaAccountEmail" class="account-email"></p>
+                    </div>
+                </div>
+                <a class="account-logout" href="pedidos.html">Mis pedidos</a>
+            </div>
+            <div id="consultaHistory" class="account-orders" aria-live="polite"></div>
+        </section>
+
         <section id="consultaCard" class="form-card">
             <h1>Consulta general e incidencias</h1>
             <p class="form-intro">Escriba su mensaje y un asesor se comunicará con usted por el teléfono o correo que indique.</p>
@@ -80,15 +96,42 @@
         <section id="consultaOk" class="form-card hidden" aria-live="polite">
             <div class="form-success-icon"><i class="fa-solid fa-check" aria-hidden="true"></i></div>
             <h2>Mensaje recibido</h2>
-            <p class="form-intro">Un asesor se comunicará con usted por el teléfono o correo indicado. No necesita hacer nada más.</p>
+            <p class="form-intro">Un asesor se comunicará con usted por el teléfono o correo indicado.</p>
+            <div id="consultaCodeBox" class="consulta-code-box" hidden>
+                <span>Guarda este código para consultar el estado:</span>
+                <strong id="consultaCode"></strong>
+            </div>
+            <p id="consultaOkNote" class="form-intro">También puede consultar el estado con su código y su correo o teléfono.</p>
             <div class="form-actions">
                 <a href="index.html" class="btn-secondary">Volver al inicio</a>
+                <button type="button" id="verMisConsultas" class="btn-secondary" hidden>Ver mis consultas</button>
                 <button type="button" id="cnew" class="btn-primary">Enviar otra consulta</button>
             </div>
+        </section>
+
+        <section id="consultaLookup" class="form-card" aria-labelledby="lookupTitle">
+            <h2 id="lookupTitle">Consultar estado de una consulta</h2>
+            <p class="form-intro">Si envió su mensaje sin iniciar sesión, escriba el código de la consulta y el correo o teléfono que usó.</p>
+            <form id="lookupForm" novalidate>
+                <div class="field">
+                    <label for="lc">Código de la consulta</label>
+                    <input id="lc" name="codigo" class="input-base" type="text" placeholder="CQ-2026-000000-XXXXXXXX" autocomplete="off" autocapitalize="characters" spellcheck="false" required>
+                </div>
+                <div class="field">
+                    <label for="lk">Correo o teléfono</label>
+                    <input id="lk" name="contacto" class="input-base" type="text" placeholder="El mismo correo o teléfono del mensaje" autocomplete="email" required>
+                </div>
+                <p id="lookupError" class="form-error" role="alert"></p>
+                <div id="lookupResult" class="consulta-lookup-result" aria-live="polite" hidden></div>
+                <div class="form-actions">
+                    <button type="submit" id="lookupBtn" class="btn-primary">Consultar estado</button>
+                </div>
+            </form>
         </section>
     </main>
 
     <script src="config.js"></script>
+    <script src="auth.js"></script>
     <script src="volxen-core.js"></script>
     <script type="module" src="dist/main.min.js"></script>
 </body>

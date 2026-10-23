@@ -3,84 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Crea una cuenta de cliente en VOLXEN.">
-    <meta name="theme-color" content="#2E4A3F">
     <meta name="robots" content="noindex, follow">
     <title>Crear cuenta · VOLXEN</title>
-
-    <link rel="preload" as="font" type="font/woff2" crossorigin href="dist/fonts/DM-Sans-Regular.woff2">
-    <link rel="preload" as="font" type="font/woff2" crossorigin href="dist/fonts/DM-Sans-SemiBold.woff2">
-    <link rel="preload" as="font" type="font/woff2" crossorigin href="dist/fonts/DM-Sans-Bold.woff2">
-    <link rel="preload" as="font" type="font/woff2" crossorigin href="dist/fonts/InterTight-Regular.woff2">
-    <link rel="preload" as="font" type="font/woff2" crossorigin href="dist/fonts/InterTight-SemiBold.woff2">
-
-    <link rel="stylesheet" href="dist/volxen.css">
-    <link rel="stylesheet" href="cuenta.css">
 </head>
-
-<body class="auth-page" data-auth-page="registro">
-    <main class="auth-shell">
-        <section class="auth-card" aria-labelledby="authTitle">
-            <h1 id="authTitle">Crear una cuenta</h1>
-
-            <div id="authNotice" class="auth-notice" role="status" hidden></div>
-
-            <div id="registerContent">
-                <div class="auth-social">
-                    <button type="button" class="auth-social-btn" data-provider="google" aria-label="Continuar con Google">
-                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                            <path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47a5.57 5.57 0 0 1-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82Z"/>
-                            <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96H1.29v3.09A11.99 11.99 0 0 0 12 24Z"/>
-                            <path fill="#FBBC05" d="M5.27 14.29A7.2 7.2 0 0 1 4.89 12c0-.8.14-1.57.38-2.29V6.62H1.29A11.99 11.99 0 0 0 0 12c0 1.94.46 3.77 1.29 5.38l3.98-3.09Z"/>
-                            <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.69 1.29 6.62l3.98 3.09C6.22 6.86 8.87 4.75 12 4.75Z"/>
-                        </svg>
-                        <span>Continuar con Google</span>
-                    </button>
-                    <button type="button" class="auth-social-btn" data-provider="facebook" aria-label="Continuar con Facebook">
-                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                            <path fill="#1877F2" d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.05V9.41c0-3.02 1.79-4.69 4.53-4.69 1.31 0 2.68.24 2.68.24v2.97h-1.51c-1.49 0-1.96.93-1.96 1.89v2.25h3.33l-.53 3.49h-2.8V24C19.61 23.1 24 18.1 24 12.07Z"/>
-                        </svg>
-                        <span>Continuar con Facebook</span>
-                    </button>
-                </div>
-
-                <div class="auth-sep" aria-hidden="true"><span>o</span></div>
-
-                <form id="registerForm" novalidate>
-                    <div class="auth-field">
-                        <label for="email">Correo electrónico</label>
-                        <input id="email" name="email" class="auth-input" type="email" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false" required>
-                    </div>
-
-                    <div class="auth-field">
-                        <label for="password">Contraseña</label>
-                        <input id="password" name="password" class="auth-input" type="password" autocomplete="new-password" minlength="8" required>
-                    </div>
-
-                    <div class="auth-field">
-                        <label for="passwordConfirm">Confirmar contraseña</label>
-                        <input id="passwordConfirm" name="passwordConfirm" class="auth-input" type="password" autocomplete="new-password" minlength="8" required>
-                    </div>
-
-                    <p id="authError" class="auth-error" role="alert" aria-live="assertive" aria-atomic="true"></p>
-
-                    <button type="submit" id="registerBtn" class="auth-primary">Crear cuenta</button>
-                </form>
-            </div>
-
-            <div id="registerSuccess" class="auth-success" role="status" hidden>
-                <h2>Revisa tu correo</h2>
-                <p>Te enviamos un enlace para confirmar tu cuenta. Ábrelo y después inicia sesión con tu correo y contraseña.</p>
-                <p>Si no lo encuentras, revisa la carpeta de correo no deseado.</p>
-                <a class="auth-primary" href="login.html">Volver a iniciar sesión</a>
-            </div>
-
-            <p class="auth-bottom">¿Ya tienes una cuenta? <a href="login.html">Inicia sesión</a></p>
-        </section>
-    </main>
-
-    <script src="config.js"></script>
-    <script src="auth.js"></script>
-    <script type="module" src="js/pages/auth-register.js"></script>
+<body>
+    <noscript><p>Activa JavaScript o <a href="login.html?modo=registro">continúa a la creación de cuenta</a>.</p></noscript>
+    <script>
+        (function () {
+            var params = new URLSearchParams(location.search);
+            params.set("modo", "registro");
+            location.replace("login.html?" + params.toString());
+        })();
+    </script>
 </body>
 </html>

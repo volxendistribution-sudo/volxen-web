@@ -28,8 +28,12 @@ test("el panel de pedidos permite cancelar y muestra el detalle", () => {
     assert.match(js, /order\.historial/);
     assert.match(js, /puede_cancelar/);
     assert.match(js, /cancelar_pedido/);
-    assert.match(js, /window\.confirm/);
+    assert.match(js, /askCancelOrder/);
     assert.match(js, /vx:order-complete/);
+
+    const html = read("pedidos.html");
+    assert.match(html, /<dialog id="cancelDlg"/);
+    assert.match(html, /id="cancelConfirm"/);
 });
 
 test("pedido.js es sintácticamente válido y ofrece ver los pedidos", () => {
@@ -65,4 +69,55 @@ test("consulta.js muestra el error real y no solo la conexión", () => {
     assert.match(js, /No se pudo enviar su mensaje: /);
     assert.match(js, /consultas_tipo\.\*check/i);
     assert.match(js, /rate limit\|too many/i);
+});
+
+test("la migración permite al cliente ver el estado de sus consultas", () => {
+    const sql = read("supabase/migrations/20261025_consultas_cliente.sql");
+    const fn = sql.match(/create or replace function public\.mis_consultas\(\)[\s\S]*?\$\$;/i)[0];
+
+    assert.match(sql, /create policy consultas_cliente_ver_propias/i);
+    assert.match(sql, /for select[\s\S]*?user_id = auth\.uid\(\)/i);
+    assert.match(fn, /security definer/i);
+    assert.match(fn, /where c\.user_id = auth\.uid\(\)/i);
+    assert.match(sql, /create or replace function public\.consultar_consulta/i);
+    assert.match(sql, /'codigo', v_codigo/);
+    assert.match(sql, /v_user_id uuid := auth\.uid\(\)/);
+    assert.match(sql, /codigo, user_id\)/);
+    assert.match(sql, /grant execute on function public\.mis_consultas\(\) to authenticated/i);
+});
+
+test("la recuperación usa un código OTP dentro de la web", () => {
+    const auth = read("auth.js");
+    const recover = read("js/pages/auth-recover.js");
+    const page = read("recuperar.html");
+    const template = read("supabase/templates/recovery.html");
+
+    assert.match(auth, /verifyRecoveryCode/);
+    assert.match(auth, /type: "recovery"/);
+    assert.match(recover, /verifyRecoveryCode/);
+    assert.match(recover, /recoverCode/);
+    assert.match(recover, /function recoveryRedirect\(\)/);
+    assert.match(recover, /VXAUTH\.recover\(email, recoveryRedirect\(\)\)/);
+    assert.match(recover, /VXAUTH\.recover\(recoveryEmail, recoveryRedirect\(\)\)/);
+    assert.match(page, /id="recoverCode"/);
+    assert.match(page, /incluye un enlace/);
+    assert.match(template, /\{\{ \.Token \}\}/);
+    assert.doesNotMatch(template, /ConfirmationURL/);
+});
+
+test("la cabecera muestra el nombre y el menú de cuenta", () => {
+    const core = read("volxen-core.js");
+
+    assert.match(core, /function menuAccountHtml/);
+    assert.match(core, /data-menu-logout/);
+    assert.match(core, /data-account-name/);
+    assert.match(core, /data-admin-only/);
+    assert.match(core, /menu-account-actions/);
+});
+
+test("la consulta invitado exige el contacto real sin comodines SQL", () => {
+    const sql = read("supabase/migrations/20261025_consultas_contacto_exacto.sql");
+
+    assert.match(sql, /position\(lower\(btrim\(p_contacto\)\) in lower\(c\.contacto\)\) > 0/);
+    assert.doesNotMatch(sql, /like '%'/);
 });
