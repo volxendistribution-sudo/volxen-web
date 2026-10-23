@@ -224,6 +224,7 @@ function renderNav() {
     if (fdp) fdp.innerHTML = Cs.map(c =>
         '<li><a href="catalogo.html?cat=' + encodeURIComponent(c.id) + '" class="hover:text-gi transition text-left">' + esc(c.nombre) + '</a></li>'
     ).join("");
+    renderMenuCategories();
 }
 
 function opIcon(size, cls) {
@@ -366,19 +367,37 @@ async function loadOperadoras() {
     return OPS;
 }
 
+function renderMenuCategories() {
+    const wrap = $("menuCats"), grid = $("menuCatGrid");
+    if (!wrap || !grid) return;
+    wrap.hidden = Cs.length === 0;
+    grid.innerHTML = Cs.map((c, i) => {
+        const src = c.imagen ? imgUrl(c.imagen, { w: 360, h: 260, format: "webp", quality: 78 }) : "";
+        return '<a class="menu-cat" href="catalogo.html?cat=' + encodeURIComponent(c.id) + '" style="--mc-i:' + i + '">' +
+            '<span class="menu-cat-img">' + (src ? '<img src="' + esc(src) + '" alt="" loading="lazy">' : '<i class="fa-solid fa-layer-group" aria-hidden="true"></i>') + '</span>' +
+            '<span class="menu-cat-name">' + esc(c.nombre) + '</span></a>';
+    }).join("");
+    grid.querySelectorAll("img").forEach(img => img.addEventListener("error", () => img.remove()));
+}
+
 function menuOverlay() {
+    const links = [
+        { href: "catalogo.html", icon: "fa-store", text: "Catálogo" },
+        { href: "carrito.html", icon: "fa-cart-shopping", text: "Carrito" },
+        { href: "pedidos.html", icon: "fa-box", text: "Mis pedidos" },
+        { href: "consulta.html", icon: "fa-circle-question", text: "Consulta general" },
+        { href: "consulta.html?tipo=incidencia", icon: "fa-triangle-exclamation", text: "Reportar incidencia" },
+        { href: "consulta.html?tipo=queja", icon: "fa-comment-dots", text: "Queja u opinión" },
+        { href: "operadoras.html", icon: "fa-headset", text: "Operadoras" },
+        { href: "admin.html", icon: "fa-shield-halved", text: "Acceso al panel", admin: true }
+    ];
     return '<div class="ov" id="mnv"><div class="bx sh lf"><button class="xb" data-a="close" aria-label="Cerrar">×</button>' +
         '<div id="menuAccount" class="menu-account-slot"></div>' +
         '<span class="ey menu-ey">Navegar</span><nav class="mn" aria-label="Menú principal">' +
-        '<a href="catalogo.html"><i class="fa-solid fa-store mn-ico" aria-hidden="true"></i><span>Catálogo</span></a>' +
-        '<a href="carrito.html"><i class="fa-solid fa-cart-shopping mn-ico" aria-hidden="true"></i><span>Carrito</span></a>' +
-        '<a href="pedidos.html"><i class="fa-solid fa-box mn-ico" aria-hidden="true"></i><span>Mis pedidos</span></a>' +
-        '<a href="consulta.html"><i class="fa-solid fa-circle-question mn-ico" aria-hidden="true"></i><span>Consulta general</span></a>' +
-        '<a href="consulta.html?tipo=incidencia"><i class="fa-solid fa-triangle-exclamation mn-ico" aria-hidden="true"></i><span>Reportar incidencia</span></a>' +
-        '<a href="consulta.html?tipo=queja"><i class="fa-solid fa-comment-dots mn-ico" aria-hidden="true"></i><span>Queja u opinión</span></a>' +
-        '<a href="operadoras.html"><i class="fa-solid fa-headset mn-ico" aria-hidden="true"></i><span>Operadoras</span></a>' +
-        '<a href="admin.html" data-admin-only hidden><i class="fa-solid fa-shield-halved mn-ico" aria-hidden="true"></i><span>Acceso al panel</span></a>' +
-        '</nav></div></div>';
+        links.map((link, i) => '<a href="' + link.href + '"' + (link.admin ? ' data-admin-only hidden' : '') + ' style="--mn-i:' + i + '"><i class="fa-solid ' + link.icon + ' mn-ico" aria-hidden="true"></i><span>' + link.text + '</span></a>').join("") +
+        '</nav>' +
+        '<div class="menu-cats" id="menuCats" hidden><span class="ey menu-ey">Categorías</span><div class="menu-cat-grid" id="menuCatGrid"></div></div>' +
+        '</div></div>';
 }
 
 function minimalHeader() {

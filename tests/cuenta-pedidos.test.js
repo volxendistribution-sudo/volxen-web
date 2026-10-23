@@ -102,7 +102,23 @@ test("la recuperación usa un código OTP dentro de la web", () => {
     assert.match(page, /id="recoverCode"/);
     assert.match(page, /incluye un enlace/);
     assert.match(template, /\{\{ \.Token \}\}/);
+    assert.match(template, /Tu código es:/);
     assert.doesNotMatch(template, /ConfirmationURL/);
+    assert.doesNotMatch(template, /https?:\/\//);
+    assert.doesNotMatch(template, /href=/);
+});
+
+test("el menú muestra las categorías con imagen y animación", () => {
+    const core = read("volxen-core.js");
+    const css = read("volxen.css");
+
+    assert.match(core, /function renderMenuCategories/);
+    assert.match(core, /id="menuCats"/);
+    assert.match(core, /id="menuCatGrid"/);
+    assert.match(core, /c\.imagen/);
+    assert.match(css, /\.menu-cat-grid/);
+    assert.match(css, /@keyframes menuLinkIn/);
+    assert.match(css, /@keyframes menuCatIn/);
 });
 
 test("la cabecera muestra el nombre y el menú de cuenta", () => {
