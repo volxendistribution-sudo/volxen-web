@@ -238,6 +238,10 @@ Ofertas
 Operadoras
 </button>
 
+<button onclick="tab('g')">
+Gestores
+</button>
+
 <button onclick="tab('d')">
 Pedidos
 </button>
@@ -280,11 +284,14 @@ const C = window.VOLXEN_CONFIG;
 const B = C.SUPABASE_URL;
 
 let T = "";
+let ME = "";
 
 let K = [];
 let P = [];
 let O = [];
 let D = [];
+let U = [];
+let UL = false;
 
 let E = null;
 let IM = [];
@@ -338,11 +345,12 @@ function askDelete(texto){
 return askDeleteCon(texto, "Confirmar eliminación");
 }
 
-function askDeleteCon(texto, titulo, tarea){
+function askDeleteCon(texto, titulo, tarea, etiqueta){
 
 const d = $("dlg");
 const m = $("dlgm");
 const t = $("dlgt");
+const b = $("dlgo");
 
 if(!d || typeof d.showModal !== "function"){
 return Promise.resolve(window.confirm(texto)).then(ok => ok && typeof tarea === "function" ? tarea() : ok);
@@ -350,6 +358,7 @@ return Promise.resolve(window.confirm(texto)).then(ok => ok && typeof tarea === 
 
 m.textContent = texto;
 if(t) t.textContent = titulo || "Confirmar eliminación";
+if(b) b.textContent = etiqueta || "Eliminar";
 dlgTask = typeof tarea === "function" ? tarea : null;
 dlgBusy(false);
 
@@ -422,11 +431,14 @@ $("loginmsg").textContent = t || "";
 function salirLocal(texto){
 
 T = "";
+ME = "";
 
 K = [];
 P = [];
 O = [];
 D = [];
+U = [];
+UL = false;
 OD = null;
 OP = [];
 OPEDIT = null;
@@ -664,6 +676,7 @@ return;
 
 
 T = j.access_token;
+ME = j.user && j.user.id ? j.user.id : "";
 
 
 $("lg").style.display = "none";
@@ -720,6 +733,145 @@ O = await api(
    Se cargan únicamente al entrar
    en la pestaña PEDIDOS.
 */
+
+}
+
+
+async function cargarUsuarios(){
+
+U = await api(
+"rpc/admin_listar_usuarios",
+"POST",
+{}
+);
+
+if(!Array.isArray(U)) U = [];
+
+UL = true;
+
+return U;
+
+}
+
+
+function usuarioRol(u){
+
+return u && u.role ? u.role : "cliente";
+
+}
+
+
+async function gestores(){
+
+$("v").innerHTML =
+'<h3>Gestores y promotores</h3>'+
+'<p>Asigna el rol y el porcentaje de comisión. Solo los gestores y promotores ven el panel privado.</p>'+
+'<div class="r">Cargando usuarios...</div>';
+
+try{
+
+await cargarUsuarios();
+
+if(!U.length){
+
+$("v").innerHTML =
+'<h3>Gestores y promotores</h3>'+
+'<div class="r">No hay usuarios registrados.</div>';
+
+return;
+
+}
+
+$("v").innerHTML =
+'<h3>Gestores y promotores</h3>'+
+'<p>El porcentaje se aplica a los pedidos nuevos que asignes. Puedes sobrescribir el monto en cada pedido.</p>'+
+U.map(u => {
+
+const rol = usuarioRol(u);
+const porcentaje = u.comision_porcentaje == null ? "" : u.comision_porcentaje;
+
+if(rol === "admin"){
+
+return '<div class="r">'+
+'<strong>'+esc(u.email)+'</strong><br>'+
+'<small>Cuenta administradora</small>'+
+'</div>';
+
+}
+
+return '<div class="r">'+
+'<strong>'+esc(u.email)+'</strong><br>'+
+'<small>Rol actual: '+esc(rol)+' · Comisión: '+esc(porcentaje === "" ? "0" : porcentaje)+'%</small><br><br>'+
+'<select id="gr-'+esc(u.user_id)+'">'+
+'<option value="cliente"'+(rol === "cliente" ? " selected" : "")+'>Cliente</option>'+
+'<option value="gestor"'+(rol === "gestor" ? " selected" : "")+'>Gestor</option>'+
+'<option value="promotor"'+(rol === "promotor" ? " selected" : "")+'>Promotor</option>'+
+'</select>'+
+'<input id="gp-'+esc(u.user_id)+'" type="number" min="0" max="100" step="0.01" placeholder="Comisión %" value="'+esc(porcentaje)+'">'+
+'<button onclick="guardarPromotor(\''+esc(u.user_id)+'\')">GUARDAR</button>'+
+'</div>';
+
+}).join("");
+
+}catch(e){
+
+$("v").innerHTML =
+'<h3>Gestores y promotores</h3>'+
+'<div class="r"><strong>No se pudieron cargar los usuarios.</strong><br><small>'+esc(e.message || "")+'</small></div>';
+
+}
+
+}
+
+
+async function guardarPromotor(userId){
+
+const select = $("gr-"+userId);
+const input = $("gp-"+userId);
+
+if(!select || !input) return;
+
+const rol = select.value;
+const porcentaje = Number(input.value);
+
+if(!Number.isFinite(porcentaje) || porcentaje < 0 || porcentaje > 100){
+
+msg("La comisión debe estar entre 0 y 100.");
+
+return;
+
+}
+
+if(userId === ME){
+
+msg("No puedes cambiar tu propia cuenta.");
+
+return;
+
+}
+
+try{
+
+await api(
+"rpc/admin_guardar_promotor",
+"POST",
+{
+p_user_id:userId,
+p_rol:rol,
+p_comision_porcentaje:porcentaje,
+p_activo:true
+}
+);
+
+await cargarUsuarios();
+await gestores();
+msg("Usuario actualizado correctamente.", true);
+
+}catch(e){
+
+msg(e.message || "No se pudo actualizar el usuario.");
+
+}
 
 }
 
@@ -852,6 +1004,12 @@ opsAdmin();
 
 }
 
+
+else if(n === "g"){
+
+gestores();
+
+}
 
 else if(n === "d"){
 
@@ -997,6 +1155,14 @@ esc(o.estado)+
 Number(o.total_usd || 0).toFixed(2)+
 '</strong>'+
 
+(o.promotor_id
+? '<br><small>Comisión: '+
+esc(o.comision_estado || "pendiente")+
+' · $'+
+Number(o.comision_monto_usd || 0).toFixed(2)+
+'</small>'
+: '')+
+
 '<br>'+
 
 '<button onclick="verPedido(\''+
@@ -1109,6 +1275,147 @@ esc(x)+
 }
 
 
+function promoOptions(selected){
+
+const usuarios = U.filter(u => u.role === "gestor" || u.role === "promotor");
+
+if(!UL){
+
+return '<option value="">Lista no disponible</option>';
+
+}
+
+if(!usuarios.length){
+
+return '<option value="">No hay gestores o promotores</option>';
+
+}
+
+return '<option value="">Sin gestor</option>'+
+usuarios.map(u => {
+
+const activo = u.promotor_activo !== false;
+
+return '<option value="'+esc(u.user_id)+'"'+(u.user_id === selected ? " selected" : "")+'>'+
+esc(u.email)+
+(activo ? "" : " (inactivo)")+
+'</option>';
+
+}).join("");
+
+}
+
+
+function comisionAdminBlock(o){
+
+const estado = o.comision_estado || "pendiente";
+const porcentaje = o.comision_porcentaje == null ? "" : o.comision_porcentaje;
+const monto = o.comision_monto_usd == null ? "" : Number(o.comision_monto_usd).toFixed(2);
+const pagada = estado === "pagada";
+
+if(!UL){
+
+return '<div class="r"><strong>GESTOR Y COMISIÓN</strong><br><small>No se pudo cargar la lista de gestores. Vuelve a abrir el pedido para intentarlo de nuevo.</small></div>';
+
+}
+
+return '<div class="r">'+
+'<strong>GESTOR Y COMISIÓN</strong><br><br>'+
+'<select id="pg">'+promoOptions(o.promotor_id)+'</select>'+
+'<input id="pcp" type="number" min="0" max="100" step="0.01" placeholder="Comisión % (actual: '+esc(porcentaje === "" ? "0" : porcentaje)+')">'+
+'<input id="pcm" type="number" min="0" step="0.01" placeholder="'+(monto === "" ? "Monto automático" : "Monto manual: $"+esc(monto))+'">'+
+'<br><small>Estado: '+esc(estado)+' · Porcentaje: '+esc(porcentaje === "" ? "0" : porcentaje)+'% · Monto: $'+esc(monto === "" ? "0.00" : monto)+'</small>'+
+(pagada
+? '<br><small>Comisión pagada. No se puede reasignar.</small>'
+: '<br><button onclick="asignarPromotor(\''+o.id+'\')">ASIGNAR / ACTUALIZAR</button>')+
+(estado === "disponible"
+? '<br><button onclick="marcarComisionPagada(\''+o.id+'\')">MARCAR COMISIÓN PAGADA</button>'
+: '')+
+'</div>';
+
+}
+
+
+async function asignarPromotor(id){
+
+const select = $("pg");
+const porcentaje = $("pcp");
+const monto = $("pcm");
+
+if(!select || !porcentaje || !monto) return;
+
+const pct = porcentaje.value.trim();
+const manual = monto.value.trim();
+
+if(pct !== "" && (!Number.isFinite(Number(pct)) || Number(pct) < 0 || Number(pct) > 100)){
+
+msg("La comisión debe estar entre 0 y 100.");
+
+return;
+
+}
+
+if(manual !== "" && (!Number.isFinite(Number(manual)) || Number(manual) < 0)){
+
+msg("El monto de la comisión no puede ser negativo.");
+
+return;
+
+}
+
+try{
+
+await api(
+"rpc/admin_asignar_promotor",
+"POST",
+{
+p_pedido_id:id,
+p_promotor_id:select.value || null,
+p_comision_porcentaje:pct === "" ? null : Number(pct),
+p_comision_monto_usd:manual === "" ? null : Number(manual)
+}
+);
+
+await pedidos();
+await verPedido(id);
+msg("Pedido actualizado correctamente.", true);
+
+}catch(e){
+
+msg(e.message || "No se pudo asignar el pedido.");
+
+}
+
+}
+
+
+async function marcarComisionPagada(id){
+
+if(!await askDeleteCon("¿Marcar la comisión de este pedido como pagada? Esta acción no se puede deshacer desde el panel.", "Confirmar pago de comisión", null, "Marcar pagada")) return;
+
+try{
+
+await api(
+"rpc/admin_marcar_comision_pagada",
+"POST",
+{
+p_pedido_id:id
+}
+);
+
+await pedidos();
+await verPedido(id);
+msg("Comisión marcada como pagada.", true);
+
+}catch(e){
+
+msg(e.message || "No se pudo marcar la comisión como pagada.");
+
+}
+
+}
+
+
 /* =========================
    VER PEDIDO
 ========================= */
@@ -1120,6 +1427,10 @@ D.find(x => x.id === id);
 
 
 if(!o)return;
+
+try{
+await cargarUsuarios();
+}catch(e){}
 
 
 $("v").innerHTML =
@@ -1311,6 +1622,8 @@ o.id+
 '</button>'+
 
 '</div>'+
+
+comisionAdminBlock(o)+
 
 '<div class="r">'+
 

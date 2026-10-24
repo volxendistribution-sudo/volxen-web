@@ -143,10 +143,12 @@ test("el cliente de autenticación usa mi_rol y no app_metadata", () => {
 test("los archivos cliente no contienen claves privadas", () => {
     const files = [
         "admin.html",
+        "gestor.html",
         "config.js",
         "pedido.js",
         "volxen-core.js",
         "js/pages/consulta.js",
+        "js/pages/gestor.js",
         "js/pages/pedidos.js",
         "scripts/generate-sitemap.js"
     ];

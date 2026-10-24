@@ -312,6 +312,9 @@ function hydrateAccount() {
 
     const adminLink = document.querySelector("[data-admin-only]");
     if (adminLink) adminLink.hidden = !(user && user.role === "admin");
+
+    const gestorLink = document.querySelector("[data-gestor-only]");
+    if (gestorLink) gestorLink.hidden = !(user && (user.role === "gestor" || user.role === "promotor"));
 }
 const OP_MSG = "Buenas, necesito información sobre un producto.";
 const opDigits = n => String(n || "").replace(/\D/g, "");
@@ -393,12 +396,13 @@ function menuOverlay() {
         { href: "consulta.html?tipo=incidencia", icon: "fa-triangle-exclamation", text: "Reportar incidencia" },
         { href: "consulta.html?tipo=queja", icon: "fa-comment-dots", text: "Queja u opinión" },
         { href: "operadoras.html", icon: "fa-headset", text: "Operadoras" },
+        { href: "gestor.html", icon: "fa-chart-line", text: "Panel de gestor", gestor: true },
         { href: "admin.html", icon: "fa-shield-halved", text: "Acceso al panel", admin: true }
     ];
     return '<div class="ov" id="mnv"><div class="bx sh lf"><button class="xb" data-a="close" aria-label="Cerrar">×</button>' +
         '<div id="menuAccount" class="menu-account-slot"></div>' +
         '<span class="ey menu-ey">Navegar</span><nav class="mn" aria-label="Menú principal">' +
-        links.map((link, i) => '<a href="' + link.href + '"' + (link.admin ? ' data-admin-only hidden' : '') + ' style="--mn-i:' + i + '"><i class="fa-solid ' + link.icon + ' mn-ico" aria-hidden="true"></i><span>' + link.text + '</span></a>').join("") +
+        links.map((link, i) => '<a href="' + link.href + '"' + (link.admin ? ' data-admin-only hidden' : '') + (link.gestor ? ' data-gestor-only hidden' : '') + ' style="--mn-i:' + i + '"><i class="fa-solid ' + link.icon + ' mn-ico" aria-hidden="true"></i><span>' + link.text + '</span></a>').join("") +
         '</nav>' +
         '</div></div>';
 }
