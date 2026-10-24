@@ -55,12 +55,11 @@
     }
 
     function normalizeUser(user) {
-        const meta = user && user.app_metadata ? user.app_metadata : {};
         const profile = user && user.user_metadata ? user.user_metadata : {};
         return {
             id: user && user.id ? user.id : "",
             email: user && user.email ? user.email : "",
-            role: meta.role === "admin" ? "admin" : "",
+            role: "",
             nombre: profile.nombre || profile.full_name || profile.name || "",
             avatar: profile.avatar_url || profile.picture || profile.avatar || ""
         };
@@ -73,8 +72,37 @@
             access_token: payload.access_token,
             refresh_token: payload.refresh_token || (old && old.refresh_token) || "",
             expires_at: Number(payload.expires_at) || (clock() + Number(payload.expires_in || 3600)),
-            user: user
+            user: user,
+            role_loaded: false
         };
+    }
+
+    async function hydrateRole(session) {
+        if (!session || !session.access_token) return null;
+
+        try {
+            const response = await fetch(REST_URL + "/rpc/mi_rol", {
+                method: "POST",
+                headers: {
+                    apikey: API_KEY,
+                    Authorization: "Bearer " + session.access_token,
+                    "Content-Type": "application/json"
+                },
+                body: "{}"
+            });
+
+            if (!response.ok) throw new Error("No se pudo cargar el rol");
+
+            const role = await response.json();
+            session.user = session.user || normalizeUser(null);
+            session.user.role = typeof role === "string" ? role : "";
+        } catch (e) {
+            session.user = session.user || normalizeUser(null);
+            session.user.role = "";
+        }
+
+        session.role_loaded = true;
+        return saveSession(session);
     }
 
     function messageFor(data, status) {
@@ -191,6 +219,9 @@
         if (!session.expires_at || session.expires_at - 60 <= clock()) {
             session = await refreshSession();
         }
+        if (session && !session.role_loaded) {
+            session = await hydrateRole(session);
+        }
         return session;
     }
 
@@ -204,7 +235,7 @@
             method: "POST",
             body: { email: email, password: password }
         });
-        return saveSession(normalizeSession(data));
+        return hydrateRole(saveSession(normalizeSession(data)));
     }
 
     async function signUp(email, password, redirectTo) {
@@ -213,8 +244,8 @@
             body: { email: email, password: password }
         });
         if (data && data.access_token) {
-            saveSession(normalizeSession(data));
-            return { needsConfirmation: false, session: readSession() };
+            const session = await hydrateRole(saveSession(normalizeSession(data)));
+            return { needsConfirmation: false, session: session };
         }
         return { needsConfirmation: true, session: null };
     }
@@ -238,7 +269,7 @@
         if (!data || !data.access_token) {
             throw new Error("El código no es válido o ha expirado. Solicita uno nuevo.");
         }
-        return saveSession(normalizeSession(data));
+        return hydrateRole(saveSession(normalizeSession(data)));
     }
 
     async function updatePassword(password) {
@@ -371,7 +402,7 @@
                     method: "POST",
                     body: { auth_code: code, code_verifier: pending.verifier }
                 });
-                saveSession(normalizeSession(data));
+                await hydrateRole(saveSession(normalizeSession(data)));
             } finally {
                 removeStorage(PKCE_KEY);
                 cleanUrl();
@@ -390,7 +421,7 @@
             try {
                 const user = await authRequest("/user", { token: token });
                 session.user = normalizeUser(user);
-                saveSession(session);
+                await hydrateRole(saveSession(session));
             } catch (error) {
                 clearSession();
                 cleanUrl();
@@ -474,13 +505,8 @@
 
     async function isAdmin() {
         const session = await getSession();
-        if (!session) return false;
-        try {
-            const user = await authRequest("/user", { token: session.access_token });
-            return Boolean(user && user.app_metadata && user.app_metadata.role === "admin");
-        } catch (e) {
-            return false;
-        }
+        if (!session || !session.user) return false;
+        return session.user.role === "admin";
     }
 
     window.VXAUTH = {

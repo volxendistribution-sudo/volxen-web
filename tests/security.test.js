@@ -6,12 +6,22 @@ const path = require("node:path");
 const ROOT = path.resolve(__dirname, "..");
 const read = (file) => fs.readFileSync(path.join(ROOT, file), "utf8");
 
-test("admin exige rol admin desde app_metadata", () => {
+const FASE0_FILES = [
+    "supabase/migrations/20261026090000_fase0_role_foundation.sql",
+    "supabase/migrations/20261026091000_fase0_rls_hardening.sql",
+    "supabase/migrations/20261026092000_fase0_grants.sql",
+    "supabase/migrations/20261026093000_fase0_assertions.sql"
+];
+
+const fase0Sql = () => FASE0_FILES.map(read).join("\n");
+
+test("admin exige rol admin desde la base de datos", () => {
     const admin = read("admin.html");
 
-    assert.match(admin, /const rol = j\.user && j\.user\.app_metadata && j\.user\.app_metadata\.role;/);
-    assert.match(admin, /if\(rol !== "admin"\)/);
+    assert.match(admin, /B \+ "\/rest\/v1\/rpc\/mi_rol"/);
+    assert.match(admin, /if\(!rr\.ok \|\| rol !== "admin"\)/);
     assert.match(admin, /Esta cuenta no tiene acceso al panel/);
+    assert.doesNotMatch(admin, /app_metadata/);
     assert.doesNotMatch(admin, /user_metadata/);
 });
 
@@ -34,76 +44,54 @@ test("pedidos no interpolan teléfono ni código en onclick", () => {
     assert.doesNotMatch(admin, /o\.codigo\s*\+/);
 });
 
-test("la migración usa un único criterio admin en app_metadata", () => {
-    const sql = read("supabase/migrations/20261022_admin_rls.sql");
-    const fn = sql.match(/create or replace function public\.is_admin\(\)[\s\S]*?\$\$;/i)[0];
+test("Fase 0 crea roles en la base y migra al admin existente", () => {
+    const sql = fase0Sql();
+    const fn = sql.match(/create or replace function public\.vx_is_admin\(\)[\s\S]*?\$\$;/i)[0];
 
     assert.match(fn, /security definer/i);
     assert.match(fn, /set search_path = public, pg_temp/i);
-    assert.match(fn, /auth\.jwt\(\) -> 'app_metadata' ->> 'role'/i);
-    assert.doesNotMatch(fn, /administradores|user_metadata|es_admin/i);
-    assert.doesNotMatch(sql, /from public\.administradores a/i);
-    assert.match(sql, /using \(public\.is_admin\(\)\)/i);
-    assert.doesNotMatch(sql, /using \(true\)/i);
+    assert.match(fn, /vx_role\(\) = 'admin'/i);
+    assert.doesNotMatch(fn, /app_metadata|user_metadata|administradores/i);
+    assert.match(sql, /create table public\.user_roles/i);
+    assert.match(sql, /select user_id, 'admin', true[\s\S]*?from public\.administradores/i);
+    assert.match(sql, /create or replace function public\.mi_rol\(\)/i);
+    assert.match(sql, /coalesce\(public\.vx_role\(\), 'cliente'\)/i);
+    assert.match(sql, /create or replace function public\.vx_set_role\(p_user_id uuid, p_role text\)/i);
+    assert.match(sql, /No puedes cambiar tu propio rol/i);
+    assert.match(sql, /No se puede degradar al último administrador/i);
+    assert.match(sql, /create policy role_audit_select_admin[\s\S]*?public\.vx_is_admin\(\)/i);
+});
+
+test("Fase 0 corrige operadoras y conserva la lectura pública", () => {
+    const sql = fase0Sql();
+
+    assert.match(sql, /drop policy if exists operadoras_admin_insertar/i);
+    assert.match(sql, /create policy operadoras_admin_insertar[\s\S]*?with check \(public\.vx_is_admin\(\)\)/i);
+    assert.match(sql, /create policy operadoras_admin_actualizar[\s\S]*?using \(public\.vx_is_admin\(\)\)[\s\S]*?with check \(public\.vx_is_admin\(\)\)/i);
+    assert.match(sql, /create policy operadoras_lectura_publica[\s\S]*?using \(activa = true\)/i);
     assert.doesNotMatch(sql, /with check \(true\)/i);
-    assert.match(sql, /revoke all on function public\.is_admin\(\) from public/i);
-    assert.match(sql, /grant execute on function public\.is_admin\(\) to anon, authenticated/i);
-    assert.match(sql, /revoke all on function public\.es_admin\(\) from public/i);
-    assert.match(sql, /app_metadata\.role=admin/i);
 });
 
-test("la migración aísla pedidos y consultas por user_id", () => {
-    const sql = read("supabase/migrations/20261022_admin_rls.sql");
+test("Fase 0 revoca privilegios amplios y deja solo los necesarios", () => {
+    const sql = fase0Sql();
 
-    assert.match(sql, /alter table public\.pedidos[\s\S]*?add column if not exists user_id uuid/i);
-    assert.match(sql, /alter table public\.consultas[\s\S]*?add column if not exists user_id uuid/i);
-    assert.match(sql, /add column if not exists respuesta text/i);
-    assert.match(sql, /create policy pedidos_cliente_ver_propios[\s\S]*?using \(user_id = auth\.uid\(\)\)/i);
-    assert.match(sql, /create policy consultas_cliente_ver_propias[\s\S]*?using \(user_id = auth\.uid\(\)\)/i);
-    assert.match(sql, /create policy pedido_items_cliente_ver_propios[\s\S]*?p\.user_id = auth\.uid\(\)/i);
-    assert.match(sql, /create policy pedido_historial_cliente_ver_propios[\s\S]*?p\.user_id = auth\.uid\(\)/i);
-    assert.match(sql, /create trigger vx_set_user_id[\s\S]*?before insert on public\.pedidos/i);
-    assert.match(sql, /create trigger vx_set_user_id[\s\S]*?before insert on public\.consultas/i);
-    assert.match(sql, /new\.user_id := coalesce\(auth\.uid\(\), new\.user_id\)/i);
+    assert.match(sql, /revoke all on all tables in schema public from anon, authenticated/i);
+    assert.match(sql, /grant select on public\.categorias, public\.productos, public\.ofertas, public\.operadoras[\s\S]*?to anon, authenticated/i);
+    assert.match(sql, /grant select, insert, update, delete[\s\S]*?public\.operadoras[\s\S]*?to authenticated/i);
+    assert.match(sql, /grant select[\s\S]*?public\.user_roles, public\.role_audit[\s\S]*?to authenticated/i);
+    assert.match(sql, /revoke all on all sequences in schema public from anon, authenticated/i);
 });
 
-test("la migración corrige operadoras y conserva la lectura pública", () => {
-    const sql = read("supabase/migrations/20261022_admin_rls.sql");
+test("Fase 0 verifica roles, RLS y accesos después de aplicar", () => {
+    const sql = fase0Sql();
 
-    assert.match(sql, /drop policy if exists operadoras_lectura_publica/i);
-    assert.match(sql, /create policy operadoras_lectura_publica/i);
-    assert.match(sql, /using \(activa = true\)/i);
-    assert.match(sql, /create policy operadoras_admin_insertar/i);
-    assert.match(sql, /with check \(public\.is_admin\(\)\)/i);
-});
-
-test("la migración revoca escrituras anónimas y privilegios estructurales", () => {
-    const sql = read("supabase/migrations/20261022_admin_rls.sql");
-
-    assert.match(sql, /revoke all on all tables in schema public from anon/i);
-    assert.match(sql, /grant select on public\.categorias, public\.productos, public\.ofertas, public\.operadoras to anon/i);
-    assert.match(sql, /revoke truncate, references, trigger on all tables in schema public from authenticated/i);
-    assert.match(sql, /revoke all on public\.administradores from authenticated/i);
-    assert.match(sql, /revoke all on public\.pedido_contadores from authenticated/i);
-    assert.match(sql, /grant insert, update, delete on public\.operadoras to authenticated/i);
-    assert.match(sql, /revoke insert, update, delete on storage\.objects from anon/i);
-    assert.match(sql, /revoke insert, update, delete on storage\.buckets from anon, authenticated/i);
-    assert.match(sql, /revoke insert, update, delete on storage\.buckets_analytics from anon, authenticated/i);
-});
-
-test("la migración exige RPC definer y verifica el resultado", () => {
-    const sql = read("supabase/migrations/20261022_admin_rls.sql");
-
-    assert.match(sql, /crear_pedido[\s\S]*?p\.prosecdef/i);
-    assert.match(sql, /registrar_consulta_v2[\s\S]*?p\.prosecdef/i);
-    assert.match(sql, /consultar_pedido_tracking[\s\S]*?p\.prosecdef/i);
-    assert.match(sql, /like '%es_admin%'/i);
-    assert.match(sql, /políticas de escritura sin is_admin en tablas protegidas/i);
-    assert.match(sql, /políticas de escritura sin is_admin en storage\.objects/i);
-    assert.match(sql, /anon conserva privilegios de escritura en public/i);
-    assert.match(sql, /anon conserva privilegios de escritura en storage/i);
-    assert.match(sql, /Falta la política pedidos_cliente_ver_propios/i);
-    assert.match(sql, /Falta la política consultas_cliente_ver_propias/i);
+    assert.match(sql, /has_table_privilege\('anon', 'public\.administradores', 'SELECT'\)/i);
+    assert.match(sql, /has_function_privilege\('anon', 'public\.vx_set_role\(uuid, text\)', 'EXECUTE'\)/i);
+    assert.match(sql, /anon tiene una política de escritura en storage/i);
+    assert.match(sql, /RLS no está activo en storage\.objects/i);
+    assert.match(sql, /RLS no está activo en storage\.buckets/i);
+    assert.match(sql, /Falta un administrador activo en user_roles/i);
+    assert.match(sql, /notify pgrst, 'reload schema'/i);
 });
 
 test("las páginas de cuenta se incluyen en el build", () => {
@@ -141,10 +129,14 @@ test("mis_pedidos solo expone los pedidos del usuario autenticado", () => {
     assert.doesNotMatch(sql, /grant execute on function public\.mis_pedidos\(\) to [^;]*anon/i);
 });
 
-test("el cliente de autenticación no usa el RPC antiguo es_admin", () => {
+test("el cliente de autenticación usa mi_rol y no app_metadata", () => {
     const auth = read("auth.js");
 
-    assert.match(auth, /app_metadata\.role === "admin"/);
+    assert.match(auth, /async function hydrateRole\(session\)/);
+    assert.match(auth, /REST_URL \+ "\/rpc\/mi_rol"/);
+    assert.match(auth, /session\.role_loaded = true/);
+    assert.match(auth, /return session\.user\.role === "admin"/);
+    assert.doesNotMatch(auth, /app_metadata\.role/);
     assert.doesNotMatch(auth, /\/rpc\/es_admin/);
 });
 

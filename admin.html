@@ -623,9 +623,36 @@ return;
 }
 
 
-const rol = j.user && j.user.app_metadata && j.user.app_metadata.role;
+const rr = await fetch(
 
-if(rol !== "admin"){
+B + "/rest/v1/rpc/mi_rol",
+
+{
+method:"POST",
+
+headers:{
+apikey:C.SUPABASE_KEY,
+Authorization:"Bearer " + j.access_token,
+"Content-Type":"application/json"
+},
+
+body:"{}"
+
+}
+
+);
+
+
+let rol = null;
+
+try{
+rol = await rr.json();
+}catch(e){
+rol = null;
+}
+
+
+if(!rr.ok || rol !== "admin"){
 
 T = "";
 
