@@ -150,9 +150,34 @@
     }
 
     function setView(view) {
-        ["gsGuest", "gsDenied", "gsLoading", "gsError", "gsDashboard"].forEach(function (name) {
+        ["gsGuest", "gsDenied", "gsLoading", "gsError", "gsWelcome", "gsDashboard"].forEach(function (name) {
             if (refs[name]) refs[name].hidden = name !== view;
         });
+    }
+
+    function showWelcome() {
+        const user = state.session && state.session.user ? state.session.user : {};
+        const name = String(user.nombre || "").trim();
+        const firstName = name ? name.split(/\s+/)[0] : "";
+
+        if (refs.gsWelcomeLead) {
+            refs.gsWelcomeLead.textContent = firstName
+                ? "Hola, " + firstName + ". Tu cuenta está autorizada como gestor comercial de VOLXEN."
+                : "Tu cuenta está autorizada como gestor comercial de VOLXEN.";
+        }
+
+        setView("gsWelcome");
+
+        window.requestAnimationFrame(function () {
+            if (refs.gsWelcomeTitle) refs.gsWelcomeTitle.focus({ preventScroll: true });
+        });
+    }
+
+    function enterPanelFromWelcome() {
+        if (refs.gsWelcomeEnter) refs.gsWelcomeEnter.disabled = true;
+        if (refs.gsWelcomeSkip) refs.gsWelcomeSkip.disabled = true;
+        setView("gsLoading");
+        load();
     }
 
     function setNotice(message, isError) {
@@ -496,6 +521,9 @@
     }
 
     function bindEvents() {
+        if (refs.gsWelcomeEnter) refs.gsWelcomeEnter.addEventListener("click", enterPanelFromWelcome);
+        if (refs.gsWelcomeSkip) refs.gsWelcomeSkip.addEventListener("click", enterPanelFromWelcome);
+
         refs.gsLogout.addEventListener("click", async function () {
             refs.gsLogout.disabled = true;
             refs.gsLogout.textContent = "Saliendo…";
@@ -551,7 +579,8 @@
 
     function cacheElements() {
         [
-            "gsGuest", "gsDenied", "gsLoading", "gsError", "gsDashboard",
+            "gsGuest", "gsDenied", "gsLoading", "gsError", "gsWelcome", "gsDashboard",
+            "gsWelcomeTitle", "gsWelcomeLead", "gsWelcomeEnter", "gsWelcomeSkip",
             "gsTitle", "gsEmail", "gsRoleBadge", "gsUpdated", "gsNotice",
             "gsSales", "gsOrdersCount", "gsClientsCount", "gsCommissionAvailable",
             "gsCommissionPaid", "gsCommissionPending", "gsCommissionReady", "gsCommissionDone",
@@ -604,6 +633,12 @@
         }
 
         document.body.dataset.role = role;
+
+        if (role === "gestor" && refs.gsWelcome) {
+            showWelcome();
+            return;
+        }
+
         setView("gsDashboard");
         renderHeader();
         await load();

@@ -112,6 +112,25 @@ test("Google y el resto de accesos no asignan rol de promotor automáticamente",
     assert.doesNotMatch(login, /promotor/i);
 });
 
+test("la bienvenida comercial aparece solo para gestores y ofrece las dos salidas", () => {
+    const html = read("gestor.html");
+    const js = read("js/pages/gestor.js");
+
+    assert.match(html, /id="gsWelcome"/);
+    assert.match(html, /id="gsWelcomeTitle"/);
+    assert.match(html, /id="gsWelcomeEnter"[^>]*>Entrar a mi panel comercial/);
+    assert.match(html, /id="gsWelcomeSkip"[^>]*>Saltar bienvenida/);
+    assert.match(html, /Capta clientes/);
+    assert.match(html, /Presenta productos/);
+    assert.match(html, /Acompaña ventas/);
+    assert.match(html, /Consulta tus resultados/);
+    assert.match(html, /src="logo\.svg"/);
+    assert.match(js, /role === "gestor" && refs\.gsWelcome/);
+    assert.match(js, /function showWelcome/);
+    assert.match(js, /function enterPanelFromWelcome/);
+    assert.doesNotMatch(js, /localStorage|sessionStorage|document\.cookie/);
+});
+
 test("el panel privado queda fuera de los buscadores", () => {
     const robots = read("robots.txt");
 
