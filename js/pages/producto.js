@@ -102,6 +102,15 @@ export async function initProducto() {
             (hasOffer ? '<s class="pdp-price-old">' + VX.fm(base) + '</s>' : '');
     }
 
+    function commissionHtml() {
+        return '<div class="pdp-commission" data-gestor-commission>' +
+            '<span class="pdp-commission-icon" aria-hidden="true"><i class="fa-solid fa-coins"></i></span>' +
+            '<span class="pdp-commission-copy">' +
+            '<span class="pdp-commission-label">Tu comisión</span>' +
+            '<b class="pdp-commission-value" data-gestor-commission-value>Pendiente de asignación</b>' +
+            '</span></div>';
+    }
+
     function actionsHtml() {
         if (agotado) {
             return '<a class="btn-secondary pdp-consult" href="' + waHref + '" target="_blank" rel="noopener">Consultar disponibilidad</a>';
@@ -144,6 +153,7 @@ export async function initProducto() {
             '<div class="pdp-head"><h1 class="pdp-title">' + VX.esc(p.nombre) + '</h1>' + ratingHtml() + '</div>' +
             metaHtml() +
             '<div class="pdp-buy-row"><div class="pdp-price-block">' + priceHtml() + '</div>' + buyHtml + '</div>' +
+            commissionHtml() +
             '<p class="pdp-shipping"><span class="pdp-check" aria-hidden="true">✓</span><span>' + VX.esc(shippingLabel()) + '</span></p>' +
             actionsHtml() +
             detailsHtml() +
