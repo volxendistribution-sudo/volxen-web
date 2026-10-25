@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <meta name="theme-color" content="#1E1D1B">
-    <meta name="description" content="Panel privado de gestores y promotores de VOLXEN: ventas, pedidos, clientes y comisiones.">
-    <title>Panel de gestor · VOLXEN</title>
+    <meta name="description" content="Panel privado de gestores y promotores de VOLXEN: perfil, ventas, pedidos, clientes, notificaciones y comisiones.">
+    <title>Panel de gestores y promotores · VOLXEN</title>
 
     <link rel="preload" as="font" type="font/woff2" crossorigin href="dist/fonts/DM-Sans-Regular.woff2">
     <link rel="preload" as="font" type="font/woff2" crossorigin href="dist/fonts/DM-Sans-SemiBold.woff2">
@@ -30,7 +30,7 @@
                 <img src="logo.svg" alt="" width="40" height="40">
                 <span class="gs-brand-copy">
                     <strong>VOLXEN</strong>
-                    <small>Panel de gestor</small>
+                    <small>Gestores y promotores</small>
                 </span>
             </a>
             <nav class="gs-nav" aria-label="Navegación del panel">
@@ -44,8 +44,8 @@
     <main id="gsMain" class="gs-main">
         <section id="gsGuest" class="gs-state" hidden>
             <p class="gs-eyebrow">Acceso privado</p>
-            <h1>Entra a tu panel de gestor</h1>
-            <p>Este panel muestra las ventas, pedidos, clientes y comisiones que el administrador te haya asignado. No se asigna automáticamente.</p>
+            <h1>Entra a tu panel de gestor o promotor</h1>
+            <p>Este panel muestra tu perfil, actividad, pedidos, notificaciones y comisiones asignadas por administración. El rol no se asigna automáticamente al iniciar sesión.</p>
             <div class="gs-state-actions">
                 <a class="gs-button gs-button-primary" href="login.html?next=gestor.html">Iniciar sesión</a>
                 <a class="gs-button" href="index.html">Volver a la tienda</a>
@@ -54,8 +54,8 @@
 
         <section id="gsDenied" class="gs-state" hidden>
             <p class="gs-eyebrow">Cuenta sin acceso</p>
-            <h1>Tu cuenta no es de gestor</h1>
-            <p>Un administrador debe asignarte el rol de gestor o promotor. Si ya lo hiciste, cierra sesión y vuelve a entrar para actualizar el rol.</p>
+            <h1>Tu cuenta no es de gestor o promotor</h1>
+            <p>Un administrador debe asignarte el rol de gestor o promotor. Si ya lo hizo, cierra sesión y vuelve a entrar para actualizar el rol.</p>
             <div class="gs-state-actions">
                 <a class="gs-button gs-button-primary" href="pedidos.html">Ir a mi cuenta</a>
                 <a class="gs-button" href="index.html">Volver a la tienda</a>
@@ -86,7 +86,7 @@
         <div id="gsDashboard" hidden>
             <section class="gs-hero" aria-labelledby="gsTitle">
                 <div class="gs-hero-copy">
-                    <p class="gs-eyebrow">Panel de gestor</p>
+                    <p class="gs-eyebrow">Panel de gestores y promotores</p>
                     <h1 id="gsTitle">Tu operación</h1>
                     <p id="gsEmail" class="gs-hero-email"></p>
                 </div>
@@ -100,6 +100,48 @@
             </section>
 
             <p id="gsNotice" class="gs-notice" role="status" aria-live="polite" hidden></p>
+
+            <section class="gs-profile" aria-labelledby="gsProfileTitle">
+                <div class="gs-section-head">
+                    <div>
+                        <p class="gs-eyebrow">Tu cuenta</p>
+                        <h2 id="gsProfileTitle">Perfil y actividad</h2>
+                    </div>
+                    <span class="gs-ledger-note">Datos asignados por administración</span>
+                </div>
+                <div class="gs-profile-grid">
+                    <article class="gs-profile-card">
+                        <div class="gs-profile-head">
+                            <span class="gs-profile-avatar" id="gsProfileInitial" aria-hidden="true">V</span>
+                            <div>
+                                <strong id="gsProfileName">Tu cuenta</strong>
+                                <small id="gsProfileEmail"></small>
+                            </div>
+                        </div>
+                        <dl class="gs-profile-data">
+                            <div><dt>Rol</dt><dd id="gsProfileRole">—</dd></div>
+                            <div><dt>Comisión</dt><dd id="gsProfileCommission">—</dd></div>
+                            <div><dt>Estado</dt><dd id="gsProfileState">—</dd></div>
+                            <div><dt>Desde</dt><dd id="gsProfileSince">—</dd></div>
+                        </dl>
+                    </article>
+                    <article class="gs-profile-card">
+                        <h3>Actividad por estado</h3>
+                        <div id="gsActivity" class="gs-activity" aria-live="polite"></div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="gs-panel" aria-labelledby="gsNotificationsTitle">
+                <div class="gs-section-head">
+                    <div>
+                        <p class="gs-eyebrow">Seguimiento</p>
+                        <h2 id="gsNotificationsTitle">Notificaciones</h2>
+                    </div>
+                    <span id="gsNotificationsCount" class="gs-ledger-note">Sin novedades</span>
+                </div>
+                <div id="gsNotifications" class="gs-notifications" aria-live="polite"></div>
+            </section>
 
             <section class="gs-metrics" aria-label="Resumen de tu operación">
                 <article class="gs-metric gs-metric-wide">
@@ -154,6 +196,17 @@
                         <small>Liquidadas por el admin</small>
                     </div>
                 </div>
+            </section>
+
+            <section class="gs-panel" aria-labelledby="gsHistoryTitle">
+                <div class="gs-section-head">
+                    <div>
+                        <p class="gs-eyebrow">Registro</p>
+                        <h2 id="gsHistoryTitle">Historial de comisiones</h2>
+                    </div>
+                    <span class="gs-ledger-note">Solo lectura · lo actualiza administración</span>
+                </div>
+                <div id="gsCommissionHistory" class="gs-history" aria-live="polite"></div>
             </section>
 
             <section class="gs-panel" aria-labelledby="gsOrdersTitle">

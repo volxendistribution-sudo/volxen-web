@@ -8,15 +8,15 @@
 <title>VOLXEN · Panel</title>
 
 <style>
-@font-face{font-family:'DM Sans';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/DM-Sans-Regular.woff2') format('woff2')}
-@font-face{font-family:'DM Sans';font-style:normal;font-weight:600;font-display:swap;src:url('fonts/DM-Sans-SemiBold.woff2') format('woff2')}
-@font-face{font-family:'DM Sans';font-style:normal;font-weight:700;font-display:swap;src:url('fonts/DM-Sans-Bold.woff2') format('woff2')}
-@font-face{font-family:'Inter Tight';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/InterTight-Regular.woff2') format('woff2')}
-@font-face{font-family:'Inter Tight';font-style:normal;font-weight:600;font-display:swap;src:url('fonts/InterTight-SemiBold.woff2') format('woff2')}
+@font-face{font-family:'DM Sans';font-style:normal;font-weight:400;font-display:swap;src:url('dist/fonts/DM-Sans-Regular.woff2') format('woff2')}
+@font-face{font-family:'DM Sans';font-style:normal;font-weight:600;font-display:swap;src:url('dist/fonts/DM-Sans-SemiBold.woff2') format('woff2')}
+@font-face{font-family:'DM Sans';font-style:normal;font-weight:700;font-display:swap;src:url('dist/fonts/DM-Sans-Bold.woff2') format('woff2')}
+@font-face{font-family:'Inter Tight';font-style:normal;font-weight:400;font-display:swap;src:url('dist/fonts/InterTight-Regular.woff2') format('woff2')}
+@font-face{font-family:'Inter Tight';font-style:normal;font-weight:600;font-display:swap;src:url('dist/fonts/InterTight-SemiBold.woff2') format('woff2')}
 
 :root{
---bg:#F7F2E8;--sf:#EEE5D6;--s2:#FFFCF6;--fg:#171410;--mu:#5A5449;
---bd:#DFD3C0;--g:#C8A165;--gi:#6E5327;--pf:#1F4036;--ox:#A64B30;--ox-hover:#8A3D26;
+--bg:#F8F7F4;--sf:#EAE6DE;--s2:#FFFDF9;--fg:#1E1D1B;--mu:rgba(30,29,27,.62);
+--bd:rgba(30,29,27,.14);--g:#C8A165;--gi:#6E5327;--pf:#2E4A3F;--ox:#A64B30;--ox-hover:#8A3D26;
 --d:'DM Sans',system-ui,sans-serif;--s:'Inter Tight',system-ui,sans-serif;
 --shadow-sm:0 1px 2px rgba(18,16,12,.04);
 --radius-field:12px;--radius-card:24px;--radius-pill:999px;--control-h:48px
@@ -156,7 +156,7 @@ box-shadow:0 20px 40px -12px rgba(18,16,12,.35)
 #dlg{text-align:center}
 .dlg-ico{
 width:48px;height:48px;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;
-border-radius:16px;background:rgba(31,64,54,.09);color:var(--pf)
+border-radius:16px;background:rgba(46,74,63,.09);color:var(--pf)
 }
 .dlg-ico svg{width:26px;height:26px}
 .dlg-a button:disabled{opacity:.55;cursor:not-allowed}
@@ -173,8 +173,13 @@ border-radius:16px;background:rgba(31,64,54,.09);color:var(--pf)
 .form-actions button{flex:1;margin:0;min-height:var(--control-h);border-radius:var(--radius-pill)}
 .op-row-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
 .op-badge{display:inline-block;padding:2px 8px;border-radius:var(--radius-pill);background:var(--sf);color:var(--mu);font:600 12px/1.6 var(--s)}
-.op-badge.on{background:rgba(31,64,54,.1);color:var(--pf)}
+.op-badge.on{background:rgba(46,74,63,.1);color:var(--pf)}
 .op-badge.off{background:rgba(166,75,48,.1);color:var(--ox)}
+.op-badge.gold{background:rgba(200,161,101,.18);color:#6E5327}
+.op-badge.danger{background:rgba(166,75,48,.1);color:var(--ox)}
+.cm-tools{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.cm-tools input,.cm-tools select{flex:1;min-width:160px;margin:0}
+.cm-meta{display:block;color:var(--mu);font-size:12px;line-height:1.7;margin-top:4px}
 .op-meta{display:block;color:var(--mu);font-size:12px;line-height:1.6;margin-top:4px}
 </style>
 </head>
@@ -242,6 +247,10 @@ Operadoras
 Gestores
 </button>
 
+<button onclick="tab('m')">
+Comisiones
+</button>
+
 <button onclick="tab('d')">
 Pedidos
 </button>
@@ -272,6 +281,7 @@ Salir
 </dialog>
 
 <script src="config.js"></script>
+<script src="auth.js"></script>
 
 <script>
 
@@ -292,6 +302,7 @@ let O = [];
 let D = [];
 let U = [];
 let UL = false;
+let CM = [];
 
 let E = null;
 let IM = [];
@@ -439,6 +450,7 @@ O = [];
 D = [];
 U = [];
 UL = false;
+CM = [];
 OD = null;
 OP = [];
 OPEDIT = null;
@@ -464,9 +476,13 @@ async function cerrarSesion(){
 
 const token = T;
 
-salirLocal("Sesión cerrada.");
+if(window.VXAUTH){
 
-if(!token) return;
+try{
+await VXAUTH.signOut();
+}catch(e){}
+
+}else if(token){
 
 try{
 
@@ -482,6 +498,10 @@ Authorization:"Bearer " + token
 );
 
 }catch(e){}
+
+}
+
+salirLocal("Sesión cerrada.");
 
 }
 
@@ -581,6 +601,72 @@ return j;
    LOGIN
 ========================= */
 
+async function comprobarRolAdmin(token){
+
+const r = await fetch(
+
+B + "/rest/v1/rpc/mi_rol",
+
+{
+method:"POST",
+
+headers:{
+apikey:C.SUPABASE_KEY,
+Authorization:"Bearer " + token,
+"Content-Type":"application/json"
+},
+
+body:"{}"
+
+}
+
+);
+
+
+if(!r.ok) throw new Error("No se pudo comprobar el rol.");
+
+const rol = await r.json();
+
+return typeof rol === "string" ? rol : "";
+
+}
+
+
+async function abrirPanel(session){
+
+T = session.access_token;
+ME = session.user && session.user.id ? session.user.id : "";
+
+
+$("lg").style.display = "none";
+
+$("ad").style.display = "block";
+
+
+/*
+   IMPORTANTE:
+   Aquí NO cargamos pedidos.
+   Así un problema de RLS de pedidos
+   no puede impedir entrar al panel.
+*/
+
+try{
+
+await load();
+
+}catch(e){
+
+console.error(e);
+
+msg("El panel abrió, pero no se pudieron cargar todos los datos.");
+
+}
+
+tab("p");
+
+}
+
+
 async function login(){
 
 loginMsg("");
@@ -599,74 +685,35 @@ return;
 }
 
 
-try{
+if(!window.VXAUTH){
 
-const r = await fetch(
-B + "/auth/v1/token?grant_type=password",
-{
-method:"POST",
-
-headers:{
-apikey:C.SUPABASE_KEY,
-"Content-Type":"application/json"
-},
-
-body:JSON.stringify({
-email:email,
-password:password
-})
-
-}
-);
-
-
-const j = await r.json();
-
-
-if(!r.ok || !j.access_token){
-
-loginMsg(
-j.message ||
-"Correo o contraseña incorrectos."
-);
+loginMsg("No se pudo cargar el sistema de cuentas.");
 
 return;
 
 }
 
 
-const rr = await fetch(
-
-B + "/rest/v1/rpc/mi_rol",
-
-{
-method:"POST",
-
-headers:{
-apikey:C.SUPABASE_KEY,
-Authorization:"Bearer " + j.access_token,
-"Content-Type":"application/json"
-},
-
-body:"{}"
-
-}
-
-);
-
-
-let rol = null;
-
 try{
-rol = await rr.json();
-}catch(e){
-rol = null;
+
+const session = await VXAUTH.signIn(email, password);
+
+if(!session || !session.access_token){
+
+loginMsg("No se pudo iniciar sesión.");
+
+return;
+
 }
 
 
-if(!rr.ok || rol !== "admin"){
+const rol = await comprobarRolAdmin(session.access_token);
+
+
+if(rol !== "admin"){
 
 T = "";
+ME = "";
 
 loginMsg("Esta cuenta no tiene acceso al panel.");
 
@@ -675,34 +722,72 @@ return;
 }
 
 
-T = j.access_token;
-ME = j.user && j.user.id ? j.user.id : "";
-
-
-$("lg").style.display = "none";
-
-$("ad").style.display = "block";
-
-
-/*
-   IMPORTANTE:
-   Aquí NO cargamos pedidos.
-   Así un problema de RLS de pedidos
-   no puede impedir entrar al panel.
-*/
-
-await load();
-
-tab("p");
-
+await abrirPanel(session);
 
 }catch(e){
 
 console.error(e);
 
 loginMsg(
+e && e.message ?
+e.message :
 "No se pudo iniciar sesión."
 );
+
+}
+
+}
+
+
+async function initAdmin(){
+
+if(!window.VXAUTH){
+
+loginMsg("No se pudo cargar el sistema de cuentas.");
+
+return;
+
+}
+
+
+try{
+
+const session = await VXAUTH.getSession();
+
+if(!session){
+
+loginMsg("");
+
+return;
+
+}
+
+
+const rol = await comprobarRolAdmin(session.access_token);
+
+
+if(rol !== "admin"){
+
+loginMsg("Esta cuenta no tiene acceso al panel.");
+
+return;
+
+}
+
+
+await abrirPanel(session);
+
+}catch(e){
+
+console.error(e);
+
+T = "";
+ME = "";
+
+$("lg").style.display = "block";
+$("ad").style.display = "none";
+
+loginMsg("La sesión no es válida. Vuelve a entrar.");
 
 }
 
@@ -877,6 +962,184 @@ msg(e.message || "No se pudo actualizar el usuario.");
 
 
 /* =========================
+   COMISIONES
+========================= */
+
+const COMISION_ESTADOS = {
+pendiente:"Pendiente",
+disponible:"Lista para cobrar",
+pagada:"Pagada",
+cancelada:"Cancelada"
+};
+
+function comisionLabel(estado){
+return COMISION_ESTADOS[estado] || "Pendiente";
+}
+
+function comisionBadge(estado){
+if(estado === "disponible") return "gold";
+if(estado === "cancelada") return "off";
+if(estado === "pagada") return "on";
+return "";
+}
+
+function promotorEmail(promotorId){
+const usuario = U.find(u => u.user_id === promotorId);
+return usuario ? usuario.email : "Promotor sin identificar";
+}
+
+async function comisiones(){
+
+CM = [];
+
+$("v").innerHTML =
+'<h3>Comisiones</h3>'+
+'<p>Cargando comisiones...</p>';
+
+try{
+
+CM = await api(
+"pedidos?promotor_id=not.is.null&order=created_at.desc"
+);
+
+if(!Array.isArray(CM)) CM = [];
+
+try{
+await cargarUsuarios();
+}catch(e){
+UL = false;
+}
+
+$("v").innerHTML =
+'<h3>Comisiones</h3>'+
+'<p>Registro de comisiones atribuidas. Solo administración puede marcar un pago como realizado.</p>'+
+'<div class="cm-tools">'+
+'<input id="cms" placeholder="Buscar por pedido, cliente o gestor" oninput="renderComisiones()">'+
+'<select id="cmf" onchange="renderComisiones()">'+
+'<option value="">Todos los estados</option>'+
+'<option value="pendiente">Pendiente</option>'+
+'<option value="disponible">Lista para cobrar</option>'+
+'<option value="pagada">Pagada</option>'+
+'<option value="cancelada">Cancelada</option>'+
+'</select>'+
+'</div>'+
+'<div id="cml"></div>';
+
+renderComisiones();
+
+}catch(e){
+
+$("v").innerHTML =
+'<h3>Comisiones</h3>'+
+'<div class="r"><strong>No se pudieron cargar las comisiones.</strong><br><small>'+esc(e.message || "")+'</small></div>';
+
+}
+
+}
+
+function renderComisiones(){
+
+const lista = $("cml");
+
+if(!lista) return;
+
+const filtro = $("cmf") ? $("cmf").value : "";
+const texto = $("cms") ? $("cms").value.trim().toLowerCase() : "";
+
+const visibles = CM.filter(o => {
+
+const estado = o.comision_estado || "pendiente";
+
+if(filtro && estado !== filtro) return false;
+if(!texto) return true;
+
+return [
+o.codigo,
+o.nombre_cliente,
+o.email,
+o.telefono,
+promotorEmail(o.promotor_id)
+].some(x => String(x || "").toLowerCase().includes(texto));
+
+});
+
+if(!visibles.length){
+
+lista.innerHTML =
+'<div class="r">No hay comisiones con ese filtro.</div>';
+
+return;
+
+}
+
+lista.innerHTML = visibles.map(o => {
+
+const estado = o.comision_estado || "pendiente";
+const pagada = estado === "pagada";
+const cancelada = estado === "cancelada";
+const disponible = estado === "disponible";
+const monto = Number(o.comision_monto_usd || 0).toFixed(2);
+const porcentaje = o.comision_porcentaje == null ? "0" : o.comision_porcentaje;
+
+const motivo = cancelada
+? (o.cancelado_por_cliente
+? 'Pedido cancelado por el cliente'
+: 'Pedido cancelado')
+: '';
+
+const fechas = [];
+
+if(o.comision_disponible_at) fechas.push("Disponible: "+new Date(o.comision_disponible_at).toLocaleString("es-ES"));
+if(o.comision_pagada_at) fechas.push("Pagada: "+new Date(o.comision_pagada_at).toLocaleString("es-ES"));
+
+return '<div class="r">'+
+'<div class="op-row-head"><strong>'+esc(o.codigo)+'</strong>'+
+'<span class="op-badge '+comisionBadge(estado)+'">'+esc(comisionLabel(estado))+'</span></div>'+
+'<span class="cm-meta">Cliente: '+esc(o.nombre_cliente || "Sin nombre")+'</span>'+
+'<span class="cm-meta">Promotor: '+esc(promotorEmail(o.promotor_id))+'</span>'+
+'<span class="cm-meta">Pedido: $'+Number(o.total_usd || 0).toFixed(2)+' · Comisión: $'+monto+' ('+esc(porcentaje)+'%)</span>'+
+(motivo ? '<span class="cm-meta">Motivo: '+esc(motivo)+'</span>' : '')+
+(fechas.length ? '<span class="cm-meta">'+fechas.map(esc).join(' · ')+'</span>' : '')+
+(disponible
+? '<br><button onclick="marcarComisionDesdeLista(\''+o.id+'\')">MARCAR COMISIÓN PAGADA</button>'
+: '')+
+(pagada
+? '<span class="cm-meta">Pago registrado. El historial no se puede alterar desde el panel.</span>'
+: '')+
+'</div>';
+
+}).join("");
+
+}
+
+async function marcarComisionDesdeLista(id){
+
+if(!await askDeleteCon("¿Marcar la comisión de este pedido como pagada? Esta acción no se puede deshacer desde el panel.", "Confirmar pago de comisión", null, "Marcar pagada")) return;
+
+try{
+
+await api(
+"rpc/admin_marcar_comision_pagada",
+"POST",
+{
+p_pedido_id:id
+}
+);
+
+await comisiones();
+
+msg("Comisión marcada como pagada.", true);
+
+}catch(e){
+
+msg(e.message || "No se pudo marcar la comisión como pagada.");
+
+}
+
+}
+
+
+/* =========================
    PESTAÑAS
 ========================= */
 
@@ -1008,6 +1271,12 @@ opsAdmin();
 else if(n === "g"){
 
 gestores();
+
+}
+
+else if(n === "m"){
+
+comisiones();
 
 }
 
@@ -2918,9 +3187,11 @@ throw e;
 }
 }
 );
+
 }
+
+initAdmin();
 
 </script>
 </body>
 </html>
-

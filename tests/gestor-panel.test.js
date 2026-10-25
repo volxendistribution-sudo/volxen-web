@@ -63,13 +63,66 @@ test("el menú muestra el panel solo a gestores y promotores", () => {
     assert.doesNotMatch(core, /admin\.html/);
 });
 
-test("el panel privado queda fuera de los buscadores", () => {
-    assert.match(read("robots.txt"), /Disallow: \/gestor\.html/);
+test("la portada invita a gestores y promotores bajo Cómo trabajamos", () => {
+    const home = read("index.html");
+    const como = home.indexOf('id="comoTrabajamos"');
+    const acceso = home.indexOf('id="gestores"');
+
+    assert.ok(como !== -1, "Falta la sección Cómo trabajamos");
+    assert.ok(acceso > como, "El acceso debe ir después de Cómo trabajamos");
+    assert.match(home, /Gestores y promotores/);
+    assert.match(home, /href="gestor\.html"/);
+    assert.match(home, /Google no asigna este rol/);
 });
 
-test("el build copia la página y los estilos del panel", () => {
+test("el panel compartido incluye perfil, notificaciones e historial", () => {
+    const html = read("gestor.html");
+    const js = read("js/pages/gestor.js");
+
+    assert.match(html, /id="gsProfileTitle"/);
+    assert.match(html, /id="gsNotificationsTitle"/);
+    assert.match(html, /id="gsHistoryTitle"/);
+    assert.match(js, /function renderProfile/);
+    assert.match(js, /function renderNotifications/);
+    assert.match(js, /function renderHistory/);
+    assert.doesNotMatch(js, /admin_marcar_comision_pagada/, "El panel del promotor no debe ejecutar pagos");
+    assert.doesNotMatch(js, /method:\s*"PATCH"/);
+    assert.doesNotMatch(js, /method:\s*"DELETE"/);
+});
+
+test("el admin conserva acceso directo y restaurar sesión no rompe el panel", () => {
+    const admin = read("admin.html");
+
+    assert.match(admin, /<script src="auth\.js"><\/script>/);
+    assert.match(admin, /VXAUTH\.getSession/);
+    assert.match(admin, /VXAUTH\.signIn/);
+    assert.match(admin, /comprobarRolAdmin/);
+    assert.match(admin, /initAdmin\(\);/);
+    assert.match(admin, /Esta cuenta no tiene acceso al panel/);
+    assert.match(admin, /rpc\/mi_rol/);
+    assert.match(admin, /tab\('m'\)/);
+    assert.match(admin, /Historial no se puede alterar|historial no se puede alterar/);
+});
+
+test("Google y el resto de accesos no asignan rol de promotor automáticamente", () => {
+    const auth = read("auth.js");
+    const login = read("js/pages/auth-page.js");
+
+    assert.doesNotMatch(auth, /promotor/i);
+    assert.doesNotMatch(login, /promotor/i);
+});
+
+test("el panel privado queda fuera de los buscadores", () => {
+    const robots = read("robots.txt");
+
+    assert.match(robots, /Disallow: \/gestor\.html/);
+    assert.match(robots, /Disallow: \/admin\.html/);
+});
+
+test("el build copia las páginas y estilos de los paneles", () => {
     const pkg = JSON.parse(read("package.json"));
 
     assert.match(pkg.scripts["build:html"], /gestor\.html/);
     assert.match(pkg.scripts["build:html"], /gestor\.css/);
+    assert.match(pkg.scripts["build:html"], /admin\.html/);
 });

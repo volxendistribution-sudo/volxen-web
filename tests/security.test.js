@@ -19,7 +19,8 @@ test("admin exige rol admin desde la base de datos", () => {
     const admin = read("admin.html");
 
     assert.match(admin, /B \+ "\/rest\/v1\/rpc\/mi_rol"/);
-    assert.match(admin, /if\(!rr\.ok \|\| rol !== "admin"\)/);
+    assert.match(admin, /comprobarRolAdmin/);
+    assert.match(admin, /if\(rol !== "admin"\)/);
     assert.match(admin, /Esta cuenta no tiene acceso al panel/);
     assert.doesNotMatch(admin, /app_metadata/);
     assert.doesNotMatch(admin, /user_metadata/);

@@ -20,6 +20,8 @@
         summary: null,
         orders: [],
         clients: [],
+        roleRow: null,
+        promoter: null,
         query: "",
         status: "",
         loading: false,
@@ -87,6 +89,66 @@
         return role === "promotor" ? "Promotor" : "Gestor";
     }
 
+    function commissionReason(order) {
+        const status = order.comision_estado || "pendiente";
+        if (status === "cancelada") return "Pedido cancelado";
+        if (status === "pagada") return "Pago registrado por administración";
+        if (status === "disponible") return "Pedido entregado";
+        return "Pendiente de entrega";
+    }
+
+    function commissionDate(order) {
+        const status = order.comision_estado || "pendiente";
+        if (status === "pagada") return order.comision_pagada_at || order.updated_at || order.created_at;
+        if (status === "disponible") return order.comision_disponible_at || order.updated_at || order.created_at;
+        if (status === "cancelada") return order.updated_at || order.created_at;
+        return order.created_at || order.updated_at;
+    }
+
+    function commissionEvent(order) {
+        const status = order.comision_estado || "pendiente";
+        const code = order.codigo || "Pedido";
+        const amount = money(order.comision_monto_usd);
+
+        if (status === "pagada") {
+            return {
+                date: commissionDate(order),
+                tone: "is-paid",
+                icon: "fa-circle-check",
+                title: "Comisión pagada",
+                body: code + " · " + amount
+            };
+        }
+
+        if (status === "disponible") {
+            return {
+                date: commissionDate(order),
+                tone: "is-ready",
+                icon: "fa-coins",
+                title: "Comisión lista para cobrar",
+                body: code + " · " + amount
+            };
+        }
+
+        if (status === "cancelada") {
+            return {
+                date: commissionDate(order),
+                tone: "is-cancelled",
+                icon: "fa-circle-xmark",
+                title: "Comisión cancelada",
+                body: code + " · Motivo: pedido cancelado"
+            };
+        }
+
+        return {
+            date: order.created_at,
+            tone: "",
+            icon: "fa-clock",
+            title: "Pedido atribuido",
+            body: code + " · Comisión pendiente"
+        };
+    }
+
     function setView(view) {
         ["gsGuest", "gsDenied", "gsLoading", "gsError", "gsDashboard"].forEach(function (name) {
             if (refs[name]) refs[name].hidden = name !== view;
@@ -124,6 +186,107 @@
         refs.gsCommissionPending.textContent = money(summary.comision_pendiente_usd);
         refs.gsCommissionReady.textContent = money(summary.comision_disponible_usd);
         refs.gsCommissionDone.textContent = money(summary.comision_pagada_usd);
+    }
+
+    function renderProfile() {
+        const user = state.session && state.session.user ? state.session.user : {};
+        const role = user.role || (state.roleRow && state.roleRow.role) || "";
+        const promoter = state.promoter || null;
+        const name = String(user.nombre || "").trim();
+        const initial = (name || user.email || "V").trim().charAt(0).toUpperCase() || "V";
+        const commission = promoter && promoter.comision_porcentaje != null
+            ? Number(promoter.comision_porcentaje).toLocaleString("es-ES", { maximumFractionDigits: 2 }) + "%"
+            : "Por definir";
+
+        if (refs.gsProfileInitial) refs.gsProfileInitial.textContent = initial;
+        if (refs.gsProfileName) refs.gsProfileName.textContent = name || "Tu cuenta";
+        if (refs.gsProfileEmail) refs.gsProfileEmail.textContent = user.email || "";
+        if (refs.gsProfileRole) refs.gsProfileRole.textContent = roleLabel(role);
+        if (refs.gsProfileCommission) refs.gsProfileCommission.textContent = commission;
+        if (refs.gsProfileState) {
+            refs.gsProfileState.textContent = promoter
+                ? (promoter.activo === false ? "Inactivo" : "Activo")
+                : "Sin registro de comisión";
+        }
+        if (refs.gsProfileSince) {
+            refs.gsProfileSince.textContent = state.roleRow && state.roleRow.assigned_at
+                ? dateLabel(state.roleRow.assigned_at)
+                : "—";
+        }
+    }
+
+    function renderActivity() {
+        if (!refs.gsActivity) return;
+
+        const summary = state.summary || {};
+        const byState = summary.pedidos_por_estado && typeof summary.pedidos_por_estado === "object"
+            ? summary.pedidos_por_estado
+            : {};
+        const order = ["Pedido recibido", "Confirmando pedido", "Preparando pedido", "En camino", "Entregado", "Cancelado"];
+        const items = order.filter(function (status) {
+            return Number(byState[status] || 0) > 0;
+        }).map(function (status) {
+            return '<span class="gs-activity-item"><strong>' + escapeHtml(count(byState[status])) + "</strong>" + escapeHtml(status) + "</span>";
+        });
+
+        refs.gsActivity.innerHTML = items.length
+            ? items.join("")
+            : '<p class="gs-muted">Todavía no hay pedidos atribuidos a tu cuenta.</p>';
+    }
+
+    function renderNotifications() {
+        if (!refs.gsNotifications) return;
+
+        const events = state.orders.map(commissionEvent)
+            .filter(function (event) { return Boolean(event.date); })
+            .sort(function (a, b) { return new Date(b.date) - new Date(a.date); })
+            .slice(0, 6);
+        const ready = state.orders.filter(function (order) {
+            return (order.comision_estado || "pendiente") === "disponible";
+        }).length;
+
+        if (refs.gsNotificationsCount) {
+            refs.gsNotificationsCount.textContent = ready
+                ? count(ready) + " lista" + (ready === 1 ? "" : "s") + " para cobrar"
+                : (events.length ? "Sin acciones pendientes" : "Sin novedades");
+        }
+
+        refs.gsNotifications.innerHTML = events.length
+            ? events.map(function (event) {
+                return '<article class="gs-notification ' + event.tone + '">' +
+                    '<span class="gs-notification-icon" aria-hidden="true"><i class="fa-solid ' + event.icon + '"></i></span>' +
+                    '<span class="gs-notification-copy"><strong>' + escapeHtml(event.title) + "</strong><small>" + escapeHtml(event.body) + "</small></span>" +
+                    "<time datetime=\"" + escapeHtml(event.date) + "\">" + escapeHtml(dateLabel(event.date)) + "</time>" +
+                "</article>";
+            }).join("")
+            : '<p class="gs-empty"><strong>Sin notificaciones por ahora.</strong>Las novedades de tus pedidos y comisiones aparecerán aquí.</p>';
+    }
+
+    function renderHistory() {
+        if (!refs.gsCommissionHistory) return;
+
+        if (!state.orders.length) {
+            refs.gsCommissionHistory.innerHTML = '<p class="gs-empty"><strong>Todavía no hay historial de comisiones.</strong>Cuando administración te atribuya un pedido, su comisión aparecerá aquí.</p>';
+            return;
+        }
+
+        const rows = state.orders.slice().sort(function (a, b) {
+            return new Date(commissionDate(b)) - new Date(commissionDate(a));
+        });
+
+        refs.gsCommissionHistory.innerHTML = rows.map(function (order) {
+            const status = order.comision_estado || "pendiente";
+            const label = COMMISSION_LABELS[status] || "Pendiente";
+            const badge = COMMISSION_CLASSES[status] || "gs-badge-pending";
+            const percentage = Number(order.comision_porcentaje || 0).toLocaleString("es-ES", { maximumFractionDigits: 2 });
+
+            return '<article class="gs-history-row">' +
+                "<div><h3>" + escapeHtml(order.codigo || "Pedido") + " · " + escapeHtml(order.nombre_cliente || "Cliente") + "</h3>" +
+                    "<p>" + escapeHtml(dateLabel(commissionDate(order))) + " · " + escapeHtml(percentage) + "% · " + escapeHtml(commissionReason(order)) + "</p></div>" +
+                '<span class="gs-badge ' + badge + '">' + escapeHtml(label) + "</span>" +
+                '<strong class="gs-history-amount">' + escapeHtml(money(order.comision_monto_usd)) + "</strong>" +
+            "</article>";
+        }).join("");
     }
 
     function orderMatches(order) {
@@ -241,7 +404,11 @@
 
     function renderAll() {
         renderHeader();
+        renderProfile();
+        renderActivity();
         renderSummary();
+        renderNotifications();
+        renderHistory();
         renderOrders();
         renderClients();
         refs.gsUpdated.textContent = "Actualizado " + new Intl.DateTimeFormat("es-ES", {
@@ -259,15 +426,26 @@
         if (!opts.silent) setView("gsLoading");
 
         try {
+            const uid = state.session && state.session.user ? state.session.user.id : "";
+            const optional = uid
+                ? Promise.all([
+                    VXAUTH.rest("/user_roles?select=role,assigned_at&user_id=eq." + encodeURIComponent(uid)).catch(function () { return null; }),
+                    VXAUTH.rest("/promotores?select=comision_porcentaje,activo,created_at&user_id=eq." + encodeURIComponent(uid)).catch(function () { return null; })
+                ])
+                : Promise.resolve([null, null]);
+
             const results = await Promise.all([
                 VXAUTH.rest("/rpc/promotor_resumen", { method: "POST", body: {} }),
                 VXAUTH.rest("/rpc/promotor_pedidos", { method: "POST", body: { p_limit: 100, p_offset: 0 } }),
-                VXAUTH.rest("/rpc/promotor_clientes", { method: "POST", body: {} })
+                VXAUTH.rest("/rpc/promotor_clientes", { method: "POST", body: {} }),
+                optional
             ]);
 
             state.summary = results[0] && typeof results[0] === "object" ? results[0] : {};
             state.orders = Array.isArray(results[1]) ? results[1] : [];
             state.clients = Array.isArray(results[2]) ? results[2] : [];
+            state.roleRow = Array.isArray(results[3] && results[3][0]) ? results[3][0][0] : null;
+            state.promoter = Array.isArray(results[3] && results[3][1]) ? results[3][1][0] : null;
             state.hasMore = state.orders.length >= 100;
 
             setView("gsDashboard");
@@ -307,6 +485,8 @@
             });
 
             state.hasMore = rows.length >= 100;
+            renderNotifications();
+            renderHistory();
             renderOrders();
         } catch (error) {
             setNotice("No se pudieron cargar más pedidos. " + (error && error.message ? error.message : "Inténtalo de nuevo."), true);
@@ -375,6 +555,9 @@
             "gsTitle", "gsEmail", "gsRoleBadge", "gsUpdated", "gsNotice",
             "gsSales", "gsOrdersCount", "gsClientsCount", "gsCommissionAvailable",
             "gsCommissionPaid", "gsCommissionPending", "gsCommissionReady", "gsCommissionDone",
+            "gsProfileInitial", "gsProfileName", "gsProfileEmail", "gsProfileRole",
+            "gsProfileCommission", "gsProfileState", "gsProfileSince", "gsActivity",
+            "gsNotifications", "gsNotificationsCount", "gsCommissionHistory",
             "gsOrdersList", "gsClientsList", "gsSearch", "gsStatusFilter", "gsMoreWrap", "gsMore",
             "gsLogout", "gsRetry", "gsRefresh", "gsErrorText"
         ].forEach(function (key) {
@@ -420,6 +603,7 @@
             return;
         }
 
+        document.body.dataset.role = role;
         setView("gsDashboard");
         renderHeader();
         await load();
