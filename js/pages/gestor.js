@@ -85,8 +85,8 @@
         return digits ? "https://wa.me/" + digits : "";
     }
 
-    function roleLabel(role) {
-        return role === "promotor" ? "Promotor" : "Gestor";
+    function roleLabel() {
+        return "Promotor";
     }
 
     function commissionReason(order) {
@@ -162,8 +162,8 @@
 
         if (refs.gsWelcomeLead) {
             refs.gsWelcomeLead.textContent = firstName
-                ? "Hola, " + firstName + ". Tu cuenta está autorizada como gestor comercial de VOLXEN."
-                : "Tu cuenta está autorizada como gestor comercial de VOLXEN.";
+                ? "Hola, " + firstName + ". Tu cuenta está autorizada como promotor comercial de VOLXEN."
+                : "Tu cuenta está autorizada como promotor comercial de VOLXEN.";
         }
 
         setView("gsWelcome");
@@ -634,7 +634,7 @@
 
         document.body.dataset.role = role;
 
-        if (role === "gestor" && refs.gsWelcome) {
+        if (refs.gsWelcome) {
             showWelcome();
             return;
         }

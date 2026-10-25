@@ -103,11 +103,12 @@ export async function initProducto() {
     }
 
     function commissionHtml() {
-        return '<div class="pdp-commission" data-gestor-commission>' +
+        return '<div class="pdp-commission" data-promotor-commission>' +
             '<span class="pdp-commission-icon" aria-hidden="true"><i class="fa-solid fa-coins"></i></span>' +
             '<span class="pdp-commission-copy">' +
             '<span class="pdp-commission-label">Tu comisión</span>' +
-            '<b class="pdp-commission-value" data-gestor-commission-value>Pendiente de asignación</b>' +
+            '<b class="pdp-commission-value" data-promotor-commission-value>Por configurar</b>' +
+            '<span class="pdp-commission-type">Fija o flexible según administración</span>' +
             '</span></div>';
     }
 

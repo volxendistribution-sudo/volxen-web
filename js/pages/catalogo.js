@@ -38,7 +38,7 @@ export async function initCatalogo() {
                 '<span class="offer-badge">Oferta</span></div>' +
                 '<div class="offer-body"><h3>' + VX.esc(p.nombre) + '</h3>' +
                 '<div class="offer-price"><b>' + VX.fm(Number(O[p.id])) + '</b><s>' + VX.fm(Number(p.precio_usd)) + '</s></div>' +
-                '<span class="pcd-commission" data-gestor-commission><i class="fa-solid fa-coins" aria-hidden="true"></i><span>Tu comisión</span><b data-gestor-commission-value>Pendiente</b></span></div></a>';
+                '</div></a>';
         }).join("");
         offers.querySelectorAll("img").forEach(function (img) {
             img.addEventListener("error", function () { img.remove() });

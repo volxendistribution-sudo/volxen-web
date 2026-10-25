@@ -244,7 +244,7 @@ Operadoras
 </button>
 
 <button onclick="tab('g')">
-Gestores
+Promotores
 </button>
 
 <button onclick="tab('m')">
@@ -849,8 +849,13 @@ return u && u.role ? u.role : "cliente";
 async function gestores(){
 
 $("v").innerHTML =
-'<h3>Gestores y promotores</h3>'+
-'<p>Asigna el rol y el porcentaje de comisión. Solo los gestores y promotores ven el panel privado.</p>'+
+'<h3>Promotores</h3>'+
+'<p>Asigna el rol comercial. Las cuentas actuales y las nuevas cuentas promotoras son equivalentes.</p>'+
+'<div class="r" style="margin-bottom:12px;background:#f7f4ee;border:1px dashed #c8a165">'+
+'<strong>Máximo global de subida</strong><br>'+
+'<small>Vista previa. Se activará cuando se conecten las comisiones por producto.</small><br><br>'+
+'<input type="number" min="0" max="100" step="0.01" placeholder="Ej. 20" disabled> %'+
+'</div>'+
 '<div class="r">Cargando usuarios...</div>';
 
 try{
@@ -860,7 +865,7 @@ await cargarUsuarios();
 if(!U.length){
 
 $("v").innerHTML =
-'<h3>Gestores y promotores</h3>'+
+'<h3>Promotores</h3>'+
 '<div class="r">No hay usuarios registrados.</div>';
 
 return;
@@ -868,8 +873,8 @@ return;
 }
 
 $("v").innerHTML =
-'<h3>Gestores y promotores</h3>'+
-'<p>El porcentaje se aplica a los pedidos nuevos que asignes. Puedes sobrescribir el monto en cada pedido.</p>'+
+'<h3>Promotores</h3>'+
+'<p>El porcentaje actual se aplica a los pedidos nuevos que asignes. La comisión por producto se configurará en la siguiente fase.</p>'+
 U.map(u => {
 
 const rol = usuarioRol(u);
@@ -886,11 +891,11 @@ return '<div class="r">'+
 
 return '<div class="r">'+
 '<strong>'+esc(u.email)+'</strong><br>'+
-'<small>Rol actual: '+esc(rol)+' · Comisión: '+esc(porcentaje === "" ? "0" : porcentaje)+'%</small><br><br>'+
+'<small>Rol actual: '+esc(rol === "gestor" || rol === "promotor" ? "Promotor" : rol)+' · Comisión: '+esc(porcentaje === "" ? "0" : porcentaje)+'%</small><br><br>'+
 '<select id="gr-'+esc(u.user_id)+'">'+
 '<option value="cliente"'+(rol === "cliente" ? " selected" : "")+'>Cliente</option>'+
-'<option value="gestor"'+(rol === "gestor" ? " selected" : "")+'>Gestor</option>'+
-'<option value="promotor"'+(rol === "promotor" ? " selected" : "")+'>Promotor</option>'+
+'<option value="gestor"'+(rol === "gestor" ? " selected" : "")+'>Promotor · cuenta existente</option>'+
+'<option value="promotor"'+(rol === "promotor" ? " selected" : "")+'>Promotor · cuenta nueva</option>'+
 '</select>'+
 '<input id="gp-'+esc(u.user_id)+'" type="number" min="0" max="100" step="0.01" placeholder="Comisión %" value="'+esc(porcentaje)+'">'+
 '<button onclick="guardarPromotor(\''+esc(u.user_id)+'\')">GUARDAR</button>'+
@@ -901,7 +906,7 @@ return '<div class="r">'+
 }catch(e){
 
 $("v").innerHTML =
-'<h3>Gestores y promotores</h3>'+
+'<h3>Promotores</h3>'+
 '<div class="r"><strong>No se pudieron cargar los usuarios.</strong><br><small>'+esc(e.message || "")+'</small></div>';
 
 }
@@ -1014,7 +1019,7 @@ $("v").innerHTML =
 '<h3>Comisiones</h3>'+
 '<p>Registro de comisiones atribuidas. Solo administración puede marcar un pago como realizado.</p>'+
 '<div class="cm-tools">'+
-'<input id="cms" placeholder="Buscar por pedido, cliente o gestor" oninput="renderComisiones()">'+
+'<input id="cms" placeholder="Buscar por pedido, cliente o promotor" oninput="renderComisiones()">'+
 '<select id="cmf" onchange="renderComisiones()">'+
 '<option value="">Todos los estados</option>'+
 '<option value="pendiente">Pendiente</option>'+
@@ -1556,11 +1561,11 @@ return '<option value="">Lista no disponible</option>';
 
 if(!usuarios.length){
 
-return '<option value="">No hay gestores o promotores</option>';
+return '<option value="">No hay promotores</option>';
 
 }
 
-return '<option value="">Sin gestor</option>'+
+return '<option value="">Sin promotor</option>'+
 usuarios.map(u => {
 
 const activo = u.promotor_activo !== false;
@@ -1584,12 +1589,12 @@ const pagada = estado === "pagada";
 
 if(!UL){
 
-return '<div class="r"><strong>GESTOR Y COMISIÓN</strong><br><small>No se pudo cargar la lista de gestores. Vuelve a abrir el pedido para intentarlo de nuevo.</small></div>';
+return '<div class="r"><strong>PROMOTOR Y COMISIÓN</strong><br><small>No se pudo cargar la lista de promotores. Vuelve a abrir el pedido para intentarlo de nuevo.</small></div>';
 
 }
 
 return '<div class="r">'+
-'<strong>GESTOR Y COMISIÓN</strong><br><br>'+
+'<strong>PROMOTOR Y COMISIÓN</strong><br><br>'+
 '<select id="pg">'+promoOptions(o.promotor_id)+'</select>'+
 '<input id="pcp" type="number" min="0" max="100" step="0.01" placeholder="Comisión % (actual: '+esc(porcentaje === "" ? "0" : porcentaje)+')">'+
 '<input id="pcm" type="number" min="0" step="0.01" placeholder="'+(monto === "" ? "Monto automático" : "Monto manual: $"+esc(monto))+'">'+
@@ -2376,6 +2381,22 @@ esc(
 ' Visible en la web'+
 
 '</label>'+
+
+'<div class="r" style="margin-top:12px;background:#f7f4ee;border:1px dashed #c8a165">'+
+'<strong>Comisión para promotores</strong><br>'+
+'<small>Vista previa visual. Todavía no se guarda.</small><br><br>'+
+'<label style="display:flex;align-items:center;gap:8px;font-weight:600">'+
+'<input id="promo_c_enabled" type="checkbox" style="width:auto"> Aplica comisión'+
+'</label>'+
+'<label for="promo_c_type" style="display:block;margin-top:8px;font-weight:600">Tipo de precio</label>'+
+'<select id="promo_c_type">'+
+'<option value="fixed">Fijo (el promotor no puede subir)</option>'+
+'<option value="flexible">Flexible (puede subir hasta el máximo)</option>'+
+'</select>'+
+'<label for="promo_c_amount" style="display:block;margin-top:8px;font-weight:600">Comisión fija (USD)</label>'+
+'<input id="promo_c_amount" type="number" min="0" step="0.01" placeholder="0.00">'+
+'<small style="display:block;margin-top:8px">El máximo global de subida se configura en Promotores.</small>'+
+'</div>'+
 
 '<button onclick="saveP()">GUARDAR</button>'+
 

@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <meta name="theme-color" content="#1E1D1B">
-    <meta name="description" content="Panel privado de gestores y promotores de VOLXEN: perfil, ventas, pedidos, clientes, notificaciones y comisiones.">
-    <title>Panel de gestores y promotores · VOLXEN</title>
+    <meta name="description" content="Panel privado de promotores de VOLXEN: perfil, ventas, pedidos, clientes, notificaciones y comisiones.">
+    <title>Panel de promotores · VOLXEN</title>
 
     <link rel="preload" as="font" type="font/woff2" crossorigin href="dist/fonts/DM-Sans-Regular.woff2">
     <link rel="preload" as="font" type="font/woff2" crossorigin href="dist/fonts/DM-Sans-SemiBold.woff2">
@@ -30,7 +30,7 @@
                 <img src="logo.svg" alt="" width="40" height="40">
                 <span class="gs-brand-copy">
                     <strong>VOLXEN</strong>
-                    <small>Gestores y promotores</small>
+                    <small>Promotores</small>
                 </span>
             </a>
             <nav class="gs-nav" aria-label="Navegación del panel">
@@ -44,7 +44,7 @@
     <main id="gsMain" class="gs-main">
         <section id="gsGuest" class="gs-state" hidden>
             <p class="gs-eyebrow">Acceso privado</p>
-            <h1>Entra a tu panel de gestor o promotor</h1>
+            <h1>Entra a tu panel de promotor</h1>
             <p>Este panel muestra tu perfil, actividad, pedidos, notificaciones y comisiones asignadas por administración. El rol no se asigna automáticamente al iniciar sesión.</p>
             <div class="gs-state-actions">
                 <a class="gs-button gs-button-primary" href="login.html?next=gestor.html">Iniciar sesión</a>
@@ -54,8 +54,8 @@
 
         <section id="gsDenied" class="gs-state" hidden>
             <p class="gs-eyebrow">Cuenta sin acceso</p>
-            <h1>Tu cuenta no es de gestor o promotor</h1>
-            <p>Un administrador debe asignarte el rol de gestor o promotor. Si ya lo hizo, cierra sesión y vuelve a entrar para actualizar el rol.</p>
+            <h1>Tu cuenta no es de promotor</h1>
+            <p>Un administrador debe asignarte el rol de promotor. Si ya lo hizo, cierra sesión y vuelve a entrar para actualizar el rol.</p>
             <div class="gs-state-actions">
                 <a class="gs-button gs-button-primary" href="pedidos.html">Ir a mi cuenta</a>
                 <a class="gs-button" href="index.html">Volver a la tienda</a>
@@ -94,7 +94,7 @@
                     <div class="gs-welcome-copy">
                         <p class="gs-eyebrow">Bienvenida</p>
                         <h1 id="gsWelcomeTitle" tabindex="-1">Tu panel comercial</h1>
-                        <p id="gsWelcomeLead" class="gs-welcome-lead">Tu cuenta está autorizada como gestor comercial de VOLXEN.</p>
+                        <p id="gsWelcomeLead" class="gs-welcome-lead">Tu cuenta está autorizada como promotor comercial de VOLXEN.</p>
                         <p class="gs-welcome-text">Este es tu espacio de trabajo para captar clientes, presentar productos, acompañar cada venta y consultar tus resultados.</p>
 
                         <div class="gs-welcome-actions">
@@ -133,12 +133,12 @@
         <div id="gsDashboard" hidden>
             <section class="gs-hero" aria-labelledby="gsTitle">
                 <div class="gs-hero-copy">
-                    <p class="gs-eyebrow">Panel de gestores y promotores</p>
+                    <p class="gs-eyebrow">Panel de promotores</p>
                     <h1 id="gsTitle">Tu operación</h1>
                     <p id="gsEmail" class="gs-hero-email"></p>
                 </div>
                 <div class="gs-hero-side">
-                    <span id="gsRoleBadge" class="gs-role-badge">Gestor</span>
+                    <span id="gsRoleBadge" class="gs-role-badge">Promotor</span>
                     <button id="gsRefresh" class="gs-icon-button" type="button" aria-label="Actualizar panel" title="Actualizar panel">
                         <i class="fa-solid fa-rotate" aria-hidden="true"></i>
                     </button>
@@ -300,7 +300,7 @@
             </section>
 
             <footer class="gs-footer">
-                <p>VOLXEN · Panel privado de gestores y promotores</p>
+                <p>VOLXEN · Panel privado de promotores</p>
                 <p>Los datos se actualizan al confirmar ventas y comisiones desde administración.</p>
             </footer>
         </div>

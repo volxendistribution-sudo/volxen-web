@@ -109,7 +109,7 @@ function pcard(p) {
         (im ? '<img src="' + esc(imgSrc) + '" alt="' + esc(p.nombre) + '" loading="lazy">' : '') +
         '</div></a><span class="absolute top-3 left-3 badge-category text-xs font-bold px-2.5 py-1 rounded-lg uppercase tracking-wide">' + esc(cn(p.categoria_id)) + '</span>' +
         (a ? '<span class="absolute top-3 right-3 badge-out-of-stock text-xs font-bold px-2.5 py-1 rounded-lg shadow">Agotado</span>' : '') +
-        '</div><div class="p-5 flex-1 flex flex-col justify-between space-y-4"><a class="tx text-left block" href="producto.html?id=' + encodeURIComponent(p.id) + '"><h3 class="font-bold text-fg line-clamp-2">' + esc(p.nombre) + '</h3></a><div class="flex items-center justify-between gap-3 pt-2 border-t border-bd"><div><span class="text-xs text-mu block uppercase">Precio</span>' + pri + '<span class="pcd-commission" data-gestor-commission><i class="fa-solid fa-coins" aria-hidden="true"></i><span>Tu comisión</span><b data-gestor-commission-value>Pendiente</b></span></div><button data-a="add1" data-id="' + esc(p.id) + '" class="btn-primary px-4 py-2.5 font-bold text-sm transition shadow flex items-center space-x-2"><i class="fa-solid fa-cart-plus"></i><span>Añadir</span></button></div></div></article>';
+        '</div><div class="p-5 flex-1 flex flex-col justify-between space-y-4"><a class="tx text-left block" href="producto.html?id=' + encodeURIComponent(p.id) + '"><h3 class="font-bold text-fg line-clamp-2">' + esc(p.nombre) + '</h3></a><div class="flex items-center justify-between gap-3 pt-2 border-t border-bd"><div><span class="text-xs text-mu block uppercase">Precio</span>' + pri + '</div><button data-a="add1" data-id="' + esc(p.id) + '" class="btn-primary px-4 py-2.5 font-bold text-sm transition shadow flex items-center space-x-2"><i class="fa-solid fa-cart-plus"></i><span>Añadir</span></button></div></div></article>';
 }
 
 function show(id) {
@@ -310,8 +310,8 @@ function hydrateAccount() {
     const menu = $("menuAccount");
     if (menu) menu.innerHTML = menuAccountHtml(user);
 
-    const gestorLink = document.querySelector("[data-gestor-only]");
-    if (gestorLink) gestorLink.hidden = !(user && (user.role === "gestor" || user.role === "promotor"));
+    const promotorLink = document.querySelector("[data-promotor-only]");
+    if (promotorLink) promotorLink.hidden = !(user && (user.role === "gestor" || user.role === "promotor"));
 }
 const OP_MSG = "Buenas, necesito información sobre un producto.";
 const opDigits = n => String(n || "").replace(/\D/g, "");
@@ -393,12 +393,12 @@ function menuOverlay() {
         { href: "consulta.html?tipo=incidencia", icon: "fa-triangle-exclamation", text: "Reportar incidencia" },
         { href: "consulta.html?tipo=queja", icon: "fa-comment-dots", text: "Queja u opinión" },
         { href: "operadoras.html", icon: "fa-headset", text: "Operadoras" },
-        { href: "gestor.html", icon: "fa-chart-line", text: "Panel de gestor", gestor: true }
+        { href: "gestor.html", icon: "fa-chart-line", text: "Panel de promotor", promotor: true }
     ];
     return '<div class="ov" id="mnv"><div class="bx sh lf"><button class="xb" data-a="close" aria-label="Cerrar">×</button>' +
         '<div id="menuAccount" class="menu-account-slot"></div>' +
         '<span class="ey menu-ey">Navegar</span><nav class="mn" aria-label="Menú principal">' +
-        links.map((link, i) => '<a href="' + link.href + '"' + (link.gestor ? ' data-gestor-only hidden' : '') + ' style="--mn-i:' + i + '"><i class="fa-solid ' + link.icon + ' mn-ico" aria-hidden="true"></i><span>' + link.text + '</span></a>').join("") +
+        links.map((link, i) => '<a href="' + link.href + '"' + (link.promotor ? ' data-promotor-only hidden' : '') + ' style="--mn-i:' + i + '"><i class="fa-solid ' + link.icon + ' mn-ico" aria-hidden="true"></i><span>' + link.text + '</span></a>').join("") +
         '</nav>' +
         '</div></div>';
 }

@@ -42,7 +42,7 @@ test("el panel de gestor carga solo sus RPCs y valida el rol", () => {
     assert.match(html, /noindex/);
 });
 
-test("el admin puede asignar gestor, comisión y marcar pago", () => {
+test("el admin puede asignar promotor, comisión y marcar pago", () => {
     const html = read("admin.html");
 
     assert.match(html, /onclick="tab\('g'\)"/);
@@ -51,26 +51,35 @@ test("el admin puede asignar gestor, comisión y marcar pago", () => {
     assert.match(html, /rpc\/admin_asignar_promotor/);
     assert.match(html, /rpc\/admin_marcar_comision_pagada/);
     assert.match(html, /MARCAR COMISIÓN PAGADA/);
-    assert.match(html, /GESTOR Y COMISIÓN/);
+    assert.match(html, /PROMOTOR Y COMISIÓN/);
+    assert.match(html, /promo_c_enabled/);
+    assert.match(html, /promo_c_type/);
+    assert.match(html, /promo_c_amount/);
+    assert.match(html, /Máximo global de subida/);
+    assert.doesNotMatch(html, /GESTOR Y COMISIÓN/);
 });
 
-test("el menú muestra el panel solo a gestores y promotores", () => {
+test("el menú muestra el panel solo a promotores", () => {
     const core = read("volxen-core.js");
 
     assert.match(core, /gestor\.html/);
-    assert.match(core, /data-gestor-only/);
+    assert.match(core, /data-promotor-only/);
+    assert.match(core, /Panel de promotor/);
     assert.match(core, /user\.role === "gestor" \|\| user\.role === "promotor"/);
+    assert.doesNotMatch(core, /data-gestor-only/);
+    assert.doesNotMatch(core, /Panel de gestor/);
     assert.doesNotMatch(core, /admin\.html/);
 });
 
-test("la portada invita a gestores y promotores bajo Cómo trabajamos", () => {
+test("la portada invita a promotores bajo Cómo trabajamos", () => {
     const home = read("index.html");
     const como = home.indexOf('id="comoTrabajamos"');
     const acceso = home.indexOf('id="gestores"');
 
     assert.ok(como !== -1, "Falta la sección Cómo trabajamos");
     assert.ok(acceso > como, "El acceso debe ir después de Cómo trabajamos");
-    assert.match(home, /Gestores y promotores/);
+    assert.match(home, /Promotores/);
+    assert.doesNotMatch(home, /Gestores y promotores/);
     assert.match(home, /href="gestor\.html"/);
     assert.match(home, /Google no asigna este rol/);
 });
@@ -112,7 +121,7 @@ test("Google y el resto de accesos no asignan rol de promotor automáticamente",
     assert.doesNotMatch(login, /promotor/i);
 });
 
-test("la bienvenida comercial aparece solo para gestores y ofrece las dos salidas", () => {
+test("la bienvenida comercial aparece para gestores y promotores y ofrece las dos salidas", () => {
     const html = read("gestor.html");
     const js = read("js/pages/gestor.js");
 
@@ -125,10 +134,12 @@ test("la bienvenida comercial aparece solo para gestores y ofrece las dos salida
     assert.match(html, /Acompaña ventas/);
     assert.match(html, /Consulta tus resultados/);
     assert.match(html, /src="logo\.svg"/);
-    assert.match(js, /role === "gestor" && refs\.gsWelcome/);
+    assert.match(js, /if \(refs\.gsWelcome\)/);
     assert.match(js, /function showWelcome/);
     assert.match(js, /function enterPanelFromWelcome/);
     assert.doesNotMatch(js, /localStorage|sessionStorage|document\.cookie/);
+    assert.doesNotMatch(js, /"Gestor"/);
+    assert.doesNotMatch(html, /Gestores y promotores/);
 });
 
 test("el panel privado queda fuera de los buscadores", () => {
