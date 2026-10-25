@@ -60,6 +60,7 @@ test("el menú muestra el panel solo a gestores y promotores", () => {
     assert.match(core, /gestor\.html/);
     assert.match(core, /data-gestor-only/);
     assert.match(core, /user\.role === "gestor" \|\| user\.role === "promotor"/);
+    assert.doesNotMatch(core, /admin\.html/);
 });
 
 test("el panel privado queda fuera de los buscadores", () => {

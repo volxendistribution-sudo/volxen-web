@@ -184,7 +184,7 @@ test("la cabecera muestra el nombre y el menú de cuenta", () => {
     assert.match(core, /function menuAccountHtml/);
     assert.match(core, /data-menu-logout/);
     assert.match(core, /data-account-name/);
-    assert.match(core, /data-admin-only/);
+    assert.doesNotMatch(core, /admin\.html/);
     assert.match(core, /menu-account-actions/);
 });
 
