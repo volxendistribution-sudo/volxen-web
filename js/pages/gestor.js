@@ -15,6 +15,15 @@
         cancelada: "gs-badge-cancelled"
     };
 
+    const ORDER_STATUS_ORDER = [
+        "Pedido recibido",
+        "Confirmando pedido",
+        "Preparando pedido",
+        "En camino",
+        "Entregado",
+        "Cancelado"
+    ];
+
     const state = {
         session: null,
         summary: null,
@@ -24,6 +33,8 @@
         promoter: null,
         query: "",
         status: "",
+        period: "30",
+        sort: "recent",
         loading: false,
         hasMore: false
     };
@@ -73,6 +84,44 @@
             .toLocaleLowerCase("es")
             .normalize("NFD")
             .replace(/[\u0300-\u036f]/g, "");
+    }
+
+    function greetingForHour() {
+        const hour = new Date().getHours();
+        if (hour < 12) return "Buenos días";
+        if (hour < 20) return "Buenas tardes";
+        return "Buenas noches";
+    }
+
+    function userInitial(name, email) {
+        return (String(name || "").trim() || String(email || "").trim() || "V")
+            .charAt(0)
+            .toUpperCase();
+    }
+
+    function orderStatusInfo(status) {
+        const value = String(status || "").trim();
+
+        if (value === "Entregado") {
+            return { label: value, className: "is-complete" };
+        }
+        if (value === "Cancelado") {
+            return { label: value, className: "is-cancelled" };
+        }
+        if (value === "Pedido recibido") {
+            return { label: value, className: "is-pending" };
+        }
+        return { label: value || "Sin estado", className: "is-progress" };
+    }
+
+    function periodThreshold() {
+        if (state.period === "all") return null;
+        const days = Number(state.period);
+        if (!Number.isFinite(days) || days <= 0) return null;
+        const threshold = new Date();
+        threshold.setHours(0, 0, 0, 0);
+        threshold.setDate(threshold.getDate() - (days - 1));
+        return threshold;
     }
 
     function cleanPhone(value) {
@@ -153,6 +202,47 @@
         ["gsGuest", "gsDenied", "gsLoading", "gsError", "gsWelcome", "gsDashboard"].forEach(function (name) {
             if (refs[name]) refs[name].hidden = name !== view;
         });
+        document.body.dataset.gsView = view;
+        if (view !== "gsDashboard") closeNav();
+    }
+
+    function isMobileNav() {
+        return window.matchMedia("(max-width: 1024px)").matches;
+    }
+
+    function openNav() {
+        if (!refs.gsApp) return;
+        refs.gsApp.classList.add("is-nav-open");
+        if (refs.gsScrim) refs.gsScrim.hidden = false;
+        if (refs.gsMenuToggle) refs.gsMenuToggle.setAttribute("aria-expanded", "true");
+    }
+
+    function closeNav() {
+        if (!refs.gsApp) return;
+        refs.gsApp.classList.remove("is-nav-open");
+        if (refs.gsScrim) refs.gsScrim.hidden = true;
+        if (refs.gsMenuToggle) refs.gsMenuToggle.setAttribute("aria-expanded", "false");
+    }
+
+    function setSidebarCollapsed(collapsed) {
+        if (!refs.gsApp) return;
+        refs.gsApp.classList.toggle("is-sidebar-collapsed", collapsed);
+        if (refs.gsSidebarToggle) {
+            refs.gsSidebarToggle.setAttribute("aria-expanded", collapsed ? "false" : "true");
+            refs.gsSidebarToggle.setAttribute("aria-label", collapsed ? "Expandir menú" : "Contraer menú");
+        }
+    }
+
+    function setActiveNav(link) {
+        if (!refs.gsSidebar) return;
+        refs.gsSidebar.querySelectorAll("[data-gs-nav]").forEach(function (item) {
+            item.classList.toggle("is-active", item === link);
+            if (item === link) {
+                item.setAttribute("aria-current", "page");
+            } else {
+                item.removeAttribute("aria-current");
+            }
+        });
     }
 
     function showWelcome() {
@@ -196,9 +286,12 @@
     function renderHeader() {
         const user = state.session && state.session.user ? state.session.user : {};
         const name = String(user.nombre || "").trim();
-        refs.gsTitle.textContent = name ? "Hola, " + name.split(/\s+/)[0] : "Tu operación";
+
+        if (refs.gsGreeting) refs.gsGreeting.textContent = greetingForHour();
+        refs.gsTitle.textContent = name || "Tu panel comercial";
         refs.gsEmail.textContent = user.email || "";
         refs.gsRoleBadge.textContent = roleLabel(user.role);
+        if (refs.gsTopAvatar) refs.gsTopAvatar.textContent = userInitial(name, user.email);
     }
 
     function renderSummary() {
@@ -218,12 +311,13 @@
         const role = user.role || (state.roleRow && state.roleRow.role) || "";
         const promoter = state.promoter || null;
         const name = String(user.nombre || "").trim();
-        const initial = (name || user.email || "V").trim().charAt(0).toUpperCase() || "V";
+        const initial = userInitial(name, user.email);
         const commission = promoter && promoter.comision_porcentaje != null
             ? Number(promoter.comision_porcentaje).toLocaleString("es-ES", { maximumFractionDigits: 2 }) + "%"
             : "Por definir";
 
         if (refs.gsProfileInitial) refs.gsProfileInitial.textContent = initial;
+        if (refs.gsTopAvatar) refs.gsTopAvatar.textContent = initial;
         if (refs.gsProfileName) refs.gsProfileName.textContent = name || "Tu cuenta";
         if (refs.gsProfileEmail) refs.gsProfileEmail.textContent = user.email || "";
         if (refs.gsProfileRole) refs.gsProfileRole.textContent = roleLabel(role);
@@ -247,8 +341,7 @@
         const byState = summary.pedidos_por_estado && typeof summary.pedidos_por_estado === "object"
             ? summary.pedidos_por_estado
             : {};
-        const order = ["Pedido recibido", "Confirmando pedido", "Preparando pedido", "En camino", "Entregado", "Cancelado"];
-        const items = order.filter(function (status) {
+        const items = ORDER_STATUS_ORDER.filter(function (status) {
             return Number(byState[status] || 0) > 0;
         }).map(function (status) {
             return '<span class="gs-activity-item"><strong>' + escapeHtml(count(byState[status])) + "</strong>" + escapeHtml(status) + "</span>";
@@ -274,6 +367,11 @@
             refs.gsNotificationsCount.textContent = ready
                 ? count(ready) + " lista" + (ready === 1 ? "" : "s") + " para cobrar"
                 : (events.length ? "Sin acciones pendientes" : "Sin novedades");
+        }
+
+        if (refs.gsBellBadge) {
+            refs.gsBellBadge.hidden = !events.length;
+            refs.gsBellBadge.textContent = events.length ? count(Math.min(events.length, 9)) + (events.length > 9 ? "+" : "") : "";
         }
 
         refs.gsNotifications.innerHTML = events.length
@@ -316,6 +414,13 @@
 
     function orderMatches(order) {
         if (state.status && order.estado !== state.status) return false;
+
+        const threshold = periodThreshold();
+        if (threshold) {
+            const created = new Date(order.created_at);
+            if (Number.isNaN(created.getTime()) || created < threshold) return false;
+        }
+
         if (!state.query) return true;
         const haystack = normalize([
             order.codigo,
@@ -326,6 +431,35 @@
             order.municipio
         ].join(" "));
         return haystack.indexOf(state.query) !== -1;
+    }
+
+    function sortOrders(orders) {
+        const copy = orders.slice();
+        const byDate = function (order) {
+            const date = new Date(order.created_at);
+            return Number.isNaN(date.getTime()) ? 0 : date.getTime();
+        };
+
+        if (state.sort === "amount") {
+            copy.sort(function (a, b) {
+                return Number(b.total_usd || 0) - Number(a.total_usd || 0);
+            });
+            return copy;
+        }
+
+        if (state.sort === "status") {
+            copy.sort(function (a, b) {
+                const indexA = ORDER_STATUS_ORDER.indexOf(a.estado);
+                const indexB = ORDER_STATUS_ORDER.indexOf(b.estado);
+                const orderA = indexA === -1 ? ORDER_STATUS_ORDER.length : indexA;
+                const orderB = indexB === -1 ? ORDER_STATUS_ORDER.length : indexB;
+                return orderA - orderB || byDate(b) - byDate(a);
+            });
+            return copy;
+        }
+
+        copy.sort(function (a, b) { return byDate(b) - byDate(a); });
+        return copy;
     }
 
     function renderItems(items) {
@@ -341,20 +475,24 @@
         }).join("") + "</ul>";
     }
 
+    function emptyOrderRow(html) {
+        return '<tr class="gs-empty-row"><td colspan="7">' + html + "</td></tr>";
+    }
+
     function renderOrders() {
         if (!refs.gsOrdersList) return;
 
-        const visible = state.orders.filter(orderMatches);
+        const visible = sortOrders(state.orders.filter(orderMatches));
 
         if (refs.gsMoreWrap) refs.gsMoreWrap.hidden = !state.hasMore;
 
         if (!state.orders.length) {
-            refs.gsOrdersList.innerHTML = '<p class="gs-empty"><strong>Aún no tienes pedidos asignados.</strong>Cuando el administrador confirme una venta y te la atribuya, aparecerá aquí con su estado y comisión.</p>';
+            refs.gsOrdersList.innerHTML = emptyOrderRow('<p class="gs-empty"><strong>Aún no tienes pedidos asignados.</strong>Cuando el administrador confirme una venta y te la atribuya, aparecerá aquí con su estado y comisión.</p>');
             return;
         }
 
         if (!visible.length) {
-            refs.gsOrdersList.innerHTML = '<p class="gs-empty"><strong>No hay pedidos con ese filtro.</strong><button class="gs-button" type="button" data-clear-filters>Limpiar filtros</button></p>';
+            refs.gsOrdersList.innerHTML = emptyOrderRow('<p class="gs-empty"><strong>No hay pedidos con esos filtros.</strong><button class="gs-button" type="button" data-clear-filters>Limpiar filtros</button></p>');
             return;
         }
 
@@ -362,25 +500,45 @@
             const commissionState = order.comision_estado || "pendiente";
             const commissionLabel = COMMISSION_LABELS[commissionState] || "Pendiente";
             const commissionClass = COMMISSION_CLASSES[commissionState] || "gs-badge-pending";
+            const statusInfo = orderStatusInfo(order.estado);
             const phoneHref = order.telefono ? "tel:" + escapeHtml(cleanPhone(order.telefono)) : "";
             const mailHref = order.email ? "mailto:" + encodeURIComponent(order.email) : "";
+            const items = Array.isArray(order.items) ? order.items : [];
+            const units = items.reduce(function (total, item) {
+                const quantity = Number(item.cantidad || item.qty || 0);
+                return total + (Number.isFinite(quantity) ? quantity : 0);
+            }, 0);
+            const firstItem = items.length
+                ? String(items[0].producto_nombre || items[0].nombre || items[0].nombre_producto || "Producto")
+                : "";
+            const itemsLabel = items.length
+                ? count(units || items.length) + (units === 1 ? " artículo" : " artículos")
+                : "Sin detalle";
             const commissionMeta = order.comision_pagada_at
                 ? "Pagada el " + escapeHtml(dateLabel(order.comision_pagada_at))
                 : order.comision_disponible_at
                     ? "Disponible desde " + escapeHtml(dateLabel(order.comision_disponible_at))
                     : "Se activa al confirmar la entrega";
 
-            return '<article class="gs-order">' +
-                '<button class="gs-order-summary" type="button" data-order-toggle="' + index + '" aria-expanded="false" aria-controls="gs-order-body-' + index + '">' +
-                    '<span class="gs-order-code">' + escapeHtml(order.codigo || "Sin código") + "</span>" +
-                    '<span class="gs-order-client">' + escapeHtml(order.nombre_cliente || "Cliente") + "</span>" +
-                    '<span class="gs-order-date">' + escapeHtml(dateLabel(order.created_at)) + "</span>" +
-                    '<span class="gs-order-total">' + escapeHtml(money(order.total_usd)) + "</span>" +
-                    '<span class="gs-badge gs-badge-state">' + escapeHtml(order.estado || "Sin estado") + "</span>" +
-                    '<span class="gs-badge ' + commissionClass + '">' + escapeHtml(commissionLabel) + "</span>" +
-                    '<i class="fa-solid fa-chevron-down gs-order-chevron" aria-hidden="true"></i>' +
-                "</button>" +
-                '<div class="gs-order-body" id="gs-order-body-' + index + '" hidden>' +
+            return '<tr class="gs-order-row">' +
+                '<td class="gs-cell-order">' +
+                    '<button class="gs-order-toggle" type="button" data-order-toggle="' + index + '" aria-expanded="false" aria-controls="gs-order-body-' + index + '">' +
+                        '<span class="gs-order-code">' + escapeHtml(order.codigo || "Sin código") + "</span>" +
+                        '<span class="gs-order-date">' + escapeHtml(dateLabel(order.created_at)) + "</span>" +
+                    "</button>" +
+                "</td>" +
+                '<td class="gs-cell-client"><span class="gs-order-client">' + escapeHtml(order.nombre_cliente || "Cliente") + "</span>" +
+                    "<small>" + escapeHtml(order.telefono || order.email || "Sin contacto") + "</small></td>" +
+                '<td class="gs-cell-items"><span class="gs-order-items">' + escapeHtml(itemsLabel) + "</span>" +
+                    (firstItem ? "<small>" + escapeHtml(firstItem) + "</small>" : "") + "</td>" +
+                '<td class="gs-cell-total"><strong class="gs-order-total">' + escapeHtml(money(order.total_usd)) + "</strong><small>USD</small></td>" +
+                '<td class="gs-cell-state"><span class="gs-badge gs-badge-state ' + statusInfo.className + '">' + escapeHtml(statusInfo.label) + "</span></td>" +
+                '<td class="gs-cell-commission"><span class="gs-badge ' + commissionClass + '">' + escapeHtml(commissionLabel) + "</span>" +
+                    "<small>" + escapeHtml(money(order.comision_monto_usd)) + "</small></td>" +
+                '<td class="gs-cell-chevron"><i class="fa-solid fa-chevron-down gs-order-chevron" aria-hidden="true"></i></td>' +
+            "</tr>" +
+            '<tr class="gs-order-detail" id="gs-order-body-' + index + '" hidden>' +
+                '<td colspan="7">' +
                     '<div class="gs-order-grid">' +
                         "<div><h3>Cliente</h3><p>" + escapeHtml(order.nombre_cliente || "Cliente") + "</p>" +
                             (phoneHref ? '<p><a href="' + phoneHref + '">' + escapeHtml(order.telefono) + "</a>" + (mailHref ? ' · <a href="' + mailHref + '">' + escapeHtml(order.email) + "</a>" : "") + "</p>" : (mailHref ? '<p><a href="' + mailHref + '">' + escapeHtml(order.email) + "</a></p>" : "")) +
@@ -393,8 +551,8 @@
                             '<p class="gs-muted">' + escapeHtml(Number(order.comision_porcentaje || 0)) + "% · " + commissionMeta + "</p>" +
                         "</div>" +
                     "</div>" +
-                "</div>" +
-            "</article>";
+                "</td>" +
+            "</tr>";
         }).join("");
     }
 
@@ -526,12 +684,77 @@
 
         refs.gsLogout.addEventListener("click", async function () {
             refs.gsLogout.disabled = true;
-            refs.gsLogout.textContent = "Saliendo…";
+            const label = refs.gsLogout.querySelector(".gs-side-label");
+            if (label) {
+                label.textContent = "Saliendo…";
+            } else {
+                refs.gsLogout.textContent = "Saliendo…";
+            }
             try {
                 await VXAUTH.signOut();
             } catch (error) {}
             window.location.href = "login.html?next=gestor.html";
         });
+
+        if (refs.gsMenuToggle) {
+            refs.gsMenuToggle.addEventListener("click", function () {
+                if (refs.gsApp && refs.gsApp.classList.contains("is-nav-open")) {
+                    closeNav();
+                } else {
+                    openNav();
+                }
+            });
+        }
+
+        if (refs.gsSidebarToggle) {
+            refs.gsSidebarToggle.addEventListener("click", function () {
+                if (!refs.gsApp) return;
+                setSidebarCollapsed(!refs.gsApp.classList.contains("is-sidebar-collapsed"));
+            });
+        }
+
+        if (refs.gsScrim) {
+            refs.gsScrim.addEventListener("click", closeNav);
+        }
+
+        if (refs.gsSidebar) {
+            refs.gsSidebar.addEventListener("click", function (event) {
+                const navLink = event.target.closest("[data-gs-nav]");
+                const anchor = event.target.closest("a");
+
+                if (navLink) {
+                    if (navLink.getAttribute("data-gs-nav") === "inicio") {
+                        event.preventDefault();
+                        if (refs.gsDashboardScroll) {
+                            refs.gsDashboardScroll.scrollTo({ top: 0, behavior: "smooth" });
+                        }
+                    }
+                    setActiveNav(navLink);
+                }
+
+                if (anchor && isMobileNav()) closeNav();
+            });
+        }
+
+        document.addEventListener("keydown", function (event) {
+            if (event.key === "Escape") closeNav();
+        });
+
+        if (window.matchMedia) {
+            const mobile = window.matchMedia("(max-width: 1024px)");
+            const handleViewportChange = function (event) {
+                if (event.matches) {
+                    setSidebarCollapsed(false);
+                } else {
+                    closeNav();
+                }
+            };
+            if (mobile.addEventListener) {
+                mobile.addEventListener("change", handleViewportChange);
+            } else if (mobile.addListener) {
+                mobile.addListener(handleViewportChange);
+            }
+        }
 
         refs.gsRetry.addEventListener("click", function () {
             load();
@@ -555,13 +778,31 @@
             renderOrders();
         });
 
+        if (refs.gsSort) {
+            refs.gsSort.addEventListener("change", function (event) {
+                state.sort = event.target.value;
+                renderOrders();
+            });
+        }
+
+        if (refs.gsPeriod) {
+            refs.gsPeriod.addEventListener("change", function (event) {
+                state.period = event.target.value;
+                renderOrders();
+            });
+        }
+
         refs.gsOrdersList.addEventListener("click", function (event) {
             const clear = event.target.closest("[data-clear-filters]");
             if (clear) {
                 state.query = "";
                 state.status = "";
+                state.period = "30";
+                state.sort = "recent";
                 refs.gsSearch.value = "";
                 refs.gsStatusFilter.value = "";
+                if (refs.gsPeriod) refs.gsPeriod.value = "30";
+                if (refs.gsSort) refs.gsSort.value = "recent";
                 renderOrders();
                 refs.gsSearch.focus();
                 return;
@@ -572,8 +813,11 @@
             const body = document.getElementById(toggle.getAttribute("aria-controls"));
             if (!body) return;
             const expanded = toggle.getAttribute("aria-expanded") === "true";
-            toggle.setAttribute("aria-expanded", expanded ? "false" : "true");
-            body.hidden = expanded;
+            const nextExpanded = !expanded;
+            const row = toggle.closest("tr");
+            toggle.setAttribute("aria-expanded", nextExpanded ? "true" : "false");
+            body.hidden = !nextExpanded;
+            if (row) row.classList.toggle("is-expanded", nextExpanded);
         });
     }
 
@@ -581,17 +825,20 @@
         [
             "gsGuest", "gsDenied", "gsLoading", "gsError", "gsWelcome", "gsDashboard",
             "gsWelcomeTitle", "gsWelcomeLead", "gsWelcomeEnter", "gsWelcomeSkip",
-            "gsTitle", "gsEmail", "gsRoleBadge", "gsUpdated", "gsNotice",
+            "gsTitle", "gsEmail", "gsRoleBadge", "gsUpdated", "gsNotice", "gsGreeting", "gsTopAvatar",
             "gsSales", "gsOrdersCount", "gsClientsCount", "gsCommissionAvailable",
             "gsCommissionPaid", "gsCommissionPending", "gsCommissionReady", "gsCommissionDone",
             "gsProfileInitial", "gsProfileName", "gsProfileEmail", "gsProfileRole",
             "gsProfileCommission", "gsProfileState", "gsProfileSince", "gsActivity",
             "gsNotifications", "gsNotificationsCount", "gsCommissionHistory",
             "gsOrdersList", "gsClientsList", "gsSearch", "gsStatusFilter", "gsMoreWrap", "gsMore",
-            "gsLogout", "gsRetry", "gsRefresh", "gsErrorText"
+            "gsLogout", "gsRetry", "gsRefresh", "gsErrorText", "gsApp", "gsSidebar", "gsSidebarToggle",
+            "gsMenuToggle", "gsScrim", "gsDashboardScroll", "gsBellBadge", "gsSort", "gsPeriod"
         ].forEach(function (key) {
             refs[key] = id(key);
         });
+
+        refs.gsApp = refs.gsApp || refs.gsDashboard;
     }
 
     async function init() {

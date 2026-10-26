@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <meta name="theme-color" content="#1E1D1B">
-    <meta name="description" content="Panel privado de promotores de VOLXEN: perfil, ventas, pedidos, clientes, notificaciones y comisiones.">
-    <title>Panel de promotores · VOLXEN</title>
+    <meta name="description" content="Panel privado del gestor comercial de VOLXEN: resultados, pedidos, clientes, rendimiento y comisiones.">
+    <title>Panel del gestor · VOLXEN</title>
 
     <link rel="preload" as="font" type="font/woff2" crossorigin href="dist/fonts/DM-Sans-Regular.woff2">
     <link rel="preload" as="font" type="font/woff2" crossorigin href="dist/fonts/DM-Sans-SemiBold.woff2">
@@ -30,279 +30,526 @@
                 <img src="logo.svg" alt="" width="40" height="40">
                 <span class="gs-brand-copy">
                     <strong>VOLXEN</strong>
-                    <small>Promotores</small>
+                    <small>Panel del gestor</small>
                 </span>
             </a>
             <nav class="gs-nav" aria-label="Navegación del panel">
                 <a href="index.html">Tienda</a>
                 <a href="pedidos.html">Mi cuenta</a>
-                <button id="gsLogout" type="button">Salir</button>
             </nav>
         </div>
     </header>
 
     <main id="gsMain" class="gs-main">
-        <section id="gsGuest" class="gs-state" hidden>
-            <p class="gs-eyebrow">Acceso privado</p>
-            <h1>Entra a tu panel de promotor</h1>
-            <p>Este panel muestra tu perfil, actividad, pedidos, notificaciones y comisiones asignadas por administración. El rol no se asigna automáticamente al iniciar sesión.</p>
-            <div class="gs-state-actions">
-                <a class="gs-button gs-button-primary" href="login.html?next=gestor.html">Iniciar sesión</a>
-                <a class="gs-button" href="index.html">Volver a la tienda</a>
-            </div>
-        </section>
-
-        <section id="gsDenied" class="gs-state" hidden>
-            <p class="gs-eyebrow">Cuenta sin acceso</p>
-            <h1>Tu cuenta no es de promotor</h1>
-            <p>Un administrador debe asignarte el rol de promotor. Si ya lo hizo, cierra sesión y vuelve a entrar para actualizar el rol.</p>
-            <div class="gs-state-actions">
-                <a class="gs-button gs-button-primary" href="pedidos.html">Ir a mi cuenta</a>
-                <a class="gs-button" href="index.html">Volver a la tienda</a>
-            </div>
-        </section>
-
-        <section id="gsLoading" class="gs-loading" aria-live="polite" aria-label="Cargando panel">
-            <div class="gs-skeleton gs-skeleton-hero"></div>
-            <div class="gs-skeleton-grid">
-                <div class="gs-skeleton"></div>
-                <div class="gs-skeleton"></div>
-                <div class="gs-skeleton"></div>
-                <div class="gs-skeleton"></div>
-            </div>
-            <div class="gs-skeleton gs-skeleton-list"></div>
-        </section>
-
-        <section id="gsError" class="gs-state" hidden>
-            <p class="gs-eyebrow">No se pudo cargar</p>
-            <h1>El panel no está disponible</h1>
-            <p id="gsErrorText">Revisa tu conexión e inténtalo de nuevo.</p>
-            <div class="gs-state-actions">
-                <button id="gsRetry" class="gs-button gs-button-primary" type="button">Reintentar</button>
-                <a class="gs-button" href="index.html">Volver a la tienda</a>
-            </div>
-        </section>
-
-        <section id="gsWelcome" class="gs-welcome" aria-labelledby="gsWelcomeTitle" hidden>
-            <div class="gs-welcome-card">
-                <div class="gs-welcome-top">
-                    <p class="gs-welcome-kicker"><span class="gs-welcome-mark" aria-hidden="true"></span>Programa comercial VOLXEN</p>
-                    <span class="gs-welcome-access"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i>Acceso autorizado</span>
-                </div>
-
-                <div class="gs-welcome-grid">
-                    <div class="gs-welcome-copy">
-                        <p class="gs-eyebrow">Bienvenida</p>
-                        <h1 id="gsWelcomeTitle" tabindex="-1">Tu panel comercial</h1>
-                        <p id="gsWelcomeLead" class="gs-welcome-lead">Tu cuenta está autorizada como promotor comercial de VOLXEN.</p>
-                        <p class="gs-welcome-text">Este es tu espacio de trabajo para captar clientes, presentar productos, acompañar cada venta y consultar tus resultados.</p>
-
-                        <div class="gs-welcome-actions">
-                            <button id="gsWelcomeEnter" class="gs-welcome-button gs-welcome-button-primary" type="button">Entrar a mi panel comercial</button>
-                            <button id="gsWelcomeSkip" class="gs-welcome-button gs-welcome-button-secondary" type="button">Saltar bienvenida</button>
-                        </div>
-
-                        <p class="gs-welcome-note">La bienvenida se muestra cada vez que entras al panel. No se guarda ninguna preferencia.</p>
-                    </div>
-
-                    <div class="gs-welcome-functions" aria-label="Tus funciones">
-                        <p class="gs-welcome-functions-title">Lo que puedes hacer aquí</p>
-                        <ol class="gs-welcome-list">
-                            <li>
-                                <span class="gs-welcome-number" aria-hidden="true">01</span>
-                                <div><strong>Capta clientes</strong><p>Detecta oportunidades y da el primer paso con cada contacto.</p></div>
-                            </li>
-                            <li>
-                                <span class="gs-welcome-number" aria-hidden="true">02</span>
-                                <div><strong>Presenta productos</strong><p>Comparte el catálogo y resuelve dudas con información vigente.</p></div>
-                            </li>
-                            <li>
-                                <span class="gs-welcome-number" aria-hidden="true">03</span>
-                                <div><strong>Acompaña ventas</strong><p>Sigue el pedido y mantén al cliente informado hasta la entrega.</p></div>
-                            </li>
-                            <li>
-                                <span class="gs-welcome-number" aria-hidden="true">04</span>
-                                <div><strong>Consulta tus resultados</strong><p>Revisa pedidos, ventas y comisiones atribuidas a tu cuenta.</p></div>
-                            </li>
-                        </ol>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <div id="gsDashboard" hidden>
-            <section class="gs-hero" aria-labelledby="gsTitle">
-                <div class="gs-hero-copy">
-                    <p class="gs-eyebrow">Panel de promotores</p>
-                    <h1 id="gsTitle">Tu operación</h1>
-                    <p id="gsEmail" class="gs-hero-email"></p>
-                </div>
-                <div class="gs-hero-side">
-                    <span id="gsRoleBadge" class="gs-role-badge">Promotor</span>
-                    <button id="gsRefresh" class="gs-icon-button" type="button" aria-label="Actualizar panel" title="Actualizar panel">
-                        <i class="fa-solid fa-rotate" aria-hidden="true"></i>
-                    </button>
-                    <span id="gsUpdated" class="gs-updated"></span>
+        <div class="gs-state-shell">
+            <section id="gsGuest" class="gs-state" hidden>
+                <p class="gs-eyebrow">Acceso privado</p>
+                <h1>Entra a tu panel de gestor</h1>
+                <p>Este panel muestra tu perfil, actividad, pedidos, notificaciones y comisiones asignadas por administración. El rol no se asigna automáticamente al iniciar sesión.</p>
+                <div class="gs-state-actions">
+                    <a class="gs-button gs-button-primary" href="login.html?next=gestor.html">Iniciar sesión</a>
+                    <a class="gs-button" href="index.html">Volver a la tienda</a>
                 </div>
             </section>
 
-            <p id="gsNotice" class="gs-notice" role="status" aria-live="polite" hidden></p>
-
-            <section class="gs-profile" aria-labelledby="gsProfileTitle">
-                <div class="gs-section-head">
-                    <div>
-                        <p class="gs-eyebrow">Tu cuenta</p>
-                        <h2 id="gsProfileTitle">Perfil y actividad</h2>
-                    </div>
-                    <span class="gs-ledger-note">Datos asignados por administración</span>
+            <section id="gsDenied" class="gs-state" hidden>
+                <p class="gs-eyebrow">Cuenta sin acceso</p>
+                <h1>Tu cuenta no es de gestor</h1>
+                <p>Un administrador debe asignarte el rol de gestor comercial. Si ya lo hizo, cierra sesión y vuelve a entrar para actualizar el rol.</p>
+                <div class="gs-state-actions">
+                    <a class="gs-button gs-button-primary" href="pedidos.html">Ir a mi cuenta</a>
+                    <a class="gs-button" href="index.html">Volver a la tienda</a>
                 </div>
-                <div class="gs-profile-grid">
-                    <article class="gs-profile-card">
-                        <div class="gs-profile-head">
-                            <span class="gs-profile-avatar" id="gsProfileInitial" aria-hidden="true">V</span>
-                            <div>
-                                <strong id="gsProfileName">Tu cuenta</strong>
-                                <small id="gsProfileEmail"></small>
+            </section>
+
+            <section id="gsLoading" class="gs-loading" aria-live="polite" aria-label="Cargando panel">
+                <div class="gs-skeleton gs-skeleton-hero"></div>
+                <div class="gs-skeleton-grid">
+                    <div class="gs-skeleton"></div>
+                    <div class="gs-skeleton"></div>
+                    <div class="gs-skeleton"></div>
+                </div>
+                <div class="gs-skeleton gs-skeleton-list"></div>
+            </section>
+
+            <section id="gsError" class="gs-state" hidden>
+                <p class="gs-eyebrow">No se pudo cargar</p>
+                <h1>El panel no está disponible</h1>
+                <p id="gsErrorText">Revisa tu conexión e inténtalo de nuevo.</p>
+                <div class="gs-state-actions">
+                    <button id="gsRetry" class="gs-button gs-button-primary" type="button">Reintentar</button>
+                    <a class="gs-button" href="index.html">Volver a la tienda</a>
+                </div>
+            </section>
+
+            <section id="gsWelcome" class="gs-welcome" aria-labelledby="gsWelcomeTitle" hidden>
+                <div class="gs-welcome-card">
+                    <div class="gs-welcome-top">
+                        <p class="gs-welcome-kicker"><span class="gs-welcome-mark" aria-hidden="true"></span>Programa comercial VOLXEN</p>
+                        <span class="gs-welcome-access"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i>Acceso autorizado</span>
+                    </div>
+
+                    <div class="gs-welcome-grid">
+                        <div class="gs-welcome-copy">
+                            <p class="gs-eyebrow">Bienvenida</p>
+                            <h1 id="gsWelcomeTitle" tabindex="-1">Tu panel comercial</h1>
+                            <p id="gsWelcomeLead" class="gs-welcome-lead">Tu cuenta está autorizada como gestor comercial de VOLXEN.</p>
+                            <p class="gs-welcome-text">Este es tu espacio de trabajo para captar clientes, presentar productos, acompañar cada venta y consultar tus resultados.</p>
+
+                            <div class="gs-welcome-actions">
+                                <button id="gsWelcomeEnter" class="gs-welcome-button gs-welcome-button-primary" type="button">Entrar a mi panel comercial</button>
+                                <button id="gsWelcomeSkip" class="gs-welcome-button gs-welcome-button-secondary" type="button">Saltar bienvenida</button>
                             </div>
+
+                            <p class="gs-welcome-note">La bienvenida se muestra cada vez que entras al panel. No se guarda ninguna preferencia.</p>
                         </div>
-                        <dl class="gs-profile-data">
-                            <div><dt>Rol</dt><dd id="gsProfileRole">—</dd></div>
-                            <div><dt>Comisión</dt><dd id="gsProfileCommission">—</dd></div>
-                            <div><dt>Estado</dt><dd id="gsProfileState">—</dd></div>
-                            <div><dt>Desde</dt><dd id="gsProfileSince">—</dd></div>
-                        </dl>
-                    </article>
-                    <article class="gs-profile-card">
-                        <h3>Actividad por estado</h3>
-                        <div id="gsActivity" class="gs-activity" aria-live="polite"></div>
-                    </article>
-                </div>
-            </section>
 
-            <section class="gs-panel" aria-labelledby="gsNotificationsTitle">
-                <div class="gs-section-head">
-                    <div>
-                        <p class="gs-eyebrow">Seguimiento</p>
-                        <h2 id="gsNotificationsTitle">Notificaciones</h2>
-                    </div>
-                    <span id="gsNotificationsCount" class="gs-ledger-note">Sin novedades</span>
-                </div>
-                <div id="gsNotifications" class="gs-notifications" aria-live="polite"></div>
-            </section>
-
-            <section class="gs-metrics" aria-label="Resumen de tu operación">
-                <article class="gs-metric gs-metric-wide">
-                    <span class="gs-metric-label">Ventas confirmadas</span>
-                    <strong id="gsSales">$0.00</strong>
-                    <small>Sin pedidos cancelados</small>
-                </article>
-                <article class="gs-metric">
-                    <span class="gs-metric-label">Pedidos</span>
-                    <strong id="gsOrdersCount">0</strong>
-                    <small>Todos los estados</small>
-                </article>
-                <article class="gs-metric">
-                    <span class="gs-metric-label">Clientes</span>
-                    <strong id="gsClientsCount">0</strong>
-                    <small>Vinculados a tus ventas</small>
-                </article>
-                <article class="gs-metric gs-metric-gold">
-                    <span class="gs-metric-label">Comisión por cobrar</span>
-                    <strong id="gsCommissionAvailable">$0.00</strong>
-                    <small>Lista para cobrar</small>
-                </article>
-                <article class="gs-metric">
-                    <span class="gs-metric-label">Comisión pagada</span>
-                    <strong id="gsCommissionPaid">$0.00</strong>
-                    <small>Histórico liquidado</small>
-                </article>
-            </section>
-
-            <section class="gs-ledger" aria-labelledby="gsCommissionTitle">
-                <div class="gs-section-head">
-                    <div>
-                        <p class="gs-eyebrow">Comisiones</p>
-                        <h2 id="gsCommissionTitle">Tu saldo</h2>
-                    </div>
-                    <span class="gs-ledger-note">El administrador marca el pago</span>
-                </div>
-                <div class="gs-ledger-grid">
-                    <div class="gs-ledger-item">
-                        <span>Pendiente</span>
-                        <strong id="gsCommissionPending">$0.00</strong>
-                        <small>Ventas aún no confirmadas</small>
-                    </div>
-                    <div class="gs-ledger-item is-available">
-                        <span>Lista para cobrar</span>
-                        <strong id="gsCommissionReady">$0.00</strong>
-                        <small>Ventas entregadas</small>
-                    </div>
-                    <div class="gs-ledger-item">
-                        <span>Pagada</span>
-                        <strong id="gsCommissionDone">$0.00</strong>
-                        <small>Liquidadas por el admin</small>
+                        <div class="gs-welcome-functions" role="group" aria-label="Tus funciones">
+                            <p class="gs-welcome-functions-title">Lo que puedes hacer aquí</p>
+                            <ol class="gs-welcome-list">
+                                <li>
+                                    <span class="gs-welcome-number" aria-hidden="true">01</span>
+                                    <div><strong>Capta clientes</strong><p>Detecta oportunidades y da el primer paso con cada contacto.</p></div>
+                                </li>
+                                <li>
+                                    <span class="gs-welcome-number" aria-hidden="true">02</span>
+                                    <div><strong>Presenta productos</strong><p>Comparte el catálogo y resuelve dudas con información vigente.</p></div>
+                                </li>
+                                <li>
+                                    <span class="gs-welcome-number" aria-hidden="true">03</span>
+                                    <div><strong>Acompaña ventas</strong><p>Sigue el pedido y mantén al cliente informado hasta la entrega.</p></div>
+                                </li>
+                                <li>
+                                    <span class="gs-welcome-number" aria-hidden="true">04</span>
+                                    <div><strong>Consulta tus resultados</strong><p>Revisa pedidos, ventas y comisiones atribuidas a tu cuenta.</p></div>
+                                </li>
+                            </ol>
+                        </div>
                     </div>
                 </div>
             </section>
+        </div>
 
-            <section class="gs-panel" aria-labelledby="gsHistoryTitle">
-                <div class="gs-section-head">
-                    <div>
-                        <p class="gs-eyebrow">Registro</p>
-                        <h2 id="gsHistoryTitle">Historial de comisiones</h2>
-                    </div>
-                    <span class="gs-ledger-note">Solo lectura · lo actualiza administración</span>
+        <div id="gsDashboard" class="gs-app" hidden>
+            <div id="gsScrim" class="gs-scrim" hidden></div>
+
+            <aside id="gsSidebar" class="gs-sidebar" aria-label="Navegación del panel">
+                <div class="gs-sidebar-top">
+                    <a class="gs-sidebar-brand" href="index.html" aria-label="VOLXEN, ir al inicio">
+                        <img src="logo.svg" alt="" width="40" height="40">
+                        <span class="gs-sidebar-brand-copy">
+                            <strong>VOLXEN</strong>
+                            <small>Panel del gestor</small>
+                        </span>
+                    </a>
+                    <button id="gsSidebarToggle" class="gs-sidebar-toggle" type="button" aria-label="Contraer menú" aria-expanded="true" aria-controls="gsSidebar">
+                        <i class="fa-solid fa-angles-left" aria-hidden="true"></i>
+                    </button>
                 </div>
-                <div id="gsCommissionHistory" class="gs-history" aria-live="polite"></div>
-            </section>
 
-            <section class="gs-panel" aria-labelledby="gsOrdersTitle">
-                <div class="gs-section-head gs-section-head-stack">
-                    <div>
-                        <p class="gs-eyebrow">Libro de ventas</p>
-                        <h2 id="gsOrdersTitle">Tus pedidos</h2>
+                <nav class="gs-sidebar-nav" aria-label="Secciones del panel">
+                    <a class="gs-side-link is-active" href="#gsHome" data-gs-nav="inicio" aria-current="page" aria-label="Inicio" title="Inicio">
+                        <span class="gs-side-icon"><i class="fa-solid fa-table-cells-large" aria-hidden="true"></i></span>
+                        <span class="gs-side-label">Inicio</span>
+                    </a>
+                    <a class="gs-side-link" href="catalogo.html" aria-label="Catálogo" title="Catálogo">
+                        <span class="gs-side-icon"><i class="fa-solid fa-box-open" aria-hidden="true"></i></span>
+                        <span class="gs-side-label">Catálogo</span>
+                    </a>
+                    <a class="gs-side-link" href="#gsOrdersSection" data-gs-nav="pedidos" aria-label="Pedidos" title="Pedidos">
+                        <span class="gs-side-icon"><i class="fa-solid fa-receipt" aria-hidden="true"></i></span>
+                        <span class="gs-side-label">Pedidos</span>
+                    </a>
+                    <a class="gs-side-link" href="#gsClientsSection" data-gs-nav="clientes" aria-label="Clientes" title="Clientes">
+                        <span class="gs-side-icon"><i class="fa-solid fa-user-group" aria-hidden="true"></i></span>
+                        <span class="gs-side-label">Clientes</span>
+                    </a>
+                    <a class="gs-side-link" href="#gsPerformance" data-gs-nav="rendimiento" aria-label="Rendimiento" title="Rendimiento">
+                        <span class="gs-side-icon"><i class="fa-solid fa-chart-column" aria-hidden="true"></i></span>
+                        <span class="gs-side-label">Rendimiento</span>
+                    </a>
+                    <a class="gs-side-link" href="#gsCommissionsSection" data-gs-nav="comisiones" aria-label="Comisiones" title="Comisiones">
+                        <span class="gs-side-icon"><i class="fa-solid fa-coins" aria-hidden="true"></i></span>
+                        <span class="gs-side-label">Comisiones</span>
+                    </a>
+                </nav>
+
+                <div class="gs-sidebar-bottom">
+                    <div class="gs-side-note">
+                        <span class="gs-side-note-icon" aria-hidden="true"><i class="fa-solid fa-store"></i></span>
+                        <strong>Comparte el catálogo</strong>
+                        <p>Presenta los productos vigentes a tus clientes.</p>
+                        <a href="catalogo.html">Abrir catálogo <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>
                     </div>
-                    <div class="gs-tools">
-                        <label class="gs-search">
+                    <a class="gs-side-link gs-side-account" href="pedidos.html" aria-label="Mi cuenta" title="Mi cuenta">
+                        <span class="gs-side-icon"><i class="fa-solid fa-user" aria-hidden="true"></i></span>
+                        <span class="gs-side-label">Mi cuenta</span>
+                    </a>
+                    <button id="gsLogout" class="gs-side-link gs-side-logout" type="button" aria-label="Cerrar sesión" title="Cerrar sesión">
+                        <span class="gs-side-icon"><i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i></span>
+                        <span class="gs-side-label">Cerrar sesión</span>
+                    </button>
+                </div>
+            </aside>
+
+            <div class="gs-content">
+                <header id="gsHome" class="gs-topbar">
+                    <div class="gs-topbar-main">
+                        <button id="gsMenuToggle" class="gs-menu-button" type="button" aria-label="Abrir menú del panel" aria-expanded="false" aria-controls="gsSidebar">
+                            <i class="fa-solid fa-bars" aria-hidden="true"></i>
+                        </button>
+                        <div class="gs-topbar-greeting">
+                            <p id="gsGreeting" class="gs-greeting">Hola de nuevo</p>
+                            <div class="gs-topbar-title-row">
+                                <h1 id="gsTitle">Tu panel comercial</h1>
+                                <span id="gsRoleBadge" class="gs-role-badge">Promotor</span>
+                            </div>
+                            <p id="gsEmail" class="gs-topbar-email"></p>
+                        </div>
+                    </div>
+
+                    <div class="gs-topbar-actions">
+                        <label class="gs-search gs-topbar-search">
                             <span class="gs-sr-only">Buscar pedidos</span>
                             <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-                            <input id="gsSearch" type="search" placeholder="Código, cliente o teléfono" autocomplete="off">
+                            <input id="gsSearch" type="search" placeholder="Buscar pedido, cliente o teléfono" autocomplete="off">
                         </label>
-                        <label class="gs-select">
-                            <span class="gs-sr-only">Filtrar por estado</span>
-                            <select id="gsStatusFilter">
-                                <option value="">Todos los estados</option>
-                                <option value="Pedido recibido">Pedido recibido</option>
-                                <option value="Confirmando pedido">Confirmando pedido</option>
-                                <option value="Preparando pedido">Preparando pedido</option>
-                                <option value="En camino">En camino</option>
-                                <option value="Entregado">Entregado</option>
-                                <option value="Cancelado">Cancelado</option>
-                            </select>
-                        </label>
+                        <a class="gs-icon-button" href="#gsNotificationsSection" aria-label="Ver notificaciones" title="Notificaciones">
+                            <i class="fa-solid fa-bell" aria-hidden="true"></i>
+                            <span id="gsBellBadge" class="gs-icon-badge" hidden></span>
+                        </a>
+                        <a class="gs-icon-button" href="#gsClientsSection" aria-label="Ir a clientes" title="Clientes">
+                            <i class="fa-solid fa-comment-dots" aria-hidden="true"></i>
+                        </a>
+                        <button id="gsRefresh" class="gs-icon-button" type="button" aria-label="Actualizar panel" title="Actualizar panel">
+                            <i class="fa-solid fa-rotate" aria-hidden="true"></i>
+                        </button>
+                        <span id="gsTopAvatar" class="gs-avatar" aria-hidden="true">V</span>
+                        <span id="gsUpdated" class="gs-updated"></span>
                     </div>
-                </div>
-                <div id="gsOrdersList" class="gs-orders" aria-live="polite"></div>
-                <div id="gsMoreWrap" class="gs-more" hidden>
-                    <button id="gsMore" class="gs-button" type="button">Cargar más pedidos</button>
-                </div>
-            </section>
+                </header>
 
-            <section class="gs-panel" aria-labelledby="gsClientsTitle">
-                <div class="gs-section-head">
-                    <div>
-                        <p class="gs-eyebrow">Relación comercial</p>
-                        <h2 id="gsClientsTitle">Tus clientes</h2>
+                <p id="gsNotice" class="gs-notice" role="status" aria-live="polite" hidden></p>
+
+                <div id="gsDashboardScroll" class="gs-dashboard-scroll">
+                    <div class="gs-dashboard-grid">
+                        <div class="gs-column-main">
+                            <section class="gs-kpis" aria-label="Indicadores principales">
+                                <article class="gs-kpi">
+                                    <div class="gs-kpi-top">
+                                        <span class="gs-kpi-icon" aria-hidden="true"><i class="fa-solid fa-arrow-trend-up"></i></span>
+                                        <span class="gs-kpi-label">Ventas atribuidas</span>
+                                    </div>
+                                    <strong id="gsSales" class="gs-kpi-value">—</strong>
+                                    <span class="gs-kpi-delta is-neutral"><i class="fa-solid fa-minus" aria-hidden="true"></i> Sin histórico comparativo</span>
+                                </article>
+                                <article class="gs-kpi">
+                                    <div class="gs-kpi-top">
+                                        <span class="gs-kpi-icon" aria-hidden="true"><i class="fa-solid fa-bag-shopping"></i></span>
+                                        <span class="gs-kpi-label">Pedidos</span>
+                                    </div>
+                                    <strong id="gsOrdersCount" class="gs-kpi-value">—</strong>
+                                    <span class="gs-kpi-delta is-neutral"><i class="fa-solid fa-minus" aria-hidden="true"></i> Sin histórico comparativo</span>
+                                </article>
+                                <article class="gs-kpi is-accent">
+                                    <div class="gs-kpi-top">
+                                        <span class="gs-kpi-icon" aria-hidden="true"><i class="fa-solid fa-coins"></i></span>
+                                        <span class="gs-kpi-label">Comisiones</span>
+                                    </div>
+                                    <strong id="gsCommissionAvailable" class="gs-kpi-value">—</strong>
+                                    <span class="gs-kpi-delta is-neutral"><i class="fa-solid fa-minus" aria-hidden="true"></i> Disponibles para cobrar</span>
+                                </article>
+                            </section>
+
+                            <section id="gsPerformance" class="gs-card gs-report-card" aria-labelledby="gsReportTitle">
+                                <div class="gs-card-head">
+                                    <div class="gs-card-heading">
+                                        <p class="gs-eyebrow">Rendimiento</p>
+                                        <h2 id="gsReportTitle">Resultado comercial</h2>
+                                        <p class="gs-card-subtitle">Ventas atribuidas y comisiones por periodo.</p>
+                                    </div>
+                                    <label class="gs-select">
+                                        <span class="gs-sr-only">Periodo del reporte</span>
+                                        <select id="gsReportPeriod">
+                                            <option value="7">Últimos 7 días</option>
+                                            <option value="30" selected>Últimos 30 días</option>
+                                            <option value="90">Últimos 90 días</option>
+                                        </select>
+                                    </label>
+                                </div>
+
+                                <div class="gs-report-figure">
+                                    <div class="gs-report-stat">
+                                        <span>Total del periodo</span>
+                                        <strong>—</strong>
+                                    </div>
+                                    <div class="gs-report-stat">
+                                        <span>Promedio</span>
+                                        <strong>—</strong>
+                                    </div>
+                                    <div class="gs-report-legend" role="group" aria-label="Series del gráfico">
+                                        <span><i class="gs-dot is-sales" aria-hidden="true"></i>Ventas</span>
+                                        <span><i class="gs-dot is-commission" aria-hidden="true"></i>Comisiones</span>
+                                    </div>
+                                </div>
+
+                                <div class="gs-chart" role="img" aria-label="Gráfico de ventas y comisiones sin datos históricos">
+                                    <div class="gs-chart-grid" aria-hidden="true">
+                                        <span></span><span></span><span></span><span></span>
+                                    </div>
+                                    <div class="gs-chart-empty">
+                                        <span class="gs-chart-empty-icon" aria-hidden="true"><i class="fa-solid fa-chart-simple"></i></span>
+                                        <strong>Sin serie histórica todavía</strong>
+                                        <p>El gráfico se activará cuando exista actividad suficiente en el periodo seleccionado.</p>
+                                    </div>
+                                    <div class="gs-chart-days" aria-hidden="true">
+                                        <span>01</span><span>05</span><span>10</span><span>15</span><span>20</span><span>25</span><span>30</span>
+                                    </div>
+                                    <div class="gs-chart-tooltip" hidden></div>
+                                </div>
+                            </section>
+
+                            <section id="gsOrdersSection" class="gs-card gs-table-card" aria-labelledby="gsRecentTitle">
+                                <div class="gs-card-head gs-card-head-wrap">
+                                    <div class="gs-card-heading">
+                                        <p class="gs-eyebrow">Actividad</p>
+                                        <h2 id="gsRecentTitle">Actividad reciente</h2>
+                                        <p class="gs-card-subtitle">Pedidos atribuidos a tu cuenta.</p>
+                                    </div>
+                                    <div class="gs-table-tools">
+                                        <label class="gs-select">
+                                            <span class="gs-sr-only">Ordenar pedidos</span>
+                                            <select id="gsSort">
+                                                <option value="recent" selected>Más recientes</option>
+                                                <option value="amount">Mayor importe</option>
+                                                <option value="status">Por estado</option>
+                                            </select>
+                                        </label>
+                                        <label class="gs-select">
+                                            <span class="gs-sr-only">Periodo de la actividad</span>
+                                            <select id="gsPeriod">
+                                                <option value="30" selected>30 días</option>
+                                                <option value="90">90 días</option>
+                                                <option value="365">12 meses</option>
+                                                <option value="all">Todo</option>
+                                            </select>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="gs-table-filterbar">
+                                    <span class="gs-table-hint"><i class="fa-solid fa-filter" aria-hidden="true"></i> Filtra tu actividad</span>
+                                    <label class="gs-select gs-select-compact">
+                                        <span class="gs-sr-only">Filtrar por estado</span>
+                                        <select id="gsStatusFilter">
+                                            <option value="">Todos los estados</option>
+                                            <option value="Pedido recibido">Pedido recibido</option>
+                                            <option value="Confirmando pedido">Confirmando pedido</option>
+                                            <option value="Preparando pedido">Preparando pedido</option>
+                                            <option value="En camino">En camino</option>
+                                            <option value="Entregado">Entregado</option>
+                                            <option value="Cancelado">Cancelado</option>
+                                        </select>
+                                    </label>
+                                </div>
+
+                                <div class="gs-table-scroll">
+                                    <table class="gs-table">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">Pedido</th>
+                                                <th scope="col">Cliente</th>
+                                                <th scope="col">Artículos</th>
+                                                <th scope="col">Importe</th>
+                                                <th scope="col">Estado</th>
+                                                <th scope="col">Comisión</th>
+                                                <th scope="col"><span class="gs-sr-only">Detalle</span></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="gsOrdersList"></tbody>
+                                    </table>
+                                </div>
+                                <div id="gsMoreWrap" class="gs-more" hidden>
+                                    <button id="gsMore" class="gs-button" type="button">Cargar más pedidos</button>
+                                </div>
+                            </section>
+                        </div>
+
+                        <aside class="gs-column-aside" aria-label="Resumen visual">
+                            <section class="gs-card gs-side-card" aria-labelledby="gsCategoriesTitle">
+                                <div class="gs-card-head gs-card-head-tight">
+                                    <div class="gs-card-heading">
+                                        <h2 id="gsCategoriesTitle">Productos destacados</h2>
+                                    </div>
+                                    <label class="gs-select gs-select-mini">
+                                        <span class="gs-sr-only">Periodo de productos destacados</span>
+                                        <select id="gsCategoryPeriod">
+                                            <option value="30" selected>30 días</option>
+                                            <option value="90">90 días</option>
+                                        </select>
+                                    </label>
+                                </div>
+                                <div class="gs-bubble-stage" aria-hidden="true">
+                                    <span class="gs-bubble is-one"></span>
+                                    <span class="gs-bubble is-two"></span>
+                                    <span class="gs-bubble is-three"></span>
+                                    <span class="gs-bubble is-four"></span>
+                                    <span class="gs-bubble is-five"></span>
+                                </div>
+                                <div class="gs-bubble-empty">
+                                    <span class="gs-chip-muted">Sin datos</span>
+                                    <p>Aún no hay productos atribuidos en este periodo.</p>
+                                </div>
+                                <div class="gs-mini-legend">
+                                    <span><i class="gs-dot is-sales" aria-hidden="true"></i>Categorías</span>
+                                    <span><i class="gs-dot is-soft" aria-hidden="true"></i>Productos</span>
+                                </div>
+                            </section>
+
+                            <section class="gs-card gs-side-card" aria-labelledby="gsGaugeTitle">
+                                <div class="gs-card-head gs-card-head-tight">
+                                    <div class="gs-card-heading">
+                                        <h2 id="gsGaugeTitle">Rendimiento</h2>
+                                    </div>
+                                    <span class="gs-chip-muted">Acumulado</span>
+                                </div>
+                                <div class="gs-gauge" role="img" aria-label="Rendimiento sin objetivo definido">
+                                    <svg viewBox="0 0 220 120" aria-hidden="true">
+                                        <path class="gs-gauge-track" d="M24 108a86 86 0 0 1 172 0"></path>
+                                        <path class="gs-gauge-progress" d="M24 108a86 86 0 0 1 172 0"></path>
+                                    </svg>
+                                    <div class="gs-gauge-center">
+                                        <strong>—</strong>
+                                        <span>Objetivo sin definir</span>
+                                    </div>
+                                </div>
+                                <div class="gs-gauge-rows">
+                                    <div>
+                                        <span>Clientes vinculados</span>
+                                        <strong id="gsClientsCount">0</strong>
+                                    </div>
+                                    <div>
+                                        <span>Comisión pagada</span>
+                                        <strong id="gsCommissionPaid">$0.00</strong>
+                                    </div>
+                                </div>
+                                <p class="gs-side-note-text">La comparación aparecerá al conectar el histórico comercial.</p>
+                            </section>
+
+                            <section class="gs-card gs-side-card" aria-labelledby="gsInventoryTitle">
+                                <div class="gs-card-head gs-card-head-tight">
+                                    <div class="gs-card-heading">
+                                        <h2 id="gsInventoryTitle">Estado comercial</h2>
+                                    </div>
+                                    <span class="gs-chip-muted">Sin datos</span>
+                                </div>
+                                <div class="gs-status-track" aria-hidden="true">
+                                    <span></span><span></span><span></span><span></span>
+                                </div>
+                                <ul class="gs-status-legend">
+                                    <li><span><i class="gs-dot is-complete" aria-hidden="true"></i>Entregado</span><strong>—</strong></li>
+                                    <li><span><i class="gs-dot is-progress" aria-hidden="true"></i>En proceso</span><strong>—</strong></li>
+                                    <li><span><i class="gs-dot is-pending" aria-hidden="true"></i>Pendiente</span><strong>—</strong></li>
+                                    <li><span><i class="gs-dot is-cancelled" aria-hidden="true"></i>Cancelado</span><strong>—</strong></li>
+                                </ul>
+                                <p class="gs-side-note-text">La distribución de inventario se activará en una fase posterior.</p>
+                            </section>
+                        </aside>
                     </div>
-                    <span class="gs-privacy-note"><i class="fa-solid fa-lock" aria-hidden="true"></i> Solo clientes de tus pedidos</span>
-                </div>
-                <div id="gsClientsList" class="gs-clients" aria-live="polite"></div>
-            </section>
 
-            <footer class="gs-footer">
-                <p>VOLXEN · Panel privado de promotores</p>
-                <p>Los datos se actualizan al confirmar ventas y comisiones desde administración.</p>
-            </footer>
+                    <section id="gsCommissionsSection" class="gs-card gs-wide-card" aria-labelledby="gsCommissionTitle">
+                        <div class="gs-card-head">
+                            <div class="gs-card-heading">
+                                <p class="gs-eyebrow">Comisiones</p>
+                                <h2 id="gsCommissionTitle">Tu saldo</h2>
+                                <p class="gs-card-subtitle">El administrador marca cada pago.</p>
+                            </div>
+                            <span class="gs-chip-muted">Solo lectura</span>
+                        </div>
+
+                        <div class="gs-ledger-grid">
+                            <div class="gs-ledger-item">
+                                <span>Pendiente</span>
+                                <strong id="gsCommissionPending">$0.00</strong>
+                                <small>Ventas aún no confirmadas</small>
+                            </div>
+                            <div class="gs-ledger-item is-available">
+                                <span>Lista para cobrar</span>
+                                <strong id="gsCommissionReady">$0.00</strong>
+                                <small>Ventas entregadas</small>
+                            </div>
+                            <div class="gs-ledger-item">
+                                <span>Pagada</span>
+                                <strong id="gsCommissionDone">$0.00</strong>
+                                <small>Liquidadas por el admin</small>
+                            </div>
+                        </div>
+
+                        <div class="gs-subsection-head">
+                            <div>
+                                <h3 id="gsHistoryTitle">Historial de comisiones</h3>
+                                <p>Movimientos atribuidos a tu cuenta.</p>
+                            </div>
+                            <span class="gs-chip-muted">Actualizado por administración</span>
+                        </div>
+                        <div id="gsCommissionHistory" class="gs-history" aria-live="polite"></div>
+                    </section>
+
+                    <section id="gsClientsSection" class="gs-card gs-wide-card" aria-labelledby="gsClientsTitle">
+                        <div class="gs-card-head">
+                            <div class="gs-card-heading">
+                                <p class="gs-eyebrow">Relación comercial</p>
+                                <h2 id="gsClientsTitle">Tus clientes</h2>
+                            </div>
+                            <span class="gs-privacy-note"><i class="fa-solid fa-lock" aria-hidden="true"></i> Solo clientes de tus pedidos</span>
+                        </div>
+                        <div id="gsClientsList" class="gs-clients" aria-live="polite"></div>
+                    </section>
+
+                    <div class="gs-secondary-grid">
+                        <section class="gs-card" aria-labelledby="gsProfileTitle">
+                            <div class="gs-card-head">
+                                <div class="gs-card-heading">
+                                    <p class="gs-eyebrow">Tu cuenta</p>
+                                    <h2 id="gsProfileTitle">Perfil y actividad</h2>
+                                </div>
+                                <span class="gs-chip-muted">Datos asignados</span>
+                            </div>
+                            <div class="gs-profile-head">
+                                <span class="gs-profile-avatar" id="gsProfileInitial" aria-hidden="true">V</span>
+                                <div>
+                                    <strong id="gsProfileName">Tu cuenta</strong>
+                                    <small id="gsProfileEmail"></small>
+                                </div>
+                            </div>
+                            <dl class="gs-profile-data">
+                                <div><dt>Rol</dt><dd id="gsProfileRole">—</dd></div>
+                                <div><dt>Comisión</dt><dd id="gsProfileCommission">—</dd></div>
+                                <div><dt>Estado</dt><dd id="gsProfileState">—</dd></div>
+                                <div><dt>Desde</dt><dd id="gsProfileSince">—</dd></div>
+                            </dl>
+                            <h3 class="gs-subsection-title">Actividad por estado</h3>
+                            <div id="gsActivity" class="gs-activity" aria-live="polite"></div>
+                        </section>
+
+                        <section id="gsNotificationsSection" class="gs-card" aria-labelledby="gsNotificationsTitle">
+                            <div class="gs-card-head">
+                                <div class="gs-card-heading">
+                                    <p class="gs-eyebrow">Seguimiento</p>
+                                    <h2 id="gsNotificationsTitle">Notificaciones</h2>
+                                </div>
+                                <span id="gsNotificationsCount" class="gs-chip-muted">Sin novedades</span>
+                            </div>
+                            <div id="gsNotifications" class="gs-notifications" aria-live="polite"></div>
+                        </section>
+                    </div>
+
+                    <footer class="gs-footer">
+                        <p>VOLXEN · Panel privado del gestor comercial</p>
+                        <p>Los datos se actualizan al confirmar ventas y comisiones desde administración.</p>
+                    </footer>
+                </div>
+            </div>
         </div>
     </main>
 

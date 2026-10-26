@@ -99,6 +99,24 @@ test("el panel compartido incluye perfil, notificaciones e historial", () => {
     assert.doesNotMatch(js, /method:\s*"DELETE"/);
 });
 
+test("el panel del gestor conserva la estructura visual y accesible del rediseño", () => {
+    const html = read("gestor.html");
+    const css = read("gestor.css");
+
+    assert.match(html, /class="gs-app"/);
+    assert.match(html, /id="gsSidebar"/);
+    assert.match(html, /id="gsDashboardScroll"/);
+    assert.match(html, /class="gs-kpis"/);
+    assert.match(html, /<tbody id="gsOrdersList"><\/tbody>/);
+    assert.match(html, /id="gsGreeting"/);
+    assert.match(html, /id="gsTopAvatar"/);
+    assert.match(html, /data-gs-nav="pedidos"[^>]*aria-label="Pedidos"[^>]*title="Pedidos"/);
+    assert.match(html, /id="gsLogout"[^>]*aria-label="Cerrar sesión"[^>]*title="Cerrar sesión"/);
+    assert.match(css, /\.gs-app\.is-sidebar-collapsed \.gs-side-label\s*\{\s*display: none;/);
+    assert.match(css, /\.gs-cell-commission small\s*\{[^}]*display: block;/s);
+    assert.doesNotMatch(html, /<canvas/);
+});
+
 test("el admin conserva acceso directo y restaurar sesión no rompe el panel", () => {
     const admin = read("admin.html");
 
