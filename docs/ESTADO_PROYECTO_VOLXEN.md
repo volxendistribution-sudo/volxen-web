@@ -1,4 +1,55 @@
-# Estado del Proyecto VOLXEN - Resumen de Sesión
+# Estado del Proyecto VOLXEN
+
+## Sesión actual — 2026-10-27
+
+**Rama:** `main`
+**Base:** `32085af` — `feat: rediseñar el panel del gestor`
+**Estado:** Fase 1.1 terminada, probada y validada visualmente. Los cambios se publican en `main` al cierre de esta sesión.
+
+### Qué se hizo
+
+- `gestor.html` reescrito según la composición A–K: sin pantalla de bienvenida, dashboard directo, sidebar, topbar, KPIs, reporte con gráfico, pedidos, productos destacados, rendimiento, estado comercial, comisiones, clientes, perfil, notificaciones, catálogo interno y ficha de producto.
+- `gestor.css` reescrito con tokens propios, layout de escritorio y responsive en 1200/1024/820/640 px. Sidebar colapsable en escritorio y off-canvas en móvil; tabla con scroll interno; sin scroll horizontal de página.
+- `js/pages/gestor.js` actualizado: métricas reales de los RPCs, reporte por periodo, gráfico de ventas/comisiones, tabla de 7 columnas, detalle de pedido, burbujas top 3, gauge, estados, catálogo perezoso y diálogo de producto.
+- `js/pages/gestor-tienda.js` reducido a redirect-only `VXGestorRedirect`: valida sesión con `VXAUTH.getSession()` y envía a `gestor.html` a roles `gestor`/`promotor`; no crea menú, cajón ni botón flotante.
+- Catálogo interno reutiliza `volxen-core.js` (`load`, `getP`, `getCs`, `pcard`, `add`) y solo carga al abrir la vista Catálogo. El enlace “Abrir catálogo” del sidebar abre esta vista interna.
+- Ficha de producto con `<dialog>` nativo y fallback; añadir al carrito usa el flujo existente de `VX.add`.
+- Imágenes: eliminado el bloque `.im` duplicado y corregido el restante con `contain`, `isolation`, `mix-blend-mode: multiply` y badge con `z-index`.
+- CSS muerto eliminado: 107 reglas `.vxp-*` (~387 líneas) que pertenecían al menú retirado. Se conservaron `.pdp-commission` y sus estilos asociados.
+- Ajustada la especificidad de los resets de `gestor.css` con `:where()` para que los botones/enlaces recuperen sus colores y tamaños de componente.
+
+### Archivos principales
+
+- `gestor.html`
+- `gestor.css`
+- `js/pages/gestor.js`
+- `js/pages/gestor-tienda.js`
+- `volxen.css`
+- `dist/volxen.css`
+- `tests/gestor-panel.test.js`
+- `tests/gestor-tienda.test.js`
+- Páginas de tienda que cargan el redirect: `index.html`, `catalogo.html`, `producto.html`, `carrito.html`, `checkout.html`, `pedidos.html`, `consulta.html`, `operadoras.html`, `404.html`.
+
+### Validación
+
+- `npm test`: **79/79 pruebas pasan**.
+- `npm run build`: **OK**.
+- `npx html-validate gestor.html`: **OK**.
+- `node --check js/pages/gestor.js`: **OK**.
+- `node --check js/pages/gestor-tienda.js`: **OK**.
+- `git diff --check`: **OK**.
+- QA con Playwright y datos simulados a 1440 px y 390 px: dashboard, tabla, detalle, catálogo, diálogo, sidebar colapsado y menú móvil; sin errores JS, sin scroll horizontal de página y con scroll interno en la tabla.
+
+### Limitaciones reales
+
+- No existe categoría por ítem de pedido, objetivo del 70 % ni serie histórica completa; el reporte y las burbujas usan las filas y pedidos realmente cargados.
+- El gauge se calcula con `pedidos_por_estado` y fallback sobre los pedidos cargados.
+- F6: la corrección de imagen es genérica; no se pudo reproducir el caso exacto sin URL/captura.
+- `opencode.json` sigue untracked y queda fuera del commit.
+
+---
+
+## Historial de sesión — 2026-10-14
 
 **Fecha:** 2026-10-14  
 **Rama:** main  

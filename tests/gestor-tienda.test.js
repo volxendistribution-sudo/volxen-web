@@ -7,60 +7,24 @@ const vm = require("node:vm");
 const ROOT = path.resolve(__dirname, "..");
 const read = (file) => fs.readFileSync(path.join(ROOT, file), "utf8");
 
-function runStoreMode(session) {
-    return new Promise((resolve) => {
-        const classes = new Set();
-        const attributes = {};
-        let inserted = "";
-        let toggle = null;
-        let layer = null;
-
-        const fakeElement = () => ({
-            hidden: false,
-            textContent: "",
-            tabIndex: 0,
-            classList: { add: () => {}, remove: () => {}, toggle: () => {}, contains: () => false },
-            setAttribute: () => {},
-            addEventListener: () => {},
-            querySelector: () => null,
-            querySelectorAll: () => [],
-            focus: () => {}
-        });
-
+function runRedirect(session, pathname = "/catalogo.html") {
+    return new Promise((resolve, reject) => {
+        const redirects = [];
         const document = {
             readyState: "complete",
-            body: {
-                classList: {
-                    contains: (name) => classes.has(name),
-                    add: (name) => classes.add(name),
-                    remove: (name) => classes.delete(name)
-                },
-                setAttribute: (name, value) => { attributes[name] = value; },
-                insertAdjacentHTML: (position, html) => {
-                    inserted += html;
-                    toggle = fakeElement();
-                    layer = fakeElement();
-                }
-            },
-            getElementById: (id) => {
-                if (id === "vxPromotorToggle") return toggle;
-                if (id === "vxPromotorLayer") return layer;
-                if (id === "vxpName") return fakeElement();
-                return null;
-            },
-            addEventListener: () => {},
-            activeElement: null
+            addEventListener: () => {}
         };
-
         const context = {
             window: {
                 VXAUTH: {
                     getSession: async () => session
                 },
-                requestAnimationFrame: (fn) => { fn(); return 1; }
+                location: {
+                    pathname,
+                    replace: (target) => redirects.push(target)
+                }
             },
             document,
-            fetch: () => { throw new Error("La tienda no debe consultar datos de comisión"); },
             console,
             setTimeout,
             clearTimeout,
@@ -69,82 +33,58 @@ function runStoreMode(session) {
 
         vm.createContext(context);
         vm.runInContext(read("js/pages/gestor-tienda.js"), context, { filename: "js/pages/gestor-tienda.js" });
-        Promise.resolve(context.window.VXPromotorTienda.init()).then(() => {
-            setTimeout(() => resolve({ classes, attributes, inserted }), 0);
-        });
+        Promise.resolve(context.window.VXGestorRedirect.init()).then(() => resolve(redirects)).catch(reject);
     });
 }
 
-test("la tienda activa el panel para gestores y promotores verificados", async () => {
+test("los gestores y promotores vuelven automáticamente a su panel", async () => {
     for (const role of ["gestor", "promotor"]) {
-        const result = await runStoreMode({ user: { role, nombre: "Ana" } });
-        assert.equal(result.classes.has("vx-promotor-mode"), true, "Debe activarse para " + role);
-        assert.equal(result.attributes["data-promotor-mode"], "1");
-        assert.match(result.inserted, /Panel de promotor/);
-        assert.match(result.inserted, /id="vxPromotorToggle"/);
-        assert.match(result.inserted, /id="vxPromotorLayer"/);
-        assert.match(result.inserted, /data-vxp-tab="comisiones"/);
-        assert.match(result.inserted, /data-vxp-tab="pedidos"/);
-        assert.match(result.inserted, /data-vxp-tab="clientes"/);
-        assert.match(result.inserted, /data-vxp-tab="pagos"/);
-        assert.match(result.inserted, /data-vxp-tab="productos"/);
-        assert.match(result.inserted, /data-vxp-tab="enlace"/);
-        assert.match(result.inserted, /href="gestor\.html"/);
-        assert.doesNotMatch(result.inserted, /Tienda en modo gestor/);
+        const redirects = await runRedirect({ user: { id: "u1", role, nombre: "Ana" } });
+        assert.deepEqual(redirects, ["gestor.html"], "Debe redirigir a " + role);
     }
 
     for (const role of ["cliente", "admin", ""]) {
-        const result = await runStoreMode({ user: { role } });
-        assert.equal(result.classes.has("vx-promotor-mode"), false, "No debe activarse para " + role);
-        assert.equal(result.inserted, "", "No debe insertar interfaz para " + role);
+        const redirects = await runRedirect({ user: { role } });
+        assert.deepEqual(redirects, [], "No debe redirigir a " + role);
     }
 
-    const guest = await runStoreMode(null);
-    assert.equal(guest.classes.has("vx-promotor-mode"), false);
-    assert.equal(guest.inserted, "");
+    assert.deepEqual(await runRedirect(null), []);
+    assert.deepEqual(await runRedirect({ user: { role: "promotor" } }, "/gestor.html"), []);
 });
 
-test("el panel del promotor usa VXAUTH y no toca carrito, checkout ni atribución", () => {
+test("el redirect no introduce datos ni interfaz duplicada", () => {
     const js = read("js/pages/gestor-tienda.js");
     const css = read("volxen.css");
-    const core = read("volxen-core.js");
-    const producto = read("js/pages/producto.js");
-    const catalogo = read("js/pages/catalogo.js");
 
-    assert.match(js, /VXAUTH\.getSession/);
     assert.match(js, /role === "gestor" \|\| role === "promotor"/);
-    assert.match(js, /gestor\.html/);
-    assert.match(js, /vxp-drawer/);
-    assert.doesNotMatch(js, /vx-gestor|Tienda en modo gestor/);
-    assert.doesNotMatch(js, /fetch\(|localStorage|sessionStorage|document\.cookie/);
-    assert.doesNotMatch(js, /comision_porcentaje|comision_usd|total_usd|precio_usd|Math\.|Number\(/);
-    assert.doesNotMatch(js, /URLSearchParams|location\.search|promotor_id|atribucion_id/);
-
-    assert.match(producto, /data-promotor-commission/);
-    assert.match(producto, /Fija o flexible/);
-    assert.doesNotMatch(core, /pcd-commission/);
-    assert.doesNotMatch(catalogo, /pcd-commission/);
-    assert.match(css, /\.vx-promotor-mode \.pdp-commission/);
-    assert.match(css, /\.vxp-toggle/);
-    assert.match(css, /\.vxp-drawer/);
-    assert.match(css, /\.vxp-layer/);
-
-    for (const page of ["carrito.html", "checkout.html"]) {
-        assert.doesNotMatch(read(page), /gestor-tienda\.js/, "El flujo de compra no debe cargar el panel del promotor");
-    }
+    assert.match(js, /window\.location\.replace\("gestor\.html"\)/);
+    assert.doesNotMatch(js, /VXPromotorMenu|VXPromotorTienda|data-vxp|vxp-menu|vxPromotorToggle|vxp-toggle|xhr|localStorage|sessionStorage|document\.cookie/);
+    assert.doesNotMatch(css, /\.vxp-/);
 });
 
-test("las páginas de tienda validan la sesión antes de mostrar el panel", () => {
-    for (const page of ["index.html", "catalogo.html", "producto.html"]) {
+test("todas las páginas de la tienda validan la sesión y cargan el redirect", () => {
+    const pages = [
+        "index.html",
+        "catalogo.html",
+        "producto.html",
+        "carrito.html",
+        "checkout.html",
+        "pedidos.html",
+        "consulta.html",
+        "operadoras.html",
+        "404.html"
+    ];
+
+    for (const page of pages) {
         const html = read(page);
         const auth = html.indexOf('<script src="auth.js"></script>');
         const core = html.indexOf('<script src="volxen-core.js"></script>');
-        const mode = html.indexOf('<script src="js/pages/gestor-tienda.js"></script>');
+        const redirect = html.indexOf('<script src="js/pages/gestor-tienda.js"></script>');
 
         assert.ok(auth !== -1, page + " debe cargar auth.js");
         assert.ok(core !== -1, page + " debe cargar volxen-core.js");
-        assert.ok(mode !== -1, page + " debe cargar el panel del promotor");
+        assert.ok(redirect !== -1, page + " debe cargar el redirect de gestor");
         assert.ok(auth < core, page + " debe cargar auth.js antes del núcleo");
-        assert.ok(core < mode, page + " debe cargar el panel del promotor después del núcleo");
+        assert.ok(core < redirect, page + " debe cargar el redirect después del núcleo");
     }
 });

@@ -32,9 +32,21 @@
         roleRow: null,
         promoter: null,
         query: "",
+        queryInput: "",
         status: "",
         period: "30",
+        reportPeriod: "30",
+        categoryPeriod: "30",
         sort: "recent",
+        panelView: "dashboard",
+        catalogCategory: "",
+        catalogQuery: "",
+        catalogQueryInput: "",
+        catalogSort: "featured",
+        catalogReady: false,
+        catalogLoading: false,
+        catalogPromise: null,
+        catalogProductId: "",
         loading: false,
         hasMore: false
     };
@@ -86,13 +98,6 @@
             .replace(/[\u0300-\u036f]/g, "");
     }
 
-    function greetingForHour() {
-        const hour = new Date().getHours();
-        if (hour < 12) return "Buenos días";
-        if (hour < 20) return "Buenas tardes";
-        return "Buenas noches";
-    }
-
     function userInitial(name, email) {
         return (String(name || "").trim() || String(email || "").trim() || "V")
             .charAt(0)
@@ -114,14 +119,101 @@
         return { label: value || "Sin estado", className: "is-progress" };
     }
 
-    function periodThreshold() {
-        if (state.period === "all") return null;
-        const days = Number(state.period);
-        if (!Number.isFinite(days) || days <= 0) return null;
+    function thresholdForDays(days) {
+        const amount = Number(days);
+        if (!Number.isFinite(amount) || amount <= 0) return null;
         const threshold = new Date();
         threshold.setHours(0, 0, 0, 0);
-        threshold.setDate(threshold.getDate() - (days - 1));
+        threshold.setDate(threshold.getDate() - (amount - 1));
         return threshold;
+    }
+
+    function periodThreshold() {
+        if (state.period === "all") return null;
+        return thresholdForDays(state.period);
+    }
+
+    function orderDate(order) {
+        const date = new Date(order && order.created_at);
+        return Number.isNaN(date.getTime()) ? null : date;
+    }
+
+    function orderUnits(order) {
+        const items = Array.isArray(order && order.items) ? order.items : [];
+        return items.reduce(function (total, item) {
+            const quantity = Number(item.cantidad || item.qty || 0);
+            return total + (Number.isFinite(quantity) ? quantity : 0);
+        }, 0);
+    }
+
+    function orderGross(order) {
+        const amount = Number(order && order.total_usd);
+        return Number.isFinite(amount) ? amount : 0;
+    }
+
+    function orderCommissionValue(order) {
+        const amount = Number(order && order.comision_monto_usd);
+        return Number.isFinite(amount) ? amount : 0;
+    }
+
+    function orderCompleted(order) {
+        return String(order && order.estado) !== "Cancelado";
+    }
+
+    function withinThreshold(order, threshold) {
+        if (!threshold) return true;
+        const date = orderDate(order);
+        return Boolean(date && date >= threshold);
+    }
+
+    function compactMoney(value) {
+        const amount = Number(value);
+        if (!Number.isFinite(amount) || amount <= 0) return "$0";
+        if (amount >= 1000000) return "$" + (amount / 1000000).toLocaleString("es-ES", { maximumFractionDigits: 1 }) + "M";
+        if (amount >= 1000) return "$" + (amount / 1000).toLocaleString("es-ES", { maximumFractionDigits: 1 }) + "k";
+        return "$" + Math.round(amount).toLocaleString("es-ES");
+    }
+
+    function niceMax(value) {
+        const amount = Number(value);
+        if (!Number.isFinite(amount) || amount <= 0) return 1;
+        const power = Math.pow(10, Math.floor(Math.log10(amount)));
+        const normalized = amount / power;
+        const step = normalized <= 1 ? 1 : normalized <= 2 ? 2 : normalized <= 2.5 ? 2.5 : normalized <= 5 ? 5 : 10;
+        return step * power;
+    }
+
+    function dateRangeLabel(date, days) {
+        if (!date) return "";
+        if (Number(days) <= 7) {
+            return new Intl.DateTimeFormat("es-ES", { weekday: "short" }).format(date).replace(".", "");
+        }
+        return new Intl.DateTimeFormat("es-ES", { day: "2-digit", month: "short" }).format(date).replace(".", "");
+    }
+
+    function statusCounts() {
+        const summary = state.summary || {};
+        const byState = summary.pedidos_por_estado && typeof summary.pedidos_por_estado === "object"
+            ? summary.pedidos_por_estado
+            : null;
+
+        if (byState) {
+            const normalized = {};
+            ORDER_STATUS_ORDER.forEach(function (status) {
+                normalized[status] = Number(byState[status] || 0);
+            });
+            return normalized;
+        }
+
+        const fallback = {};
+        ORDER_STATUS_ORDER.forEach(function (status) {
+            fallback[status] = 0;
+        });
+        state.orders.forEach(function (order) {
+            const status = String(order.estado || "");
+            if (Object.prototype.hasOwnProperty.call(fallback, status)) fallback[status] += 1;
+        });
+        return fallback;
     }
 
     function cleanPhone(value) {
@@ -199,7 +291,7 @@
     }
 
     function setView(view) {
-        ["gsGuest", "gsDenied", "gsLoading", "gsError", "gsWelcome", "gsDashboard"].forEach(function (name) {
+        ["gsGuest", "gsDenied", "gsLoading", "gsError", "gsDashboard"].forEach(function (name) {
             if (refs[name]) refs[name].hidden = name !== view;
         });
         document.body.dataset.gsView = view;
@@ -245,31 +337,6 @@
         });
     }
 
-    function showWelcome() {
-        const user = state.session && state.session.user ? state.session.user : {};
-        const name = String(user.nombre || "").trim();
-        const firstName = name ? name.split(/\s+/)[0] : "";
-
-        if (refs.gsWelcomeLead) {
-            refs.gsWelcomeLead.textContent = firstName
-                ? "Hola, " + firstName + ". Tu cuenta está autorizada como promotor comercial de VOLXEN."
-                : "Tu cuenta está autorizada como promotor comercial de VOLXEN.";
-        }
-
-        setView("gsWelcome");
-
-        window.requestAnimationFrame(function () {
-            if (refs.gsWelcomeTitle) refs.gsWelcomeTitle.focus({ preventScroll: true });
-        });
-    }
-
-    function enterPanelFromWelcome() {
-        if (refs.gsWelcomeEnter) refs.gsWelcomeEnter.disabled = true;
-        if (refs.gsWelcomeSkip) refs.gsWelcomeSkip.disabled = true;
-        setView("gsLoading");
-        load();
-    }
-
     function setNotice(message, isError) {
         if (!refs.gsNotice) return;
         refs.gsNotice.textContent = message || "";
@@ -279,7 +346,6 @@
 
     function setBusy(value) {
         state.loading = value;
-        if (refs.gsRefresh) refs.gsRefresh.disabled = value;
         if (refs.gsMore) refs.gsMore.disabled = value;
     }
 
@@ -287,10 +353,8 @@
         const user = state.session && state.session.user ? state.session.user : {};
         const name = String(user.nombre || "").trim();
 
-        if (refs.gsGreeting) refs.gsGreeting.textContent = greetingForHour();
+        if (refs.gsGreeting) refs.gsGreeting.textContent = "Hola de nuevo";
         refs.gsTitle.textContent = name || "Tu panel comercial";
-        refs.gsEmail.textContent = user.email || "";
-        refs.gsRoleBadge.textContent = roleLabel(user.role);
         if (refs.gsTopAvatar) refs.gsTopAvatar.textContent = userInitial(name, user.email);
     }
 
@@ -422,6 +486,9 @@
         }
 
         if (!state.query) return true;
+        const itemNames = (Array.isArray(order.items) ? order.items : []).map(function (item) {
+            return item.producto_nombre || item.nombre || item.nombre_producto || "";
+        });
         const haystack = normalize([
             order.codigo,
             order.nombre_cliente,
@@ -429,7 +496,7 @@
             order.email,
             order.direccion,
             order.municipio
-        ].join(" "));
+        ].concat(itemNames).join(" "));
         return haystack.indexOf(state.query) !== -1;
     }
 
@@ -460,6 +527,243 @@
 
         copy.sort(function (a, b) { return byDate(b) - byDate(a); });
         return copy;
+    }
+
+    function showReportTooltip(event) {
+        const column = event.currentTarget;
+        const chart = refs.gsChart;
+        const tooltip = refs.gsChartTooltip;
+        if (!chart || !tooltip) return;
+
+        tooltip.textContent = column.getAttribute("data-tooltip") || "";
+        tooltip.hidden = false;
+
+        const chartRect = chart.getBoundingClientRect();
+        const columnRect = column.getBoundingClientRect();
+        const left = columnRect.left - chartRect.left + columnRect.width / 2;
+        const top = Math.max(42, columnRect.top - chartRect.top + 6);
+
+        tooltip.style.left = Math.max(72, Math.min(chartRect.width - 72, left)) + "px";
+        tooltip.style.top = top + "px";
+    }
+
+    function hideReportTooltip() {
+        if (refs.gsChartTooltip) refs.gsChartTooltip.hidden = true;
+    }
+
+    function bindReportTooltips() {
+        if (!refs.gsChartPlot) return;
+        refs.gsChartPlot.querySelectorAll(".gs-chart-col").forEach(function (column) {
+            column.addEventListener("mouseenter", showReportTooltip);
+            column.addEventListener("mouseleave", hideReportTooltip);
+        });
+    }
+
+    function renderReport() {
+        if (!refs.gsReportTotal || !refs.gsChartPlot) return;
+
+        const days = Number(state.reportPeriod) || 30;
+        const threshold = thresholdForDays(days);
+        const orders = state.orders.filter(function (order) {
+            return orderCompleted(order) && withinThreshold(order, threshold);
+        });
+        const total = orders.reduce(function (sum, order) { return sum + orderGross(order); }, 0);
+        const commission = orders.reduce(function (sum, order) { return sum + orderCommissionValue(order); }, 0);
+        const average = orders.length ? total / orders.length : 0;
+        const bucketCount = days === 7 ? 7 : 8;
+        const buckets = [];
+        const now = new Date();
+        now.setHours(23, 59, 59, 999);
+
+        const start = threshold || new Date(now.getTime() - (bucketCount - 1) * 86400000);
+        const span = Math.max(1, now.getTime() - start.getTime());
+        const bucketMs = span / bucketCount;
+
+        for (let index = 0; index < bucketCount; index += 1) {
+            const bucketStart = new Date(start.getTime() + index * bucketMs);
+            buckets.push({
+                label: dateRangeLabel(bucketStart, days),
+                sales: 0,
+                commission: 0,
+                orders: 0
+            });
+        }
+
+        orders.forEach(function (order) {
+            const date = orderDate(order);
+            if (!date) return;
+            const index = Math.max(0, Math.min(bucketCount - 1, Math.floor((date.getTime() - start.getTime()) / bucketMs)));
+            buckets[index].sales += orderGross(order);
+            buckets[index].commission += orderCommissionValue(order);
+            buckets[index].orders += 1;
+        });
+
+        refs.gsReportTotal.textContent = money(total);
+        refs.gsReportAverage.textContent = money(average);
+        refs.gsReportCommission.textContent = money(commission);
+
+        const maxSales = niceMax(Math.max.apply(null, buckets.map(function (bucket) { return bucket.sales; })) || 1);
+        const maxOrders = Math.max.apply(null, buckets.map(function (bucket) { return bucket.orders; })) || 1;
+
+        if (refs.gsChartGrid) {
+            refs.gsChartGrid.innerHTML = "<span></span><span></span><span></span><span></span><span></span>";
+        }
+
+        if (refs.gsChartAxisLeft) {
+            refs.gsChartAxisLeft.innerHTML = [1, .75, .5, .25, 0].map(function (ratio) {
+                return "<span>" + escapeHtml(compactMoney(maxSales * ratio)) + "</span>";
+            }).join("");
+        }
+
+        if (refs.gsChartAxisRight) {
+            refs.gsChartAxisRight.innerHTML = [1, .75, .5, .25, 0].map(function (ratio) {
+                return "<span>" + escapeHtml(count(Math.round(maxOrders * ratio))) + "</span>";
+            }).join("");
+        }
+
+        const hasData = orders.length > 0;
+        if (refs.gsChartEmpty) refs.gsChartEmpty.hidden = hasData;
+        if (refs.gsChartTooltip) refs.gsChartTooltip.hidden = true;
+
+        if (refs.gsChart) {
+            refs.gsChart.setAttribute("aria-label", hasData
+                ? "Gráfico de ventas y comisiones de los últimos " + days + " días"
+                : "Gráfico de ventas y comisiones sin actividad en los últimos " + days + " días");
+        }
+
+        refs.gsChartPlot.innerHTML = buckets.map(function (bucket) {
+            const height = hasData && maxSales > 0 ? Math.max(3, (bucket.sales / maxSales) * 100) : 4;
+            const sales = Math.max(0, bucket.sales - bucket.commission);
+            const salesShare = bucket.sales > 0 ? (sales / bucket.sales) * 100 : 0;
+            const commissionShare = bucket.sales > 0 ? (bucket.commission / bucket.sales) * 100 : 0;
+            const tooltip = bucket.label + "\n" +
+                "Ventas: " + money(bucket.sales) + "\n" +
+                "Comisiones: " + money(bucket.commission) + "\n" +
+                "Pedidos: " + count(bucket.orders);
+
+            return '<div class="gs-chart-col" data-tooltip="' + escapeHtml(tooltip) + '">' +
+                '<div class="gs-chart-bar" style="height:' + height.toFixed(2) + '%;opacity:' + (hasData ? "1" : ".42") + '">' +
+                    '<span class="gs-chart-seg is-sales" style="height:' + salesShare.toFixed(2) + '%"></span>' +
+                    '<span class="gs-chart-seg is-commission" style="height:' + commissionShare.toFixed(2) + '%"></span>' +
+                "</div>" +
+                '<span class="gs-chart-xlabel">' + escapeHtml(bucket.label) + "</span>" +
+            "</div>";
+        }).join("");
+
+        bindReportTooltips();
+    }
+
+    function renderBubbles() {
+        if (!refs.gsBubbleStage) return;
+
+        const days = Number(state.categoryPeriod) || 30;
+        const threshold = thresholdForDays(days);
+        const products = new Map();
+
+        state.orders.forEach(function (order) {
+            if (!orderCompleted(order) || !withinThreshold(order, threshold)) return;
+            const items = Array.isArray(order.items) ? order.items : [];
+            items.forEach(function (item) {
+                const name = String(item.producto_nombre || item.nombre || item.nombre_producto || "").trim();
+                const units = Number(item.cantidad || item.qty || 0);
+                if (!name || !Number.isFinite(units) || units <= 0) return;
+                if (!products.has(name)) products.set(name, { name: name, units: 0 });
+                products.get(name).units += units;
+            });
+        });
+
+        const top = Array.from(products.values()).sort(function (a, b) {
+            return b.units - a.units;
+        }).slice(0, 3);
+
+        if (refs.gsBubbleEmpty) refs.gsBubbleEmpty.classList.toggle("is-visible", !top.length);
+        if (refs.gsBubbleNote) {
+            refs.gsBubbleNote.textContent = top.length
+                ? "Tamaño según unidades vendidas en los últimos " + days + " días."
+                : "Sin productos atribuidos en este periodo.";
+        }
+
+        if (!top.length) {
+            refs.gsBubbleStage.innerHTML = "";
+            refs.gsBubbleStage.setAttribute("aria-label", "Sin productos destacados en este periodo");
+            return;
+        }
+
+        refs.gsBubbleStage.setAttribute("aria-label", "Productos más vendidos: " + top.map(function (product) {
+            return product.name + ", " + product.units + " unidades";
+        }).join("; "));
+
+        refs.gsBubbleStage.innerHTML = top.map(function (product, index) {
+            return '<div class="gs-bubble is-' + ["one", "two", "three"][index] + '">' +
+                '<span class="gs-bubble-value">' + escapeHtml(count(product.units)) + " uds.</span>" +
+                '<span class="gs-bubble-label">' + escapeHtml(product.name) + "</span>" +
+            "</div>";
+        }).join("");
+    }
+
+    function renderGauge() {
+        if (!refs.gsGauge) return;
+
+        const byState = statusCounts();
+        const delivered = Number(byState.Entregado || 0);
+        const cancelled = Number(byState.Cancelado || 0);
+        const total = ORDER_STATUS_ORDER.reduce(function (sum, status) {
+            return sum + Number(byState[status] || 0);
+        }, 0);
+        const active = Math.max(0, total - cancelled);
+        const rate = active > 0 ? (delivered / active) * 100 : null;
+
+        if (refs.gsGaugeProgress) {
+            refs.gsGaugeProgress.style.strokeDasharray = (rate || 0).toFixed(2) + " 100";
+        }
+
+        if (refs.gsGaugeValue) refs.gsGaugeValue.textContent = rate === null ? "—" : Math.round(rate) + "%";
+        if (refs.gsGaugeLabel) refs.gsGaugeLabel.textContent = rate === null ? "Sin pedidos" : "Tasa de entrega";
+        if (refs.gsGaugeBadge) refs.gsGaugeBadge.textContent = rate === null ? "Sin datos" : "Tasa de entrega";
+        if (refs.gsGaugeNote) {
+            refs.gsGaugeNote.textContent = active
+                ? count(delivered) + " de " + count(active) + " pedidos activos entregados."
+                : "Calculado con los pedidos entregados.";
+        }
+
+        refs.gsGauge.setAttribute("aria-label", rate === null
+            ? "Tasa de entrega sin pedidos"
+            : "Tasa de entrega del " + Math.round(rate) + " por ciento");
+    }
+
+    function renderStatus() {
+        if (!refs.gsStatusTrack || !refs.gsStatusLegend) return;
+
+        const byState = statusCounts();
+        const groups = [
+            { key: "complete", label: "Entregado", count: Number(byState.Entregado || 0) },
+            {
+                key: "progress",
+                label: "En proceso",
+                count: ["Confirmando pedido", "Preparando pedido", "En camino"].reduce(function (sum, status) {
+                    return sum + Number(byState[status] || 0);
+                }, 0)
+            },
+            { key: "pending", label: "Pendiente", count: Number(byState["Pedido recibido"] || 0) },
+            { key: "cancelled", label: "Cancelado", count: Number(byState.Cancelado || 0) }
+        ];
+        const total = groups.reduce(function (sum, group) { return sum + group.count; }, 0);
+
+        refs.gsStatusTrack.innerHTML = total
+            ? groups.filter(function (group) { return group.count > 0; }).map(function (group) {
+                return '<span class="is-' + group.key + '" style="width:' + (group.count / total * 100).toFixed(2) + '%"></span>';
+            }).join("")
+            : "";
+
+        refs.gsStatusLegend.innerHTML = groups.map(function (group) {
+            return "<li><span><i class=\"gs-dot is-" + group.key + "\" aria-hidden=\"true\"></i>" +
+                escapeHtml(group.label) + "</span><strong>" +
+                (total ? escapeHtml(count(group.count)) : "—") + "</strong></li>";
+        }).join("");
+
+        if (refs.gsStatusBadge) {
+            refs.gsStatusBadge.textContent = total ? count(total) + (total === 1 ? " pedido" : " pedidos") : "Sin datos";
+        }
     }
 
     function renderItems(items) {
@@ -504,21 +808,21 @@
             const phoneHref = order.telefono ? "tel:" + escapeHtml(cleanPhone(order.telefono)) : "";
             const mailHref = order.email ? "mailto:" + encodeURIComponent(order.email) : "";
             const items = Array.isArray(order.items) ? order.items : [];
-            const units = items.reduce(function (total, item) {
-                const quantity = Number(item.cantidad || item.qty || 0);
-                return total + (Number.isFinite(quantity) ? quantity : 0);
-            }, 0);
+            const units = orderUnits(order);
+            const quantity = units || items.length;
             const firstItem = items.length
                 ? String(items[0].producto_nombre || items[0].nombre || items[0].nombre_producto || "Producto")
                 : "";
-            const itemsLabel = items.length
-                ? count(units || items.length) + (units === 1 ? " artículo" : " artículos")
-                : "Sin detalle";
+            const extraItems = Math.max(0, items.length - 1);
             const commissionMeta = order.comision_pagada_at
-                ? "Pagada el " + escapeHtml(dateLabel(order.comision_pagada_at))
+                ? "Pagada el " + dateLabel(order.comision_pagada_at)
                 : order.comision_disponible_at
-                    ? "Disponible desde " + escapeHtml(dateLabel(order.comision_disponible_at))
+                    ? "Disponible desde " + dateLabel(order.comision_disponible_at)
                     : "Se activa al confirmar la entrega";
+            const contact = phoneHref
+                ? '<p><a href="' + phoneHref + '">' + escapeHtml(order.telefono) + "</a>" +
+                    (mailHref ? ' · <a href="' + mailHref + '">' + escapeHtml(order.email) + "</a>" : "") + "</p>"
+                : (mailHref ? '<p><a href="' + mailHref + '">' + escapeHtml(order.email) + "</a></p>" : "");
 
             return '<tr class="gs-order-row">' +
                 '<td class="gs-cell-order">' +
@@ -527,33 +831,226 @@
                         '<span class="gs-order-date">' + escapeHtml(dateLabel(order.created_at)) + "</span>" +
                     "</button>" +
                 "</td>" +
+                '<td class="gs-cell-product"><span class="gs-product-name">' + escapeHtml(firstItem || "Sin detalle") + "</span>" +
+                    (extraItems ? "<small>+" + escapeHtml(count(extraItems)) + " producto" + (extraItems === 1 ? "" : "s") + "</small>" : (firstItem ? "<small>Producto principal</small>" : "")) + "</td>" +
                 '<td class="gs-cell-client"><span class="gs-order-client">' + escapeHtml(order.nombre_cliente || "Cliente") + "</span>" +
                     "<small>" + escapeHtml(order.telefono || order.email || "Sin contacto") + "</small></td>" +
-                '<td class="gs-cell-items"><span class="gs-order-items">' + escapeHtml(itemsLabel) + "</span>" +
-                    (firstItem ? "<small>" + escapeHtml(firstItem) + "</small>" : "") + "</td>" +
-                '<td class="gs-cell-total"><strong class="gs-order-total">' + escapeHtml(money(order.total_usd)) + "</strong><small>USD</small></td>" +
+                '<td class="gs-cell-qty"><strong class="gs-order-total">' + escapeHtml(count(quantity)) + "</strong><small>uds.</small></td>" +
+                '<td class="gs-cell-total"><strong class="gs-order-total">' + escapeHtml(money(order.total_usd)) + "</strong>" +
+                    "<small>Comisión " + escapeHtml(money(order.comision_monto_usd)) + "</small></td>" +
                 '<td class="gs-cell-state"><span class="gs-badge gs-badge-state ' + statusInfo.className + '">' + escapeHtml(statusInfo.label) + "</span></td>" +
-                '<td class="gs-cell-commission"><span class="gs-badge ' + commissionClass + '">' + escapeHtml(commissionLabel) + "</span>" +
-                    "<small>" + escapeHtml(money(order.comision_monto_usd)) + "</small></td>" +
                 '<td class="gs-cell-chevron"><i class="fa-solid fa-chevron-down gs-order-chevron" aria-hidden="true"></i></td>' +
             "</tr>" +
             '<tr class="gs-order-detail" id="gs-order-body-' + index + '" hidden>' +
                 '<td colspan="7">' +
                     '<div class="gs-order-grid">' +
-                        "<div><h3>Cliente</h3><p>" + escapeHtml(order.nombre_cliente || "Cliente") + "</p>" +
-                            (phoneHref ? '<p><a href="' + phoneHref + '">' + escapeHtml(order.telefono) + "</a>" + (mailHref ? ' · <a href="' + mailHref + '">' + escapeHtml(order.email) + "</a>" : "") + "</p>" : (mailHref ? '<p><a href="' + mailHref + '">' + escapeHtml(order.email) + "</a></p>" : "")) +
-                        "</div>" +
+                        "<div><h3>Cliente</h3><p>" + escapeHtml(order.nombre_cliente || "Cliente") + "</p>" + contact + "</div>" +
                         "<div><h3>Entrega</h3><address>" + escapeHtml(order.direccion || "Sin dirección") + "<br>" + escapeHtml(order.municipio || "Sin municipio") + "</address></div>" +
                         "<div><h3>Productos</h3>" + renderItems(order.items) + "</div>" +
-                        "<div><h3>Comisión</h3>" +
+                        '<div class="gs-cell-commission"><h3>Comisión</h3>' +
                             '<p class="gs-commission-line"><strong class="gs-commission-amount">' + escapeHtml(money(order.comision_monto_usd)) + "</strong>" +
                             '<span class="gs-badge ' + commissionClass + '">' + escapeHtml(commissionLabel) + "</span></p>" +
-                            '<p class="gs-muted">' + escapeHtml(Number(order.comision_porcentaje || 0)) + "% · " + commissionMeta + "</p>" +
+                            "<small>" + escapeHtml(Number(order.comision_porcentaje || 0)) + "% · " + escapeHtml(commissionMeta) + "</small>" +
                         "</div>" +
                     "</div>" +
                 "</td>" +
             "</tr>";
         }).join("");
+    }
+
+    function catalogApi() {
+        return window.VX && typeof window.VX.load === "function" ? window.VX : null;
+    }
+
+    function renderCatalogSkeleton() {
+        if (!refs.gsCatalogGrid) return;
+        refs.gsCatalogEmpty.hidden = true;
+        refs.gsCatalogGrid.innerHTML = new Array(8).fill('<div class="gs-skeleton-card" aria-hidden="true"></div>').join("");
+        if (refs.gsCatalogCount) refs.gsCatalogCount.textContent = "Cargando catálogo…";
+    }
+
+    function renderCatalogCategories() {
+        if (!refs.gsCatalogCategories) return;
+
+        const api = catalogApi();
+        const categories = api && typeof api.getCs === "function" ? api.getCs() : [];
+        if (state.catalogCategory && !categories.some(function (category) {
+            return String(category.id) === state.catalogCategory;
+        })) {
+            state.catalogCategory = "";
+        }
+
+        const buttons = [{ id: "", nombre: "Todos" }].concat(categories).map(function (category) {
+            const value = String(category.id || "");
+            const active = value === state.catalogCategory;
+            return '<button class="gs-cat-chip' + (active ? " is-active" : "") + '" type="button" ' +
+                'data-catalog-category="' + escapeHtml(value) + '" aria-pressed="' + (active ? "true" : "false") + '">' +
+                escapeHtml(category.nombre || "Categoría") + "</button>";
+        });
+
+        refs.gsCatalogCategories.innerHTML = buttons.join("");
+    }
+
+    function catalogProducts() {
+        const api = catalogApi();
+        if (!api || typeof api.getP !== "function") return [];
+
+        const query = state.catalogQuery;
+        return api.getP().filter(function (product) {
+            if (state.catalogCategory && String(product.categoria_id || "") !== state.catalogCategory) return false;
+            if (!query) return true;
+            const category = typeof api.cn === "function" ? api.cn(product.categoria_id) : "";
+            return normalize([product.nombre, product.descripcion, category].join(" ")).indexOf(query) !== -1;
+        });
+    }
+
+    function renderCatalogProducts() {
+        if (!refs.gsCatalogGrid) return;
+
+        if (!state.catalogReady) {
+            renderCatalogSkeleton();
+            return;
+        }
+
+        const api = catalogApi();
+        const products = catalogProducts();
+        const query = state.catalogQueryInput.trim();
+        const category = refs.gsCatalogCategories
+            ? refs.gsCatalogCategories.querySelector(".gs-cat-chip.is-active")
+            : null;
+        const categoryLabel = category ? category.textContent : "Todos";
+
+        products.sort(function (a, b) {
+            if (state.catalogSort === "price-asc") {
+                return Number(api && api.pr ? api.pr(a) : a.precio_usd) - Number(api && api.pr ? api.pr(b) : b.precio_usd);
+            }
+            if (state.catalogSort === "price-desc") {
+                return Number(api && api.pr ? api.pr(b) : b.precio_usd) - Number(api && api.pr ? api.pr(a) : a.precio_usd);
+            }
+            if (state.catalogSort === "name") {
+                return String(a.nombre || "").localeCompare(String(b.nombre || ""), "es");
+            }
+            return 0;
+        });
+
+        if (refs.gsCatalogCount) {
+            const parts = [products.length + (products.length === 1 ? " producto" : " productos")];
+            if (query) parts.push('para "' + query + '"');
+            if (state.catalogCategory) parts.push("en " + categoryLabel);
+            refs.gsCatalogCount.textContent = parts.join(" ");
+        }
+
+        if (refs.gsCatalogEmpty) refs.gsCatalogEmpty.hidden = products.length > 0;
+        refs.gsCatalogGrid.innerHTML = products.length
+            ? products.map(function (product) { return api.pcard(product); }).join("")
+            : "";
+    }
+
+    function ensureCatalog() {
+        if (state.catalogReady) {
+            renderCatalogProducts();
+            return Promise.resolve();
+        }
+        if (state.catalogLoading) return state.catalogPromise || Promise.resolve();
+
+        const api = catalogApi();
+        if (!api) {
+            if (refs.gsCatalogCount) refs.gsCatalogCount.textContent = "No se pudo cargar el catálogo.";
+            if (refs.gsCatalogEmpty) refs.gsCatalogEmpty.hidden = true;
+            return Promise.resolve();
+        }
+
+        state.catalogLoading = true;
+        renderCatalogSkeleton();
+
+        state.catalogPromise = api.load().then(function () {
+            state.catalogReady = true;
+            state.catalogLoading = false;
+            renderCatalogCategories();
+            renderCatalogProducts();
+        }).catch(function () {
+            state.catalogLoading = false;
+            if (refs.gsCatalogCount) refs.gsCatalogCount.textContent = "No se pudo cargar el catálogo.";
+            if (refs.gsCatalogEmpty) refs.gsCatalogEmpty.hidden = true;
+        });
+
+        return state.catalogPromise;
+    }
+
+    function findCatalogProduct(productId) {
+        const api = catalogApi();
+        if (!api || typeof api.getP !== "function") return null;
+        return api.getP().find(function (product) { return String(product.id) === String(productId); }) || null;
+    }
+
+    function openProductDialog(productId) {
+        const api = catalogApi();
+        const product = findCatalogProduct(productId);
+        if (!api || !product || !refs.gsProductDialog) return;
+
+        state.catalogProductId = String(product.id);
+        const images = typeof api.ft === "function" ? api.ft(product) : [];
+        const image = images && images[0] && typeof api.imgUrl === "function"
+            ? api.imgUrl(images[0], { w: 900, h: 700, format: "webp", quality: 88 })
+            : "";
+        const category = typeof api.cn === "function" ? api.cn(product.categoria_id) : "Producto";
+        const soldOut = typeof api.ag === "function" ? api.ag(product) : false;
+        const price = typeof api.pr === "function" ? api.pr(product) : product.precio_usd;
+
+        refs.gsProductMedia.innerHTML = image
+            ? '<img src="' + escapeHtml(image) + '" alt="' + escapeHtml(product.nombre || "Producto") + '">'
+            : '<span class="gs-product-dialog-placeholder" aria-hidden="true"><i class="fa-solid fa-box"></i></span>';
+        refs.gsProductCategory.textContent = category;
+        refs.gsProductTitle.textContent = product.nombre || "Producto";
+        refs.gsProductDescription.textContent = product.descripcion || "Producto del catálogo VOLXEN.";
+        refs.gsProductPrice.textContent = soldOut ? "Consultar disponibilidad" : (api.fm ? api.fm(price) : money(price));
+        refs.gsProductStock.textContent = soldOut ? "Agotado" : "Disponible";
+        refs.gsProductStock.classList.toggle("is-out", soldOut);
+        refs.gsProductAdd.disabled = soldOut;
+        refs.gsProductAdd.setAttribute("data-product-id", String(product.id));
+
+        if (typeof refs.gsProductDialog.showModal === "function") {
+            refs.gsProductDialog.showModal();
+        } else {
+            refs.gsProductDialog.setAttribute("open", "");
+        }
+        if (refs.gsProductClose) refs.gsProductClose.focus({ preventScroll: true });
+    }
+
+    function closeProductDialog() {
+        if (!refs.gsProductDialog) return;
+        if (typeof refs.gsProductDialog.close === "function" && refs.gsProductDialog.open) {
+            refs.gsProductDialog.close();
+        } else {
+            refs.gsProductDialog.removeAttribute("open");
+        }
+        state.catalogProductId = "";
+    }
+
+    function setPanelView(view) {
+        state.panelView = view === "catalog" ? "catalog" : "dashboard";
+        if (refs.gsDashboardView) refs.gsDashboardView.hidden = state.panelView !== "dashboard";
+        if (refs.gsCatalogView) refs.gsCatalogView.hidden = state.panelView !== "catalog";
+
+        if (state.panelView === "catalog") {
+            if (refs.gsSearch) {
+                refs.gsSearch.value = state.catalogQueryInput;
+                refs.gsSearch.placeholder = "Buscar producto o categoría";
+            }
+            if (refs.gsSearchLabel) refs.gsSearchLabel.textContent = "Buscar productos";
+            ensureCatalog();
+        } else {
+            if (refs.gsSearch) {
+                refs.gsSearch.value = state.queryInput;
+                refs.gsSearch.placeholder = "Buscar pedido, cliente o teléfono";
+            }
+            if (refs.gsSearchLabel) refs.gsSearchLabel.textContent = "Buscar pedidos";
+        }
+    }
+
+    function panelTop() {
+        if (!refs.gsHome) return;
+        refs.gsHome.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
     function renderClients() {
@@ -594,10 +1091,10 @@
         renderHistory();
         renderOrders();
         renderClients();
-        refs.gsUpdated.textContent = "Actualizado " + new Intl.DateTimeFormat("es-ES", {
-            hour: "2-digit",
-            minute: "2-digit"
-        }).format(new Date());
+        renderReport();
+        renderBubbles();
+        renderGauge();
+        renderStatus();
     }
 
     async function load(options) {
@@ -679,22 +1176,21 @@
     }
 
     function bindEvents() {
-        if (refs.gsWelcomeEnter) refs.gsWelcomeEnter.addEventListener("click", enterPanelFromWelcome);
-        if (refs.gsWelcomeSkip) refs.gsWelcomeSkip.addEventListener("click", enterPanelFromWelcome);
-
-        refs.gsLogout.addEventListener("click", async function () {
-            refs.gsLogout.disabled = true;
-            const label = refs.gsLogout.querySelector(".gs-side-label");
-            if (label) {
-                label.textContent = "Saliendo…";
-            } else {
-                refs.gsLogout.textContent = "Saliendo…";
-            }
-            try {
-                await VXAUTH.signOut();
-            } catch (error) {}
-            window.location.href = "login.html?next=gestor.html";
-        });
+        if (refs.gsLogout) {
+            refs.gsLogout.addEventListener("click", async function () {
+                refs.gsLogout.disabled = true;
+                const label = refs.gsLogout.querySelector(".gs-side-label");
+                if (label) {
+                    label.textContent = "Saliendo…";
+                } else {
+                    refs.gsLogout.textContent = "Saliendo…";
+                }
+                try {
+                    await VXAUTH.signOut();
+                } catch (error) {}
+                window.location.href = "login.html?next=gestor.html";
+            });
+        }
 
         if (refs.gsMenuToggle) {
             refs.gsMenuToggle.addEventListener("click", function () {
@@ -717,19 +1213,43 @@
             refs.gsScrim.addEventListener("click", closeNav);
         }
 
+        document.querySelectorAll(".gs-topbar-actions a[href^='#gs']").forEach(function (link) {
+            link.addEventListener("click", function (event) {
+                const target = document.querySelector(link.getAttribute("href"));
+                if (!target) return;
+                event.preventDefault();
+                setPanelView("dashboard");
+                window.requestAnimationFrame(function () {
+                    target.scrollIntoView({ behavior: "smooth", block: "start" });
+                });
+            });
+        });
+
         if (refs.gsSidebar) {
             refs.gsSidebar.addEventListener("click", function (event) {
                 const navLink = event.target.closest("[data-gs-nav]");
                 const anchor = event.target.closest("a");
 
                 if (navLink) {
-                    if (navLink.getAttribute("data-gs-nav") === "inicio") {
-                        event.preventDefault();
-                        if (refs.gsDashboardScroll) {
-                            refs.gsDashboardScroll.scrollTo({ top: 0, behavior: "smooth" });
+                    event.preventDefault();
+                    setActiveNav(navLink);
+
+                    const section = navLink.getAttribute("data-gs-nav");
+                    if (section === "catalogo") {
+                        setPanelView("catalog");
+                        panelTop();
+                    } else if (section === "inicio") {
+                        setPanelView("dashboard");
+                        panelTop();
+                    } else {
+                        setPanelView("dashboard");
+                        const target = document.querySelector(navLink.getAttribute("href"));
+                        if (target) {
+                            window.requestAnimationFrame(function () {
+                                target.scrollIntoView({ behavior: "smooth", block: "start" });
+                            });
                         }
                     }
-                    setActiveNav(navLink);
                 }
 
                 if (anchor && isMobileNav()) closeNav();
@@ -756,27 +1276,39 @@
             }
         }
 
-        refs.gsRetry.addEventListener("click", function () {
-            load();
-        });
+        if (refs.gsRetry) {
+            refs.gsRetry.addEventListener("click", function () {
+                load();
+            });
+        }
 
-        refs.gsRefresh.addEventListener("click", function () {
-            load({ silent: true, notice: "Panel actualizado." });
-        });
+        if (refs.gsMore) {
+            refs.gsMore.addEventListener("click", function () {
+                loadMore();
+            });
+        }
 
-        refs.gsMore.addEventListener("click", function () {
-            loadMore();
-        });
+        if (refs.gsSearch) {
+            refs.gsSearch.addEventListener("input", function (event) {
+                if (state.panelView === "catalog") {
+                    state.catalogQueryInput = event.target.value;
+                    state.catalogQuery = normalize(event.target.value.trim());
+                    renderCatalogProducts();
+                    return;
+                }
 
-        refs.gsSearch.addEventListener("input", function (event) {
-            state.query = normalize(event.target.value.trim());
-            renderOrders();
-        });
+                state.queryInput = event.target.value;
+                state.query = normalize(event.target.value.trim());
+                renderOrders();
+            });
+        }
 
-        refs.gsStatusFilter.addEventListener("change", function (event) {
-            state.status = event.target.value;
-            renderOrders();
-        });
+        if (refs.gsStatusFilter) {
+            refs.gsStatusFilter.addEventListener("change", function (event) {
+                state.status = event.target.value;
+                renderOrders();
+            });
+        }
 
         if (refs.gsSort) {
             refs.gsSort.addEventListener("change", function (event) {
@@ -792,48 +1324,147 @@
             });
         }
 
-        refs.gsOrdersList.addEventListener("click", function (event) {
-            const clear = event.target.closest("[data-clear-filters]");
-            if (clear) {
-                state.query = "";
-                state.status = "";
-                state.period = "30";
-                state.sort = "recent";
-                refs.gsSearch.value = "";
-                refs.gsStatusFilter.value = "";
-                if (refs.gsPeriod) refs.gsPeriod.value = "30";
-                if (refs.gsSort) refs.gsSort.value = "recent";
-                renderOrders();
-                refs.gsSearch.focus();
-                return;
-            }
+        if (refs.gsReportPeriod) {
+            refs.gsReportPeriod.addEventListener("change", function (event) {
+                state.reportPeriod = event.target.value;
+                renderReport();
+            });
+        }
 
-            const toggle = event.target.closest("[data-order-toggle]");
-            if (!toggle) return;
-            const body = document.getElementById(toggle.getAttribute("aria-controls"));
-            if (!body) return;
-            const expanded = toggle.getAttribute("aria-expanded") === "true";
-            const nextExpanded = !expanded;
-            const row = toggle.closest("tr");
-            toggle.setAttribute("aria-expanded", nextExpanded ? "true" : "false");
-            body.hidden = !nextExpanded;
-            if (row) row.classList.toggle("is-expanded", nextExpanded);
-        });
+        if (refs.gsCategoryPeriod) {
+            refs.gsCategoryPeriod.addEventListener("change", function (event) {
+                state.categoryPeriod = event.target.value;
+                renderBubbles();
+            });
+        }
+
+        if (refs.gsOrdersList) {
+            refs.gsOrdersList.addEventListener("click", function (event) {
+                const clear = event.target.closest("[data-clear-filters]");
+                if (clear) {
+                    state.query = "";
+                    state.queryInput = "";
+                    state.status = "";
+                    state.period = "30";
+                    state.sort = "recent";
+                    if (refs.gsSearch) refs.gsSearch.value = "";
+                    if (refs.gsStatusFilter) refs.gsStatusFilter.value = "";
+                    if (refs.gsPeriod) refs.gsPeriod.value = "30";
+                    if (refs.gsSort) refs.gsSort.value = "recent";
+                    renderOrders();
+                    if (refs.gsSearch) refs.gsSearch.focus();
+                    return;
+                }
+
+                const toggle = event.target.closest("[data-order-toggle]");
+                if (!toggle) return;
+                const body = document.getElementById(toggle.getAttribute("aria-controls"));
+                if (!body) return;
+                const expanded = toggle.getAttribute("aria-expanded") === "true";
+                const nextExpanded = !expanded;
+                const row = toggle.closest("tr");
+                toggle.setAttribute("aria-expanded", nextExpanded ? "true" : "false");
+                body.hidden = !nextExpanded;
+                if (row) row.classList.toggle("is-expanded", nextExpanded);
+            });
+        }
+
+        if (refs.gsCatalogCategories) {
+            refs.gsCatalogCategories.addEventListener("click", function (event) {
+                const button = event.target.closest("[data-catalog-category]");
+                if (!button) return;
+                state.catalogCategory = button.getAttribute("data-catalog-category") || "";
+                renderCatalogCategories();
+                renderCatalogProducts();
+            });
+        }
+
+        if (refs.gsCatalogSort) {
+            refs.gsCatalogSort.addEventListener("change", function (event) {
+                state.catalogSort = event.target.value;
+                renderCatalogProducts();
+            });
+        }
+
+        if (refs.gsCatalogReset) {
+            refs.gsCatalogReset.addEventListener("click", function () {
+                state.catalogCategory = "";
+                state.catalogQuery = "";
+                state.catalogQueryInput = "";
+                state.catalogSort = "featured";
+                if (refs.gsSearch) refs.gsSearch.value = "";
+                if (refs.gsCatalogSort) refs.gsCatalogSort.value = "featured";
+                renderCatalogCategories();
+                renderCatalogProducts();
+            });
+        }
+
+        if (refs.gsCatalogGrid) {
+            refs.gsCatalogGrid.addEventListener("click", function (event) {
+                const add = event.target.closest("[data-a='add1']");
+                if (add) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    if (window.VX && typeof window.VX.add === "function") {
+                        window.VX.add(add.getAttribute("data-id"), 1);
+                    }
+                    return;
+                }
+
+                const link = event.target.closest('a[href*="producto.html?id="]');
+                if (!link) return;
+                event.preventDefault();
+                try {
+                    const url = new URL(link.href, window.location.href);
+                    openProductDialog(url.searchParams.get("id"));
+                } catch (error) {}
+            });
+        }
+
+        if (refs.gsProductClose) {
+            refs.gsProductClose.addEventListener("click", closeProductDialog);
+        }
+
+        if (refs.gsProductAdd) {
+            refs.gsProductAdd.addEventListener("click", function () {
+                const productId = refs.gsProductAdd.getAttribute("data-product-id");
+                if (!productId || !window.VX || typeof window.VX.add !== "function") return;
+                window.VX.add(productId, 1);
+                closeProductDialog();
+            });
+        }
+
+        if (refs.gsProductDialog) {
+            refs.gsProductDialog.addEventListener("click", function (event) {
+                if (event.target === refs.gsProductDialog) closeProductDialog();
+            });
+            refs.gsProductDialog.addEventListener("close", function () {
+                state.catalogProductId = "";
+            });
+        }
     }
 
     function cacheElements() {
         [
-            "gsGuest", "gsDenied", "gsLoading", "gsError", "gsWelcome", "gsDashboard",
-            "gsWelcomeTitle", "gsWelcomeLead", "gsWelcomeEnter", "gsWelcomeSkip",
-            "gsTitle", "gsEmail", "gsRoleBadge", "gsUpdated", "gsNotice", "gsGreeting", "gsTopAvatar",
+            "gsGuest", "gsDenied", "gsLoading", "gsError", "gsDashboard", "gsDashboardView",
+            "gsTitle", "gsNotice", "gsGreeting", "gsTopAvatar",
             "gsSales", "gsOrdersCount", "gsClientsCount", "gsCommissionAvailable",
             "gsCommissionPaid", "gsCommissionPending", "gsCommissionReady", "gsCommissionDone",
             "gsProfileInitial", "gsProfileName", "gsProfileEmail", "gsProfileRole",
             "gsProfileCommission", "gsProfileState", "gsProfileSince", "gsActivity",
             "gsNotifications", "gsNotificationsCount", "gsCommissionHistory",
-            "gsOrdersList", "gsClientsList", "gsSearch", "gsStatusFilter", "gsMoreWrap", "gsMore",
-            "gsLogout", "gsRetry", "gsRefresh", "gsErrorText", "gsApp", "gsSidebar", "gsSidebarToggle",
-            "gsMenuToggle", "gsScrim", "gsDashboardScroll", "gsBellBadge", "gsSort", "gsPeriod"
+            "gsOrdersList", "gsClientsList", "gsSearch", "gsSearchLabel", "gsStatusFilter", "gsMoreWrap", "gsMore",
+            "gsLogout", "gsRetry", "gsErrorText", "gsApp", "gsSidebar", "gsSidebarToggle",
+            "gsMenuToggle", "gsScrim", "gsDashboardScroll", "gsBellBadge", "gsSort", "gsPeriod",
+            "gsReportPeriod", "gsReportTotal", "gsReportAverage", "gsReportCommission",
+            "gsChart", "gsChartGrid", "gsChartAxisLeft", "gsChartAxisRight", "gsChartPlot",
+            "gsChartEmpty", "gsChartTooltip", "gsCategoryPeriod", "gsBubbleStage", "gsBubbleEmpty",
+            "gsBubbleNote", "gsGauge", "gsGaugeProgress", "gsGaugeValue", "gsGaugeLabel",
+            "gsGaugeBadge", "gsGaugeNote", "gsStatusTrack", "gsStatusLegend", "gsStatusBadge",
+            "gsCatalogView", "gsCatalogCategories", "gsCatalogGrid", "gsCatalogEmpty",
+            "gsCatalogCount", "gsCatalogSort", "gsCatalogReset", "gsProductDialog",
+            "gsProductClose", "gsProductMedia", "gsProductCategory", "gsProductTitle",
+            "gsProductDescription", "gsProductPrice", "gsProductStock", "gsProductAdd"
         ].forEach(function (key) {
             refs[key] = id(key);
         });
@@ -880,14 +1511,8 @@
         }
 
         document.body.dataset.role = role;
-
-        if (refs.gsWelcome) {
-            showWelcome();
-            return;
-        }
-
-        setView("gsDashboard");
-        renderHeader();
+        setPanelView("dashboard");
+        setView("gsLoading");
         await load();
     }
 

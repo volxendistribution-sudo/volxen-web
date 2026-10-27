@@ -139,22 +139,19 @@ test("Google y el resto de accesos no asignan rol de promotor automáticamente",
     assert.doesNotMatch(login, /promotor/i);
 });
 
-test("la bienvenida comercial aparece para gestores y promotores y ofrece las dos salidas", () => {
+test("el panel abre directamente en el dashboard y reutiliza el catálogo", () => {
     const html = read("gestor.html");
     const js = read("js/pages/gestor.js");
 
-    assert.match(html, /id="gsWelcome"/);
-    assert.match(html, /id="gsWelcomeTitle"/);
-    assert.match(html, /id="gsWelcomeEnter"[^>]*>Entrar a mi panel comercial/);
-    assert.match(html, /id="gsWelcomeSkip"[^>]*>Saltar bienvenida/);
-    assert.match(html, /Capta clientes/);
-    assert.match(html, /Presenta productos/);
-    assert.match(html, /Acompaña ventas/);
-    assert.match(html, /Consulta tus resultados/);
-    assert.match(html, /src="logo\.svg"/);
-    assert.match(js, /if \(refs\.gsWelcome\)/);
-    assert.match(js, /function showWelcome/);
-    assert.match(js, /function enterPanelFromWelcome/);
+    assert.doesNotMatch(html, /id="gsWelcome"|gsWelcomeEnter|Saltar bienvenida/);
+    assert.doesNotMatch(js, /showWelcome|enterPanelFromWelcome|refs\.gsWelcome/);
+    assert.match(html, /id="gsDashboard"/);
+    assert.match(html, /id="gsDashboardScroll"/);
+    assert.match(html, /id="gsCatalogView"/);
+    assert.match(html, /id="gsProductDialog"/);
+    assert.match(html, /<script src="volxen-core\.js"><\/script>/);
+    assert.match(js, /function ensureCatalog/);
+    assert.match(js, /VX\.pcard|api\.pcard/);
     assert.doesNotMatch(js, /localStorage|sessionStorage|document\.cookie/);
     assert.doesNotMatch(js, /"Gestor"/);
     assert.doesNotMatch(html, /Gestores y promotores/);
