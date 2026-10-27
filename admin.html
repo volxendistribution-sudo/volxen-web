@@ -851,11 +851,7 @@ async function gestores(){
 $("v").innerHTML =
 '<h3>Promotores</h3>'+
 '<p>Asigna el rol comercial. Las cuentas actuales y las nuevas cuentas promotoras son equivalentes.</p>'+
-'<div class="r" style="margin-bottom:12px;background:#f7f4ee;border:1px dashed #c8a165">'+
-'<strong>Máximo global de subida</strong><br>'+
-'<small>Vista previa. Se activará cuando se conecten las comisiones por producto.</small><br><br>'+
-'<input type="number" min="0" max="100" step="0.01" placeholder="Ej. 20" disabled> %'+
-'</div>'+
+'<p>El modo de precio y la comisión fija se configuran por producto en la pestaña Productos. El máximo de subida es 20 %.</p>'+
 '<div class="r">Cargando usuarios...</div>';
 
 try{
@@ -874,7 +870,7 @@ return;
 
 $("v").innerHTML =
 '<h3>Promotores</h3>'+
-'<p>El porcentaje actual se aplica a los pedidos nuevos que asignes. La comisión por producto se configurará en la siguiente fase.</p>'+
+'<p>El porcentaje actual se aplica a los pedidos nuevos que asignes. La comisión por producto se configura en la pestaña Productos.</p>'+
 U.map(u => {
 
 const rol = usuarioRol(u);
@@ -2230,6 +2226,15 @@ function syncShipping(){
 }
 
 
+function syncPriceMode(){
+  const mode = $("pm"), fixed = $("pcfw"), flexible = $("pmmw");
+  if(!mode || !fixed || !flexible) return;
+  const isFixed = mode.value === "comision_fija";
+  fixed.style.display = isFixed ? "" : "none";
+  flexible.style.display = isFixed ? "none" : "";
+}
+
+
 function form(p){
 
 p = p || {};
@@ -2267,6 +2272,24 @@ p.shipping_type === "paid" ?
 "free";
 
 
+const mode =
+p.modo_precio === "sin_comision" ?
+"sin_comision" :
+"comision_fija";
+
+
+const fixedCommission =
+p.comision_fija_usd == null ?
+"" :
+p.comision_fija_usd;
+
+
+const maxMarkup =
+p.margen_max_porcentaje == null ?
+20 :
+Number(p.margen_max_porcentaje);
+
+
 $("v").innerHTML =
 
 '<h3>'+
@@ -2302,6 +2325,32 @@ esc(k.nombre)+
 '<input id="pr" type="number" step="0.01" placeholder="Precio USD" value="'+
 esc(p.precio_usd)+
 '">'+
+
+'<label for="pm" style="display:block;margin-top:8px;font-weight:600">Modo de precio</label>'+
+'<select id="pm" onchange="syncPriceMode()">'+
+'<option value="comision_fija"'+
+(mode === "comision_fija" ? " selected" : "")+
+'>Fijo (el gestor no puede subir)</option>'+
+'<option value="sin_comision"'+
+(mode === "sin_comision" ? " selected" : "")+
+'>Sin comisión fija (puede subir)</option>'+
+'</select>'+
+'<div id="pcfw"'+
+(mode === "comision_fija" ? "" : ' style="display:none"')+
+'>'+
+'<label for="pcf" style="display:block;margin-top:8px;font-weight:600">Comisión fija por unidad (USD) <span style="font-weight:400">(opcional)</span></label>'+
+'<input id="pcf" type="number" min="0" step="0.01" placeholder="Automática según porcentaje" value="'+
+esc(fixedCommission)+
+'">'+
+'<small style="display:block;margin-top:4px">Si se deja vacío, se usa el porcentaje del promotor.</small>'+
+'</div>'+
+'<div id="pmmw"'+
+(mode === "sin_comision" ? "" : ' style="display:none"')+
+'>'+
+'<small style="display:block;margin-top:6px">Máximo de subida permitido: '+
+esc(maxMarkup)+
+'%.</small>'+
+'</div>'+
 
 '<label for="st" style="display:block;margin-top:8px;font-weight:600">Envío</label>'+
 
@@ -2382,22 +2431,6 @@ esc(
 
 '</label>'+
 
-'<div class="r" style="margin-top:12px;background:#f7f4ee;border:1px dashed #c8a165">'+
-'<strong>Comisión para promotores</strong><br>'+
-'<small>Vista previa visual. Todavía no se guarda.</small><br><br>'+
-'<label style="display:flex;align-items:center;gap:8px;font-weight:600">'+
-'<input id="promo_c_enabled" type="checkbox" style="width:auto"> Aplica comisión'+
-'</label>'+
-'<label for="promo_c_type" style="display:block;margin-top:8px;font-weight:600">Tipo de precio</label>'+
-'<select id="promo_c_type">'+
-'<option value="fixed">Fijo (el promotor no puede subir)</option>'+
-'<option value="flexible">Flexible (puede subir hasta el máximo)</option>'+
-'</select>'+
-'<label for="promo_c_amount" style="display:block;margin-top:8px;font-weight:600">Comisión fija (USD)</label>'+
-'<input id="promo_c_amount" type="number" min="0" step="0.01" placeholder="0.00">'+
-'<small style="display:block;margin-top:8px">El máximo global de subida se configura en Promotores.</small>'+
-'</div>'+
-
 '<button onclick="saveP()">GUARDAR</button>'+
 
 '<button onclick="form()" style="background:#ddd">'+
@@ -2411,6 +2444,8 @@ P.map(x =>
 esc(x.nombre)+
 ' · $'+
 x.precio_usd+
+' · '+
+(x.modo_precio === "sin_comision" ? "sin comisión" : "fijo")+
 
 '<br>'+
 
@@ -2432,6 +2467,8 @@ x.id+
 
 
 thumbs();
+
+syncPriceMode();
 
 }
 
@@ -2483,6 +2520,41 @@ Math.round(cost * 100) / 100;
 if(rounded > 0) shippingCost = rounded;
 
 }
+
+}
+
+}
+
+
+const priceMode =
+$("pm").value === "sin_comision" ?
+"sin_comision" :
+"comision_fija";
+
+
+let fixedCommission = null;
+
+
+if(priceMode === "comision_fija"){
+
+const raw =
+$("pcf").value.trim();
+
+
+if(raw){
+
+const amount = Number(raw);
+
+if(!isFinite(amount) || amount < 0){
+
+msg("La comisión fija no es válida");
+
+return;
+
+}
+
+fixedCommission =
+Math.round(amount * 100) / 100;
 
 }
 
@@ -2573,6 +2645,12 @@ $("k").value || null,
 
 precio_usd:
 +$("pr").value,
+
+modo_precio:
+priceMode,
+
+comision_fija_usd:
+fixedCommission,
 
 disponibilidad:
 $("d").value,

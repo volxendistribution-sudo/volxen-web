@@ -52,10 +52,13 @@ test("el admin puede asignar promotor, comisión y marcar pago", () => {
     assert.match(html, /rpc\/admin_marcar_comision_pagada/);
     assert.match(html, /MARCAR COMISIÓN PAGADA/);
     assert.match(html, /PROMOTOR Y COMISIÓN/);
-    assert.match(html, /promo_c_enabled/);
-    assert.match(html, /promo_c_type/);
-    assert.match(html, /promo_c_amount/);
-    assert.match(html, /Máximo global de subida/);
+    assert.match(html, /id="pm"/);
+    assert.match(html, /id="pcf"/);
+    assert.match(html, /syncPriceMode/);
+    assert.match(html, /modo_precio:\s*priceMode/);
+    assert.match(html, /comision_fija_usd:\s*fixedCommission/);
+    assert.match(html, /Máximo de subida permitido/);
+    assert.doesNotMatch(html, /promo_c_enabled/);
     assert.doesNotMatch(html, /GESTOR Y COMISIÓN/);
 });
 
