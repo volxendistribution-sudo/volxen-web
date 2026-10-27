@@ -57,9 +57,35 @@ test("el admin puede asignar promotor, comisión y marcar pago", () => {
     assert.match(html, /syncPriceMode/);
     assert.match(html, /modo_precio:\s*priceMode/);
     assert.match(html, /comision_fija_usd:\s*fixedCommission/);
-    assert.match(html, /Máximo de subida permitido/);
+    assert.match(html, /Comisión que verá el gestor por unidad/);
+    assert.match(html, /Sin comisión fija \(el gestor gana la subida\)/);
     assert.doesNotMatch(html, /promo_c_enabled/);
     assert.doesNotMatch(html, /GESTOR Y COMISIÓN/);
+});
+
+test("el gestor puede comprar desde su panel con carrito y vale", () => {
+    const html = read("gestor.html");
+    const js = read("js/pages/gestor.js");
+    const core = read("volxen-core.js");
+
+    assert.match(html, /id="gsCartView"/);
+    assert.match(html, /id="gsCheckoutView"/);
+    assert.match(html, /id="gsCartCount"/);
+    assert.match(html, /id="gsCartItems"/);
+    assert.match(html, /id="gsProductCommission"/);
+    assert.match(html, /id="gsProductSalePrice"/);
+    assert.match(js, /\/rpc\/crear_pedido_gestor/);
+    assert.match(js, /precio_unitario/);
+    assert.match(js, /No trae comisión/i);
+    assert.match(js, /function renderCart/);
+    assert.match(js, /function submitOrder/);
+    assert.match(js, /function setCheckoutStep/);
+    assert.match(js, /history\.pushState/);
+    assert.match(js, /popstate/);
+    assert.match(core, /GESTOR_CART_KEY = "vx_gc"/);
+    assert.match(core, /function gcAdd/);
+    assert.match(core, /function gcItems/);
+    assert.doesNotMatch(html, /carrito\.html/);
 });
 
 test("el menú muestra el panel solo a promotores", () => {

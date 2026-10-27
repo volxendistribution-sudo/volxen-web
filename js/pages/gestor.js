@@ -47,11 +47,14 @@
         catalogLoading: false,
         catalogPromise: null,
         catalogProductId: "",
+        checkoutStep: 1,
+        checkoutBusy: false,
         loading: false,
         hasMore: false
     };
 
     const refs = {};
+    let cartClearTimer = 0;
 
     function id(value) {
         return document.getElementById(value);
@@ -73,6 +76,88 @@
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
         });
+    }
+
+    function roundMoney(value) {
+        const amount = Number(value);
+        return Number.isFinite(amount) ? Math.round(amount * 100) / 100 : 0;
+    }
+
+    function productMode(product) {
+        return product && product.modo_precio === "sin_comision" ? "sin_comision" : "comision_fija";
+    }
+
+    function productBasePrice(product) {
+        const api = catalogApi();
+        const amount = Number(api && typeof api.pr === "function" ? api.pr(product) : product && product.precio_usd);
+        return Number.isFinite(amount) && amount >= 0 ? roundMoney(amount) : 0;
+    }
+
+    function productMaxPrice(product) {
+        const margin = Number(product && product.margen_max_porcentaje);
+        const percent = Number.isFinite(margin) ? Math.max(0, Math.min(100, margin)) : 20;
+        return roundMoney(productBasePrice(product) * (1 + percent / 100));
+    }
+
+    function productCommissionInfo(product) {
+        if (productMode(product) === "sin_comision") {
+            return { amount: 0 };
+        }
+
+        const fixed = Number(product && product.comision_fija_usd);
+        return { amount: Number.isFinite(fixed) ? roundMoney(fixed) : 0 };
+    }
+
+    function cartLines() {
+        const api = catalogApi();
+        if (!api || typeof api.gcItems !== "function") return [];
+
+        return api.gcItems().map(function (entry) {
+            const product = entry.product;
+            const mode = productMode(product);
+            const base = productBasePrice(product);
+            const storedPrice = Number(entry.price);
+            const salePrice = mode === "sin_comision"
+                ? (Number.isFinite(storedPrice) && storedPrice > 0 ? roundMoney(storedPrice) : base)
+                : base;
+            const commission = productCommissionInfo(product);
+            return {
+                product: product,
+                qty: Number(entry.qty) || 0,
+                base: base,
+                salePrice: salePrice,
+                mode: mode,
+                commission: mode === "sin_comision" ? 0 : commission.amount,
+                markup: mode === "sin_comision" ? Math.max(0, roundMoney(salePrice - base)) : 0,
+                maxPrice: productMaxPrice(product)
+            };
+        });
+    }
+
+    function linePrice(line) {
+        return line.mode === "sin_comision" ? line.salePrice : line.base;
+    }
+
+    function lineGain(line) {
+        return line.mode === "sin_comision" ? line.markup : line.commission;
+    }
+
+    function cartTotals(lines) {
+        const source = Array.isArray(lines) ? lines : cartLines();
+        const totals = source.reduce(function (result, line) {
+            const qty = Number(line.qty) || 0;
+            result.units += qty;
+            result.total += linePrice(line) * qty;
+            result.commission += line.commission * qty;
+            result.markup += line.markup * qty;
+            return result;
+        }, { units: 0, total: 0, commission: 0, markup: 0 });
+
+        totals.total = roundMoney(totals.total);
+        totals.commission = roundMoney(totals.commission);
+        totals.markup = roundMoney(totals.markup);
+        totals.gain = roundMoney(totals.commission + totals.markup);
+        return totals;
     }
 
     function count(value) {
@@ -983,19 +1068,408 @@
         return api.getP().find(function (product) { return String(product.id) === String(productId); }) || null;
     }
 
+    function productImage(product, width, height) {
+        const api = catalogApi();
+        const images = api && typeof api.ft === "function" ? api.ft(product) : [];
+        return images && images[0] && api && typeof api.imgUrl === "function"
+            ? api.imgUrl(images[0], { w: width, h: height, format: "webp", quality: 84 })
+            : "";
+    }
+
+    function commissionCopy(line) {
+        if (line.mode === "sin_comision") {
+            return { title: "No trae comisión", detail: "La subida es tu ganancia: " + money(line.markup) + " por unidad." };
+        }
+        return { title: "Comisión fija: " + money(line.commission), detail: "Por unidad." };
+    }
+
+    function cartLineHtml(line) {
+        const product = line.product;
+        const image = productImage(product, 160, 160);
+        const copy = commissionCopy(line);
+        const flexible = line.mode === "sin_comision";
+        const priceControl = flexible
+            ? '<label class="gs-cart-price-field">' +
+                    "<span>Precio de venta</span>" +
+                    '<input type="number" min="' + escapeHtml(line.base.toFixed(2)) + '" max="' + escapeHtml(line.maxPrice.toFixed(2)) + '" step="0.01" inputmode="decimal" value="' + escapeHtml(line.salePrice.toFixed(2)) + '" data-cart-price="' + escapeHtml(product.id) + '" aria-label="Precio de venta para ' + escapeHtml(product.nombre || "producto") + '">' +
+                "</label>" +
+                '<small class="gs-cart-limit">Máx. ' + escapeHtml(money(line.maxPrice)) + " · Precio VOLXEN " + escapeHtml(money(line.base)) + "</small>"
+            : '<span class="gs-cart-fixed-price">' + escapeHtml(money(line.base)) + " · precio fijo</span>";
+
+        return '<article class="gs-cart-item" role="listitem" data-cart-item="' + escapeHtml(product.id) + '">' +
+            '<div class="gs-cart-thumb">' +
+                (image ? '<img src="' + escapeHtml(image) + '" alt="' + escapeHtml(product.nombre || "Producto") + '" loading="lazy">' : '<i class="fa-solid fa-box" aria-hidden="true"></i>') +
+            "</div>" +
+            '<div class="gs-cart-item-body">' +
+                '<div class="gs-cart-item-head"><div><strong>' + escapeHtml(product.nombre || "Producto") + "</strong><small>" + escapeHtml(copy.title) + "</small></div>" +
+                    '<button type="button" class="gs-cart-remove" data-cart-remove="' + escapeHtml(product.id) + '" aria-label="Quitar ' + escapeHtml(product.nombre || "producto") + '"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>' +
+                "</div>" +
+                '<p class="gs-cart-mode ' + (flexible ? "is-gain" : "is-commission") + '">' + escapeHtml(copy.detail) + "</p>" +
+                '<div class="gs-cart-controls">' +
+                    '<div class="gs-cart-qty" role="group" aria-label="Cantidad de ' + escapeHtml(product.nombre || "producto") + '">' +
+                        '<button type="button" data-cart-minus="' + escapeHtml(product.id) + '" aria-label="Menos">−</button>' +
+                        "<span>" + escapeHtml(count(line.qty)) + "</span>" +
+                        '<button type="button" data-cart-plus="' + escapeHtml(product.id) + '" aria-label="Más">+</button>' +
+                    "</div>" +
+                    priceControl +
+                "</div>" +
+            "</div>" +
+            '<div class="gs-cart-line-total"><span>Subtotal</span><strong>' + escapeHtml(money(linePrice(line) * line.qty)) + "</strong><small>" + escapeHtml(money(lineGain(line) * line.qty)) + " de ganancia</small></div>" +
+        "</article>";
+    }
+
+    function cartInvalidLine(lines) {
+        return lines.find(function (line) {
+            return line.mode === "sin_comision" && (line.salePrice < line.base || line.salePrice > line.maxPrice);
+        }) || null;
+    }
+
+    function resetCartClear() {
+        window.clearTimeout(cartClearTimer);
+        cartClearTimer = 0;
+        if (!refs.gsCartClear) return;
+        refs.gsCartClear.classList.remove("is-confirming");
+        refs.gsCartClear.textContent = "Vaciar carrito";
+    }
+
+    function renderCart() {
+        if (!refs.gsCartItems) return;
+
+        const api = catalogApi();
+        if (api && typeof api.gcBadge === "function") api.gcBadge();
+        const lines = cartLines();
+        const totals = cartTotals(lines);
+        const invalid = cartInvalidLine(lines);
+        if (!lines.length) resetCartClear();
+
+        refs.gsCartItems.innerHTML = lines.map(cartLineHtml).join("");
+        if (refs.gsCartEmpty) refs.gsCartEmpty.hidden = lines.length > 0;
+        if (refs.gsCartUnits) refs.gsCartUnits.textContent = count(totals.units) + " uds.";
+        if (refs.gsCartTotal) refs.gsCartTotal.textContent = money(totals.total);
+        if (refs.gsCartCommission) refs.gsCartCommission.textContent = money(totals.commission);
+        if (refs.gsCartMarkup) refs.gsCartMarkup.textContent = money(totals.markup);
+        if (refs.gsCartGain) refs.gsCartGain.textContent = money(totals.gain);
+        if (refs.gsCartClear) refs.gsCartClear.disabled = lines.length === 0;
+        if (refs.gsCartContinue) refs.gsCartContinue.disabled = lines.length === 0 || Boolean(invalid);
+
+        if (refs.gsCartError) {
+            refs.gsCartError.textContent = invalid
+                ? "El precio de " + (invalid.product.nombre || "un producto") + " debe estar entre " + money(invalid.base) + " y " + money(invalid.maxPrice) + "."
+                : "";
+            refs.gsCartError.hidden = !invalid;
+        }
+
+        if (refs.gsCartHint) {
+            refs.gsCartHint.textContent = lines.length
+                ? "Los productos sin comisión muestran la subida como ganancia."
+                : "Agrega un producto para calcular comisión y ganancia.";
+        }
+    }
+
+    function renderCheckoutSummary() {
+        const lines = cartLines();
+        const totals = cartTotals(lines);
+        if (refs.gsCheckoutItems) {
+            refs.gsCheckoutItems.innerHTML = lines.map(function (line) {
+                return '<div class="gs-checkout-item"><span>' + escapeHtml(count(line.qty)) + "× " + escapeHtml(line.product.nombre || "Producto") + "</span><strong>" + escapeHtml(money(linePrice(line) * line.qty)) + "</strong></div>";
+            }).join("");
+        }
+        if (refs.gsCheckoutUnits) refs.gsCheckoutUnits.textContent = count(totals.units) + " uds.";
+        if (refs.gsCheckoutTotal) refs.gsCheckoutTotal.textContent = money(totals.total);
+        if (refs.gsCheckoutCommission) refs.gsCheckoutCommission.textContent = money(totals.commission);
+        if (refs.gsCheckoutMarkup) refs.gsCheckoutMarkup.textContent = money(totals.markup);
+        if (refs.gsCheckoutGain) refs.gsCheckoutGain.textContent = money(totals.gain);
+    }
+
+    function setCheckoutError(message) {
+        if (!refs.gsCheckoutError) return;
+        refs.gsCheckoutError.textContent = message || "";
+        refs.gsCheckoutError.hidden = !message;
+    }
+
+    function fillManagerName() {
+        if (!refs.gsManagerName || refs.gsManagerName.value.trim()) return;
+        const user = state.session && state.session.user ? state.session.user : {};
+        refs.gsManagerName.value = String(user.nombre || "").trim();
+    }
+
+    function renderCheckoutReview() {
+        if (!refs.gsCheckoutReview) return;
+        const name = refs.gsClientName ? refs.gsClientName.value.trim() : "";
+        const phone = refs.gsClientPhone ? refs.gsClientPhone.value.trim() : "";
+        const address = refs.gsDeliveryAddress ? refs.gsDeliveryAddress.value.trim() : "";
+        const municipality = refs.gsDeliveryMunicipality ? refs.gsDeliveryMunicipality.value : "";
+        const managerName = refs.gsManagerName ? refs.gsManagerName.value.trim() : "";
+        const managerPhone = refs.gsManagerPhone ? refs.gsManagerPhone.value.trim() : "";
+
+        refs.gsCheckoutReview.innerHTML = '<div class="gs-review-grid">' +
+            "<div><span>Cliente</span><strong>" + escapeHtml(name || "Sin nombre") + "</strong><small>" + escapeHtml(phone || "Sin teléfono") + "</small></div>" +
+            "<div><span>Entrega</span><strong>" + escapeHtml(municipality || "Sin municipio") + "</strong><small>" + escapeHtml(address || "Sin dirección") + "</small></div>" +
+            "<div><span>Gestor</span><strong>" + escapeHtml(managerName || "Sin nombre") + "</strong><small>" + escapeHtml(managerPhone || "Sin teléfono") + "</small></div>" +
+        "</div>";
+    }
+
+    function setCheckoutStep(step) {
+        const next = Math.max(1, Math.min(3, Number(step) || 1));
+        state.checkoutStep = next;
+
+        document.querySelectorAll("[data-gs-step-panel]").forEach(function (panel) {
+            panel.hidden = Number(panel.getAttribute("data-gs-step-panel")) !== next;
+        });
+        document.querySelectorAll("[data-gs-step-indicator]").forEach(function (indicator) {
+            const index = Number(indicator.getAttribute("data-gs-step-indicator"));
+            indicator.classList.toggle("is-active", index === next);
+            indicator.classList.toggle("is-complete", index === 0 || index < next);
+        });
+
+        if (refs.gsCheckoutPrev) refs.gsCheckoutPrev.hidden = next === 1;
+        if (refs.gsCheckoutNext) refs.gsCheckoutNext.hidden = next === 3;
+        if (refs.gsCheckoutSubmit) refs.gsCheckoutSubmit.hidden = next !== 3;
+        setCheckoutError("");
+        if (next === 3) {
+            fillManagerName();
+            renderCheckoutReview();
+        }
+        renderCheckoutSummary();
+    }
+
+    function openCheckout() {
+        if (!cartLines().length) {
+            setPanelView("cart");
+            return;
+        }
+        state.checkoutStep = 1;
+        if (refs.gsCheckoutForm) refs.gsCheckoutForm.hidden = false;
+        if (refs.gsOrderSuccess) refs.gsOrderSuccess.hidden = true;
+        const stepper = document.querySelector("#gsCheckoutView .gs-stepper");
+        const summary = document.querySelector("#gsCheckoutView .gs-checkout-summary");
+        if (stepper) stepper.hidden = false;
+        if (summary) summary.hidden = false;
+        fillManagerName();
+        setCheckoutStep(1);
+        navigatePanel("checkout");
+    }
+
+    function checkoutError(message) {
+        setCheckoutError(message);
+        return false;
+    }
+
+    function validEmail(value) {
+        return !value || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+    }
+
+    function validateCheckoutStep(step) {
+        if (step === 1) {
+            if (!refs.gsClientName.value.trim()) {
+                refs.gsClientName.focus({ preventScroll: true });
+                return checkoutError("Escribe el nombre del cliente.");
+            }
+            if (!refs.gsClientPhone.value.trim()) {
+                refs.gsClientPhone.focus({ preventScroll: true });
+                return checkoutError("Escribe el teléfono del cliente.");
+            }
+            if (!validEmail(refs.gsClientEmail.value.trim())) {
+                refs.gsClientEmail.focus({ preventScroll: true });
+                return checkoutError("Revisa el correo electrónico del cliente.");
+            }
+        }
+        if (step === 2) {
+            if (!refs.gsDeliveryAddress.value.trim()) {
+                refs.gsDeliveryAddress.focus({ preventScroll: true });
+                return checkoutError("Escribe la dirección de entrega.");
+            }
+            if (!refs.gsDeliveryMunicipality.value) {
+                refs.gsDeliveryMunicipality.focus({ preventScroll: true });
+                return checkoutError("Selecciona el municipio de entrega.");
+            }
+        }
+        if (step === 3) {
+            if (!refs.gsManagerName.value.trim()) {
+                refs.gsManagerName.focus({ preventScroll: true });
+                return checkoutError("Escribe el nombre del gestor.");
+            }
+            if (!refs.gsManagerPhone.value.trim()) {
+                refs.gsManagerPhone.focus({ preventScroll: true });
+                return checkoutError("Escribe el teléfono del gestor.");
+            }
+        }
+        setCheckoutError("");
+        return true;
+    }
+
+    function validateAllCheckout() {
+        for (let step = 1; step <= 3; step += 1) {
+            if (!validateCheckoutStep(step)) {
+                setCheckoutStep(step);
+                validateCheckoutStep(step);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    function nextCheckoutStep() {
+        if (!validateCheckoutStep(state.checkoutStep)) return;
+        setCheckoutStep(state.checkoutStep + 1);
+    }
+
+    function previousCheckoutStep() {
+        setCheckoutStep(state.checkoutStep - 1);
+    }
+
+    function submitPayload() {
+        return {
+            p_nombre_cliente: refs.gsClientName.value.trim(),
+            p_email: refs.gsClientEmail.value.trim(),
+            p_telefono: refs.gsClientPhone.value.trim(),
+            p_direccion: refs.gsDeliveryAddress.value.trim(),
+            p_municipio: refs.gsDeliveryMunicipality.value,
+            p_notas: refs.gsOrderNotes.value.trim(),
+            p_items: cartLines().map(function (line) {
+                const item = {
+                    producto_id: line.product.id,
+                    cantidad: line.qty
+                };
+                if (line.mode === "sin_comision") item.precio_unitario = line.salePrice.toFixed(2);
+                return item;
+            }),
+            p_gestor_nombre: refs.gsManagerName.value.trim(),
+            p_gestor_telefono: refs.gsManagerPhone.value.trim()
+        };
+    }
+
+    async function submitOrder() {
+        if (state.checkoutBusy) return;
+        if (!validateAllCheckout()) return;
+        const lines = cartLines();
+        if (!lines.length) {
+            setCheckoutError("Tu carrito está vacío.");
+            return;
+        }
+        const invalid = cartInvalidLine(lines);
+        if (invalid) {
+            setCheckoutError("Revisa el precio de " + (invalid.product.nombre || "un producto") + " antes de registrar.");
+            return;
+        }
+
+        state.checkoutBusy = true;
+        if (refs.gsCheckoutSubmit) {
+            refs.gsCheckoutSubmit.disabled = true;
+            refs.gsCheckoutSubmit.textContent = "Registrando…";
+            refs.gsCheckoutSubmit.setAttribute("aria-busy", "true");
+        }
+        setCheckoutError("");
+
+        try {
+            const result = await VXAUTH.rest("/rpc/crear_pedido_gestor", {
+                method: "POST",
+                body: submitPayload()
+            });
+            const order = Array.isArray(result) ? result[0] : result;
+            const api = catalogApi();
+            if (api && typeof api.gcClear === "function") api.gcClear();
+            renderCart();
+            showCheckoutSuccess(order || {});
+            load({ silent: true, notice: "Pedido " + ((order && order.codigo) || "") + " registrado correctamente." });
+        } catch (error) {
+            setCheckoutError(error && error.message ? error.message : "No se pudo registrar el pedido. Inténtalo de nuevo.");
+        } finally {
+            state.checkoutBusy = false;
+            if (refs.gsCheckoutSubmit) {
+                refs.gsCheckoutSubmit.disabled = false;
+                refs.gsCheckoutSubmit.textContent = "Registrar pedido";
+                refs.gsCheckoutSubmit.removeAttribute("aria-busy");
+            }
+        }
+    }
+
+    function showCheckoutSuccess(order) {
+        if (refs.gsCheckoutForm) refs.gsCheckoutForm.hidden = true;
+        const stepper = document.querySelector("#gsCheckoutView .gs-stepper");
+        const summary = document.querySelector("#gsCheckoutView .gs-checkout-summary");
+        if (stepper) stepper.hidden = true;
+        if (summary) summary.hidden = true;
+        if (refs.gsOrderSuccess) refs.gsOrderSuccess.hidden = false;
+        if (refs.gsOrderSuccessCode) refs.gsOrderSuccessCode.textContent = order.codigo || "Pedido registrado";
+        if (refs.gsOrderSuccessTotal) refs.gsOrderSuccessTotal.textContent = money(order.total_usd);
+        if (refs.gsOrderSuccessGain) refs.gsOrderSuccessGain.textContent = money(order.comision_monto_usd);
+        if (refs.gsOrderSuccessTracking) refs.gsOrderSuccessTracking.textContent = order.tracking_token || "No disponible";
+        if (refs.gsOrderSuccess) refs.gsOrderSuccess.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function resetCheckout() {
+        if (refs.gsCheckoutForm) {
+            refs.gsCheckoutForm.hidden = false;
+            refs.gsCheckoutForm.reset();
+        }
+        const stepper = document.querySelector("#gsCheckoutView .gs-stepper");
+        const summary = document.querySelector("#gsCheckoutView .gs-checkout-summary");
+        if (stepper) stepper.hidden = false;
+        if (summary) summary.hidden = false;
+        if (refs.gsOrderSuccess) refs.gsOrderSuccess.hidden = true;
+        setCheckoutError("");
+        state.checkoutStep = 1;
+    }
+
+    function addToCart(productId, qty, price) {
+        const api = catalogApi();
+        const product = findCatalogProduct(productId);
+        if (!api || !product || typeof api.gcAdd !== "function") return false;
+        if (typeof api.ag === "function" && api.ag(product)) return false;
+
+        const mode = productMode(product);
+        const base = productBasePrice(product);
+        const salePrice = mode === "sin_comision"
+            ? (Number.isFinite(Number(price)) ? Number(price) : base)
+            : base;
+        api.gcAdd(product.id, Math.max(1, Number(qty) || 1), salePrice);
+        renderCart();
+        setNotice((product.nombre || "Producto") + " añadido al carrito.");
+        return true;
+    }
+
+    function changeCartQty(productId, delta) {
+        const api = catalogApi();
+        if (!api || typeof api.getG !== "function" || typeof api.gcSetQty !== "function") return;
+        const entry = api.getG()[String(productId)];
+        if (!entry) return;
+        api.gcSetQty(productId, Number(entry.qty) + delta);
+        renderCart();
+    }
+
+    function setCartPrice(productId, value) {
+        const api = catalogApi();
+        const line = cartLines().find(function (item) { return String(item.product.id) === String(productId); });
+        if (!api || !line || line.mode !== "sin_comision") return;
+        const amount = Number(value);
+        if (!Number.isFinite(amount) || amount <= 0) {
+            if (refs.gsCartError) {
+                refs.gsCartError.textContent = "Escribe un precio de venta válido para " + (line.product.nombre || "el producto") + ".";
+                refs.gsCartError.hidden = false;
+            }
+            if (refs.gsCartContinue) refs.gsCartContinue.disabled = true;
+            return;
+        }
+        api.gcSetPrice(productId, amount);
+        renderCart();
+    }
+
     function openProductDialog(productId) {
         const api = catalogApi();
         const product = findCatalogProduct(productId);
         if (!api || !product || !refs.gsProductDialog) return;
 
         state.catalogProductId = String(product.id);
-        const images = typeof api.ft === "function" ? api.ft(product) : [];
-        const image = images && images[0] && typeof api.imgUrl === "function"
-            ? api.imgUrl(images[0], { w: 900, h: 700, format: "webp", quality: 88 })
-            : "";
+        const image = productImage(product, 900, 700);
         const category = typeof api.cn === "function" ? api.cn(product.categoria_id) : "Producto";
         const soldOut = typeof api.ag === "function" ? api.ag(product) : false;
-        const price = typeof api.pr === "function" ? api.pr(product) : product.precio_usd;
+        const base = productBasePrice(product);
+        const mode = productMode(product);
+        const commission = productCommissionInfo(product);
+        const maxPrice = productMaxPrice(product);
+        const margin = Number(product.margen_max_porcentaje);
+        const marginPercent = Number.isFinite(margin) ? margin : 20;
 
         refs.gsProductMedia.innerHTML = image
             ? '<img src="' + escapeHtml(image) + '" alt="' + escapeHtml(product.nombre || "Producto") + '">'
@@ -1003,11 +1477,52 @@
         refs.gsProductCategory.textContent = category;
         refs.gsProductTitle.textContent = product.nombre || "Producto";
         refs.gsProductDescription.textContent = product.descripcion || "Producto del catálogo VOLXEN.";
-        refs.gsProductPrice.textContent = soldOut ? "Consultar disponibilidad" : (api.fm ? api.fm(price) : money(price));
+        refs.gsProductPrice.textContent = soldOut ? "Consultar disponibilidad" : money(base);
         refs.gsProductStock.textContent = soldOut ? "Agotado" : "Disponible";
         refs.gsProductStock.classList.toggle("is-out", soldOut);
+
+        if (refs.gsProductCommission) {
+            if (mode === "sin_comision") {
+                refs.gsProductCommission.innerHTML = '<strong class="is-gain">No trae comisión</strong><small>La subida sobre el precio VOLXEN es tu ganancia.</small>';
+            } else {
+                refs.gsProductCommission.innerHTML = "<strong>Comisión fija: " + escapeHtml(money(commission.amount)) + "</strong><small>Por unidad</small>";
+            }
+            refs.gsProductCommission.classList.toggle("is-gain", mode === "sin_comision");
+        }
+
+        if (refs.gsProductModeNote) {
+            refs.gsProductModeNote.textContent = mode === "sin_comision"
+                ? "Define tu precio de venta. Puedes subir hasta " + money(maxPrice) + "."
+                : "Precio fijo: no puedes subir el precio de este producto.";
+        }
+
+        if (refs.gsProductSaleWrap && refs.gsProductSalePrice) {
+            refs.gsProductSaleWrap.hidden = mode !== "sin_comision";
+            refs.gsProductSalePrice.disabled = soldOut;
+            refs.gsProductSalePrice.min = base.toFixed(2);
+            refs.gsProductSalePrice.max = maxPrice.toFixed(2);
+            refs.gsProductSalePrice.value = base.toFixed(2);
+        }
+        if (refs.gsProductMaxNote) {
+            refs.gsProductMaxNote.textContent = mode === "sin_comision"
+                ? "Máximo " + money(maxPrice) + " (" + Number(marginPercent).toLocaleString("es-ES", { maximumFractionDigits: 2 }) + "% sobre " + money(base) + ")."
+                : "";
+        }
+
+        const features = Array.isArray(product.caracteristicas)
+            ? product.caracteristicas.map(function (item) { return String(item || "").trim(); }).filter(Boolean)
+            : [];
+        if (refs.gsProductFeatures) {
+            refs.gsProductFeatures.innerHTML = (features.length
+                ? "<h3>Características</h3><ul>" + features.map(function (item) { return "<li>" + escapeHtml(item) + "</li>"; }).join("") + "</ul>"
+                : "") +
+                (product.garantia ? '<p><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Garantía: ' + escapeHtml(product.garantia) + "</p>" : "") +
+                (product.transporte ? '<p><i class="fa-solid fa-truck-fast" aria-hidden="true"></i> Transporte: ' + escapeHtml(product.transporte) + "</p>" : "");
+        }
+
         refs.gsProductAdd.disabled = soldOut;
         refs.gsProductAdd.setAttribute("data-product-id", String(product.id));
+        if (refs.gsProductCart) refs.gsProductCart.disabled = false;
 
         if (typeof refs.gsProductDialog.showModal === "function") {
             refs.gsProductDialog.showModal();
@@ -1027,10 +1542,17 @@
         state.catalogProductId = "";
     }
 
-    function setPanelView(view) {
-        state.panelView = view === "catalog" ? "catalog" : "dashboard";
+    function setPanelView(view, options) {
+        const opts = options || {};
+        const allowed = ["dashboard", "catalog", "cart", "checkout"];
+        state.panelView = allowed.indexOf(view) !== -1 ? view : "dashboard";
         if (refs.gsDashboardView) refs.gsDashboardView.hidden = state.panelView !== "dashboard";
         if (refs.gsCatalogView) refs.gsCatalogView.hidden = state.panelView !== "catalog";
+        if (refs.gsCartView) refs.gsCartView.hidden = state.panelView !== "cart";
+        if (refs.gsCheckoutView) refs.gsCheckoutView.hidden = state.panelView !== "checkout";
+
+        const searchWrap = refs.gsSearch ? refs.gsSearch.closest(".gs-search") : null;
+        if (searchWrap) searchWrap.hidden = state.panelView === "cart" || state.panelView === "checkout";
 
         if (state.panelView === "catalog") {
             if (refs.gsSearch) {
@@ -1039,13 +1561,77 @@
             }
             if (refs.gsSearchLabel) refs.gsSearchLabel.textContent = "Buscar productos";
             ensureCatalog();
+        } else if (state.panelView === "cart") {
+            ensureCatalog().then(renderCart);
+        } else if (state.panelView === "checkout") {
+            ensureCatalog().then(function () {
+                if (!cartLines().length) {
+                    setPanelView("cart");
+                    return;
+                }
+                if (opts.keepSuccess && refs.gsOrderSuccess && !refs.gsOrderSuccess.hidden) {
+                    renderCheckoutSummary();
+                    return;
+                }
+                if (refs.gsOrderSuccess) refs.gsOrderSuccess.hidden = true;
+                if (refs.gsCheckoutForm) refs.gsCheckoutForm.hidden = false;
+                const stepper = document.querySelector("#gsCheckoutView .gs-stepper");
+                const summary = document.querySelector("#gsCheckoutView .gs-checkout-summary");
+                if (stepper) stepper.hidden = false;
+                if (summary) summary.hidden = false;
+                renderCheckoutSummary();
+                setCheckoutStep(state.checkoutStep || 1);
+            });
         } else {
             if (refs.gsSearch) {
                 refs.gsSearch.value = state.queryInput;
                 refs.gsSearch.placeholder = "Buscar pedido, cliente o teléfono";
             }
             if (refs.gsSearchLabel) refs.gsSearchLabel.textContent = "Buscar pedidos";
+            if (refs.gsOrderSuccess) refs.gsOrderSuccess.hidden = true;
         }
+    }
+
+    function panelHash(view) {
+        if (view === "catalog") return "#gsCatalogView";
+        if (view === "cart") return "#gsCartView";
+        if (view === "checkout") return "#gsCheckoutView";
+        return "#gsHome";
+    }
+
+    function setActiveNavForView(view) {
+        if (!refs.gsSidebar) return;
+        const section = view === "catalog" ? "catalogo" : view === "cart" || view === "checkout" ? "carrito" : "inicio";
+        const link = refs.gsSidebar.querySelector('[data-gs-nav="' + section + '"]');
+        if (link) setActiveNav(link);
+    }
+
+    function navigatePanel(view, options) {
+        const opts = options || {};
+        setPanelView(view, opts);
+        setActiveNavForView(view);
+        const hash = panelHash(view);
+        try {
+            if (opts.replace) {
+                history.replaceState({ gsPanel: view }, "", hash);
+            } else if (window.location.hash !== hash) {
+                history.pushState({ gsPanel: view }, "", hash);
+            }
+        } catch (error) {}
+        if (opts.scroll !== false) panelTop();
+    }
+
+    function syncPanelFromLocation() {
+        const hash = window.location.hash;
+        const view = hash === "#gsCatalogView"
+            ? "catalog"
+            : hash === "#gsCartView"
+                ? "cart"
+                : hash === "#gsCheckoutView"
+                    ? "checkout"
+                    : "dashboard";
+        setPanelView(view, { fromHistory: true });
+        setActiveNavForView(view);
     }
 
     function panelTop() {
@@ -1095,6 +1681,11 @@
         renderBubbles();
         renderGauge();
         renderStatus();
+        if (state.panelView === "cart") renderCart();
+        if (state.panelView === "checkout") {
+            renderCheckoutSummary();
+            if (state.checkoutStep === 3) renderCheckoutReview();
+        }
     }
 
     async function load(options) {
@@ -1214,16 +1805,25 @@
         }
 
         document.querySelectorAll(".gs-topbar-actions a[href^='#gs']").forEach(function (link) {
+            if (link === refs.gsCartButton) return;
             link.addEventListener("click", function (event) {
                 const target = document.querySelector(link.getAttribute("href"));
                 if (!target) return;
                 event.preventDefault();
                 setPanelView("dashboard");
+                setActiveNavForView("dashboard");
                 window.requestAnimationFrame(function () {
                     target.scrollIntoView({ behavior: "smooth", block: "start" });
                 });
             });
         });
+
+        if (refs.gsCartButton) {
+            refs.gsCartButton.addEventListener("click", function (event) {
+                event.preventDefault();
+                navigatePanel("cart");
+            });
+        }
 
         if (refs.gsSidebar) {
             refs.gsSidebar.addEventListener("click", function (event) {
@@ -1232,17 +1832,16 @@
 
                 if (navLink) {
                     event.preventDefault();
-                    setActiveNav(navLink);
-
                     const section = navLink.getAttribute("data-gs-nav");
                     if (section === "catalogo") {
-                        setPanelView("catalog");
-                        panelTop();
+                        navigatePanel("catalog");
+                    } else if (section === "carrito") {
+                        navigatePanel("cart");
                     } else if (section === "inicio") {
-                        setPanelView("dashboard");
-                        panelTop();
+                        navigatePanel("dashboard");
                     } else {
                         setPanelView("dashboard");
+                        setActiveNav(navLink);
                         const target = document.querySelector(navLink.getAttribute("href"));
                         if (target) {
                             window.requestAnimationFrame(function () {
@@ -1255,6 +1854,8 @@
                 if (anchor && isMobileNav()) closeNav();
             });
         }
+
+        window.addEventListener("popstate", syncPanelFromLocation);
 
         document.addEventListener("keydown", function (event) {
             if (event.key === "Escape") closeNav();
@@ -1405,9 +2006,7 @@
                 if (add) {
                     event.preventDefault();
                     event.stopPropagation();
-                    if (window.VX && typeof window.VX.add === "function") {
-                        window.VX.add(add.getAttribute("data-id"), 1);
-                    }
+                    addToCart(add.getAttribute("data-id"), 1);
                     return;
                 }
 
@@ -1428,9 +2027,28 @@
         if (refs.gsProductAdd) {
             refs.gsProductAdd.addEventListener("click", function () {
                 const productId = refs.gsProductAdd.getAttribute("data-product-id");
-                if (!productId || !window.VX || typeof window.VX.add !== "function") return;
-                window.VX.add(productId, 1);
+                const product = findCatalogProduct(productId);
+                if (!productId || !product) return;
+                const flexible = productMode(product) === "sin_comision";
+                const price = flexible && refs.gsProductSalePrice
+                    ? Number(refs.gsProductSalePrice.value)
+                    : productBasePrice(product);
+                if (flexible) {
+                    const maxPrice = productMaxPrice(product);
+                    if (!Number.isFinite(price) || price < productBasePrice(product) || price > maxPrice) {
+                        setNotice("El precio de venta debe estar entre " + money(productBasePrice(product)) + " y " + money(maxPrice) + ".", true);
+                        if (refs.gsProductSalePrice) refs.gsProductSalePrice.focus({ preventScroll: true });
+                        return;
+                    }
+                }
+                if (addToCart(productId, 1, price)) closeProductDialog();
+            });
+        }
+
+        if (refs.gsProductCart) {
+            refs.gsProductCart.addEventListener("click", function () {
                 closeProductDialog();
+                navigatePanel("cart");
             });
         }
 
@@ -1440,6 +2058,113 @@
             });
             refs.gsProductDialog.addEventListener("close", function () {
                 state.catalogProductId = "";
+            });
+        }
+
+        if (refs.gsProductSalePrice) {
+            refs.gsProductSalePrice.addEventListener("keydown", function (event) {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    if (refs.gsProductAdd) refs.gsProductAdd.click();
+                }
+            });
+        }
+
+        [refs.gsManagerName, refs.gsManagerPhone].forEach(function (input) {
+            if (!input) return;
+            input.addEventListener("input", renderCheckoutReview);
+        });
+
+        if (refs.gsCartView) {
+            refs.gsCartView.addEventListener("click", function (event) {
+                const minus = event.target.closest("[data-cart-minus]");
+                const plus = event.target.closest("[data-cart-plus]");
+                const remove = event.target.closest("[data-cart-remove]");
+                if (minus) {
+                    changeCartQty(minus.getAttribute("data-cart-minus"), -1);
+                    return;
+                }
+                if (plus) {
+                    changeCartQty(plus.getAttribute("data-cart-plus"), 1);
+                    return;
+                }
+                if (remove) {
+                    const api = catalogApi();
+                    if (api && typeof api.gcRemove === "function") api.gcRemove(remove.getAttribute("data-cart-remove"));
+                    renderCart();
+                }
+            });
+
+            refs.gsCartView.addEventListener("change", function (event) {
+                const input = event.target.closest("[data-cart-price]");
+                if (!input) return;
+                setCartPrice(input.getAttribute("data-cart-price"), input.value);
+            });
+        }
+
+        if (refs.gsCartContinue) {
+            refs.gsCartContinue.addEventListener("click", openCheckout);
+        }
+
+        if (refs.gsCartBrowse) {
+            refs.gsCartBrowse.addEventListener("click", function () {
+                navigatePanel("catalog");
+            });
+        }
+
+        if (refs.gsCartClear) {
+            refs.gsCartClear.addEventListener("click", function () {
+                if (!refs.gsCartClear.classList.contains("is-confirming")) {
+                    refs.gsCartClear.classList.add("is-confirming");
+                    refs.gsCartClear.textContent = "¿Confirmar vaciado?";
+                    window.clearTimeout(cartClearTimer);
+                    cartClearTimer = window.setTimeout(resetCartClear, 4000);
+                    return;
+                }
+                const api = catalogApi();
+                if (api && typeof api.gcClear === "function") api.gcClear();
+                resetCartClear();
+                renderCart();
+                setNotice("Carrito vacío.");
+            });
+        }
+
+        if (refs.gsCheckoutBackToCart) {
+            refs.gsCheckoutBackToCart.addEventListener("click", function () {
+                navigatePanel("cart");
+            });
+        }
+
+        if (refs.gsCheckoutNext) {
+            refs.gsCheckoutNext.addEventListener("click", nextCheckoutStep);
+        }
+
+        if (refs.gsCheckoutPrev) {
+            refs.gsCheckoutPrev.addEventListener("click", previousCheckoutStep);
+        }
+
+        if (refs.gsCheckoutForm) {
+            refs.gsCheckoutForm.addEventListener("submit", function (event) {
+                event.preventDefault();
+                submitOrder();
+            });
+        }
+
+        if (refs.gsOrderSuccessView) {
+            refs.gsOrderSuccessView.addEventListener("click", function () {
+                resetCheckout();
+                navigatePanel("dashboard");
+                load().then(function () {
+                    const orders = document.getElementById("gsOrdersSection");
+                    if (orders) orders.scrollIntoView({ behavior: "smooth", block: "start" });
+                });
+            });
+        }
+
+        if (refs.gsOrderSuccessCatalog) {
+            refs.gsOrderSuccessCatalog.addEventListener("click", function () {
+                resetCheckout();
+                navigatePanel("catalog");
             });
         }
     }
@@ -1464,7 +2189,20 @@
             "gsCatalogView", "gsCatalogCategories", "gsCatalogGrid", "gsCatalogEmpty",
             "gsCatalogCount", "gsCatalogSort", "gsCatalogReset", "gsProductDialog",
             "gsProductClose", "gsProductMedia", "gsProductCategory", "gsProductTitle",
-            "gsProductDescription", "gsProductPrice", "gsProductStock", "gsProductAdd"
+            "gsProductDescription", "gsProductPrice", "gsProductStock", "gsProductAdd",
+            "gsProductCart", "gsProductCommission", "gsProductModeNote", "gsProductSaleWrap",
+            "gsProductSalePrice", "gsProductMaxNote", "gsProductFeatures",
+            "gsCartButton", "gsCartCount", "gsSideCartCount", "gsCartView", "gsCartItems",
+            "gsCartEmpty", "gsCartBrowse", "gsCartContinue", "gsCartClear", "gsCartUnits",
+            "gsCartTotal", "gsCartCommission", "gsCartMarkup", "gsCartGain", "gsCartHint",
+            "gsCartError", "gsCheckoutView", "gsCheckoutBackToCart", "gsCheckoutForm",
+            "gsClientName", "gsClientPhone", "gsClientEmail", "gsDeliveryAddress",
+            "gsDeliveryMunicipality", "gsOrderNotes", "gsManagerName", "gsManagerPhone",
+            "gsCheckoutReview", "gsCheckoutError", "gsCheckoutPrev", "gsCheckoutNext",
+            "gsCheckoutSubmit", "gsCheckoutItems", "gsCheckoutUnits", "gsCheckoutTotal",
+            "gsCheckoutCommission", "gsCheckoutMarkup", "gsCheckoutGain", "gsOrderSuccess",
+            "gsOrderSuccessCode", "gsOrderSuccessTotal", "gsOrderSuccessGain",
+            "gsOrderSuccessTracking", "gsOrderSuccessView", "gsOrderSuccessCatalog"
         ].forEach(function (key) {
             refs[key] = id(key);
         });
@@ -1474,6 +2212,7 @@
 
     async function init() {
         cacheElements();
+        if (window.VX && typeof window.VX.gcBadge === "function") window.VX.gcBadge();
 
         if (!window.VXAUTH) {
             refs.gsErrorText.textContent = "No se pudo cargar el sistema de cuentas.";
@@ -1514,6 +2253,7 @@
         setPanelView("dashboard");
         setView("gsLoading");
         await load();
+        syncPanelFromLocation();
     }
 
     if (document.readyState === "loading") {

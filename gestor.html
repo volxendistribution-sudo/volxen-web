@@ -109,6 +109,11 @@
                         <span class="gs-side-icon"><i class="fa-solid fa-box-open" aria-hidden="true"></i></span>
                         <span class="gs-side-label">Catálogo</span>
                     </a>
+                    <a class="gs-side-link" href="#gsCartView" data-gs-nav="carrito" aria-label="Carrito" title="Carrito">
+                        <span class="gs-side-icon"><i class="fa-solid fa-cart-shopping" aria-hidden="true"></i></span>
+                        <span class="gs-side-label">Carrito</span>
+                        <span id="gsSideCartCount" class="gs-side-count" hidden>0</span>
+                    </a>
                     <a class="gs-side-link" href="#gsOrdersSection" data-gs-nav="pedidos" aria-label="Pedidos" title="Pedidos">
                         <span class="gs-side-icon"><i class="fa-solid fa-receipt" aria-hidden="true"></i></span>
                         <span class="gs-side-label">Pedidos</span>
@@ -164,6 +169,10 @@
                             <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
                             <input id="gsSearch" type="search" placeholder="Buscar pedido, cliente o teléfono" autocomplete="off" aria-labelledby="gsSearchLabel">
                         </label>
+                        <a id="gsCartButton" class="gs-icon-button gs-cart-button" href="#gsCartView" aria-label="Ver carrito" title="Carrito">
+                            <i class="fa-solid fa-cart-shopping" aria-hidden="true"></i>
+                            <span id="gsCartCount" class="gs-icon-badge" hidden>0</span>
+                        </a>
                         <a class="gs-icon-button" href="#gsNotificationsSection" aria-label="Ver notificaciones" title="Notificaciones">
                             <i class="fa-solid fa-bell" aria-hidden="true"></i>
                             <span id="gsBellBadge" class="gs-icon-badge" hidden></span>
@@ -513,6 +522,197 @@
                             <button class="gs-button" type="button" id="gsCatalogReset">Limpiar filtros</button>
                         </div>
                     </section>
+
+                    <section id="gsCartView" class="gs-cart-view" aria-labelledby="gsCartTitle" hidden>
+                        <div class="gs-cart-head">
+                            <div class="gs-card-heading">
+                                <p class="gs-eyebrow">Compra asistida</p>
+                                <h2 id="gsCartTitle">Carrito del gestor</h2>
+                                <p class="gs-card-subtitle">Revisa los productos, la comisión y tu ganancia antes de registrar el vale.</p>
+                            </div>
+                            <button id="gsCartContinue" class="gs-button gs-button-primary" type="button" disabled>
+                                Continuar con el vale <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                            </button>
+                        </div>
+
+                        <div class="gs-cart-layout">
+                            <div class="gs-cart-main">
+                                <div id="gsCartItems" class="gs-cart-items" role="list" aria-label="Productos en el carrito del gestor"></div>
+                                <div id="gsCartEmpty" class="gs-catalog-empty" hidden>
+                                    <span class="gs-chip-muted">Carrito vacío</span>
+                                    <strong>Agrega productos desde el catálogo.</strong>
+                                    <p>Podrás revisar la comisión o la ganancia por subida antes de comprar.</p>
+                                    <button id="gsCartBrowse" class="gs-button" type="button">Abrir catálogo</button>
+                                </div>
+                            </div>
+
+                            <aside class="gs-cart-summary" aria-label="Resumen del carrito del gestor">
+                                <div class="gs-cart-summary-head">
+                                    <span>Resumen</span>
+                                    <strong id="gsCartUnits">0 uds.</strong>
+                                </div>
+                                <dl class="gs-cart-totals">
+                                    <div><dt>Total del pedido</dt><dd id="gsCartTotal">$0.00</dd></div>
+                                    <div><dt>Comisión fija</dt><dd id="gsCartCommission">$0.00</dd></div>
+                                    <div><dt>Ganancia por subida</dt><dd id="gsCartMarkup">$0.00</dd></div>
+                                    <div class="is-total"><dt>Tu ganancia total</dt><dd id="gsCartGain">$0.00</dd></div>
+                                </dl>
+                                <p id="gsCartHint" class="gs-cart-hint">Los productos sin comisión muestran la subida como ganancia.</p>
+                                <p id="gsCartError" class="gs-form-error" role="alert" aria-live="assertive" hidden></p>
+                                <button id="gsCartClear" class="gs-cart-clear" type="button">Vaciar carrito</button>
+                            </aside>
+                        </div>
+                    </section>
+
+                    <section id="gsCheckoutView" class="gs-checkout-view" aria-labelledby="gsCheckoutTitle" hidden>
+                        <div class="gs-cart-head">
+                            <div class="gs-card-heading">
+                                <p class="gs-eyebrow">Vale de pedido</p>
+                                <h2 id="gsCheckoutTitle">Registrar compra</h2>
+                                <p class="gs-card-subtitle">El pedido queda atribuido a tu cuenta y el precio final se valida en el servidor.</p>
+                            </div>
+                            <button id="gsCheckoutBackToCart" class="gs-button" type="button">
+                                <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Volver al carrito
+                            </button>
+                        </div>
+
+                        <ol class="gs-stepper" aria-label="Progreso del vale">
+                            <li class="is-complete" data-gs-step-indicator="0">
+                                <span>1</span>
+                                <div><b>Carrito</b><small>Revisado</small></div>
+                            </li>
+                            <li class="is-active" data-gs-step-indicator="1">
+                                <span>2</span>
+                                <div><b>Cliente</b><small>Contacto</small></div>
+                            </li>
+                            <li data-gs-step-indicator="2">
+                                <span>3</span>
+                                <div><b>Entrega</b><small>Dirección</small></div>
+                            </li>
+                            <li data-gs-step-indicator="3">
+                                <span>4</span>
+                                <div><b>Confirmar</b><small>Gestor</small></div>
+                            </li>
+                        </ol>
+
+                        <div class="gs-checkout-layout">
+                            <form id="gsCheckoutForm" class="gs-checkout-form" novalidate>
+                                <section class="gs-step-panel" data-gs-step-panel="1" aria-labelledby="gsCheckoutClientTitle">
+                                    <h3 id="gsCheckoutClientTitle">Datos del cliente</h3>
+                                    <div class="gs-field">
+                                        <label for="gsClientName">Nombre y apellidos *</label>
+                                        <input id="gsClientName" autocomplete="name" placeholder="Nombre y apellidos" required>
+                                    </div>
+                                    <div class="gs-field-grid">
+                                        <div class="gs-field">
+                                            <label for="gsClientPhone">Teléfono *</label>
+                                            <input id="gsClientPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="Teléfono del cliente" required>
+                                        </div>
+                                        <div class="gs-field">
+                                            <label for="gsClientEmail">Correo electrónico</label>
+                                            <input id="gsClientEmail" type="email" autocomplete="email" placeholder="Correo (opcional)">
+                                        </div>
+                                    </div>
+                                    <p class="gs-step-note">El teléfono es obligatorio para coordinar la entrega.</p>
+                                </section>
+
+                                <section class="gs-step-panel" data-gs-step-panel="2" aria-labelledby="gsCheckoutDeliveryTitle" hidden>
+                                    <h3 id="gsCheckoutDeliveryTitle">Datos de entrega</h3>
+                                    <div class="gs-field">
+                                        <label for="gsDeliveryAddress">Dirección completa *</label>
+                                        <input id="gsDeliveryAddress" autocomplete="street-address" placeholder="Calle, número, entre calles" required>
+                                    </div>
+                                    <div class="gs-field">
+                                        <label for="gsDeliveryMunicipality">Municipio *</label>
+                                        <select id="gsDeliveryMunicipality" required>
+                                            <option value="" selected disabled>Seleccione el municipio</option>
+                                            <option>Playa</option>
+                                            <option>Plaza de la Revolución</option>
+                                            <option>Centro Habana</option>
+                                            <option>La Habana Vieja</option>
+                                            <option>Regla</option>
+                                            <option>La Habana del Este</option>
+                                            <option>Guanabacoa</option>
+                                            <option>San Miguel del Padrón</option>
+                                            <option>Diez de Octubre</option>
+                                            <option>Cerro</option>
+                                            <option>Marianao</option>
+                                            <option>La Lisa</option>
+                                            <option>Boyeros</option>
+                                            <option>Arroyo Naranjo</option>
+                                            <option>Cotorro</option>
+                                        </select>
+                                    </div>
+                                    <div class="gs-field">
+                                        <label for="gsOrderNotes">Notas para la entrega</label>
+                                        <textarea id="gsOrderNotes" rows="3" placeholder="Referencias, horario o indicaciones (opcional)"></textarea>
+                                    </div>
+                                    <p class="gs-step-note">Por ahora solo se entrega en La Habana.</p>
+                                </section>
+
+                                <section class="gs-step-panel" data-gs-step-panel="3" aria-labelledby="gsCheckoutManagerTitle" hidden>
+                                    <h3 id="gsCheckoutManagerTitle">Tus datos de gestor</h3>
+                                    <div class="gs-field-grid">
+                                        <div class="gs-field">
+                                            <label for="gsManagerName">Nombre del gestor *</label>
+                                            <input id="gsManagerName" autocomplete="name" placeholder="Nombre del gestor" required>
+                                        </div>
+                                        <div class="gs-field">
+                                            <label for="gsManagerPhone">Teléfono del gestor *</label>
+                                            <input id="gsManagerPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="Tu teléfono de contacto" required>
+                                        </div>
+                                    </div>
+                                    <div id="gsCheckoutReview" class="gs-checkout-review" aria-live="polite"></div>
+                                    <p class="gs-step-note">Al registrar el pedido se descuentan las unidades del carrito y queda pendiente de confirmación.</p>
+                                </section>
+
+                                <p id="gsCheckoutError" class="gs-form-error" role="alert" aria-live="assertive" hidden></p>
+
+                                <div class="gs-checkout-actions">
+                                    <button id="gsCheckoutPrev" class="gs-button" type="button" hidden>
+                                        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Anterior
+                                    </button>
+                                    <button id="gsCheckoutNext" class="gs-button gs-button-primary" type="button">
+                                        Continuar <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                                    </button>
+                                    <button id="gsCheckoutSubmit" class="gs-button gs-button-primary" type="submit" hidden>
+                                        <i class="fa-solid fa-check" aria-hidden="true"></i> Registrar pedido
+                                    </button>
+                                </div>
+                            </form>
+
+                            <aside class="gs-cart-summary gs-checkout-summary" aria-label="Resumen del vale">
+                                <div class="gs-cart-summary-head">
+                                    <span>Tu vale</span>
+                                    <strong id="gsCheckoutUnits">0 uds.</strong>
+                                </div>
+                                <div id="gsCheckoutItems" class="gs-checkout-items"></div>
+                                <dl class="gs-cart-totals">
+                                    <div><dt>Total del pedido</dt><dd id="gsCheckoutTotal">$0.00</dd></div>
+                                    <div><dt>Comisión fija</dt><dd id="gsCheckoutCommission">$0.00</dd></div>
+                                    <div><dt>Ganancia por subida</dt><dd id="gsCheckoutMarkup">$0.00</dd></div>
+                                    <div class="is-total"><dt>Tu ganancia total</dt><dd id="gsCheckoutGain">$0.00</dd></div>
+                                </dl>
+                                <p class="gs-cart-hint">El servidor recalcula precios, comisiones y disponibilidad al confirmar.</p>
+                            </aside>
+                        </div>
+
+                        <div id="gsOrderSuccess" class="gs-order-success" role="status" aria-live="polite" hidden>
+                            <span class="gs-order-success-icon" aria-hidden="true"><i class="fa-solid fa-check"></i></span>
+                            <p class="gs-eyebrow">Pedido registrado</p>
+                            <h2>Vale creado correctamente</h2>
+                            <p class="gs-order-success-code" id="gsOrderSuccessCode">—</p>
+                            <div class="gs-order-success-data">
+                                <div><span>Total</span><strong id="gsOrderSuccessTotal">—</strong></div>
+                                <div><span>Tu ganancia</span><strong id="gsOrderSuccessGain">—</strong></div>
+                            </div>
+                            <p class="gs-order-success-tracking">Código de seguimiento: <code id="gsOrderSuccessTracking">—</code></p>
+                            <div class="gs-order-success-actions">
+                                <button id="gsOrderSuccessView" class="gs-button gs-button-primary" type="button">Ver en mis pedidos</button>
+                                <button id="gsOrderSuccessCatalog" class="gs-button" type="button">Seguir comprando</button>
+                            </div>
+                        </div>
+                    </section>
                 </div>
             </div>
         </div>
@@ -532,11 +732,19 @@
                     <strong id="gsProductPrice">$0.00</strong>
                     <span id="gsProductStock"></span>
                 </div>
+                <div id="gsProductCommission" class="gs-product-commission"></div>
+                <p id="gsProductModeNote" class="gs-product-mode-note"></p>
+                <div id="gsProductSaleWrap" class="gs-product-sale" hidden>
+                    <label for="gsProductSalePrice">Tu precio de venta (USD) *</label>
+                    <input id="gsProductSalePrice" type="number" min="0" step="0.01" inputmode="decimal">
+                    <small id="gsProductMaxNote"></small>
+                </div>
+                <div id="gsProductFeatures" class="gs-product-features"></div>
                 <div class="gs-product-dialog-actions">
                     <button id="gsProductAdd" class="gs-button gs-button-primary" type="button">
                         <i class="fa-solid fa-bag-shopping" aria-hidden="true"></i> Añadir al carrito
                     </button>
-                    <a class="gs-button" href="carrito.html">Ver carrito</a>
+                    <button id="gsProductCart" class="gs-button" type="button">Ver carrito</button>
                 </div>
             </div>
         </div>

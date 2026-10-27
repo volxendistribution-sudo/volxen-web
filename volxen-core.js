@@ -15,7 +15,8 @@ const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&am
 const wa = t => "https://wa.me/" + (C.WHATSAPP || "") + "?text=" + encodeURIComponent(t);
 const fm = n => "$" + Math.round(n * 100) / 100 + " USD";
 const CART_KEY = "vx_k";
-let P = [], Cs = [], O = {}, OPS = [], opsError = false, cat = "", K = readCart();
+const GESTOR_CART_KEY = "vx_gc";
+let P = [], Cs = [], O = {}, OPS = [], opsError = false, cat = "", K = readCart(), G = readGestorCart();
 
 function readCart() {
     try {
@@ -26,13 +27,107 @@ function readCart() {
     }
 }
 
+function readGestorCart() {
+    try {
+        const saved = JSON.parse(localStorage.getItem(GESTOR_CART_KEY) || "{}");
+        if (!saved || typeof saved !== "object" || Array.isArray(saved)) return {};
+        return Object.keys(saved).reduce((out, id) => {
+            const item = saved[id];
+            const qty = Math.floor(Number(item && item.qty));
+            if (!id || !Number.isFinite(qty) || qty <= 0) return out;
+            const price = item && item.price != null ? Number(item.price) : null;
+            out[id] = { qty, price: Number.isFinite(price) && price >= 0 ? Math.round(price * 100) / 100 : null };
+            return out;
+        }, {});
+    } catch (e) {
+        return {};
+    }
+}
+
+function saveGestorCart() {
+    try { localStorage.setItem(GESTOR_CART_KEY, JSON.stringify(G)); } catch (e) {}
+    gb();
+}
+
 function syncCart() {
     K = readCart();
     bd();
     return K;
 }
+
+function gb() {
+    const n = Object.values(G).reduce((total, item) => total + (Number(item && item.qty) || 0), 0);
+    ["gsCartCount", "gsSideCartCount"].forEach(id => {
+        const badge = $(id);
+        if (!badge) return;
+        badge.textContent = n;
+        badge.hidden = n === 0;
+    });
+}
+
+function gcCount() {
+    return Object.values(G).reduce((total, item) => total + (Number(item && item.qty) || 0), 0);
+}
+
+function gcAdd(id, qty, price) {
+    const productId = String(id || "");
+    const amount = Math.floor(Number(qty) || 0);
+    if (!productId || amount <= 0) return;
+    const current = G[productId] || { qty: 0, price: null };
+    current.qty += amount;
+    if (price != null && Number.isFinite(Number(price))) current.price = Math.round(Number(price) * 100) / 100;
+    G[productId] = current;
+    saveGestorCart();
+}
+
+function gcSetQty(id, qty) {
+    const productId = String(id || "");
+    const amount = Math.floor(Number(qty) || 0);
+    if (!productId) return;
+    if (amount <= 0) {
+        delete G[productId];
+    } else {
+        G[productId] = G[productId] || { qty: 0, price: null };
+        G[productId].qty = amount;
+    }
+    saveGestorCart();
+}
+
+function gcSetPrice(id, price) {
+    const productId = String(id || "");
+    if (!G[productId] || price == null || !Number.isFinite(Number(price)) || Number(price) < 0) return;
+    G[productId].price = Math.round(Number(price) * 100) / 100;
+    saveGestorCart();
+}
+
+function gcRemove(id) {
+    delete G[String(id || "")];
+    saveGestorCart();
+}
+
+function gcClear() {
+    G = {};
+    saveGestorCart();
+}
+
+function gcItems() {
+    return Object.keys(G).map(id => {
+        const product = P.find(item => String(item.id) === id);
+        if (!product) return null;
+        return {
+            product,
+            qty: G[id].qty,
+            price: G[id].price == null ? null : Number(G[id].price)
+        };
+    }).filter(Boolean);
+}
+
 window.addEventListener("storage", e => {
     if (e.key === CART_KEY) syncCart();
+    if (e.key === GESTOR_CART_KEY) {
+        G = readGestorCart();
+        gb();
+    }
 });
 const ft = p => (p.imagenes && p.imagenes.length) ? p.imagenes : (p.imagen_principal ? [p.imagen_principal] : []);
 
@@ -570,6 +665,12 @@ async function load() {
             sv();
             toast("Algunos productos ya no están disponibles y se quitaron de su pedido.", "error");
         }
+        const staleGestor = Object.keys(G).filter(id => !P.some(x => x.id === id));
+        if (staleGestor.length) {
+            staleGestor.forEach(id => delete G[id]);
+            saveGestorCart();
+            toast("Algunos productos ya no están disponibles y se quitaron del carrito del gestor.", "error");
+        }
     } catch (err) {
         loadRetry++;
         if (loadRetry <= MAX_LOAD_RETRIES) {
@@ -653,6 +754,7 @@ async function start(pageInit) {
     hydrateOpIcons();
     hydrateAccount();
     bd();
+    gb();
     wireGlobal();
     obs();
     await load();
@@ -662,4 +764,4 @@ async function start(pageInit) {
     obs();
 }
 
-window.VX = { $, q, esc, wa, fm, ft, imgUrl, pr, ag, cn, price, toast, bd, sv, syncCart, obs, pcard, show, hide, go, add, setQty, cart, cartItems, cartTotal, load, renderNav, setCat, trackDet, consultarPedido, estadoLargo, operadoras, opIcon, hydrateOpIcons, hydrateAccount, avatarHtml, start, loadOperadoras, renderOperadoras, getOps: () => OPS, getP: () => P, getCs: () => Cs, getO: () => O, getK: () => K, categoryImage, PAGE };
+window.VX = { $, q, esc, wa, fm, ft, imgUrl, pr, ag, cn, price, toast, bd, sv, syncCart, obs, pcard, show, hide, go, add, setQty, cart, cartItems, cartTotal, load, renderNav, setCat, trackDet, consultarPedido, estadoLargo, operadoras, opIcon, hydrateOpIcons, hydrateAccount, avatarHtml, start, loadOperadoras, renderOperadoras, gcAdd, gcSetQty, gcSetPrice, gcRemove, gcClear, gcCount, gcItems, gcBadge: gb, getOps: () => OPS, getP: () => P, getCs: () => Cs, getO: () => O, getK: () => K, getG: () => G, categoryImage, PAGE };
