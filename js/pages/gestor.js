@@ -26,6 +26,15 @@
 
     const MAX_MARGIN_PERCENT = 20;
 
+    const STATUS_CHART_COLORS = {
+        "Pedido recibido": "#8E8981",
+        "Confirmando pedido": "#C8A165",
+        "Preparando pedido": "#D8B87C",
+        "En camino": "#5F7A6C",
+        "Entregado": "#2E4A3F",
+        "Cancelado": "#A64B30"
+    };
+
     const state = {
         session: null,
         summary: null,
@@ -55,7 +64,18 @@
         checkoutBusy: false,
         checkoutComplete: false,
         loading: false,
-        hasMore: false
+        hasMore: false,
+        allOrdersLoaded: false,
+        allOrdersPromise: null,
+        ordersVersion: 0,
+        searchTimer: 0,
+        searchToken: 0,
+        searchBusy: false,
+        receiptOrder: null,
+        operatorOrder: null,
+        operatorToken: 0,
+        lastOrder: null,
+        managerNameOverride: ""
     };
 
     const refs = {};
@@ -358,6 +378,91 @@
         let digits = cleanPhone(phone);
         if (digits.length === 8) digits = "53" + digits;
         return digits ? "https://wa.me/" + digits : "";
+    }
+
+    function configApi() {
+        return window.VOLXEN_CONFIG || {};
+    }
+
+    function primaryOperators() {
+        const config = configApi();
+        const list = Array.isArray(config.OPERADORAS_PRINCIPALES) ? config.OPERADORAS_PRINCIPALES : [];
+        if (list.length) return list;
+        return config.WHATSAPP ? [{ nombre: "Atención VOLXEN", whatsapp: config.WHATSAPP }] : [];
+    }
+
+    function sessionManagerName() {
+        const user = state.session && state.session.user ? state.session.user : {};
+        return String(state.managerNameOverride || user.nombre || "").trim();
+    }
+
+    function ensureManagerName() {
+        const current = sessionManagerName();
+        if (current) return current;
+        const entered = window.prompt("Escribe tu nombre de comercial para el documento:", "");
+        if (entered && entered.trim()) {
+            state.managerNameOverride = entered.trim();
+            return state.managerNameOverride;
+        }
+        setNotice("Tu cuenta no tiene nombre de comercial. Agrégalo en Mi cuenta antes de exportar.", true);
+        return "";
+    }
+
+    function fullWhatsapp(value) {
+        const prefix = String(configApi().PREFIJO_CUBA || "53").replace(/\D/g, "") || "53";
+        let digits = cleanPhone(value);
+        if (!digits) return "";
+        if (digits.indexOf(prefix) === 0 && digits.length > prefix.length + 7) return digits;
+        if (digits.length === 8) return prefix + digits;
+        return digits;
+    }
+
+    function operatorPhoneLabel(value) {
+        const digits = fullWhatsapp(value);
+        if (!digits) return "Sin número";
+        if (digits.indexOf("53") === 0 && digits.length === 10) {
+            return "+53 " + digits.slice(2, 6) + " " + digits.slice(6);
+        }
+        return "+" + digits;
+    }
+
+    function operatorIntro() {
+        const name = sessionManagerName();
+        return name ? "Hola, soy " + name + ", comercial de VOLXEN." : "Hola, soy comercial de VOLXEN.";
+    }
+
+    function operatorMessage(order) {
+        if (order && order.codigo) {
+            return operatorIntro() + " Consulto el estado del pedido " + order.codigo + ".";
+        }
+        return operatorIntro() + " Consulto sobre el límite de precio de un producto.";
+    }
+
+    function operatorHref(value, message) {
+        const digits = fullWhatsapp(value);
+        return digits ? "https://wa.me/" + digits + "?text=" + encodeURIComponent(message || operatorMessage()) : "";
+    }
+
+    function operatorLinksHtml(message) {
+        const links = primaryOperators().map(function (operator) {
+            const href = operatorHref(operator.whatsapp, message);
+            return href
+                ? '<a href="' + escapeHtml(href) + '" target="_blank" rel="noopener">' + escapeHtml(operator.nombre || operatorPhoneLabel(operator.whatsapp)) + "</a>"
+                : "";
+        }).filter(Boolean);
+        return links.length ? links.join(" o ") : '<a href="operadoras.html" target="_blank" rel="noopener">operadoras</a>';
+    }
+
+    function reportPeriodLabel(value) {
+        const days = Number(value);
+        if (days === 7) return "Últimos 7 días";
+        if (days === 90) return "Últimos 90 días";
+        if (days === 365) return "Últimos 12 meses";
+        return "Últimos 30 días";
+    }
+
+    function safeFilename(value) {
+        return normalize(value || "archivo").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "archivo";
     }
 
     function roleLabel() {
@@ -670,118 +775,79 @@
         return copy;
     }
 
-    function showReportTooltip(event) {
-        const column = event.currentTarget;
-        const chart = refs.gsChart;
-        const tooltip = refs.gsChartTooltip;
-        if (!chart || !tooltip) return;
-
-        tooltip.textContent = column.getAttribute("data-tooltip") || "";
-        tooltip.hidden = false;
-
-        const chartRect = chart.getBoundingClientRect();
-        const columnRect = column.getBoundingClientRect();
-        const left = columnRect.left - chartRect.left + columnRect.width / 2;
-        const top = Math.max(42, columnRect.top - chartRect.top + 6);
-
-        tooltip.style.left = Math.max(72, Math.min(chartRect.width - 72, left)) + "px";
-        tooltip.style.top = top + "px";
+    function chartsApi() {
+        return window.VXGESTOR_CHARTS || null;
     }
 
-    function hideReportTooltip() {
-        if (refs.gsChartTooltip) refs.gsChartTooltip.hidden = true;
-    }
-
-    function bindReportTooltips() {
-        if (!refs.gsChartPlot) return;
-        refs.gsChartPlot.querySelectorAll(".gs-chart-col").forEach(function (column) {
-            column.addEventListener("mouseenter", showReportTooltip);
-            column.addEventListener("mouseleave", hideReportTooltip);
-        });
+    function docsApi() {
+        return window.VXGESTOR_DOCS || null;
     }
 
     function renderReport() {
-        if (!refs.gsReportTotal || !refs.gsChartPlot) return;
+        if (!refs.gsReportTotal || !refs.gsChart) return;
 
         const days = Number(state.reportPeriod) || 30;
         const threshold = thresholdForDays(days);
-        const orders = state.orders.filter(function (order) {
-            return orderCompleted(order) && withinThreshold(order, threshold);
+        const periodOrders = state.orders.filter(function (order) {
+            return withinThreshold(order, threshold);
         });
-        const commission = orders.reduce(function (sum, order) { return sum + orderCommissionValue(order); }, 0);
-        const average = orders.length ? commission / orders.length : 0;
-        const bucketCount = days === 7 ? 7 : 8;
-        const buckets = [];
-        const now = new Date();
-        now.setHours(23, 59, 59, 999);
-
-        const start = threshold || new Date(now.getTime() - (bucketCount - 1) * 86400000);
-        const span = Math.max(1, now.getTime() - start.getTime());
-        const bucketMs = span / bucketCount;
-
-        for (let index = 0; index < bucketCount; index += 1) {
-            const bucketStart = new Date(start.getTime() + index * bucketMs);
-            buckets.push({
-                label: dateRangeLabel(bucketStart, days),
-                commission: 0,
-                orders: 0
-            });
-        }
-
-        orders.forEach(function (order) {
-            const date = orderDate(order);
-            if (!date) return;
-            const index = Math.max(0, Math.min(bucketCount - 1, Math.floor((date.getTime() - start.getTime()) / bucketMs)));
-            buckets[index].commission += orderCommissionValue(order);
-            buckets[index].orders += 1;
-        });
+        const earnedOrders = periodOrders.filter(orderCompleted);
+        const commission = earnedOrders.reduce(function (sum, order) { return sum + orderCommissionValue(order); }, 0);
+        const average = earnedOrders.length ? commission / earnedOrders.length : 0;
 
         refs.gsReportTotal.textContent = money(commission);
-        refs.gsReportAverage.textContent = count(orders.length);
+        refs.gsReportAverage.textContent = count(periodOrders.length);
         refs.gsReportCommission.textContent = money(average);
 
-        const maxCommission = niceMax(Math.max.apply(null, buckets.map(function (bucket) { return bucket.commission; })) || 1);
+        const charts = chartsApi();
+        const monthly = charts ? charts.monthlyCommission(state.orders, 12) : [];
+        refs.gsChart.innerHTML = charts
+            ? charts.barChartSvg({
+                title: "Comisión ganada por mes",
+                description: "Comisión ganada por mes en los últimos 12 meses.",
+                items: monthly,
+                format: compactMoney,
+                yLabel: "USD",
+                xLabel: "Mes",
+                color: "#C8A165",
+                empty: "Sin comisión en los últimos 12 meses."
+            })
+            : '<p class="gs-muted">No se pudo cargar la gráfica.</p>';
 
-        if (refs.gsChartGrid) {
-            refs.gsChartGrid.innerHTML = "<span></span><span></span><span></span><span></span><span></span>";
-        }
+        if (charts) charts.bindTooltips(refs.gsChart);
+        refs.gsChart.setAttribute("aria-label", periodOrders.length
+            ? "Comisión ganada por mes en los últimos 12 meses"
+            : "Sin comisión en los últimos 12 meses");
+    }
 
-        if (refs.gsChartAxisLeft) {
-            refs.gsChartAxisLeft.innerHTML = [1, .75, .5, .25, 0].map(function (ratio) {
-                return "<span>" + escapeHtml(compactMoney(maxCommission * ratio)) + "</span>";
-            }).join("");
-        }
+    function renderEvolution() {
+        if (!refs.gsEvolutionChart) return;
 
-        if (refs.gsChartAxisRight) {
-            refs.gsChartAxisRight.innerHTML = "";
-            refs.gsChartAxisRight.hidden = true;
-        }
+        const days = Number(state.reportPeriod) || 30;
+        const threshold = thresholdForDays(days);
+        const periodOrders = state.orders.filter(function (order) {
+            return withinThreshold(order, threshold);
+        });
+        const charts = chartsApi();
+        const buckets = charts ? charts.evolution(periodOrders, days) : [];
+        refs.gsEvolutionChart.innerHTML = charts
+            ? charts.lineChartSvg({
+                title: "Evolución de pedidos",
+                description: "Pedidos registrados en el periodo seleccionado.",
+                items: buckets,
+                format: count,
+                yLabel: "Pedidos",
+                xLabel: "Fecha",
+                color: "#2E4A3F",
+                empty: "Sin pedidos en este periodo."
+            })
+            : '<p class="gs-muted">No se pudo cargar la gráfica.</p>';
 
-        const hasData = orders.length > 0;
-        if (refs.gsChartEmpty) refs.gsChartEmpty.hidden = hasData;
-        if (refs.gsChartTooltip) refs.gsChartTooltip.hidden = true;
-
-        if (refs.gsChart) {
-            refs.gsChart.setAttribute("aria-label", hasData
-                ? "Gráfico de comisión de los últimos " + days + " días"
-                : "Gráfico de comisión sin actividad en los últimos " + days + " días");
-        }
-
-        refs.gsChartPlot.innerHTML = buckets.map(function (bucket) {
-            const height = hasData && maxCommission > 0 ? Math.max(3, (bucket.commission / maxCommission) * 100) : 4;
-            const tooltip = bucket.label + "\n" +
-                "Comisión: " + money(bucket.commission) + "\n" +
-                "Pedidos: " + count(bucket.orders);
-
-            return '<div class="gs-chart-col" data-tooltip="' + escapeHtml(tooltip) + '">' +
-                '<div class="gs-chart-bar" style="height:' + height.toFixed(2) + '%;opacity:' + (hasData ? "1" : ".42") + '">' +
-                    '<span class="gs-chart-seg is-commission" style="height:100%"></span>' +
-                "</div>" +
-                '<span class="gs-chart-xlabel">' + escapeHtml(bucket.label) + "</span>" +
-            "</div>";
-        }).join("");
-
-        bindReportTooltips();
+        if (charts) charts.bindTooltips(refs.gsEvolutionChart);
+        if (refs.gsEvolutionPeriod) refs.gsEvolutionPeriod.textContent = reportPeriodLabel(days);
+        refs.gsEvolutionChart.setAttribute("aria-label", periodOrders.length
+            ? "Evolución de pedidos del periodo seleccionado"
+            : "Sin pedidos en este periodo");
     }
 
     function renderBubbles() {
@@ -789,47 +855,30 @@
 
         const days = Number(state.categoryPeriod) || 30;
         const threshold = thresholdForDays(days);
-        const products = new Map();
-
-        state.orders.forEach(function (order) {
-            if (!orderCompleted(order) || !withinThreshold(order, threshold)) return;
-            const items = Array.isArray(order.items) ? order.items : [];
-            items.forEach(function (item) {
-                const name = String(item.producto_nombre || item.nombre || item.nombre_producto || "").trim();
-                const units = Number(item.cantidad || item.qty || 0);
-                if (!name || !Number.isFinite(units) || units <= 0) return;
-                if (!products.has(name)) products.set(name, { name: name, units: 0 });
-                products.get(name).units += units;
-            });
+        const periodOrders = state.orders.filter(function (order) {
+            return withinThreshold(order, threshold);
         });
+        const charts = chartsApi();
+        const top = charts ? charts.topProducts(periodOrders, 6) : [];
 
-        const top = Array.from(products.values()).sort(function (a, b) {
-            return b.units - a.units;
-        }).slice(0, 3);
+        refs.gsBubbleStage.innerHTML = charts
+            ? charts.horizontalBarSvg({
+                title: "Productos más pedidos",
+                description: "Unidades pedidas por producto en el periodo seleccionado.",
+                items: top,
+                format: count,
+                xLabel: "Unidades",
+                color: "#C8A165",
+                empty: "Sin productos atribuidos en este periodo."
+            })
+            : '<p class="gs-muted">No se pudo cargar la gráfica.</p>';
 
-        if (refs.gsBubbleEmpty) refs.gsBubbleEmpty.classList.toggle("is-visible", !top.length);
-        if (refs.gsBubbleNote) {
-            refs.gsBubbleNote.textContent = top.length
-                ? "Tamaño según unidades vendidas en los últimos " + days + " días."
-                : "Sin productos atribuidos en este periodo.";
-        }
-
-        if (!top.length) {
-            refs.gsBubbleStage.innerHTML = "";
-            refs.gsBubbleStage.setAttribute("aria-label", "Sin productos destacados en este periodo");
-            return;
-        }
-
-        refs.gsBubbleStage.setAttribute("aria-label", "Productos más vendidos: " + top.map(function (product) {
-            return product.name + ", " + product.units + " unidades";
-        }).join("; "));
-
-        refs.gsBubbleStage.innerHTML = top.map(function (product, index) {
-            return '<div class="gs-bubble is-' + ["one", "two", "three"][index] + '">' +
-                '<span class="gs-bubble-value">' + escapeHtml(count(product.units)) + " uds.</span>" +
-                '<span class="gs-bubble-label">' + escapeHtml(product.name) + "</span>" +
-            "</div>";
-        }).join("");
+        if (charts) charts.bindTooltips(refs.gsBubbleStage);
+        refs.gsBubbleStage.setAttribute("aria-label", top.length
+            ? "Productos más vendidos: " + top.map(function (product) {
+                return product.label + ", " + product.value + " unidades";
+            }).join("; ")
+            : "Sin productos destacados en este periodo");
     }
 
     function renderGauge() {
@@ -863,34 +912,37 @@
     }
 
     function renderStatus() {
-        if (!refs.gsStatusTrack || !refs.gsStatusLegend) return;
+        if (!refs.gsStatusTrack) return;
 
-        const byState = statusCounts();
-        const groups = [
-            { key: "complete", label: "Entregado", count: Number(byState.Entregado || 0) },
-            {
-                key: "progress",
-                label: "En proceso",
-                count: ["Confirmando pedido", "Preparando pedido", "En camino"].reduce(function (sum, status) {
-                    return sum + Number(byState[status] || 0);
-                }, 0)
-            },
-            { key: "pending", label: "Pendiente", count: Number(byState["Pedido recibido"] || 0) },
-            { key: "cancelled", label: "Cancelado", count: Number(byState.Cancelado || 0) }
-        ];
-        const total = groups.reduce(function (sum, group) { return sum + group.count; }, 0);
+        const charts = chartsApi();
+        const breakdown = charts ? charts.statusBreakdown(state.orders) : [];
+        const items = breakdown.map(function (item) {
+            return {
+                label: item.label,
+                value: item.value,
+                color: STATUS_CHART_COLORS[item.status] || "#2E4A3F"
+            };
+        });
+        const total = breakdown.reduce(function (sum, item) { return sum + Number(item.value || 0); }, 0);
 
-        refs.gsStatusTrack.innerHTML = total
-            ? groups.filter(function (group) { return group.count > 0; }).map(function (group) {
-                return '<span class="is-' + group.key + '" style="width:' + (group.count / total * 100).toFixed(2) + '%"></span>';
-            }).join("")
-            : "";
+        refs.gsStatusTrack.innerHTML = charts
+            ? charts.horizontalBarSvg({
+                title: "Pedidos por estado",
+                description: "Pedidos atribuidos por estado.",
+                items: items,
+                format: count,
+                xLabel: "Pedidos",
+                color: "#2E4A3F",
+                empty: "Sin pedidos para mostrar."
+            })
+            : '<p class="gs-muted">No se pudo cargar la gráfica.</p>';
 
-        refs.gsStatusLegend.innerHTML = groups.map(function (group) {
-            return "<li><span><i class=\"gs-dot is-" + group.key + "\" aria-hidden=\"true\"></i>" +
-                escapeHtml(group.label) + "</span><strong>" +
-                (total ? escapeHtml(count(group.count)) : "—") + "</strong></li>";
-        }).join("");
+        if (charts) charts.bindTooltips(refs.gsStatusTrack);
+        refs.gsStatusTrack.setAttribute("aria-label", total
+            ? "Pedidos por estado: " + breakdown.map(function (item) {
+                return item.label + ", " + item.value;
+            }).join("; ")
+            : "Sin pedidos por estado");
 
         if (refs.gsStatusBadge) {
             refs.gsStatusBadge.textContent = total ? count(total) + (total === 1 ? " pedido" : " pedidos") : "Sin datos";
@@ -911,6 +963,166 @@
 
     function emptyOrderRow(html) {
         return '<tr class="gs-empty-row"><td colspan="7">' + html + "</td></tr>";
+    }
+
+    function searchOrderMatches(order, query) {
+        if (!query) return false;
+        const itemNames = (Array.isArray(order.items) ? order.items : []).map(function (item) {
+            return item.producto_nombre || item.nombre || item.nombre_producto || "";
+        });
+        return normalize([
+            order.codigo,
+            order.nombre_cliente,
+            order.telefono,
+            order.email
+        ].concat(itemNames).join(" ")).indexOf(query) !== -1;
+    }
+
+    function searchProductMatches(product, query) {
+        if (!query) return false;
+        const api = catalogApi();
+        const category = api && typeof api.cn === "function" ? api.cn(product.categoria_id) : "";
+        return normalize([product.nombre, product.descripcion, category].join(" ")).indexOf(query) !== -1;
+    }
+
+    function hideSearchResults(cancelPending) {
+        if (cancelPending !== false) {
+            window.clearTimeout(state.searchTimer);
+            state.searchTimer = 0;
+            state.searchToken += 1;
+            state.searchBusy = false;
+        }
+        if (refs.gsSearchResults) {
+            refs.gsSearchResults.hidden = true;
+            refs.gsSearchResults.innerHTML = "";
+        }
+    }
+
+    function renderSearchResults() {
+        if (!refs.gsSearchResults) return;
+        const input = refs.gsSearch ? refs.gsSearch.value : "";
+        const query = normalize(input.trim());
+
+        if (!query) {
+            hideSearchResults();
+            return;
+        }
+
+        refs.gsSearchResults.hidden = false;
+        if (state.searchBusy) {
+            refs.gsSearchResults.innerHTML = '<p class="gs-search-state">Buscando en todo tu historial…</p>';
+            return;
+        }
+
+        const api = catalogApi();
+        const orders = state.orders.filter(function (order) {
+            return searchOrderMatches(order, query);
+        }).slice(0, 5);
+        const products = api && typeof api.getP === "function"
+            ? api.getP().filter(function (product) {
+                return searchProductMatches(product, query);
+            }).slice(0, 5)
+            : [];
+
+        if (!orders.length && !products.length) {
+            refs.gsSearchResults.innerHTML = '<p class="gs-search-state">Sin resultados para "' + escapeHtml(input.trim()) + '".</p>';
+            return;
+        }
+
+        const orderGroup = orders.length
+            ? '<div class="gs-search-group"><p class="gs-search-group-title">Pedidos</p>' + orders.map(function (order) {
+                const status = orderStatusInfo(order.estado);
+                return '<button class="gs-search-item" type="button" data-search-order="' + escapeHtml(order.id) + '">' +
+                    '<span class="gs-search-item-copy"><strong>' + escapeHtml(order.codigo || "Sin código") + '</strong>' +
+                    "<small>" + escapeHtml(order.nombre_cliente || "Cliente") + " · " + escapeHtml(order.telefono || "Sin teléfono") + "</small></span>" +
+                    '<span class="gs-search-item-meta"><span class="gs-badge gs-badge-state ' + status.className + '">' + escapeHtml(status.label) + "</span>" +
+                    "<small>" + escapeHtml(commissionMoney(order.comision_monto_usd)) + "</small></span>" +
+                "</button>";
+            }).join("") + "</div>"
+            : "";
+
+        const productGroup = products.length
+            ? '<div class="gs-search-group"><p class="gs-search-group-title">Productos</p>' + products.map(function (product) {
+                const category = api && typeof api.cn === "function" ? api.cn(product.categoria_id) : "Producto";
+                const price = api && typeof api.pr === "function" ? api.pr(product) : product.precio_usd;
+                return '<button class="gs-search-item" type="button" data-search-product="' + escapeHtml(product.id) + '">' +
+                    '<span class="gs-search-item-copy"><strong>' + escapeHtml(product.nombre || "Producto") + '</strong>' +
+                    "<small>" + escapeHtml(category || "Producto") + "</small></span>" +
+                    '<span class="gs-search-item-meta"><strong>' + escapeHtml(money(price)) + "</strong></span>" +
+                "</button>";
+            }).join("") + "</div>"
+            : "";
+
+        refs.gsSearchResults.innerHTML = orderGroup + productGroup;
+    }
+
+    async function runSearch() {
+        const token = ++state.searchToken;
+        const query = refs.gsSearch ? refs.gsSearch.value.trim() : "";
+
+        if (!query) {
+            state.searchBusy = false;
+            hideSearchResults(false);
+            return;
+        }
+
+        state.searchBusy = true;
+        renderSearchResults();
+
+        try {
+            await ensureCatalog();
+            if (!state.allOrdersLoaded) await loadAllOrders({ silent: true });
+        } catch (error) {
+            if (token !== state.searchToken) return;
+            state.searchBusy = false;
+            if (refs.gsSearchResults) {
+                refs.gsSearchResults.hidden = false;
+                refs.gsSearchResults.innerHTML = '<p class="gs-search-state">No se pudieron cargar los resultados. Inténtalo de nuevo.</p>';
+            }
+            return;
+        }
+
+        if (token !== state.searchToken) return;
+        state.searchBusy = false;
+        renderSearchResults();
+    }
+
+    function openOrderFromSearch(orderId) {
+        const order = state.orders.find(function (item) {
+            return String(item.id) === String(orderId);
+        });
+        if (!order) return;
+
+        const code = order.codigo || "";
+        state.queryInput = code;
+        state.query = normalize(code);
+        state.status = "";
+        state.period = "all";
+        state.sort = "recent";
+        if (refs.gsSearch) refs.gsSearch.value = code;
+        if (refs.gsStatusFilter) refs.gsStatusFilter.value = "";
+        if (refs.gsPeriod) refs.gsPeriod.value = "all";
+        if (refs.gsSort) refs.gsSort.value = "recent";
+        hideSearchResults();
+        navigatePanel("dashboard", { scroll: false });
+        renderOrders();
+
+        window.requestAnimationFrame(function () {
+            if (!refs.gsOrdersList) return;
+            const row = refs.gsOrdersList.querySelector('[data-order-id="' + String(order.id) + '"]');
+            if (!row) return;
+            const toggle = row.querySelector("[data-order-toggle]");
+            if (toggle && toggle.getAttribute("aria-expanded") !== "true") toggle.click();
+            row.scrollIntoView({ behavior: "smooth", block: "center" });
+        });
+    }
+
+    function openProductFromSearch(productId) {
+        hideSearchResults();
+        navigatePanel("catalog", { scroll: false });
+        ensureCatalog().then(function () {
+            openProductDialog(productId);
+        });
     }
 
     function renderOrders() {
@@ -954,7 +1166,7 @@
                     (mailHref ? ' · <a href="' + mailHref + '">' + escapeHtml(order.email) + "</a>" : "") + "</p>"
                 : (mailHref ? '<p><a href="' + mailHref + '">' + escapeHtml(order.email) + "</a></p>" : "");
 
-            return '<tr class="gs-order-row">' +
+            return '<tr class="gs-order-row" data-order-id="' + escapeHtml(order.id) + '">' +
                 '<td class="gs-cell-order">' +
                     '<button class="gs-order-toggle" type="button" data-order-toggle="' + index + '" aria-expanded="false" aria-controls="gs-order-body-' + index + '">' +
                         '<span class="gs-order-code">' + escapeHtml(order.codigo || "Sin código") + "</span>" +
@@ -968,7 +1180,8 @@
                 '<td class="gs-cell-qty"><strong class="gs-order-total">' + escapeHtml(count(quantity)) + "</strong><small>uds.</small></td>" +
                 '<td class="gs-cell-total"><strong class="gs-order-total">' + escapeHtml(commissionMoney(order.comision_monto_usd)) + "</strong>" +
                     "<small>" + escapeHtml(commissionLabel) + "</small></td>" +
-                '<td class="gs-cell-state"><span class="gs-badge gs-badge-state ' + statusInfo.className + '">' + escapeHtml(statusInfo.label) + "</span></td>" +
+                '<td class="gs-cell-state"><span class="gs-badge gs-badge-state ' + statusInfo.className + '">' + escapeHtml(statusInfo.label) + "</span>" +
+                    '<button class="gs-order-op-link" type="button" data-operator-order="' + escapeHtml(order.id) + '">Operadora</button></td>' +
                 '<td class="gs-cell-chevron"><i class="fa-solid fa-chevron-down gs-order-chevron" aria-hidden="true"></i></td>' +
             "</tr>" +
             '<tr class="gs-order-detail" id="gs-order-body-' + index + '" hidden>' +
@@ -981,6 +1194,10 @@
                             '<p class="gs-commission-line"><strong class="gs-commission-amount">' + escapeHtml(commissionMoney(order.comision_monto_usd)) + "</strong>" +
                             '<span class="gs-badge ' + commissionClass + '">' + escapeHtml(commissionLabel) + "</span></p>" +
                             "<small>Calculada por el servidor · " + escapeHtml(commissionMeta) + "</small>" +
+                        "</div>" +
+                        '<div class="gs-order-actions">' +
+                            '<button class="gs-button gs-button-primary" type="button" data-share-order="' + escapeHtml(order.id) + '"><i class="fa-solid fa-share-nodes" aria-hidden="true"></i> Compartir comprobante</button>' +
+                            '<button class="gs-button" type="button" data-operator-order="' + escapeHtml(order.id) + '"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Consultar operadora</button>' +
                         "</div>" +
                     "</div>" +
                 "</td>" +
@@ -1113,11 +1330,11 @@
         return api.getP().find(function (product) { return String(product.id) === String(productId); }) || null;
     }
 
-    function productImage(product, width, height) {
+    function productImage(product, width, height, format) {
         const api = catalogApi();
         const images = api && typeof api.ft === "function" ? api.ft(product) : [];
         return images && images[0] && api && typeof api.imgUrl === "function"
-            ? api.imgUrl(images[0], { w: width, h: height, format: "webp", quality: 84 })
+            ? api.imgUrl(images[0], { w: width, h: height, format: format || "webp", quality: 84 })
             : "";
     }
 
@@ -1136,7 +1353,8 @@
         if (price < line.base) {
             return "⚠️ El precio no puede ser inferior al precio VOLXEN.";
         }
-        return '⚠️ Este precio supera el límite permitido. Si no estás de acuerdo con el límite, comunícate con nuestras <a href="operadoras.html" target="_blank" rel="noopener">operadoras</a>.';
+        return "⚠️ Este precio supera el límite permitido. Si no estás de acuerdo con el límite, comunícate con nuestras operadoras. " +
+            operatorLinksHtml(operatorMessage());
     }
 
     function cartLineHtml(line) {
@@ -1469,6 +1687,7 @@
 
     function showCheckoutSuccess(order) {
         state.checkoutComplete = true;
+        state.lastOrder = order || null;
         if (refs.gsCheckoutForm) refs.gsCheckoutForm.hidden = true;
         const stepper = document.querySelector("#gsCheckoutView .gs-stepper");
         const summary = document.querySelector("#gsCheckoutView .gs-checkout-summary");
@@ -1755,6 +1974,382 @@
         state.catalogProductId = "";
     }
 
+    function findOrderById(orderId) {
+        return state.orders.find(function (order) {
+            return String(order.id) === String(orderId);
+        }) || null;
+    }
+
+    function setReceiptError(message) {
+        if (!refs.gsReceiptError) return;
+        refs.gsReceiptError.textContent = message || "";
+        refs.gsReceiptError.hidden = !message;
+    }
+
+    function receiptOptions() {
+        return {
+            address: Boolean(refs.gsReceiptAddress && refs.gsReceiptAddress.checked),
+            phone: Boolean(refs.gsReceiptPhone && refs.gsReceiptPhone.checked)
+        };
+    }
+
+    function renderReceiptPreview() {
+        const docs = docsApi();
+        const order = state.receiptOrder;
+        if (!docs || !order || !refs.gsReceiptPreview) return;
+        refs.gsReceiptPreview.innerHTML = docs.receiptPreviewHtml(order, sessionManagerName(), receiptOptions());
+    }
+
+    function openReceipt(order) {
+        const docs = docsApi();
+        if (!docs || !order) {
+            setNotice("No se pudo preparar el comprobante.", true);
+            return;
+        }
+
+        const managerName = ensureManagerName();
+        if (!managerName) return;
+
+        state.receiptOrder = order;
+        if (refs.gsReceiptAddress) refs.gsReceiptAddress.checked = false;
+        if (refs.gsReceiptPhone) refs.gsReceiptPhone.checked = false;
+        setReceiptError("");
+        renderReceiptPreview();
+
+        if (refs.gsReceiptDialog) {
+            if (typeof refs.gsReceiptDialog.showModal === "function" && !refs.gsReceiptDialog.open) refs.gsReceiptDialog.showModal();
+            else if (typeof refs.gsReceiptDialog.showModal !== "function") refs.gsReceiptDialog.setAttribute("open", "");
+            if (refs.gsReceiptClose) refs.gsReceiptClose.focus({ preventScroll: true });
+        }
+    }
+
+    function closeReceiptDialog() {
+        if (!refs.gsReceiptDialog) return;
+        if (typeof refs.gsReceiptDialog.close === "function" && refs.gsReceiptDialog.open) {
+            refs.gsReceiptDialog.close();
+        } else {
+            refs.gsReceiptDialog.removeAttribute("open");
+        }
+        state.receiptOrder = null;
+    }
+
+    function setReceiptBusy(value) {
+        [refs.gsReceiptShare, refs.gsReceiptDownload, refs.gsReceiptWhatsapp].forEach(function (button) {
+            if (button) button.disabled = Boolean(value);
+        });
+    }
+
+    async function shareReceipt() {
+        const docs = docsApi();
+        const order = state.receiptOrder;
+        const managerName = ensureManagerName();
+        if (!docs || !order || !managerName) return;
+
+        setReceiptBusy(true);
+        setReceiptError("");
+        try {
+            const blob = await docs.receiptImageBlob(order, managerName, receiptOptions());
+            const filename = "comprobante-" + safeFilename(order.codigo || order.id) + ".png";
+            const result = await docs.shareFile(blob, filename, "Comprobante VOLXEN", "Comprobante del pedido " + (order.codigo || ""));
+
+            if (result === "unsupported") {
+                docs.downloadBlob(blob, filename);
+                setNotice("Imagen descargada. Puedes adjuntarla en WhatsApp.");
+            } else if (result === "error") {
+                setReceiptError("No se pudo compartir la imagen. Descárgala o usa WhatsApp.");
+            } else if (result === "shared") {
+                setNotice("Comprobante compartido.");
+                closeReceiptDialog();
+            }
+        } catch (error) {
+            setReceiptError("No se pudo generar el comprobante. Inténtalo de nuevo.");
+        } finally {
+            setReceiptBusy(false);
+        }
+    }
+
+    function downloadReceipt() {
+        const docs = docsApi();
+        const order = state.receiptOrder;
+        const managerName = ensureManagerName();
+        if (!docs || !order || !managerName) return;
+        docs.openPrint(docs.receiptDocumentHtml(order, managerName, receiptOptions()));
+    }
+
+    async function whatsappReceipt() {
+        const docs = docsApi();
+        const order = state.receiptOrder;
+        const managerName = ensureManagerName();
+        if (!docs || !order || !managerName) return;
+
+        const text = "Hola, te comparto el comprobante del pedido " + (order.codigo || "") + ". Comercial VOLXEN: " + managerName + ".";
+        setReceiptBusy(true);
+        setReceiptError("");
+        try {
+            const blob = await docs.receiptImageBlob(order, managerName, receiptOptions());
+            const filename = "comprobante-" + safeFilename(order.codigo || order.id) + ".png";
+            const result = await docs.shareFile(blob, filename, "Comprobante VOLXEN", text);
+
+            if (result === "shared") {
+                setNotice("Comprobante compartido.");
+                closeReceiptDialog();
+                return;
+            }
+            if (result === "cancelled") return;
+
+            docs.downloadBlob(blob, filename);
+            window.open(docs.whatsappUrl(text), "_blank", "noopener");
+            setNotice("Imagen descargada. Adjúntala en WhatsApp para completar el envío.");
+        } catch (error) {
+            setReceiptError("No se pudo preparar el comprobante para WhatsApp. Inténtalo de nuevo.");
+        } finally {
+            setReceiptBusy(false);
+        }
+    }
+
+    async function renderOperatorList() {
+        if (!refs.gsOperatorList) return;
+        const order = state.operatorOrder;
+        const token = state.operatorToken;
+        const message = operatorMessage(order);
+        const merged = [];
+        const seen = new Set();
+
+        primaryOperators().forEach(function (operator) {
+            const digits = fullWhatsapp(operator.whatsapp);
+            if (!digits || seen.has(digits)) return;
+            seen.add(digits);
+            merged.push({ nombre: operator.nombre || "Atención principal", whatsapp: digits });
+        });
+
+        if (window.VX && typeof window.VX.loadOperadoras === "function") {
+            try {
+                const remote = await window.VX.loadOperadoras();
+                (Array.isArray(remote) ? remote : []).forEach(function (operator) {
+                    const digits = fullWhatsapp(operator.telefono || operator.whatsapp);
+                    if (!digits || seen.has(digits)) return;
+                    seen.add(digits);
+                    merged.push({ nombre: operator.nombre || "Operadora VOLXEN", whatsapp: digits });
+                });
+            } catch (error) {}
+        }
+
+        if (token !== state.operatorToken || !refs.gsOperatorList) return;
+
+        refs.gsOperatorList.innerHTML = merged.length
+            ? merged.map(function (operator) {
+                const href = operatorHref(operator.whatsapp, message);
+                return '<a class="gs-operator-link" href="' + escapeHtml(href) + '" target="_blank" rel="noopener">' +
+                    '<span><strong>' + escapeHtml(operator.nombre) + '</strong><small>' + escapeHtml(operatorPhoneLabel(operator.whatsapp)) + '</small></span>' +
+                    '<i class="fa-brands fa-whatsapp" aria-hidden="true"></i>' +
+                "</a>";
+            }).join("")
+            : '<p class="gs-search-state">No hay operadoras disponibles en este momento.</p>';
+    }
+
+    function openOperatorDialog(order) {
+        const managerName = ensureManagerName();
+        if (!order || !managerName) return;
+        state.operatorOrder = order;
+        state.operatorToken += 1;
+        if (refs.gsOperatorOrder) {
+            refs.gsOperatorOrder.textContent = "Pedido " + (order.codigo || "") + " · " + (order.estado || "Sin estado");
+        }
+        if (refs.gsOperatorList) refs.gsOperatorList.innerHTML = '<p class="gs-search-state">Cargando operadoras…</p>';
+        if (refs.gsOperatorDialog) {
+            if (typeof refs.gsOperatorDialog.showModal === "function" && !refs.gsOperatorDialog.open) refs.gsOperatorDialog.showModal();
+            else if (typeof refs.gsOperatorDialog.showModal !== "function") refs.gsOperatorDialog.setAttribute("open", "");
+            if (refs.gsOperatorClose) refs.gsOperatorClose.focus({ preventScroll: true });
+        }
+        renderOperatorList();
+    }
+
+    function closeOperatorDialog() {
+        if (!refs.gsOperatorDialog) return;
+        if (typeof refs.gsOperatorDialog.close === "function" && refs.gsOperatorDialog.open) {
+            refs.gsOperatorDialog.close();
+        } else {
+            refs.gsOperatorDialog.removeAttribute("open");
+        }
+        state.operatorOrder = null;
+        state.operatorToken += 1;
+    }
+
+    function setReportBusy(value) {
+        if (!refs.gsDownloadReport) return;
+        refs.gsDownloadReport.disabled = Boolean(value);
+        refs.gsDownloadReport.setAttribute("aria-busy", value ? "true" : "false");
+    }
+
+    async function downloadReport() {
+        const docs = docsApi();
+        const charts = chartsApi();
+        const managerName = ensureManagerName();
+        if (!docs || !charts || !managerName) return;
+
+        setReportBusy(true);
+        setNotice("");
+        try {
+            await loadAllOrders({ silent: true });
+            const days = Number(state.reportPeriod) || 30;
+            const threshold = thresholdForDays(days);
+            const orders = state.orders.filter(function (order) {
+                return withinThreshold(order, threshold);
+            });
+            const monthly = charts.monthlyCommission(state.orders, 12);
+            const status = charts.statusBreakdown(orders).map(function (item) {
+                return { label: item.label, value: item.value, color: STATUS_CHART_COLORS[item.status] || "#2E4A3F" };
+            });
+            const products = charts.topProducts(orders, 8);
+            const evolution = charts.evolution(orders, days);
+            const reportCharts = [
+                {
+                    title: "Comisión ganada por mes",
+                    svg: charts.barChartSvg({
+                        title: "Comisión ganada por mes",
+                        items: monthly,
+                        format: compactMoney,
+                        yLabel: "USD",
+                        xLabel: "Mes",
+                        color: "#C8A165",
+                        empty: "Sin comisión en los últimos 12 meses."
+                    })
+                },
+                {
+                    title: "Evolución de pedidos",
+                    svg: charts.lineChartSvg({
+                        title: "Evolución de pedidos",
+                        items: evolution,
+                        format: count,
+                        yLabel: "Pedidos",
+                        xLabel: "Fecha",
+                        color: "#2E4A3F",
+                        empty: "Sin pedidos en este periodo."
+                    })
+                },
+                {
+                    title: "Productos más pedidos",
+                    svg: charts.horizontalBarSvg({
+                        title: "Productos más pedidos",
+                        items: products,
+                        format: count,
+                        xLabel: "Unidades",
+                        color: "#C8A165",
+                        empty: "Sin productos en este periodo."
+                    })
+                },
+                {
+                    title: "Pedidos por estado",
+                    svg: charts.horizontalBarSvg({
+                        title: "Pedidos por estado",
+                        items: status,
+                        format: count,
+                        xLabel: "Pedidos",
+                        color: "#2E4A3F",
+                        empty: "Sin pedidos en este periodo."
+                    })
+                }
+            ];
+
+            docs.openPrint(docs.reportDocumentHtml({
+                orders: orders,
+                managerName: managerName,
+                periodLabel: reportPeriodLabel(days),
+                charts: reportCharts
+            }));
+            setNotice("Selecciona “Guardar como PDF” en el diálogo de impresión.");
+        } catch (error) {
+            setNotice("No se pudo generar el reporte. " + (error && error.message ? error.message : "Inténtalo de nuevo."), true);
+        } finally {
+            setReportBusy(false);
+        }
+    }
+
+    function setCatalogShareBusy(value) {
+        if (!refs.gsCatalogShare) return;
+        refs.gsCatalogShare.disabled = Boolean(value);
+        refs.gsCatalogShare.setAttribute("aria-busy", value ? "true" : "false");
+    }
+
+    async function shareCatalog() {
+        const docs = docsApi();
+        const api = catalogApi();
+        const managerName = ensureManagerName();
+        if (!docs || !api || !managerName) return;
+
+        setCatalogShareBusy(true);
+        setNotice("");
+        try {
+            await ensureCatalog();
+            if (!state.catalogReady) {
+                setNotice("No se pudo cargar el catálogo. Inténtalo de nuevo.", true);
+                return;
+            }
+            const products = api.getP().filter(function (product) {
+                return typeof api.ag === "function" ? !api.ag(product) : true;
+            }).map(function (product) {
+                return {
+                    name: product.nombre || "Producto",
+                    category: typeof api.cn === "function" ? api.cn(product.categoria_id) : "Producto",
+                    price: typeof api.pr === "function" ? api.pr(product) : product.precio_usd,
+                    image: productImage(product, 600, 450)
+                };
+            });
+
+            docs.openPrint(docs.catalogDocumentHtml({
+                products: products,
+                managerName: managerName
+            }));
+            setNotice("Selecciona “Guardar como PDF” en el diálogo de impresión.");
+        } catch (error) {
+            setNotice("No se pudo generar el catálogo. Inténtalo de nuevo.", true);
+        } finally {
+            setCatalogShareBusy(false);
+        }
+    }
+
+    function setProductShareBusy(value) {
+        if (!refs.gsProductShare) return;
+        refs.gsProductShare.disabled = Boolean(value);
+        refs.gsProductShare.setAttribute("aria-busy", value ? "true" : "false");
+    }
+
+    async function shareProductImage() {
+        const docs = docsApi();
+        const api = catalogApi();
+        const product = findCatalogProduct(state.catalogProductId);
+        const managerName = ensureManagerName();
+        if (!docs || !api || !product || !managerName) return;
+
+        setProductShareBusy(true);
+        setNotice("");
+        try {
+            const result = await docs.productImageBlob({
+                name: product.nombre || "Producto",
+                category: typeof api.cn === "function" ? api.cn(product.categoria_id) : "Producto",
+                price: typeof api.pr === "function" ? api.pr(product) : product.precio_usd,
+                image: productImage(product, 1200, 1200, "png")
+            }, managerName);
+
+            const filename = "producto-" + safeFilename(product.nombre) + ".png";
+            if (result.warning) setNotice(result.warning, true);
+            const shareResult = await docs.shareFile(result.blob, filename, "Producto VOLXEN", "Producto " + (product.nombre || "") + " · Precio público " + money(api.pr(product)));
+
+            if (shareResult === "unsupported") {
+                docs.downloadBlob(result.blob, filename);
+                setNotice("Imagen descargada. Puedes adjuntarla en WhatsApp.");
+            } else if (shareResult === "error") {
+                setNotice("No se pudo compartir la imagen. Descárgala e inténtalo de nuevo.", true);
+            } else if (shareResult === "shared") {
+                setNotice("Imagen del producto compartida.");
+            }
+        } catch (error) {
+            setNotice("No se pudo generar la imagen del producto. Inténtalo de nuevo.", true);
+        } finally {
+            setProductShareBusy(false);
+        }
+    }
+
     function setPanelView(view, options) {
         const opts = options || {};
         const allowed = ["dashboard", "catalog", "cart", "checkout"];
@@ -1767,13 +2362,11 @@
 
         const searchWrap = refs.gsSearch ? refs.gsSearch.closest(".gs-search") : null;
         if (searchWrap) searchWrap.hidden = state.panelView === "cart" || state.panelView === "checkout";
+        if (refs.gsSearch) refs.gsSearch.placeholder = "Buscar pedido, cliente, teléfono o producto";
+        if (refs.gsSearchLabel) refs.gsSearchLabel.textContent = "Buscar pedidos y productos";
+        hideSearchResults();
 
         if (state.panelView === "catalog") {
-            if (refs.gsSearch) {
-                refs.gsSearch.value = state.catalogQueryInput;
-                refs.gsSearch.placeholder = "Buscar producto o categoría";
-            }
-            if (refs.gsSearchLabel) refs.gsSearchLabel.textContent = "Buscar productos";
             ensureCatalog();
         } else if (state.panelView === "cart") {
             ensureCatalog().then(renderCart);
@@ -1797,13 +2390,8 @@
                 renderCheckoutSummary();
                 setCheckoutStep(state.checkoutStep || 1);
             });
-        } else {
-            if (refs.gsSearch) {
-                refs.gsSearch.value = state.queryInput;
-                refs.gsSearch.placeholder = "Buscar pedido, cliente o teléfono";
-            }
-            if (refs.gsSearchLabel) refs.gsSearchLabel.textContent = "Buscar pedidos";
-            if (refs.gsOrderSuccess) refs.gsOrderSuccess.hidden = true;
+        } else if (refs.gsOrderSuccess) {
+            refs.gsOrderSuccess.hidden = true;
         }
     }
 
@@ -1893,6 +2481,7 @@
         renderOrders();
         renderClients();
         renderReport();
+        renderEvolution();
         renderBubbles();
         renderGauge();
         renderStatus();
@@ -1907,6 +2496,7 @@
         const opts = options || {};
         if (state.loading) return;
 
+        state.ordersVersion += 1;
         setBusy(true);
         setNotice("");
         if (!opts.silent) setView("gsLoading");
@@ -1933,10 +2523,15 @@
             state.roleRow = Array.isArray(results[3] && results[3][0]) ? results[3][0][0] : null;
             state.promoter = Array.isArray(results[3] && results[3][1]) ? results[3][1][0] : null;
             state.hasMore = state.orders.length >= 100;
+            state.allOrdersLoaded = !state.hasMore;
+            state.allOrdersPromise = null;
 
             setView("gsDashboard");
             renderAll();
             if (opts.notice) setNotice(opts.notice);
+            if (!state.allOrdersLoaded) {
+                loadAllOrders({ silent: true }).catch(function () {});
+            }
         } catch (error) {
             if (state.summary || state.orders.length || state.clients.length) {
                 setView("gsDashboard");
@@ -1949,6 +2544,64 @@
             }
         } finally {
             setBusy(false);
+        }
+    }
+
+    async function loadAllOrders(options) {
+        const opts = options || {};
+        if (state.allOrdersLoaded) return state.orders;
+        if (state.allOrdersPromise) return state.allOrdersPromise;
+
+        const promise = (async function () {
+            const version = state.ordersVersion;
+            let offset = state.orders.length;
+            let guard = 0;
+
+            while (state.hasMore && guard < 100) {
+                const rows = await VXAUTH.rest("/rpc/promotor_pedidos", {
+                    method: "POST",
+                    body: { p_limit: 100, p_offset: offset }
+                });
+                if (version !== state.ordersVersion) return state.orders;
+                const page = Array.isArray(rows) ? rows : [];
+                const known = new Set(state.orders.map(function (order) { return String(order.id); }));
+
+                page.forEach(function (order) {
+                    if (!known.has(String(order.id))) {
+                        known.add(String(order.id));
+                        state.orders.push(order);
+                    }
+                });
+
+                offset += page.length;
+                state.hasMore = page.length >= 100;
+                guard += 1;
+                if (!page.length) state.hasMore = false;
+            }
+
+            if (version !== state.ordersVersion) return state.orders;
+            state.allOrdersLoaded = true;
+            renderNotifications();
+            renderHistory();
+            renderOrders();
+            renderReport();
+            renderEvolution();
+            renderBubbles();
+            renderStatus();
+            return state.orders;
+        })();
+        state.allOrdersPromise = promise;
+
+        try {
+            return await promise;
+        } catch (error) {
+            state.allOrdersLoaded = false;
+            if (!opts.silent) {
+                setNotice("No se pudo cargar todo el historial. " + (error && error.message ? error.message : "Inténtalo de nuevo."), true);
+            }
+            throw error;
+        } finally {
+            if (state.allOrdersPromise === promise) state.allOrdersPromise = null;
         }
     }
 
@@ -1971,9 +2624,14 @@
             });
 
             state.hasMore = rows.length >= 100;
+            if (!state.hasMore) state.allOrdersLoaded = true;
             renderNotifications();
             renderHistory();
             renderOrders();
+            renderReport();
+            renderEvolution();
+            renderBubbles();
+            renderStatus();
         } catch (error) {
             setNotice("No se pudieron cargar más pedidos. " + (error && error.message ? error.message : "Inténtalo de nuevo."), true);
         } finally {
@@ -2073,7 +2731,10 @@
         window.addEventListener("popstate", syncPanelFromLocation);
 
         document.addEventListener("keydown", function (event) {
-            if (event.key === "Escape") closeNav();
+            if (event.key === "Escape") {
+                closeNav();
+                hideSearchResults();
+            }
         });
 
         if (window.matchMedia) {
@@ -2106,18 +2767,44 @@
 
         if (refs.gsSearch) {
             refs.gsSearch.addEventListener("input", function (event) {
-                if (state.panelView === "catalog") {
-                    state.catalogQueryInput = event.target.value;
-                    state.catalogQuery = normalize(event.target.value.trim());
-                    renderCatalogProducts();
-                    return;
+                const value = event.target.value;
+                if (state.panelView === "dashboard") {
+                    state.queryInput = value;
+                    state.query = normalize(value.trim());
+                    renderOrders();
                 }
 
-                state.queryInput = event.target.value;
-                state.query = normalize(event.target.value.trim());
-                renderOrders();
+                window.clearTimeout(state.searchTimer);
+                hideSearchResults();
+                state.searchTimer = window.setTimeout(runSearch, 180);
+            });
+
+            refs.gsSearch.addEventListener("focus", function () {
+                if (refs.gsSearch.value.trim()) runSearch();
             });
         }
+
+        if (refs.gsSearchResults) {
+            refs.gsSearchResults.addEventListener("click", function (event) {
+                const orderButton = event.target.closest("[data-search-order]");
+                if (orderButton) {
+                    openOrderFromSearch(orderButton.getAttribute("data-search-order"));
+                    return;
+                }
+                const productButton = event.target.closest("[data-search-product]");
+                if (productButton) {
+                    openProductFromSearch(productButton.getAttribute("data-search-product"));
+                }
+            });
+        }
+
+        document.addEventListener("click", function (event) {
+            if (!refs.gsSearchResults || refs.gsSearchResults.hidden) return;
+            const wrap = refs.gsSearch ? refs.gsSearch.closest(".gs-search") : null;
+            if (wrap && wrap.contains(event.target)) return;
+            if (refs.gsSearchResults.contains(event.target)) return;
+            hideSearchResults();
+        });
 
         if (refs.gsStatusFilter) {
             refs.gsStatusFilter.addEventListener("change", function (event) {
@@ -2144,6 +2831,7 @@
             refs.gsReportPeriod.addEventListener("change", function (event) {
                 state.reportPeriod = event.target.value;
                 renderReport();
+                renderEvolution();
             });
         }
 
@@ -2156,6 +2844,20 @@
 
         if (refs.gsOrdersList) {
             refs.gsOrdersList.addEventListener("click", function (event) {
+                const share = event.target.closest("[data-share-order]");
+                if (share) {
+                    const order = findOrderById(share.getAttribute("data-share-order"));
+                    if (order) openReceipt(order);
+                    return;
+                }
+
+                const operator = event.target.closest("[data-operator-order]");
+                if (operator) {
+                    const order = findOrderById(operator.getAttribute("data-operator-order"));
+                    if (order) openOperatorDialog(order);
+                    return;
+                }
+
                 const clear = event.target.closest("[data-clear-filters]");
                 if (clear) {
                     state.query = "";
@@ -2208,7 +2910,6 @@
                 state.catalogQuery = "";
                 state.catalogQueryInput = "";
                 state.catalogSort = "featured";
-                if (refs.gsSearch) refs.gsSearch.value = "";
                 if (refs.gsCatalogSort) refs.gsCatalogSort.value = "featured";
                 renderCatalogCategories();
                 renderCatalogProducts();
@@ -2305,6 +3006,54 @@
                     event.preventDefault();
                     if (refs.gsProductAdd) refs.gsProductAdd.click();
                 }
+            });
+        }
+
+        if (refs.gsDownloadReport) {
+            refs.gsDownloadReport.addEventListener("click", downloadReport);
+        }
+
+        if (refs.gsCatalogShare) {
+            refs.gsCatalogShare.addEventListener("click", shareCatalog);
+        }
+
+        if (refs.gsProductShare) {
+            refs.gsProductShare.addEventListener("click", shareProductImage);
+        }
+
+        if (refs.gsOrderSuccessShare) {
+            refs.gsOrderSuccessShare.addEventListener("click", function () {
+                if (state.lastOrder) openReceipt(state.lastOrder);
+                else setNotice("No se encontró el pedido recién creado.", true);
+            });
+        }
+
+        if (refs.gsReceiptClose) {
+            refs.gsReceiptClose.addEventListener("click", closeReceiptDialog);
+        }
+
+        [refs.gsReceiptAddress, refs.gsReceiptPhone].forEach(function (input) {
+            if (!input) return;
+            input.addEventListener("change", renderReceiptPreview);
+        });
+
+        if (refs.gsReceiptShare) refs.gsReceiptShare.addEventListener("click", shareReceipt);
+        if (refs.gsReceiptDownload) refs.gsReceiptDownload.addEventListener("click", downloadReceipt);
+        if (refs.gsReceiptWhatsapp) refs.gsReceiptWhatsapp.addEventListener("click", whatsappReceipt);
+
+        if (refs.gsReceiptDialog) {
+            refs.gsReceiptDialog.addEventListener("click", function (event) {
+                if (event.target === refs.gsReceiptDialog) closeReceiptDialog();
+            });
+        }
+
+        if (refs.gsOperatorClose) {
+            refs.gsOperatorClose.addEventListener("click", closeOperatorDialog);
+        }
+
+        if (refs.gsOperatorDialog) {
+            refs.gsOperatorDialog.addEventListener("click", function (event) {
+                if (event.target === refs.gsOperatorDialog) closeOperatorDialog();
             });
         }
 
@@ -2480,19 +3229,18 @@
             "gsProfileInitial", "gsProfileName", "gsProfileEmail", "gsProfileRole",
             "gsProfileCommission", "gsProfileState", "gsProfileSince", "gsActivity",
             "gsNotifications", "gsNotificationsCount", "gsCommissionHistory",
-            "gsOrdersList", "gsClientsList", "gsSearch", "gsSearchLabel", "gsStatusFilter", "gsMoreWrap", "gsMore",
+            "gsOrdersList", "gsClientsList", "gsSearch", "gsSearchLabel", "gsSearchResults", "gsStatusFilter", "gsMoreWrap", "gsMore",
             "gsLogout", "gsRetry", "gsErrorText", "gsApp", "gsSidebar", "gsSidebarToggle",
             "gsMenuToggle", "gsScrim", "gsDashboardScroll", "gsBellBadge", "gsSort", "gsPeriod",
-            "gsReportPeriod", "gsReportTotal", "gsReportAverage", "gsReportCommission",
-            "gsChart", "gsChartGrid", "gsChartAxisLeft", "gsChartAxisRight", "gsChartPlot",
-            "gsChartEmpty", "gsChartTooltip", "gsCategoryPeriod", "gsBubbleStage", "gsBubbleEmpty",
-            "gsBubbleNote", "gsGauge", "gsGaugeProgress", "gsGaugeValue", "gsGaugeLabel",
-            "gsGaugeBadge", "gsGaugeNote", "gsStatusTrack", "gsStatusLegend", "gsStatusBadge",
+            "gsReportPeriod", "gsReportTotal", "gsReportAverage", "gsReportCommission", "gsDownloadReport",
+            "gsChart", "gsEvolutionChart", "gsEvolutionPeriod", "gsCategoryPeriod", "gsBubbleStage",
+            "gsGauge", "gsGaugeProgress", "gsGaugeValue", "gsGaugeLabel",
+            "gsGaugeBadge", "gsGaugeNote", "gsStatusTrack", "gsStatusBadge",
             "gsCatalogView", "gsCatalogCategories", "gsCatalogGrid", "gsCatalogEmpty",
-            "gsCatalogCount", "gsCatalogSort", "gsCatalogReset", "gsProductDialog",
+            "gsCatalogCount", "gsCatalogSort", "gsCatalogReset", "gsCatalogShare", "gsProductDialog",
             "gsProductClose", "gsProductMedia", "gsProductCategory", "gsProductTitle",
             "gsProductDescription", "gsProductPrice", "gsProductStock", "gsProductAdd",
-            "gsProductCart", "gsProductBuy", "gsProductCommission", "gsProductModeNote", "gsProductSaleWrap",
+            "gsProductCart", "gsProductBuy", "gsProductShare", "gsProductCommission", "gsProductModeNote", "gsProductSaleWrap",
             "gsProductSalePrice", "gsProductMaxNote", "gsProductLimitWarning", "gsProductFeatures",
             "gsCartButton", "gsCartCount", "gsSideCartCount", "gsCartView", "gsCartItems",
             "gsCartEmpty", "gsCartBrowse", "gsCartContinue", "gsCartClear", "gsCartUnits",
@@ -2504,7 +3252,10 @@
             "gsCheckoutSubmit", "gsCheckoutItems", "gsCheckoutUnits", "gsCheckoutTotal",
             "gsCheckoutCommission", "gsCheckoutMarkup", "gsCheckoutGain", "gsOrderSuccess",
             "gsOrderSuccessCode", "gsOrderSuccessTotal", "gsOrderSuccessGain",
-            "gsOrderSuccessTracking", "gsOrderSuccessView", "gsOrderSuccessCatalog"
+            "gsOrderSuccessTracking", "gsOrderSuccessView", "gsOrderSuccessShare", "gsOrderSuccessCatalog",
+            "gsReceiptDialog", "gsReceiptClose", "gsReceiptAddress", "gsReceiptPhone",
+            "gsReceiptPreview", "gsReceiptError", "gsReceiptShare", "gsReceiptDownload", "gsReceiptWhatsapp",
+            "gsOperatorDialog", "gsOperatorClose", "gsOperatorOrder", "gsOperatorList"
         ].forEach(function (key) {
             refs[key] = id(key);
         });

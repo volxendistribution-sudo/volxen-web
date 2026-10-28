@@ -164,11 +164,14 @@
                     </div>
 
                     <div class="gs-topbar-actions">
-                        <label class="gs-search gs-topbar-search">
-                            <span id="gsSearchLabel" class="gs-sr-only">Buscar pedidos</span>
-                            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-                            <input id="gsSearch" type="search" placeholder="Buscar pedido, cliente o teléfono" autocomplete="off" aria-labelledby="gsSearchLabel">
-                        </label>
+                        <div class="gs-search-wrap">
+                            <label class="gs-search gs-topbar-search">
+                                <span id="gsSearchLabel" class="gs-sr-only">Buscar pedidos y productos</span>
+                                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                                <input id="gsSearch" type="search" placeholder="Buscar pedido, cliente, teléfono o producto" autocomplete="off" aria-labelledby="gsSearchLabel">
+                            </label>
+                            <div id="gsSearchResults" class="gs-search-results" role="region" aria-label="Resultados de búsqueda" aria-live="polite" hidden></div>
+                        </div>
                         <a id="gsCartButton" class="gs-icon-button gs-cart-button" href="#gsCartView" aria-label="Ver carrito" title="Carrito">
                             <i class="fa-solid fa-cart-shopping" aria-hidden="true"></i>
                             <span id="gsCartCount" class="gs-icon-badge" hidden>0</span>
@@ -224,14 +227,20 @@
                                             <h2 id="gsReportTitle">Comisión por periodo</h2>
                                             <p class="gs-card-subtitle">Tu comisión y pedidos atribuidos por periodo.</p>
                                         </div>
-                                        <label class="gs-select">
-                                            <span class="gs-sr-only">Periodo del reporte</span>
-                                            <select id="gsReportPeriod">
-                                                <option value="7">7 días</option>
-                                                <option value="30" selected>30 días</option>
-                                                <option value="90">90 días</option>
-                                            </select>
-                                        </label>
+                                        <div class="gs-report-controls">
+                                            <label class="gs-select">
+                                                <span class="gs-sr-only">Periodo del reporte</span>
+                                                <select id="gsReportPeriod">
+                                                    <option value="7">7 días</option>
+                                                    <option value="30" selected>30 días</option>
+                                                    <option value="90">90 días</option>
+                                                    <option value="365">12 meses</option>
+                                                </select>
+                                            </label>
+                                            <button id="gsDownloadReport" class="gs-button gs-button-primary gs-report-download" type="button">
+                                                <i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i> Descargar mi reporte
+                                            </button>
+                                        </div>
                                     </div>
 
                                     <div class="gs-report-figure">
@@ -252,17 +261,21 @@
                                         </div>
                                     </div>
 
-                                    <div class="gs-chart" id="gsChart" role="img" aria-label="Gráfico de comisión por periodo">
-                                        <div class="gs-chart-grid" id="gsChartGrid" aria-hidden="true"></div>
-                                        <div class="gs-chart-axis gs-chart-axis-left" id="gsChartAxisLeft" aria-hidden="true"></div>
-                                        <div class="gs-chart-axis gs-chart-axis-right" id="gsChartAxisRight" aria-hidden="true" hidden></div>
-                                        <div class="gs-chart-plot" id="gsChartPlot" aria-hidden="true"></div>
-                                        <div class="gs-chart-empty" id="gsChartEmpty" hidden>
-                                            <strong>Sin actividad en este periodo</strong>
-                                            <p>Tu comisión aparecerá aquí cuando se atribuya el primer pedido.</p>
+                                    <p class="gs-chart-caption">Comisión ganada por mes · últimos 12 meses</p>
+                                    <div class="gs-chart-svg-wrap" id="gsChart" role="img" aria-label="Gráfico de comisión ganada por mes"></div>
+                                </section>
+
+                                <section class="gs-card gs-report-card" aria-labelledby="gsEvolutionTitle">
+                                    <div class="gs-card-head">
+                                        <div class="gs-card-heading">
+                                            <p class="gs-eyebrow">Actividad</p>
+                                            <h2 id="gsEvolutionTitle">Evolución de pedidos</h2>
+                                            <p class="gs-card-subtitle">Pedidos registrados en el periodo seleccionado.</p>
                                         </div>
-                                        <div class="gs-chart-tooltip" id="gsChartTooltip" hidden></div>
+                                        <span id="gsEvolutionPeriod" class="gs-chip-muted">30 días</span>
                                     </div>
+                                    <p class="gs-chart-caption">Pedidos por fecha · sin animaciones</p>
+                                    <div class="gs-chart-svg-wrap" id="gsEvolutionChart" role="img" aria-label="Evolución de pedidos en el periodo"></div>
                                 </section>
 
                                 <section id="gsOrdersSection" class="gs-card gs-table-card" aria-labelledby="gsRecentTitle">
@@ -332,22 +345,19 @@
                                     <div class="gs-card-head gs-card-head-tight">
                                         <div class="gs-card-heading">
                                             <p class="gs-eyebrow">Catálogo</p>
-                                            <h2 id="gsCategoriesTitle">Productos destacados</h2>
+                                            <h2 id="gsCategoriesTitle">Productos más pedidos</h2>
                                         </div>
                                         <label class="gs-select gs-select-mini">
-                                            <span class="gs-sr-only">Periodo de productos destacados</span>
+                                            <span class="gs-sr-only">Periodo de productos más pedidos</span>
                                             <select id="gsCategoryPeriod">
                                                 <option value="30" selected>30 días</option>
                                                 <option value="90">90 días</option>
+                                                <option value="365">12 meses</option>
                                             </select>
                                         </label>
                                     </div>
-                                    <div class="gs-bubble-stage" id="gsBubbleStage" role="img" aria-label="Productos destacados sin datos"></div>
-                                    <div class="gs-bubble-empty" id="gsBubbleEmpty">
-                                        <span class="gs-chip-muted">Sin datos</span>
-                                        <p>Aún no hay productos atribuidos en este periodo.</p>
-                                    </div>
-                                    <p class="gs-side-note-text" id="gsBubbleNote">Tamaño según unidades vendidas.</p>
+                                    <p class="gs-chart-caption">Unidades pedidas por producto.</p>
+                                    <div class="gs-chart-svg-wrap" id="gsBubbleStage" role="img" aria-label="Productos más pedidos sin datos"></div>
                                 </section>
 
                                 <section id="gsPerformance" class="gs-card gs-side-card gs-performance-card" aria-labelledby="gsGaugeTitle">
@@ -385,18 +395,12 @@
                                     <div class="gs-card-head gs-card-head-tight">
                                         <div class="gs-card-heading">
                                             <p class="gs-eyebrow">Distribución</p>
-                                            <h2 id="gsInventoryTitle">Estado comercial</h2>
+                                            <h2 id="gsInventoryTitle">Pedidos por estado</h2>
                                         </div>
                                         <span class="gs-chip-muted" id="gsStatusBadge">Sin datos</span>
                                     </div>
-                                    <div class="gs-status-track" id="gsStatusTrack" aria-hidden="true"></div>
-                                    <ul class="gs-status-legend" id="gsStatusLegend">
-                                        <li><span><i class="gs-dot is-complete" aria-hidden="true"></i>Entregado</span><strong>—</strong></li>
-                                        <li><span><i class="gs-dot is-progress" aria-hidden="true"></i>En proceso</span><strong>—</strong></li>
-                                        <li><span><i class="gs-dot is-pending" aria-hidden="true"></i>Pendiente</span><strong>—</strong></li>
-                                        <li><span><i class="gs-dot is-cancelled" aria-hidden="true"></i>Cancelado</span><strong>—</strong></li>
-                                    </ul>
-                                    <p class="gs-side-note-text">Distribución real de tus pedidos atribuidos.</p>
+                                    <p class="gs-chart-caption">Pedidos atribuidos por estado.</p>
+                                    <div class="gs-chart-svg-wrap" id="gsStatusTrack" role="img" aria-label="Pedidos por estado sin datos"></div>
                                 </section>
                             </aside>
                         </div>
@@ -501,15 +505,20 @@
                                 <h2 id="gsCatalogTitle">Productos disponibles</h2>
                                 <p class="gs-card-subtitle">Explora el catálogo y comparte productos con tus clientes.</p>
                             </div>
-                            <label class="gs-select">
-                                <span class="gs-sr-only">Ordenar catálogo</span>
-                                <select id="gsCatalogSort">
-                                    <option value="featured" selected>Destacados</option>
-                                    <option value="price-asc">Menor precio</option>
-                                    <option value="price-desc">Mayor precio</option>
-                                    <option value="name">Nombre</option>
-                                </select>
-                            </label>
+                            <div class="gs-catalog-controls">
+                                <label class="gs-select">
+                                    <span class="gs-sr-only">Ordenar catálogo</span>
+                                    <select id="gsCatalogSort">
+                                        <option value="featured" selected>Destacados</option>
+                                        <option value="price-asc">Menor precio</option>
+                                        <option value="price-desc">Mayor precio</option>
+                                        <option value="name">Nombre</option>
+                                    </select>
+                                </label>
+                                <button id="gsCatalogShare" class="gs-button gs-button-primary" type="button">
+                                    <i class="fa-solid fa-file-pdf" aria-hidden="true"></i> Enviar catálogo al cliente
+                                </button>
+                            </div>
                         </div>
                         <div class="gs-catalog-cats" id="gsCatalogCategories" role="group" aria-label="Categorías del catálogo"></div>
                         <p class="gs-catalog-count" id="gsCatalogCount" aria-live="polite"></p>
@@ -712,6 +721,7 @@
                             <p class="gs-order-success-tracking">Código de seguimiento: <code id="gsOrderSuccessTracking">—</code></p>
                             <div class="gs-order-success-actions">
                                 <button id="gsOrderSuccessView" class="gs-button gs-button-primary" type="button">Ver en mis pedidos</button>
+                                <button id="gsOrderSuccessShare" class="gs-button" type="button"><i class="fa-solid fa-share-nodes" aria-hidden="true"></i> Compartir comprobante</button>
                                 <button id="gsOrderSuccessCatalog" class="gs-button" type="button">Seguir comprando</button>
                             </div>
                         </div>
@@ -751,9 +761,54 @@
                     <button id="gsProductBuy" class="gs-button" type="button">
                         <i class="fa-solid fa-bolt" aria-hidden="true"></i> Comprar ahora
                     </button>
+                    <button id="gsProductShare" class="gs-button" type="button">
+                        <i class="fa-solid fa-share-nodes" aria-hidden="true"></i> Compartir imagen
+                    </button>
                     <button id="gsProductCart" class="gs-button" type="button">Ver carrito</button>
                 </div>
             </div>
+        </div>
+    </dialog>
+
+    <dialog id="gsReceiptDialog" class="gs-doc-dialog" aria-labelledby="gsReceiptTitle">
+        <div class="gs-doc-dialog-card">
+            <div class="gs-doc-dialog-head">
+                <div>
+                    <p class="gs-eyebrow">Pedido</p>
+                    <h2 id="gsReceiptTitle">Compartir comprobante</h2>
+                </div>
+                <button id="gsReceiptClose" class="gs-product-close" type="button" aria-label="Cerrar comprobante">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div class="gs-receipt-options">
+                <label><input id="gsReceiptAddress" type="checkbox"> Incluir dirección</label>
+                <label><input id="gsReceiptPhone" type="checkbox"> Incluir teléfono</label>
+            </div>
+            <div id="gsReceiptPreview" class="gs-receipt-preview" aria-live="polite"></div>
+            <p id="gsReceiptError" class="gs-form-error" role="alert" hidden></p>
+            <div class="gs-doc-dialog-actions">
+                <button id="gsReceiptShare" class="gs-button gs-button-primary" type="button"><i class="fa-solid fa-share-nodes" aria-hidden="true"></i> Compartir</button>
+                <button id="gsReceiptDownload" class="gs-button" type="button"><i class="fa-solid fa-file-pdf" aria-hidden="true"></i> Descargar PDF</button>
+                <button id="gsReceiptWhatsapp" class="gs-button" type="button"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> WhatsApp</button>
+            </div>
+        </div>
+    </dialog>
+
+    <dialog id="gsOperatorDialog" class="gs-doc-dialog" aria-labelledby="gsOperatorTitle">
+        <div class="gs-doc-dialog-card">
+            <div class="gs-doc-dialog-head">
+                <div>
+                    <p class="gs-eyebrow">Ayuda</p>
+                    <h2 id="gsOperatorTitle">Consultar con operadora</h2>
+                </div>
+                <button id="gsOperatorClose" class="gs-product-close" type="button" aria-label="Cerrar operadoras">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
+            </div>
+            <p id="gsOperatorOrder" class="gs-doc-dialog-subtitle"></p>
+            <div id="gsOperatorList" class="gs-operator-list" aria-live="polite"></div>
+            <p class="gs-doc-hint">Se abrirá WhatsApp con el mensaje listo. No se envía nada automáticamente.</p>
         </div>
     </dialog>
 
@@ -762,6 +817,8 @@
     <script src="config.js"></script>
     <script src="auth.js"></script>
     <script src="volxen-core.js"></script>
+    <script src="js/pages/gestor-charts.js"></script>
+    <script src="js/pages/gestor-docs.js"></script>
     <script src="js/pages/gestor.js"></script>
 </body>
 </html>
