@@ -200,3 +200,39 @@ test("el build copia las páginas y estilos de los paneles", () => {
     assert.match(pkg.scripts["build:html"], /gestor\.css/);
     assert.match(pkg.scripts["build:html"], /admin\.html/);
 });
+
+test("el panel muestra solo comisión y permite compra directa con vale seleccionable", () => {
+    const html = read("gestor.html");
+    const js = read("js/pages/gestor.js");
+    const css = read("gestor.css");
+
+    assert.match(html, /id="gsCartSelectAll"/);
+    assert.match(html, /id="gsProductBuy"/);
+    assert.match(html, /Comisión ganada/);
+    assert.match(html, /Por cobrar/);
+    assert.match(html, /Total que paga el cliente/);
+    assert.match(html, /Tu comisión/);
+    assert.match(js, /MAX_MARGIN_PERCENT = 20/);
+    assert.match(js, /function directBuyProduct/);
+    assert.match(js, /function startDirectCheckout/);
+    assert.match(js, /function startDirectFromCart/);
+    assert.match(js, /function checkoutLines/);
+    assert.match(js, /data-cart-select=/);
+    assert.match(js, /data-cart-solo=/);
+    assert.match(js, /operadoras\.html/);
+    assert.match(js, /api\.pcard\(product,\s*\{\s*buy:\s*true\s*\}\)/);
+    assert.match(css, /\.gs-card-actions/);
+    assert.match(css, /\.gs-cart-limit-warning/);
+    assert.match(css, /\.gs-cart-check/);
+});
+
+test("el admin muestra el gestor y la comisión por producto", () => {
+    const admin = read("admin.html");
+
+    assert.match(admin, /function pedidoGestor/);
+    assert.match(admin, /gestor_nombre \|\| o\.gestor_telefono/);
+    assert.match(admin, /COMISIÓN GANADA/);
+    assert.match(admin, /precio_volxen/);
+    assert.match(admin, /ganancia_total_usd/);
+    assert.match(admin, /TOTAL DEL PEDIDO/);
+});

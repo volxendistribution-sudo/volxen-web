@@ -2275,6 +2275,39 @@ body[data-gs-view="gsDashboard"] .gs-header {
     border-radius: 10px;
 }
 
+.gs-catalog-grid .pcd .gs-card-actions {
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.gs-catalog-grid .pcd .gs-card-actions button {
+    width: 100%;
+    justify-content: center;
+    padding: 0 12px;
+    white-space: nowrap;
+}
+
+.gs-catalog-grid .pcd .gs-card-buy {
+    border: 1px solid var(--gs-line-strong);
+    background: transparent;
+    color: var(--gs-ink);
+    box-shadow: none;
+}
+
+.gs-catalog-grid .pcd .gs-card-buy:hover {
+    border-color: rgba(30, 29, 27, .22);
+    background: #fff;
+}
+
+.gs-catalog-grid .pcd .gs-card-buy:disabled {
+    border-color: var(--gs-line);
+    background: var(--gs-surface);
+    color: var(--gs-muted);
+    cursor: not-allowed;
+}
+
 .gs-catalog-grid .pcd .badge-category {
     z-index: 2;
     max-width: calc(100% - 24px);
@@ -2531,6 +2564,36 @@ body[data-gs-view="gsDashboard"] .gs-header {
     font-size: 8.5px;
 }
 
+.gs-product-sale input.is-invalid,
+.gs-cart-price-field input.is-invalid {
+    border-color: rgba(166, 75, 48, .55);
+    background: rgba(166, 75, 48, .04);
+}
+
+.gs-product-sale input.is-invalid:focus,
+.gs-cart-price-field input.is-invalid:focus {
+    border-color: var(--gs-red);
+    box-shadow: 0 0 0 3px rgba(166, 75, 48, .1);
+}
+
+.gs-product-limit-warning,
+.gs-cart-limit-warning {
+    color: var(--gs-red);
+    font-size: 9px;
+    line-height: 1.45;
+}
+
+.gs-product-limit-warning {
+    margin: 2px 0 0;
+}
+
+.gs-product-limit-warning a,
+.gs-cart-limit-warning a {
+    color: inherit;
+    font-weight: 700;
+    text-decoration: underline;
+}
+
 .gs-product-features {
     display: grid;
     gap: 6px;
@@ -2690,6 +2753,72 @@ body[data-gs-view="gsDashboard"] .gs-header {
     margin-top: 2px;
     color: var(--gs-muted);
     font-size: 9px;
+}
+
+.gs-cart-title {
+    display: flex;
+    min-width: 0;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.gs-cart-check {
+    width: 16px;
+    height: 16px;
+    flex: 0 0 auto;
+    margin-top: 1px;
+    accent-color: var(--gs-green);
+    cursor: pointer;
+}
+
+.gs-cart-item.is-unselected {
+    border-style: dashed;
+    background: rgba(255, 255, 255, .5);
+}
+
+.gs-cart-item.is-unselected .gs-cart-thumb,
+.gs-cart-item.is-unselected .gs-cart-mode,
+.gs-cart-item.is-unselected .gs-cart-controls,
+.gs-cart-item.is-unselected .gs-cart-line-total {
+    opacity: .55;
+}
+
+.gs-cart-select-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--gs-muted);
+    font-size: 9.5px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.gs-cart-select-all input {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--gs-green);
+    cursor: pointer;
+}
+
+.gs-cart-solo {
+    min-height: 30px;
+    padding: 0 10px;
+    border: 1px solid var(--gs-line-strong);
+    border-radius: 9px;
+    background: transparent;
+    color: var(--gs-ink);
+    font: inherit;
+    font-size: 9px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.gs-cart-solo:hover {
+    background: #fff;
+}
+
+.gs-cart-limit-warning {
+    margin: 0;
 }
 
 .gs-cart-remove {

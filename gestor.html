@@ -194,10 +194,10 @@
                                     <article class="gs-kpi">
                                         <div class="gs-kpi-top">
                                             <span class="gs-kpi-icon" aria-hidden="true"><i class="fa-solid fa-arrow-trend-up"></i></span>
-                                            <span class="gs-kpi-label">Ventas</span>
+                                            <span class="gs-kpi-label">Comisión ganada</span>
                                         </div>
                                         <strong id="gsSales" class="gs-kpi-value">—</strong>
-                                        <span class="gs-kpi-delta is-neutral">Atribuidas a tu cuenta</span>
+                                        <span class="gs-kpi-delta is-neutral">Acumulada en tus pedidos</span>
                                     </article>
                                     <article class="gs-kpi">
                                         <div class="gs-kpi-top">
@@ -210,7 +210,7 @@
                                     <article class="gs-kpi">
                                         <div class="gs-kpi-top">
                                             <span class="gs-kpi-icon" aria-hidden="true"><i class="fa-solid fa-coins"></i></span>
-                                            <span class="gs-kpi-label">Comisiones</span>
+                                            <span class="gs-kpi-label">Por cobrar</span>
                                         </div>
                                         <strong id="gsCommissionAvailable" class="gs-kpi-value">—</strong>
                                         <span class="gs-kpi-delta is-ready"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Listas para cobrar</span>
@@ -221,8 +221,8 @@
                                     <div class="gs-card-head">
                                         <div class="gs-card-heading">
                                             <p class="gs-eyebrow">Rendimiento</p>
-                                            <h2 id="gsReportTitle">Resultado comercial</h2>
-                                            <p class="gs-card-subtitle">Ventas y comisiones atribuidas por periodo.</p>
+                                            <h2 id="gsReportTitle">Comisión por periodo</h2>
+                                            <p class="gs-card-subtitle">Tu comisión y pedidos atribuidos por periodo.</p>
                                         </div>
                                         <label class="gs-select">
                                             <span class="gs-sr-only">Periodo del reporte</span>
@@ -236,31 +236,30 @@
 
                                     <div class="gs-report-figure">
                                         <div class="gs-report-stat">
-                                            <span>Total del periodo</span>
+                                            <span>Comisión del periodo</span>
                                             <strong id="gsReportTotal">—</strong>
                                         </div>
                                         <div class="gs-report-stat">
-                                            <span>Promedio por pedido</span>
+                                            <span>Pedidos del periodo</span>
                                             <strong id="gsReportAverage">—</strong>
                                         </div>
                                         <div class="gs-report-stat">
-                                            <span>Comisión generada</span>
+                                            <span>Comisión media por pedido</span>
                                             <strong id="gsReportCommission">—</strong>
                                         </div>
-                                        <div class="gs-report-legend" role="group" aria-label="Series del gráfico">
-                                            <span><i class="gs-dot is-sales" aria-hidden="true"></i>Ventas netas</span>
-                                            <span><i class="gs-dot is-commission" aria-hidden="true"></i>Comisiones</span>
+                                        <div class="gs-report-legend" role="group" aria-label="Serie del gráfico">
+                                            <span><i class="gs-dot is-commission" aria-hidden="true"></i>Comisión</span>
                                         </div>
                                     </div>
 
-                                    <div class="gs-chart" id="gsChart" role="img" aria-label="Gráfico de ventas y comisiones por periodo">
+                                    <div class="gs-chart" id="gsChart" role="img" aria-label="Gráfico de comisión por periodo">
                                         <div class="gs-chart-grid" id="gsChartGrid" aria-hidden="true"></div>
                                         <div class="gs-chart-axis gs-chart-axis-left" id="gsChartAxisLeft" aria-hidden="true"></div>
-                                        <div class="gs-chart-axis gs-chart-axis-right" id="gsChartAxisRight" aria-hidden="true"></div>
+                                        <div class="gs-chart-axis gs-chart-axis-right" id="gsChartAxisRight" aria-hidden="true" hidden></div>
                                         <div class="gs-chart-plot" id="gsChartPlot" aria-hidden="true"></div>
                                         <div class="gs-chart-empty" id="gsChartEmpty" hidden>
                                             <strong>Sin actividad en este periodo</strong>
-                                            <p>Las ventas aparecerán aquí cuando se atribuya el primer pedido.</p>
+                                            <p>Tu comisión aparecerá aquí cuando se atribuya el primer pedido.</p>
                                         </div>
                                         <div class="gs-chart-tooltip" id="gsChartTooltip" hidden></div>
                                     </div>
@@ -290,7 +289,7 @@
                                                 <span class="gs-sr-only">Ordenar pedidos</span>
                                                 <select id="gsSort">
                                                     <option value="recent" selected>Más recientes</option>
-                                                    <option value="amount">Mayor importe</option>
+                                                    <option value="amount">Mayor comisión</option>
                                                     <option value="status">Por estado</option>
                                                 </select>
                                             </label>
@@ -314,7 +313,7 @@
                                                     <th scope="col">Producto</th>
                                                     <th scope="col">Cliente</th>
                                                     <th scope="col">Cantidad</th>
-                                                    <th scope="col">Importe</th>
+                                                    <th scope="col">Tu comisión</th>
                                                     <th scope="col">Estado</th>
                                                     <th scope="col"><span class="gs-sr-only">Detalle</span></th>
                                                 </tr>
@@ -537,11 +536,15 @@
 
                         <div class="gs-cart-layout">
                             <div class="gs-cart-main">
+                                <label class="gs-cart-select-all">
+                                    <input id="gsCartSelectAll" type="checkbox" checked>
+                                    <span>Seleccionar todos para este vale</span>
+                                </label>
                                 <div id="gsCartItems" class="gs-cart-items" role="list" aria-label="Productos en el carrito del gestor"></div>
                                 <div id="gsCartEmpty" class="gs-catalog-empty" hidden>
                                     <span class="gs-chip-muted">Carrito vacío</span>
                                     <strong>Agrega productos desde el catálogo.</strong>
-                                    <p>Podrás revisar la comisión o la ganancia por subida antes de comprar.</p>
+                                    <p>Podrás elegir cuáles van en cada vale y revisar tu comisión antes de comprar.</p>
                                     <button id="gsCartBrowse" class="gs-button" type="button">Abrir catálogo</button>
                                 </div>
                             </div>
@@ -552,12 +555,12 @@
                                     <strong id="gsCartUnits">0 uds.</strong>
                                 </div>
                                 <dl class="gs-cart-totals">
-                                    <div><dt>Total del pedido</dt><dd id="gsCartTotal">$0.00</dd></div>
+                                    <div><dt>Total que paga el cliente</dt><dd id="gsCartTotal">$0.00</dd></div>
                                     <div><dt>Comisión fija</dt><dd id="gsCartCommission">$0.00</dd></div>
-                                    <div><dt>Ganancia por subida</dt><dd id="gsCartMarkup">$0.00</dd></div>
-                                    <div class="is-total"><dt>Tu ganancia total</dt><dd id="gsCartGain">$0.00</dd></div>
+                                    <div><dt>Comisión por subida</dt><dd id="gsCartMarkup">$0.00</dd></div>
+                                    <div class="is-total"><dt>Tu comisión</dt><dd id="gsCartGain">$0.00</dd></div>
                                 </dl>
-                                <p id="gsCartHint" class="gs-cart-hint">Los productos sin comisión muestran la subida como ganancia.</p>
+                                <p id="gsCartHint" class="gs-cart-hint">Solo se incluirán los productos marcados en este vale.</p>
                                 <p id="gsCartError" class="gs-form-error" role="alert" aria-live="assertive" hidden></p>
                                 <button id="gsCartClear" class="gs-cart-clear" type="button">Vaciar carrito</button>
                             </aside>
@@ -688,10 +691,10 @@
                                 </div>
                                 <div id="gsCheckoutItems" class="gs-checkout-items"></div>
                                 <dl class="gs-cart-totals">
-                                    <div><dt>Total del pedido</dt><dd id="gsCheckoutTotal">$0.00</dd></div>
+                                    <div><dt>Total que paga el cliente</dt><dd id="gsCheckoutTotal">$0.00</dd></div>
                                     <div><dt>Comisión fija</dt><dd id="gsCheckoutCommission">$0.00</dd></div>
-                                    <div><dt>Ganancia por subida</dt><dd id="gsCheckoutMarkup">$0.00</dd></div>
-                                    <div class="is-total"><dt>Tu ganancia total</dt><dd id="gsCheckoutGain">$0.00</dd></div>
+                                    <div><dt>Comisión por subida</dt><dd id="gsCheckoutMarkup">$0.00</dd></div>
+                                    <div class="is-total"><dt>Tu comisión</dt><dd id="gsCheckoutGain">$0.00</dd></div>
                                 </dl>
                                 <p class="gs-cart-hint">El servidor recalcula precios, comisiones y disponibilidad al confirmar.</p>
                             </aside>
@@ -703,8 +706,8 @@
                             <h2>Vale creado correctamente</h2>
                             <p class="gs-order-success-code" id="gsOrderSuccessCode">—</p>
                             <div class="gs-order-success-data">
-                                <div><span>Total</span><strong id="gsOrderSuccessTotal">—</strong></div>
-                                <div><span>Tu ganancia</span><strong id="gsOrderSuccessGain">—</strong></div>
+                                <div><span>Total que paga el cliente</span><strong id="gsOrderSuccessTotal">—</strong></div>
+                                <div><span>Tu comisión</span><strong id="gsOrderSuccessGain">—</strong></div>
                             </div>
                             <p class="gs-order-success-tracking">Código de seguimiento: <code id="gsOrderSuccessTracking">—</code></p>
                             <div class="gs-order-success-actions">
@@ -738,11 +741,15 @@
                     <label for="gsProductSalePrice">Tu precio de venta (USD) *</label>
                     <input id="gsProductSalePrice" type="number" min="0" step="0.01" inputmode="decimal">
                     <small id="gsProductMaxNote"></small>
+                    <p id="gsProductLimitWarning" class="gs-product-limit-warning" role="alert" aria-live="assertive" hidden></p>
                 </div>
                 <div id="gsProductFeatures" class="gs-product-features"></div>
                 <div class="gs-product-dialog-actions">
                     <button id="gsProductAdd" class="gs-button gs-button-primary" type="button">
                         <i class="fa-solid fa-bag-shopping" aria-hidden="true"></i> Añadir al carrito
+                    </button>
+                    <button id="gsProductBuy" class="gs-button" type="button">
+                        <i class="fa-solid fa-bolt" aria-hidden="true"></i> Comprar ahora
                     </button>
                     <button id="gsProductCart" class="gs-button" type="button">Ver carrito</button>
                 </div>

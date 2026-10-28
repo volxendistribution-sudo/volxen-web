@@ -194,17 +194,23 @@ function obs() {
     l.forEach(e => o.observe(e));
 }
 
-function pcard(p) {
+function pcard(p, options) {
+    const opts = options || {};
     const im = ft(p)[0], a = ag(p);
     const imgSrc = im ? imgUrl(im, { w: 400, h: 300, format: "webp", quality: 80 }) : "";
     const pri = a ? '<span class="text-sm font-bold text-fg">Consultar disponibilidad</span>' :
         (O[p.id] ? '<s class="text-xs text-mu mr-1">' + fm(p.precio_usd) + '</s><span class="text-base font-black text-fg">' + fm(O[p.id]) + '</span>' :
             '<span class="text-base font-black text-fg">' + fm(p.precio_usd) + '</span>');
+    const add = '<button data-a="add1" data-id="' + esc(p.id) + '" class="btn-primary px-4 py-2.5 font-bold text-sm transition shadow flex items-center space-x-2"><i class="fa-solid fa-cart-plus"></i><span>Añadir</span></button>';
+    const buy = opts.buy
+        ? '<button data-a="buy1" data-id="' + esc(p.id) + '" class="btn-secondary gs-card-buy px-4 py-2.5 font-bold text-sm transition shadow flex items-center space-x-2"' + (a ? ' disabled' : '') + '><i class="fa-solid fa-bolt"></i><span>Comprar</span></button>'
+        : '';
+    const actions = opts.buy ? '<div class="gs-card-actions">' + add + buy + '</div>' : add;
     return '<article class="pcd card-product flex flex-col overflow-hidden group"><div class="relative"><a href="producto.html?id=' + encodeURIComponent(p.id) + '" class="block"><div class="im">' +
         (im ? '<img src="' + esc(imgSrc) + '" alt="' + esc(p.nombre) + '" loading="lazy">' : '') +
         '</div></a><span class="absolute top-3 left-3 badge-category text-xs font-bold px-2.5 py-1 rounded-lg uppercase tracking-wide">' + esc(cn(p.categoria_id)) + '</span>' +
         (a ? '<span class="absolute top-3 right-3 badge-out-of-stock text-xs font-bold px-2.5 py-1 rounded-lg shadow">Agotado</span>' : '') +
-        '</div><div class="p-5 flex-1 flex flex-col justify-between space-y-4"><a class="tx text-left block" href="producto.html?id=' + encodeURIComponent(p.id) + '"><h3 class="font-bold text-fg line-clamp-2">' + esc(p.nombre) + '</h3></a><div class="flex items-center justify-between gap-3 pt-2 border-t border-bd"><div><span class="text-xs text-mu block uppercase">Precio</span>' + pri + '</div><button data-a="add1" data-id="' + esc(p.id) + '" class="btn-primary px-4 py-2.5 font-bold text-sm transition shadow flex items-center space-x-2"><i class="fa-solid fa-cart-plus"></i><span>Añadir</span></button></div></div></article>';
+        '</div><div class="p-5 flex-1 flex flex-col justify-between space-y-4"><a class="tx text-left block" href="producto.html?id=' + encodeURIComponent(p.id) + '"><h3 class="font-bold text-fg line-clamp-2">' + esc(p.nombre) + '</h3></a><div class="flex items-center justify-between gap-3 pt-2 border-t border-bd"><div><span class="text-xs text-mu block uppercase">Precio</span>' + pri + '</div>' + actions + '</div></div></article>';
 }
 
 function show(id) {

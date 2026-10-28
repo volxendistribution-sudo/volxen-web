@@ -24,6 +24,8 @@
         "Cancelado"
     ];
 
+    const MAX_MARGIN_PERCENT = 20;
+
     const state = {
         session: null,
         summary: null,
@@ -47,8 +49,11 @@
         catalogLoading: false,
         catalogPromise: null,
         catalogProductId: "",
+        directItem: null,
+        deselectedIds: [],
         checkoutStep: 1,
         checkoutBusy: false,
+        checkoutComplete: false,
         loading: false,
         hasMore: false
     };
@@ -83,6 +88,11 @@
         return Number.isFinite(amount) ? Math.round(amount * 100) / 100 : 0;
     }
 
+    function commissionMoney(value) {
+        const amount = Number(value);
+        return Number.isFinite(amount) && amount > 0 ? money(amount) : "—";
+    }
+
     function productMode(product) {
         return product && product.modo_precio === "sin_comision" ? "sin_comision" : "comision_fija";
     }
@@ -95,7 +105,9 @@
 
     function productMaxPrice(product) {
         const margin = Number(product && product.margen_max_porcentaje);
-        const percent = Number.isFinite(margin) ? Math.max(0, Math.min(100, margin)) : 20;
+        const percent = Number.isFinite(margin)
+            ? Math.max(0, Math.min(MAX_MARGIN_PERCENT, margin))
+            : MAX_MARGIN_PERCENT;
         return roundMoney(productBasePrice(product) * (1 + percent / 100));
     }
 
@@ -108,29 +120,66 @@
         return { amount: Number.isFinite(fixed) ? roundMoney(fixed) : 0 };
     }
 
+    function cartLineFor(product, quantity, storedPrice) {
+        const mode = productMode(product);
+        const base = productBasePrice(product);
+        const price = Number(storedPrice);
+        const salePrice = mode === "sin_comision"
+            ? (Number.isFinite(price) && price > 0 ? roundMoney(price) : base)
+            : base;
+        const commission = productCommissionInfo(product);
+        return {
+            product: product,
+            qty: Number(quantity) || 0,
+            base: base,
+            salePrice: salePrice,
+            mode: mode,
+            commission: mode === "sin_comision" ? 0 : commission.amount,
+            markup: mode === "sin_comision" ? Math.max(0, roundMoney(salePrice - base)) : 0,
+            maxPrice: productMaxPrice(product)
+        };
+    }
+
     function cartLines() {
         const api = catalogApi();
         if (!api || typeof api.gcItems !== "function") return [];
 
         return api.gcItems().map(function (entry) {
-            const product = entry.product;
-            const mode = productMode(product);
-            const base = productBasePrice(product);
-            const storedPrice = Number(entry.price);
-            const salePrice = mode === "sin_comision"
-                ? (Number.isFinite(storedPrice) && storedPrice > 0 ? roundMoney(storedPrice) : base)
-                : base;
-            const commission = productCommissionInfo(product);
-            return {
-                product: product,
-                qty: Number(entry.qty) || 0,
-                base: base,
-                salePrice: salePrice,
-                mode: mode,
-                commission: mode === "sin_comision" ? 0 : commission.amount,
-                markup: mode === "sin_comision" ? Math.max(0, roundMoney(salePrice - base)) : 0,
-                maxPrice: productMaxPrice(product)
-            };
+            return cartLineFor(entry.product, entry.qty, entry.price);
+        });
+    }
+
+    function directLine() {
+        if (!state.directItem) return null;
+        const product = findCatalogProduct(state.directItem.productId);
+        if (!product) return null;
+        return cartLineFor(product, state.directItem.qty, state.directItem.price);
+    }
+
+    function isCartSelected(productId) {
+        return state.deselectedIds.indexOf(String(productId)) === -1;
+    }
+
+    function selectedCartLines() {
+        return cartLines().filter(function (line) {
+            return isCartSelected(line.product.id);
+        });
+    }
+
+    function checkoutLines() {
+        if (state.directItem) {
+            const direct = directLine();
+            return direct ? [direct] : [];
+        }
+        return selectedCartLines();
+    }
+
+    function pruneCartSelection(lines) {
+        const known = new Set((Array.isArray(lines) ? lines : cartLines()).map(function (line) {
+            return String(line.product.id);
+        }));
+        state.deselectedIds = state.deselectedIds.filter(function (productId) {
+            return known.has(String(productId));
         });
     }
 
@@ -334,7 +383,7 @@
     function commissionEvent(order) {
         const status = order.comision_estado || "pendiente";
         const code = order.codigo || "Pedido";
-        const amount = money(order.comision_monto_usd);
+        const amount = commissionMoney(order.comision_monto_usd);
 
         if (status === "pagada") {
             return {
@@ -443,9 +492,17 @@
         if (refs.gsTopAvatar) refs.gsTopAvatar.textContent = userInitial(name, user.email);
     }
 
+    function summaryCommission(summary) {
+        return roundMoney(
+            Number(summary.comision_pendiente_usd || 0) +
+            Number(summary.comision_disponible_usd || 0) +
+            Number(summary.comision_pagada_usd || 0)
+        );
+    }
+
     function renderSummary() {
         const summary = state.summary || {};
-        refs.gsSales.textContent = money(summary.ventas_total_usd);
+        refs.gsSales.textContent = money(summaryCommission(summary));
         refs.gsOrdersCount.textContent = count(summary.pedidos_total);
         refs.gsClientsCount.textContent = count(summary.clientes_total);
         refs.gsCommissionAvailable.textContent = money(summary.comision_disponible_usd);
@@ -550,13 +607,12 @@
             const status = order.comision_estado || "pendiente";
             const label = COMMISSION_LABELS[status] || "Pendiente";
             const badge = COMMISSION_CLASSES[status] || "gs-badge-pending";
-            const percentage = Number(order.comision_porcentaje || 0).toLocaleString("es-ES", { maximumFractionDigits: 2 });
 
             return '<article class="gs-history-row">' +
                 "<div><h3>" + escapeHtml(order.codigo || "Pedido") + " · " + escapeHtml(order.nombre_cliente || "Cliente") + "</h3>" +
-                    "<p>" + escapeHtml(dateLabel(commissionDate(order))) + " · " + escapeHtml(percentage) + "% · " + escapeHtml(commissionReason(order)) + "</p></div>" +
+                    "<p>" + escapeHtml(dateLabel(commissionDate(order))) + " · " + escapeHtml(commissionReason(order)) + "</p></div>" +
                 '<span class="gs-badge ' + badge + '">' + escapeHtml(label) + "</span>" +
-                '<strong class="gs-history-amount">' + escapeHtml(money(order.comision_monto_usd)) + "</strong>" +
+                '<strong class="gs-history-amount">' + escapeHtml(commissionMoney(order.comision_monto_usd)) + "</strong>" +
             "</article>";
         }).join("");
     }
@@ -594,7 +650,7 @@
 
         if (state.sort === "amount") {
             copy.sort(function (a, b) {
-                return Number(b.total_usd || 0) - Number(a.total_usd || 0);
+                return orderCommissionValue(b) - orderCommissionValue(a);
             });
             return copy;
         }
@@ -652,9 +708,8 @@
         const orders = state.orders.filter(function (order) {
             return orderCompleted(order) && withinThreshold(order, threshold);
         });
-        const total = orders.reduce(function (sum, order) { return sum + orderGross(order); }, 0);
         const commission = orders.reduce(function (sum, order) { return sum + orderCommissionValue(order); }, 0);
-        const average = orders.length ? total / orders.length : 0;
+        const average = orders.length ? commission / orders.length : 0;
         const bucketCount = days === 7 ? 7 : 8;
         const buckets = [];
         const now = new Date();
@@ -668,7 +723,6 @@
             const bucketStart = new Date(start.getTime() + index * bucketMs);
             buckets.push({
                 label: dateRangeLabel(bucketStart, days),
-                sales: 0,
                 commission: 0,
                 orders: 0
             });
@@ -678,17 +732,15 @@
             const date = orderDate(order);
             if (!date) return;
             const index = Math.max(0, Math.min(bucketCount - 1, Math.floor((date.getTime() - start.getTime()) / bucketMs)));
-            buckets[index].sales += orderGross(order);
             buckets[index].commission += orderCommissionValue(order);
             buckets[index].orders += 1;
         });
 
-        refs.gsReportTotal.textContent = money(total);
-        refs.gsReportAverage.textContent = money(average);
-        refs.gsReportCommission.textContent = money(commission);
+        refs.gsReportTotal.textContent = money(commission);
+        refs.gsReportAverage.textContent = count(orders.length);
+        refs.gsReportCommission.textContent = money(average);
 
-        const maxSales = niceMax(Math.max.apply(null, buckets.map(function (bucket) { return bucket.sales; })) || 1);
-        const maxOrders = Math.max.apply(null, buckets.map(function (bucket) { return bucket.orders; })) || 1;
+        const maxCommission = niceMax(Math.max.apply(null, buckets.map(function (bucket) { return bucket.commission; })) || 1);
 
         if (refs.gsChartGrid) {
             refs.gsChartGrid.innerHTML = "<span></span><span></span><span></span><span></span><span></span>";
@@ -696,14 +748,13 @@
 
         if (refs.gsChartAxisLeft) {
             refs.gsChartAxisLeft.innerHTML = [1, .75, .5, .25, 0].map(function (ratio) {
-                return "<span>" + escapeHtml(compactMoney(maxSales * ratio)) + "</span>";
+                return "<span>" + escapeHtml(compactMoney(maxCommission * ratio)) + "</span>";
             }).join("");
         }
 
         if (refs.gsChartAxisRight) {
-            refs.gsChartAxisRight.innerHTML = [1, .75, .5, .25, 0].map(function (ratio) {
-                return "<span>" + escapeHtml(count(Math.round(maxOrders * ratio))) + "</span>";
-            }).join("");
+            refs.gsChartAxisRight.innerHTML = "";
+            refs.gsChartAxisRight.hidden = true;
         }
 
         const hasData = orders.length > 0;
@@ -712,24 +763,19 @@
 
         if (refs.gsChart) {
             refs.gsChart.setAttribute("aria-label", hasData
-                ? "Gráfico de ventas y comisiones de los últimos " + days + " días"
-                : "Gráfico de ventas y comisiones sin actividad en los últimos " + days + " días");
+                ? "Gráfico de comisión de los últimos " + days + " días"
+                : "Gráfico de comisión sin actividad en los últimos " + days + " días");
         }
 
         refs.gsChartPlot.innerHTML = buckets.map(function (bucket) {
-            const height = hasData && maxSales > 0 ? Math.max(3, (bucket.sales / maxSales) * 100) : 4;
-            const sales = Math.max(0, bucket.sales - bucket.commission);
-            const salesShare = bucket.sales > 0 ? (sales / bucket.sales) * 100 : 0;
-            const commissionShare = bucket.sales > 0 ? (bucket.commission / bucket.sales) * 100 : 0;
+            const height = hasData && maxCommission > 0 ? Math.max(3, (bucket.commission / maxCommission) * 100) : 4;
             const tooltip = bucket.label + "\n" +
-                "Ventas: " + money(bucket.sales) + "\n" +
-                "Comisiones: " + money(bucket.commission) + "\n" +
+                "Comisión: " + money(bucket.commission) + "\n" +
                 "Pedidos: " + count(bucket.orders);
 
             return '<div class="gs-chart-col" data-tooltip="' + escapeHtml(tooltip) + '">' +
                 '<div class="gs-chart-bar" style="height:' + height.toFixed(2) + '%;opacity:' + (hasData ? "1" : ".42") + '">' +
-                    '<span class="gs-chart-seg is-sales" style="height:' + salesShare.toFixed(2) + '%"></span>' +
-                    '<span class="gs-chart-seg is-commission" style="height:' + commissionShare.toFixed(2) + '%"></span>' +
+                    '<span class="gs-chart-seg is-commission" style="height:100%"></span>' +
                 "</div>" +
                 '<span class="gs-chart-xlabel">' + escapeHtml(bucket.label) + "</span>" +
             "</div>";
@@ -859,8 +905,7 @@
         return '<ul class="gs-order-products">' + items.map(function (item) {
             const name = item.nombre || item.producto_nombre || item.nombre_producto || "Producto";
             const quantity = item.cantidad || item.qty || 1;
-            const price = item.precio_usd || item.precio || item.precio_unitario || 0;
-            return "<li><span>" + escapeHtml(name) + " × " + escapeHtml(quantity) + "</span><small>" + escapeHtml(money(price)) + "</small></li>";
+            return "<li><span>" + escapeHtml(name) + " × " + escapeHtml(quantity) + "</span></li>";
         }).join("") + "</ul>";
     }
 
@@ -921,8 +966,8 @@
                 '<td class="gs-cell-client"><span class="gs-order-client">' + escapeHtml(order.nombre_cliente || "Cliente") + "</span>" +
                     "<small>" + escapeHtml(order.telefono || order.email || "Sin contacto") + "</small></td>" +
                 '<td class="gs-cell-qty"><strong class="gs-order-total">' + escapeHtml(count(quantity)) + "</strong><small>uds.</small></td>" +
-                '<td class="gs-cell-total"><strong class="gs-order-total">' + escapeHtml(money(order.total_usd)) + "</strong>" +
-                    "<small>Comisión " + escapeHtml(money(order.comision_monto_usd)) + "</small></td>" +
+                '<td class="gs-cell-total"><strong class="gs-order-total">' + escapeHtml(commissionMoney(order.comision_monto_usd)) + "</strong>" +
+                    "<small>" + escapeHtml(commissionLabel) + "</small></td>" +
                 '<td class="gs-cell-state"><span class="gs-badge gs-badge-state ' + statusInfo.className + '">' + escapeHtml(statusInfo.label) + "</span></td>" +
                 '<td class="gs-cell-chevron"><i class="fa-solid fa-chevron-down gs-order-chevron" aria-hidden="true"></i></td>' +
             "</tr>" +
@@ -933,9 +978,9 @@
                         "<div><h3>Entrega</h3><address>" + escapeHtml(order.direccion || "Sin dirección") + "<br>" + escapeHtml(order.municipio || "Sin municipio") + "</address></div>" +
                         "<div><h3>Productos</h3>" + renderItems(order.items) + "</div>" +
                         '<div class="gs-cell-commission"><h3>Comisión</h3>' +
-                            '<p class="gs-commission-line"><strong class="gs-commission-amount">' + escapeHtml(money(order.comision_monto_usd)) + "</strong>" +
+                            '<p class="gs-commission-line"><strong class="gs-commission-amount">' + escapeHtml(commissionMoney(order.comision_monto_usd)) + "</strong>" +
                             '<span class="gs-badge ' + commissionClass + '">' + escapeHtml(commissionLabel) + "</span></p>" +
-                            "<small>" + escapeHtml(Number(order.comision_porcentaje || 0)) + "% · " + escapeHtml(commissionMeta) + "</small>" +
+                            "<small>Calculada por el servidor · " + escapeHtml(commissionMeta) + "</small>" +
                         "</div>" +
                     "</div>" +
                 "</td>" +
@@ -1027,7 +1072,7 @@
 
         if (refs.gsCatalogEmpty) refs.gsCatalogEmpty.hidden = products.length > 0;
         refs.gsCatalogGrid.innerHTML = products.length
-            ? products.map(function (product) { return api.pcard(product); }).join("")
+            ? products.map(function (product) { return api.pcard(product, { buy: true }); }).join("")
             : "";
     }
 
@@ -1078,9 +1123,20 @@
 
     function commissionCopy(line) {
         if (line.mode === "sin_comision") {
-            return { title: "No trae comisión", detail: "La subida es tu ganancia: " + money(line.markup) + " por unidad." };
+            return { title: "No trae comisión fija", detail: "La subida suma a tu comisión: " + money(line.markup) + " por unidad." };
         }
         return { title: "Comisión fija: " + money(line.commission), detail: "Por unidad." };
+    }
+
+    function priceWarning(line, value) {
+        const price = value == null ? line.salePrice : Number(value);
+        if (!Number.isFinite(price) || price <= 0) {
+            return "⚠️ Escribe un precio de venta válido.";
+        }
+        if (price < line.base) {
+            return "⚠️ El precio no puede ser inferior al precio VOLXEN.";
+        }
+        return '⚠️ Este precio supera el límite permitido. Si no estás de acuerdo con el límite, comunícate con nuestras <a href="operadoras.html" target="_blank" rel="noopener">operadoras</a>.';
     }
 
     function cartLineHtml(line) {
@@ -1088,20 +1144,27 @@
         const image = productImage(product, 160, 160);
         const copy = commissionCopy(line);
         const flexible = line.mode === "sin_comision";
+        const selected = isCartSelected(product.id);
+        const invalid = flexible && (line.salePrice < line.base || line.salePrice > line.maxPrice);
+        const warning = invalid ? priceWarning(line) : "";
         const priceControl = flexible
             ? '<label class="gs-cart-price-field">' +
                     "<span>Precio de venta</span>" +
-                    '<input type="number" min="' + escapeHtml(line.base.toFixed(2)) + '" max="' + escapeHtml(line.maxPrice.toFixed(2)) + '" step="0.01" inputmode="decimal" value="' + escapeHtml(line.salePrice.toFixed(2)) + '" data-cart-price="' + escapeHtml(product.id) + '" aria-label="Precio de venta para ' + escapeHtml(product.nombre || "producto") + '">' +
+                    '<input type="number" min="' + escapeHtml(line.base.toFixed(2)) + '" max="' + escapeHtml(line.maxPrice.toFixed(2)) + '" step="0.01" inputmode="decimal" value="' + escapeHtml(line.salePrice.toFixed(2)) + '" data-cart-price="' + escapeHtml(product.id) + '" aria-label="Precio de venta para ' + escapeHtml(product.nombre || "producto") + '"' + (invalid ? ' class="is-invalid" aria-invalid="true"' : "") + ">" +
                 "</label>" +
                 '<small class="gs-cart-limit">Máx. ' + escapeHtml(money(line.maxPrice)) + " · Precio VOLXEN " + escapeHtml(money(line.base)) + "</small>"
             : '<span class="gs-cart-fixed-price">' + escapeHtml(money(line.base)) + " · precio fijo</span>";
 
-        return '<article class="gs-cart-item" role="listitem" data-cart-item="' + escapeHtml(product.id) + '">' +
+        return '<article class="gs-cart-item' + (selected ? "" : " is-unselected") + '" role="listitem" data-cart-item="' + escapeHtml(product.id) + '">' +
             '<div class="gs-cart-thumb">' +
                 (image ? '<img src="' + escapeHtml(image) + '" alt="' + escapeHtml(product.nombre || "Producto") + '" loading="lazy">' : '<i class="fa-solid fa-box" aria-hidden="true"></i>') +
             "</div>" +
             '<div class="gs-cart-item-body">' +
-                '<div class="gs-cart-item-head"><div><strong>' + escapeHtml(product.nombre || "Producto") + "</strong><small>" + escapeHtml(copy.title) + "</small></div>" +
+                '<div class="gs-cart-item-head">' +
+                    '<div class="gs-cart-title">' +
+                        '<input class="gs-cart-check" type="checkbox" data-cart-select="' + escapeHtml(product.id) + '"' + (selected ? " checked" : "") + ' aria-label="Incluir ' + escapeHtml(product.nombre || "producto") + ' en el vale">' +
+                        "<div><strong>" + escapeHtml(product.nombre || "Producto") + "</strong><small>" + escapeHtml(copy.title) + "</small></div>" +
+                    "</div>" +
                     '<button type="button" class="gs-cart-remove" data-cart-remove="' + escapeHtml(product.id) + '" aria-label="Quitar ' + escapeHtml(product.nombre || "producto") + '"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>' +
                 "</div>" +
                 '<p class="gs-cart-mode ' + (flexible ? "is-gain" : "is-commission") + '">' + escapeHtml(copy.detail) + "</p>" +
@@ -1112,9 +1175,11 @@
                         '<button type="button" data-cart-plus="' + escapeHtml(product.id) + '" aria-label="Más">+</button>' +
                     "</div>" +
                     priceControl +
+                    '<button type="button" class="gs-cart-solo" data-cart-solo="' + escapeHtml(product.id) + '">Vale solo este</button>' +
                 "</div>" +
+                '<p class="gs-cart-limit-warning" data-cart-warning="' + escapeHtml(product.id) + '"' + (warning ? "" : " hidden") + '>' + warning + "</p>" +
             "</div>" +
-            '<div class="gs-cart-line-total"><span>Subtotal</span><strong>' + escapeHtml(money(linePrice(line) * line.qty)) + "</strong><small>" + escapeHtml(money(lineGain(line) * line.qty)) + " de ganancia</small></div>" +
+            '<div class="gs-cart-line-total"><span>Total línea</span><strong>' + escapeHtml(money(linePrice(line) * line.qty)) + "</strong><small>" + escapeHtml(commissionMoney(lineGain(line) * line.qty)) + " de comisión</small></div>" +
         "</article>";
     }
 
@@ -1138,8 +1203,10 @@
         const api = catalogApi();
         if (api && typeof api.gcBadge === "function") api.gcBadge();
         const lines = cartLines();
-        const totals = cartTotals(lines);
-        const invalid = cartInvalidLine(lines);
+        pruneCartSelection(lines);
+        const selected = selectedCartLines();
+        const totals = cartTotals(selected);
+        const invalid = cartInvalidLine(selected);
         if (!lines.length) resetCartClear();
 
         refs.gsCartItems.innerHTML = lines.map(cartLineHtml).join("");
@@ -1150,7 +1217,13 @@
         if (refs.gsCartMarkup) refs.gsCartMarkup.textContent = money(totals.markup);
         if (refs.gsCartGain) refs.gsCartGain.textContent = money(totals.gain);
         if (refs.gsCartClear) refs.gsCartClear.disabled = lines.length === 0;
-        if (refs.gsCartContinue) refs.gsCartContinue.disabled = lines.length === 0 || Boolean(invalid);
+        if (refs.gsCartContinue) refs.gsCartContinue.disabled = selected.length === 0 || Boolean(invalid);
+
+        if (refs.gsCartSelectAll) {
+            refs.gsCartSelectAll.disabled = lines.length === 0;
+            refs.gsCartSelectAll.checked = lines.length > 0 && selected.length === lines.length;
+            refs.gsCartSelectAll.indeterminate = selected.length > 0 && selected.length < lines.length;
+        }
 
         if (refs.gsCartError) {
             refs.gsCartError.textContent = invalid
@@ -1161,13 +1234,15 @@
 
         if (refs.gsCartHint) {
             refs.gsCartHint.textContent = lines.length
-                ? "Los productos sin comisión muestran la subida como ganancia."
-                : "Agrega un producto para calcular comisión y ganancia.";
+                ? (selected.length
+                    ? count(selected.length) + " de " + count(lines.length) + " productos seleccionados para este vale."
+                    : "Marca al menos un producto para continuar con el vale.")
+                : "Agrega un producto para calcular tu comisión.";
         }
     }
 
     function renderCheckoutSummary() {
-        const lines = cartLines();
+        const lines = checkoutLines();
         const totals = cartTotals(lines);
         if (refs.gsCheckoutItems) {
             refs.gsCheckoutItems.innerHTML = lines.map(function (line) {
@@ -1234,11 +1309,16 @@
     }
 
     function openCheckout() {
-        if (!cartLines().length) {
+        if (state.checkoutComplete) resetCheckout();
+        if (!checkoutLines().length) {
+            state.directItem = null;
             setPanelView("cart");
             return;
         }
         state.checkoutStep = 1;
+        if (refs.gsCheckoutTitle) {
+            refs.gsCheckoutTitle.textContent = state.directItem ? "Vale de producto" : "Registrar compra";
+        }
         if (refs.gsCheckoutForm) refs.gsCheckoutForm.hidden = false;
         if (refs.gsOrderSuccess) refs.gsOrderSuccess.hidden = true;
         const stepper = document.querySelector("#gsCheckoutView .gs-stepper");
@@ -1326,7 +1406,7 @@
             p_direccion: refs.gsDeliveryAddress.value.trim(),
             p_municipio: refs.gsDeliveryMunicipality.value,
             p_notas: refs.gsOrderNotes.value.trim(),
-            p_items: cartLines().map(function (line) {
+            p_items: checkoutLines().map(function (line) {
                 const item = {
                     producto_id: line.product.id,
                     cantidad: line.qty
@@ -1342,9 +1422,9 @@
     async function submitOrder() {
         if (state.checkoutBusy) return;
         if (!validateAllCheckout()) return;
-        const lines = cartLines();
+        const lines = checkoutLines();
         if (!lines.length) {
-            setCheckoutError("Tu carrito está vacío.");
+            setCheckoutError("No hay productos en este vale.");
             return;
         }
         const invalid = cartInvalidLine(lines);
@@ -1368,7 +1448,10 @@
             });
             const order = Array.isArray(result) ? result[0] : result;
             const api = catalogApi();
-            if (api && typeof api.gcClear === "function") api.gcClear();
+            lines.forEach(function (line) {
+                if (api && typeof api.gcRemove === "function") api.gcRemove(line.product.id);
+            });
+            state.directItem = null;
             renderCart();
             showCheckoutSuccess(order || {});
             load({ silent: true, notice: "Pedido " + ((order && order.codigo) || "") + " registrado correctamente." });
@@ -1385,6 +1468,7 @@
     }
 
     function showCheckoutSuccess(order) {
+        state.checkoutComplete = true;
         if (refs.gsCheckoutForm) refs.gsCheckoutForm.hidden = true;
         const stepper = document.querySelector("#gsCheckoutView .gs-stepper");
         const summary = document.querySelector("#gsCheckoutView .gs-checkout-summary");
@@ -1393,8 +1477,11 @@
         if (refs.gsOrderSuccess) refs.gsOrderSuccess.hidden = false;
         if (refs.gsOrderSuccessCode) refs.gsOrderSuccessCode.textContent = order.codigo || "Pedido registrado";
         if (refs.gsOrderSuccessTotal) refs.gsOrderSuccessTotal.textContent = money(order.total_usd);
-        if (refs.gsOrderSuccessGain) refs.gsOrderSuccessGain.textContent = money(order.comision_monto_usd);
+        if (refs.gsOrderSuccessGain) refs.gsOrderSuccessGain.textContent = commissionMoney(order.comision_monto_usd);
         if (refs.gsOrderSuccessTracking) refs.gsOrderSuccessTracking.textContent = order.tracking_token || "No disponible";
+        if (refs.gsOrderSuccessCatalog) {
+            refs.gsOrderSuccessCatalog.textContent = cartLines().length ? "Continuar con el carrito" : "Seguir comprando";
+        }
         if (refs.gsOrderSuccess) refs.gsOrderSuccess.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
@@ -1410,6 +1497,7 @@
         if (refs.gsOrderSuccess) refs.gsOrderSuccess.hidden = true;
         setCheckoutError("");
         state.checkoutStep = 1;
+        state.checkoutComplete = false;
     }
 
     function addToCart(productId, qty, price) {
@@ -1424,9 +1512,62 @@
             ? (Number.isFinite(Number(price)) ? Number(price) : base)
             : base;
         api.gcAdd(product.id, Math.max(1, Number(qty) || 1), salePrice);
+        state.deselectedIds = state.deselectedIds.filter(function (id) {
+            return String(id) !== String(product.id);
+        });
         renderCart();
         setNotice((product.nombre || "Producto") + " añadido al carrito.");
         return true;
+    }
+
+    function startDirectCheckout(productId, price, qty) {
+        const product = findCatalogProduct(productId);
+        if (!product) return false;
+        const api = catalogApi();
+        if (api && typeof api.ag === "function" && api.ag(product)) {
+            setNotice("Este producto está agotado.", true);
+            return false;
+        }
+
+        const mode = productMode(product);
+        const base = productBasePrice(product);
+        const maxPrice = productMaxPrice(product);
+        const amount = Number(price);
+        const salePrice = mode === "sin_comision"
+            ? (Number.isFinite(amount) ? roundMoney(amount) : base)
+            : base;
+
+        if (mode === "sin_comision" && (salePrice < base || salePrice > maxPrice)) {
+            setNotice("El precio de venta debe estar entre " + money(base) + " y " + money(maxPrice) + ".", true);
+            return false;
+        }
+
+        state.directItem = {
+            productId: product.id,
+            qty: Math.max(1, Number(qty) || 1),
+            price: salePrice
+        };
+        openCheckout();
+        return true;
+    }
+
+    function directBuyProduct(productId) {
+        const product = findCatalogProduct(productId);
+        if (!product) return;
+        if (productMode(product) === "sin_comision") {
+            openProductDialog(productId);
+            setNotice("Define tu precio de venta y pulsa Comprar ahora.");
+            return;
+        }
+        startDirectCheckout(productId, productBasePrice(product), 1);
+    }
+
+    function startDirectFromCart(productId) {
+        const line = cartLines().find(function (item) {
+            return String(item.product.id) === String(productId);
+        });
+        if (!line) return;
+        startDirectCheckout(line.product.id, line.salePrice, line.qty);
     }
 
     function changeCartQty(productId, delta) {
@@ -1438,21 +1579,88 @@
         renderCart();
     }
 
+    function cartLineByProduct(productId) {
+        return cartLines().find(function (item) {
+            return String(item.product.id) === String(productId);
+        }) || null;
+    }
+
+    function validateCartPriceInput(input) {
+        const productId = input.getAttribute("data-cart-price");
+        const line = cartLineByProduct(productId);
+        if (!line) return true;
+        const amount = Number(input.value);
+        const invalid = line.mode === "sin_comision" && (!Number.isFinite(amount) || amount < line.base || amount > line.maxPrice);
+        input.classList.toggle("is-invalid", invalid);
+        input.setAttribute("aria-invalid", invalid ? "true" : "false");
+        if (refs.gsCartItems) {
+            const warning = refs.gsCartItems.querySelector('[data-cart-warning="' + productId + '"]');
+            if (warning) {
+                warning.hidden = !invalid;
+                warning.innerHTML = invalid ? priceWarning(line, amount) : "";
+            }
+        }
+        return !invalid;
+    }
+
+    function refreshCartContinue() {
+        if (!refs.gsCartContinue) return;
+        const selected = selectedCartLines();
+        const invalid = selected.some(function (line) {
+            const input = refs.gsCartItems
+                ? refs.gsCartItems.querySelector('[data-cart-price="' + line.product.id + '"]')
+                : null;
+            if (!input) return line.mode === "sin_comision" && (line.salePrice < line.base || line.salePrice > line.maxPrice);
+            const amount = Number(input.value);
+            return !Number.isFinite(amount) || amount < line.base || amount > line.maxPrice;
+        });
+        refs.gsCartContinue.disabled = selected.length === 0 || invalid;
+        if (refs.gsCartError && !invalid) {
+            refs.gsCartError.textContent = "";
+            refs.gsCartError.hidden = true;
+        }
+    }
+
     function setCartPrice(productId, value) {
         const api = catalogApi();
-        const line = cartLines().find(function (item) { return String(item.product.id) === String(productId); });
+        const line = cartLineByProduct(productId);
         if (!api || !line || line.mode !== "sin_comision") return;
         const amount = Number(value);
-        if (!Number.isFinite(amount) || amount <= 0) {
-            if (refs.gsCartError) {
-                refs.gsCartError.textContent = "Escribe un precio de venta válido para " + (line.product.nombre || "el producto") + ".";
-                refs.gsCartError.hidden = false;
-            }
-            if (refs.gsCartContinue) refs.gsCartContinue.disabled = true;
+        if (!Number.isFinite(amount) || amount < line.base || amount > line.maxPrice) {
+            const input = refs.gsCartItems
+                ? refs.gsCartItems.querySelector('[data-cart-price="' + productId + '"]')
+                : null;
+            if (input) validateCartPriceInput(input);
+            refreshCartContinue();
             return;
         }
         api.gcSetPrice(productId, amount);
         renderCart();
+    }
+
+    function validateProductPriceInput() {
+        const product = findCatalogProduct(state.catalogProductId);
+        if (!product || !refs.gsProductSalePrice) return true;
+
+        const mode = productMode(product);
+        const base = productBasePrice(product);
+        const maxPrice = productMaxPrice(product);
+        const api = catalogApi();
+        const soldOut = api && typeof api.ag === "function" ? api.ag(product) : false;
+        const amount = Number(refs.gsProductSalePrice.value);
+        const invalid = mode === "sin_comision" && (!Number.isFinite(amount) || amount < base || amount > maxPrice);
+
+        refs.gsProductSalePrice.classList.toggle("is-invalid", invalid);
+        refs.gsProductSalePrice.setAttribute("aria-invalid", invalid ? "true" : "false");
+        if (refs.gsProductLimitWarning) {
+            refs.gsProductLimitWarning.hidden = !invalid;
+            refs.gsProductLimitWarning.innerHTML = invalid
+                ? priceWarning({ base: base, maxPrice: maxPrice, salePrice: amount }, amount)
+                : "";
+        }
+        if (refs.gsProductAdd) refs.gsProductAdd.disabled = soldOut || invalid;
+        if (refs.gsProductBuy) refs.gsProductBuy.disabled = soldOut || invalid;
+        return !invalid;
     }
 
     function openProductDialog(productId) {
@@ -1469,7 +1677,7 @@
         const commission = productCommissionInfo(product);
         const maxPrice = productMaxPrice(product);
         const margin = Number(product.margen_max_porcentaje);
-        const marginPercent = Number.isFinite(margin) ? margin : 20;
+        const marginPercent = Number.isFinite(margin) ? Math.max(0, Math.min(MAX_MARGIN_PERCENT, margin)) : MAX_MARGIN_PERCENT;
 
         refs.gsProductMedia.innerHTML = image
             ? '<img src="' + escapeHtml(image) + '" alt="' + escapeHtml(product.nombre || "Producto") + '">'
@@ -1522,7 +1730,12 @@
 
         refs.gsProductAdd.disabled = soldOut;
         refs.gsProductAdd.setAttribute("data-product-id", String(product.id));
+        if (refs.gsProductBuy) {
+            refs.gsProductBuy.disabled = soldOut;
+            refs.gsProductBuy.setAttribute("data-product-id", String(product.id));
+        }
         if (refs.gsProductCart) refs.gsProductCart.disabled = false;
+        validateProductPriceInput();
 
         if (typeof refs.gsProductDialog.showModal === "function") {
             refs.gsProductDialog.showModal();
@@ -1546,6 +1759,7 @@
         const opts = options || {};
         const allowed = ["dashboard", "catalog", "cart", "checkout"];
         state.panelView = allowed.indexOf(view) !== -1 ? view : "dashboard";
+        if (state.panelView !== "checkout") state.directItem = null;
         if (refs.gsDashboardView) refs.gsDashboardView.hidden = state.panelView !== "dashboard";
         if (refs.gsCatalogView) refs.gsCatalogView.hidden = state.panelView !== "catalog";
         if (refs.gsCartView) refs.gsCartView.hidden = state.panelView !== "cart";
@@ -1565,7 +1779,7 @@
             ensureCatalog().then(renderCart);
         } else if (state.panelView === "checkout") {
             ensureCatalog().then(function () {
-                if (!cartLines().length) {
+                if (!checkoutLines().length) {
                     setPanelView("cart");
                     return;
                 }
@@ -1573,6 +1787,7 @@
                     renderCheckoutSummary();
                     return;
                 }
+                if (state.checkoutComplete) resetCheckout();
                 if (refs.gsOrderSuccess) refs.gsOrderSuccess.hidden = true;
                 if (refs.gsCheckoutForm) refs.gsCheckoutForm.hidden = false;
                 const stepper = document.querySelector("#gsCheckoutView .gs-stepper");
@@ -1659,7 +1874,7 @@
                 '<div class="gs-client-head"><strong>' + escapeHtml(client.nombre || "Cliente") + "</strong><span>" + escapeHtml(count(client.pedidos)) + " pedido" + (Number(client.pedidos) === 1 ? "" : "s") + "</span></div>" +
                 (contact.length ? '<p class="gs-client-contact">' + contact.join(" · ") + "</p>" : "") +
                 '<p class="gs-client-address">' + escapeHtml(client.direccion || "Sin dirección") + (client.municipio ? " · " + escapeHtml(client.municipio) : "") + "</p>" +
-                '<p class="gs-client-meta">' + escapeHtml(money(client.total_usd)) + " · último pedido " + escapeHtml(dateLabel(client.ultimo_pedido)) + "</p>" +
+                '<p class="gs-client-meta">Último pedido ' + escapeHtml(dateLabel(client.ultimo_pedido)) + "</p>" +
                 '<div class="gs-client-actions">' +
                     (wa ? '<a href="' + wa + '" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> WhatsApp</a>' : "") +
                     (phone ? '<a href="tel:' + escapeHtml(cleanPhone(phone)) + '">Llamar</a>' : "") +
@@ -2010,6 +2225,14 @@
                     return;
                 }
 
+                const buy = event.target.closest("[data-a='buy1']");
+                if (buy) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    directBuyProduct(buy.getAttribute("data-id"));
+                    return;
+                }
+
                 const link = event.target.closest('a[href*="producto.html?id="]');
                 if (!link) return;
                 event.preventDefault();
@@ -2029,19 +2252,33 @@
                 const productId = refs.gsProductAdd.getAttribute("data-product-id");
                 const product = findCatalogProduct(productId);
                 if (!productId || !product) return;
+                if (!validateProductPriceInput()) {
+                    if (refs.gsProductSalePrice) refs.gsProductSalePrice.focus({ preventScroll: true });
+                    return;
+                }
                 const flexible = productMode(product) === "sin_comision";
                 const price = flexible && refs.gsProductSalePrice
                     ? Number(refs.gsProductSalePrice.value)
                     : productBasePrice(product);
-                if (flexible) {
-                    const maxPrice = productMaxPrice(product);
-                    if (!Number.isFinite(price) || price < productBasePrice(product) || price > maxPrice) {
-                        setNotice("El precio de venta debe estar entre " + money(productBasePrice(product)) + " y " + money(maxPrice) + ".", true);
-                        if (refs.gsProductSalePrice) refs.gsProductSalePrice.focus({ preventScroll: true });
-                        return;
-                    }
-                }
                 if (addToCart(productId, 1, price)) closeProductDialog();
+            });
+        }
+
+        if (refs.gsProductBuy) {
+            refs.gsProductBuy.addEventListener("click", function () {
+                const productId = refs.gsProductBuy.getAttribute("data-product-id") || state.catalogProductId;
+                const product = findCatalogProduct(productId);
+                if (!productId || !product) return;
+                if (!validateProductPriceInput()) {
+                    if (refs.gsProductSalePrice) refs.gsProductSalePrice.focus({ preventScroll: true });
+                    return;
+                }
+                const flexible = productMode(product) === "sin_comision";
+                const price = flexible && refs.gsProductSalePrice
+                    ? Number(refs.gsProductSalePrice.value)
+                    : productBasePrice(product);
+                closeProductDialog();
+                startDirectCheckout(productId, price, 1);
             });
         }
 
@@ -2062,6 +2299,7 @@
         }
 
         if (refs.gsProductSalePrice) {
+            refs.gsProductSalePrice.addEventListener("input", validateProductPriceInput);
             refs.gsProductSalePrice.addEventListener("keydown", function (event) {
                 if (event.key === "Enter") {
                     event.preventDefault();
@@ -2080,6 +2318,7 @@
                 const minus = event.target.closest("[data-cart-minus]");
                 const plus = event.target.closest("[data-cart-plus]");
                 const remove = event.target.closest("[data-cart-remove]");
+                const solo = event.target.closest("[data-cart-solo]");
                 if (minus) {
                     changeCartQty(minus.getAttribute("data-cart-minus"), -1);
                     return;
@@ -2089,21 +2328,80 @@
                     return;
                 }
                 if (remove) {
+                    const productId = remove.getAttribute("data-cart-remove");
                     const api = catalogApi();
-                    if (api && typeof api.gcRemove === "function") api.gcRemove(remove.getAttribute("data-cart-remove"));
+                    if (api && typeof api.gcRemove === "function") api.gcRemove(productId);
+                    state.deselectedIds = state.deselectedIds.filter(function (id) {
+                        return String(id) !== String(productId);
+                    });
                     renderCart();
+                    return;
+                }
+                if (solo) {
+                    const productId = solo.getAttribute("data-cart-solo");
+                    const input = refs.gsCartItems
+                        ? refs.gsCartItems.querySelector('[data-cart-price="' + productId + '"]')
+                        : null;
+                    if (input && !validateCartPriceInput(input)) {
+                        input.focus({ preventScroll: true });
+                        return;
+                    }
+                    startDirectFromCart(productId);
                 }
             });
 
             refs.gsCartView.addEventListener("change", function (event) {
+                const select = event.target.closest("[data-cart-select]");
+                if (select) {
+                    const productId = String(select.getAttribute("data-cart-select"));
+                    const deselected = new Set(state.deselectedIds.map(String));
+                    if (select.checked) {
+                        deselected.delete(productId);
+                    } else {
+                        deselected.add(productId);
+                    }
+                    state.deselectedIds = Array.from(deselected);
+                    renderCart();
+                    return;
+                }
+
                 const input = event.target.closest("[data-cart-price]");
                 if (!input) return;
                 setCartPrice(input.getAttribute("data-cart-price"), input.value);
             });
+
+            refs.gsCartView.addEventListener("input", function (event) {
+                const input = event.target.closest("[data-cart-price]");
+                if (!input) return;
+                validateCartPriceInput(input);
+                refreshCartContinue();
+            });
+        }
+
+        if (refs.gsCartSelectAll) {
+            refs.gsCartSelectAll.addEventListener("change", function () {
+                state.deselectedIds = refs.gsCartSelectAll.checked
+                    ? []
+                    : cartLines().map(function (line) { return String(line.product.id); });
+                renderCart();
+            });
         }
 
         if (refs.gsCartContinue) {
-            refs.gsCartContinue.addEventListener("click", openCheckout);
+            refs.gsCartContinue.addEventListener("click", function () {
+                const invalidInput = refs.gsCartItems
+                    ? Array.from(refs.gsCartItems.querySelectorAll("[data-cart-price]")).find(function (input) {
+                        return !validateCartPriceInput(input);
+                    })
+                    : null;
+                if (invalidInput) {
+                    invalidInput.focus({ preventScroll: true });
+                    refreshCartContinue();
+                    return;
+                }
+                state.directItem = null;
+                openCheckout();
+            });
         }
 
         if (refs.gsCartBrowse) {
@@ -2131,6 +2429,7 @@
 
         if (refs.gsCheckoutBackToCart) {
             refs.gsCheckoutBackToCart.addEventListener("click", function () {
+                state.directItem = null;
                 navigatePanel("cart");
             });
         }
@@ -2152,6 +2451,7 @@
 
         if (refs.gsOrderSuccessView) {
             refs.gsOrderSuccessView.addEventListener("click", function () {
+                state.directItem = null;
                 resetCheckout();
                 navigatePanel("dashboard");
                 load().then(function () {
@@ -2163,8 +2463,10 @@
 
         if (refs.gsOrderSuccessCatalog) {
             refs.gsOrderSuccessCatalog.addEventListener("click", function () {
+                const remaining = cartLines().length;
+                state.directItem = null;
                 resetCheckout();
-                navigatePanel("catalog");
+                navigatePanel(remaining ? "cart" : "catalog");
             });
         }
     }
@@ -2190,12 +2492,12 @@
             "gsCatalogCount", "gsCatalogSort", "gsCatalogReset", "gsProductDialog",
             "gsProductClose", "gsProductMedia", "gsProductCategory", "gsProductTitle",
             "gsProductDescription", "gsProductPrice", "gsProductStock", "gsProductAdd",
-            "gsProductCart", "gsProductCommission", "gsProductModeNote", "gsProductSaleWrap",
-            "gsProductSalePrice", "gsProductMaxNote", "gsProductFeatures",
+            "gsProductCart", "gsProductBuy", "gsProductCommission", "gsProductModeNote", "gsProductSaleWrap",
+            "gsProductSalePrice", "gsProductMaxNote", "gsProductLimitWarning", "gsProductFeatures",
             "gsCartButton", "gsCartCount", "gsSideCartCount", "gsCartView", "gsCartItems",
             "gsCartEmpty", "gsCartBrowse", "gsCartContinue", "gsCartClear", "gsCartUnits",
-            "gsCartTotal", "gsCartCommission", "gsCartMarkup", "gsCartGain", "gsCartHint",
-            "gsCartError", "gsCheckoutView", "gsCheckoutBackToCart", "gsCheckoutForm",
+            "gsCartSelectAll", "gsCartTotal", "gsCartCommission", "gsCartMarkup", "gsCartGain", "gsCartHint",
+            "gsCartError", "gsCheckoutView", "gsCheckoutTitle", "gsCheckoutBackToCart", "gsCheckoutForm",
             "gsClientName", "gsClientPhone", "gsClientEmail", "gsDeliveryAddress",
             "gsDeliveryMunicipality", "gsOrderNotes", "gsManagerName", "gsManagerPhone",
             "gsCheckoutReview", "gsCheckoutError", "gsCheckoutPrev", "gsCheckoutNext",

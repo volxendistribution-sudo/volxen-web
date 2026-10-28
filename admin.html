@@ -131,6 +131,11 @@ border-radius:10px
 
 small{font-size:12px;line-height:1.5;color:var(--mu)}
 
+.order-items{display:grid;gap:8px;margin-top:8px}
+.order-item{padding:10px 12px;border:1px solid var(--bd);border-radius:10px;background:var(--s2)}
+.order-item strong{display:block;font-size:12px}
+.order-item small{display:block}
+
 #lg{background:var(--s2);border:1px solid var(--bd);border-radius:var(--radius-card);padding:24px;margin-top:24px}
 
 #ms{min-height:20px;color:var(--ox)}
@@ -989,6 +994,17 @@ const usuario = U.find(u => u.user_id === promotorId);
 return usuario ? usuario.email : "Promotor sin identificar";
 }
 
+function adminMoney(value){
+if(value === null || value === undefined || value === "") return "—";
+const amount = Number(value);
+return Number.isFinite(amount) ? "$" + amount.toFixed(2) : "—";
+}
+
+function pedidoGestor(o){
+if(!o) return "";
+return o.gestor_nombre || o.gestor_telefono || (o.promotor_id ? promotorEmail(o.promotor_id) : "");
+}
+
 async function comisiones(){
 
 CM = [];
@@ -1419,17 +1435,23 @@ esc(o.estado)+
 '<div class="cancel-alert">El cliente canceló el pedido</div>' :
 '')+
 
+(pedidoGestor(o)
+? '<br><small>Gestor: '+
+esc(pedidoGestor(o))+
+'</small>'
+: '')+
+
 '<br>'+
 
 '<strong>$'+
 Number(o.total_usd || 0).toFixed(2)+
 '</strong>'+
 
-(o.promotor_id
-? '<br><small>Comisión: '+
+(o.promotor_id || o.gestor_nombre || o.gestor_telefono
+? '<br><small>Comisión ganada: '+
 esc(o.comision_estado || "pendiente")+
-' · $'+
-Number(o.comision_monto_usd || 0).toFixed(2)+
+' · '+
+adminMoney(o.comision_monto_usd)+
 '</small>'
 : '')+
 
@@ -1582,6 +1604,30 @@ const estado = o.comision_estado || "pendiente";
 const porcentaje = o.comision_porcentaje == null ? "" : o.comision_porcentaje;
 const monto = o.comision_monto_usd == null ? "" : Number(o.comision_monto_usd).toFixed(2);
 const pagada = estado === "pagada";
+
+if(o.gestor_nombre || o.gestor_telefono){
+
+return '<div class="r">'+
+'<strong>COMISIÓN DEL GESTOR</strong><br><br>'+
+'<small>Calculada por el servidor al registrar el pedido. No se edita desde administración.</small>'+
+'<br><br>'+
+'<strong>Gestor:</strong> '+
+esc(pedidoGestor(o))+
+'<br>'+
+'<strong>Estado:</strong> '+
+esc(estado)+
+'<br>'+
+'<strong>Comisión ganada:</strong> '+
+adminMoney(o.comision_monto_usd)+
+(pagada
+? '<br><small>Comisión pagada. No se puede reasignar.</small>'
+: '')+
+(estado === "disponible"
+? '<br><button onclick="marcarComisionPagada(\''+o.id+'\')">MARCAR COMISIÓN PAGADA</button>'
+: '')+
+'</div>';
+
+}
 
 if(!UL){
 
@@ -1815,6 +1861,14 @@ esc(o.telefono)+
 
 '</div>'+
 
+(pedidoGestor(o)
+? '<div class="r">'+
+'<strong>GESTOR</strong><br>'+
+esc(pedidoGestor(o))+
+(o.gestor_telefono ? '<br>'+esc(o.gestor_telefono) : '')+
+'</div>'
+: '')+
+
 '<div class="r">'+
 
 '<strong>ENTREGA</strong>'+
@@ -1840,26 +1894,41 @@ esc(o.notas || "—")+
 
 '<strong>PRODUCTOS</strong>'+
 
+'<div class="order-items">'+
+
 items.map(i =>
 
-'<br>'+
+'<div class="order-item">'+
 
+'<strong>'+
 esc(i.producto_nombre)+
-
 ' × '+
-i.cantidad+
+esc(i.cantidad)+
+'</strong>'+
 
-' · $'+
-Number(i.precio_unitario || 0).toFixed(2)+
+'<small>Precio VOLXEN: '+
+adminMoney(i.precio_volxen)+
+' · Precio de venta: '+
+adminMoney(i.precio_unitario)+
+'</small>'+
 
-' = $'+
-Number(i.subtotal || 0).toFixed(2)
+'<small>Comisión de la línea: '+
+adminMoney(i.ganancia_total_usd)+
+' · Total: '+
+adminMoney(i.subtotal)+
+'</small>'+
+
+'</div>'
 
 ).join("")+
 
-'<br><br>'+
+'</div>'+
 
-'<strong>TOTAL: $'+
+'<p><strong>COMISIÓN GANADA: '+
+adminMoney(o.comision_monto_usd)+
+'</strong></p>'+
+
+'<strong>TOTAL DEL PEDIDO: $'+
 Number(o.total_usd || 0).toFixed(2)+
 '</strong>'+
 
