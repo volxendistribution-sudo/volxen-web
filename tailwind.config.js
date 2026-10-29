@@ -2,7 +2,8 @@
 module.exports = {
   content: [
     './*.html',
-    './js/**/*.js',
+    './js/*.js',
+    './js/pages/*.js',
     './volxen-core.js',
     './pedido.js'
   ],

@@ -783,6 +783,10 @@
         return window.VXGESTOR_DOCS || null;
     }
 
+    function pdfApi() {
+        return window.VXGESTOR_PDF || null;
+    }
+
     function renderReport() {
         if (!refs.gsReportTotal || !refs.gsChart) return;
 
@@ -2068,12 +2072,26 @@
         }
     }
 
-    function downloadReceipt() {
-        const docs = docsApi();
+    async function downloadReceipt() {
+        const pdf = pdfApi();
         const order = state.receiptOrder;
         const managerName = ensureManagerName();
-        if (!docs || !order || !managerName) return;
-        docs.openPrint(docs.receiptDocumentHtml(order, managerName, receiptOptions()));
+        if (!order || !managerName) return;
+        if (!pdf) {
+            setReceiptError("No se pudo cargar el generador de PDF. Recarga la página e inténtalo de nuevo.");
+            return;
+        }
+
+        setReceiptBusy(true);
+        setReceiptError("");
+        try {
+            await pdf.downloadReceipt(order, managerName, receiptOptions());
+            setNotice("Comprobante PDF descargado.");
+        } catch (error) {
+            setReceiptError("No se pudo generar el comprobante PDF. Inténtalo de nuevo.");
+        } finally {
+            setReceiptBusy(false);
+        }
     }
 
     async function whatsappReceipt() {
@@ -2182,10 +2200,14 @@
     }
 
     async function downloadReport() {
-        const docs = docsApi();
+        const pdf = pdfApi();
         const charts = chartsApi();
         const managerName = ensureManagerName();
-        if (!docs || !charts || !managerName) return;
+        if (!charts || !managerName) return;
+        if (!pdf) {
+            setNotice("No se pudo cargar el generador de PDF. Recarga la página e inténtalo de nuevo.", true);
+            return;
+        }
 
         setReportBusy(true);
         setNotice("");
@@ -2197,69 +2219,24 @@
                 return withinThreshold(order, threshold);
             });
             const monthly = charts.monthlyCommission(state.orders, 12);
-            const status = charts.statusBreakdown(orders).map(function (item) {
-                return { label: item.label, value: item.value, color: STATUS_CHART_COLORS[item.status] || "#2E4A3F" };
-            });
+            const status = charts.statusBreakdown(orders);
             const products = charts.topProducts(orders, 8);
             const evolution = charts.evolution(orders, days);
-            const reportCharts = [
-                {
-                    title: "Comisión ganada por mes",
-                    svg: charts.barChartSvg({
-                        title: "Comisión ganada por mes",
-                        items: monthly,
-                        format: compactMoney,
-                        yLabel: "USD",
-                        xLabel: "Mes",
-                        color: "#C8A165",
-                        empty: "Sin comisión en los últimos 12 meses."
-                    })
-                },
-                {
-                    title: "Evolución de pedidos",
-                    svg: charts.lineChartSvg({
-                        title: "Evolución de pedidos",
-                        items: evolution,
-                        format: count,
-                        yLabel: "Pedidos",
-                        xLabel: "Fecha",
-                        color: "#2E4A3F",
-                        empty: "Sin pedidos en este periodo."
-                    })
-                },
-                {
-                    title: "Productos más pedidos",
-                    svg: charts.horizontalBarSvg({
-                        title: "Productos más pedidos",
-                        items: products,
-                        format: count,
-                        xLabel: "Unidades",
-                        color: "#C8A165",
-                        empty: "Sin productos en este periodo."
-                    })
-                },
-                {
-                    title: "Pedidos por estado",
-                    svg: charts.horizontalBarSvg({
-                        title: "Pedidos por estado",
-                        items: status,
-                        format: count,
-                        xLabel: "Pedidos",
-                        color: "#2E4A3F",
-                        empty: "Sin pedidos en este periodo."
-                    })
-                }
-            ];
 
-            docs.openPrint(docs.reportDocumentHtml({
+            await pdf.downloadReport({
                 orders: orders,
                 managerName: managerName,
                 periodLabel: reportPeriodLabel(days),
-                charts: reportCharts
-            }));
-            setNotice("Selecciona “Guardar como PDF” en el diálogo de impresión.");
+                charts: [
+                    { type: "bar", title: "Comisión ganada por mes", items: monthly, format: "money" },
+                    { type: "line", title: "Evolución de pedidos", items: evolution, format: "count" },
+                    { type: "horizontal", title: "Productos más pedidos", items: products, format: "count" },
+                    { type: "horizontal", title: "Pedidos por estado", items: status, format: "count" }
+                ]
+            });
+            setNotice("Reporte PDF descargado.");
         } catch (error) {
-            setNotice("No se pudo generar el reporte. " + (error && error.message ? error.message : "Inténtalo de nuevo."), true);
+            setNotice("No se pudo generar el reporte PDF. " + (error && error.message ? error.message : "Inténtalo de nuevo."), true);
         } finally {
             setReportBusy(false);
         }
@@ -2272,10 +2249,14 @@
     }
 
     async function shareCatalog() {
-        const docs = docsApi();
+        const pdf = pdfApi();
         const api = catalogApi();
         const managerName = ensureManagerName();
-        if (!docs || !api || !managerName) return;
+        if (!api || !managerName) return;
+        if (!pdf) {
+            setNotice("No se pudo cargar el generador de PDF. Recarga la página e inténtalo de nuevo.", true);
+            return;
+        }
 
         setCatalogShareBusy(true);
         setNotice("");
@@ -2296,13 +2277,10 @@
                 };
             });
 
-            docs.openPrint(docs.catalogDocumentHtml({
-                products: products,
-                managerName: managerName
-            }));
-            setNotice("Selecciona “Guardar como PDF” en el diálogo de impresión.");
+            await pdf.downloadCatalog({ products: products, managerName: managerName });
+            setNotice("Catálogo PDF descargado.");
         } catch (error) {
-            setNotice("No se pudo generar el catálogo. Inténtalo de nuevo.", true);
+            setNotice("No se pudo generar el catálogo PDF. Inténtalo de nuevo.", true);
         } finally {
             setCatalogShareBusy(false);
         }
