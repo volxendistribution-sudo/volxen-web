@@ -4406,3 +4406,273 @@ body[data-gs-view="gsDashboard"] .gs-header {
         flex: 1 1 100%;
     }
 }
+
+/* Identidad oficial VOLXEN y correcciones móviles */
+html {
+    max-width: 100%;
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+body.gs-body {
+    overscroll-behavior: none;
+    touch-action: pan-y;
+}
+
+.gs-app,
+.gs-main,
+.gs-dashboard-scroll,
+.gs-content,
+.gs-card,
+.gs-table-scroll {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.gs-body input:not([type="checkbox"]):not([type="radio"]),
+.gs-body select,
+.gs-body textarea {
+    font-size: 16px;
+}
+
+.gs-state-logo {
+    display: block;
+    width: 68px;
+    height: 68px;
+    margin-bottom: 18px;
+    object-fit: contain;
+}
+
+.gs-loading-brand {
+    display: flex;
+    justify-content: center;
+    padding: 18px 0 8px;
+}
+
+.gs-loading-brand img {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+}
+
+.gs-empty::before {
+    content: "";
+    display: block;
+    width: 42px;
+    height: 42px;
+    margin: 0 auto 10px;
+    background: url("brand/logo.svg") center / contain no-repeat;
+    opacity: .34;
+}
+
+.gs-card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.gs-button-ghost {
+    min-height: 30px;
+    padding: 0 10px;
+    border: 1px solid var(--gs-line-strong);
+    background: transparent;
+    color: var(--gs-green);
+    font-size: 10px;
+}
+
+.gs-button-ghost:hover {
+    border-color: var(--gs-green);
+    background: var(--gs-green-soft);
+}
+
+.gs-changes {
+    display: grid;
+    gap: 2px;
+    margin-top: 8px;
+}
+
+.gs-change {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--gs-line);
+}
+
+.gs-change:last-child {
+    border-bottom: 0;
+}
+
+.gs-change-icon {
+    display: grid;
+    width: 30px;
+    height: 30px;
+    place-items: center;
+    border-radius: 9px;
+    background: var(--gs-green-soft);
+    color: var(--gs-green);
+    font-size: 11px;
+}
+
+.gs-change.is-local .gs-change-icon {
+    background: var(--gs-gold-soft);
+    color: var(--gs-gold-dark);
+}
+
+.gs-change-copy {
+    display: grid;
+    min-width: 0;
+    gap: 2px;
+}
+
+.gs-change-copy strong {
+    color: var(--gs-ink);
+    font-size: 11px;
+    line-height: 1.3;
+}
+
+.gs-change-copy small,
+.gs-change time {
+    color: var(--gs-muted);
+    font-size: 9px;
+    line-height: 1.4;
+}
+
+.gs-change-copy small b {
+    color: var(--gs-ink);
+    font-weight: 600;
+}
+
+.gs-change-read {
+    min-height: 26px;
+    padding: 0 8px;
+    border: 1px solid var(--gs-line-strong);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--gs-green);
+    font-size: 9px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.gs-change-read:hover {
+    border-color: var(--gs-green);
+    background: var(--gs-green-soft);
+}
+
+.gs-notification-copy small,
+.gs-change-copy small {
+    white-space: normal;
+}
+
+@media (max-width: 640px) {
+    .gs-table-scroll {
+        overflow-x: hidden;
+    }
+
+    .gs-table,
+    .gs-table tbody,
+    .gs-table tr,
+    .gs-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .gs-table thead {
+        display: none;
+    }
+
+    .gs-table tbody {
+        display: block;
+    }
+
+    .gs-table tr.gs-order-row {
+        margin-bottom: 10px;
+        padding: 12px;
+        border: 1px solid var(--gs-line);
+        border-radius: 14px;
+        background: var(--gs-paper-solid);
+    }
+
+    .gs-table tr.gs-order-row td {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 4px 0;
+        border: 0;
+        text-align: right;
+    }
+
+    .gs-table tr.gs-order-row td::before {
+        content: attr(data-label);
+        flex: 0 0 auto;
+        color: var(--gs-muted);
+        font-size: 9px;
+        font-weight: 600;
+        letter-spacing: .06em;
+        text-align: left;
+        text-transform: uppercase;
+    }
+
+    .gs-table tr.gs-order-row td.gs-cell-order {
+        display: block;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--gs-line);
+        text-align: left;
+    }
+
+    .gs-table tr.gs-order-row td.gs-cell-order::before,
+    .gs-table tr.gs-order-row td.gs-cell-chevron::before {
+        display: none;
+    }
+
+    .gs-table tr.gs-order-row td.gs-cell-chevron {
+        display: none;
+    }
+
+    .gs-table tr.gs-order-detail,
+    .gs-table tr.gs-order-detail td {
+        display: block;
+        width: 100%;
+    }
+
+    .gs-table tr.gs-order-detail:not([hidden]) {
+        margin: 0 0 10px;
+    }
+
+    .gs-table tr.gs-order-detail td {
+        padding: 12px;
+        border: 1px solid var(--gs-line);
+        border-top: 0;
+        border-radius: 0 0 14px 14px;
+        background: var(--gs-surface-soft);
+    }
+
+    .gs-table tr.gs-order-row:has(+ tr.gs-order-detail:not([hidden])) {
+        margin-bottom: 0;
+        border-radius: 14px 14px 0 0;
+    }
+
+    .gs-card-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .gs-change {
+        grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .gs-change-read {
+        grid-column: 2;
+        justify-self: start;
+    }
+}
+
+.gs-table tr.gs-order-detail[hidden] {
+    display: none;
+}

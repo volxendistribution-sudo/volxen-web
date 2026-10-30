@@ -2417,9 +2417,11 @@ esc(fixedCommission)+
 '<div id="pmmw"'+
 (mode === "sin_comision" ? "" : ' style="display:none"')+
 '>'+
-'<small style="display:block;margin-top:6px">No se paga comisión fija. El gestor puede subir hasta el máximo permitido y la diferencia es su ganancia. Máximo: '+
+'<label for="pmm" style="display:block;margin-top:8px;font-weight:600">Margen máximo de subida (%)</label>'+
+'<input id="pmm" type="number" min="0" max="20" step="1" value="'+
 esc(maxMarkup)+
-'%.</small>'+
+'">'+
+'<small style="display:block;margin-top:4px">No se paga comisión fija. El gestor puede subir hasta este máximo y la diferencia es su ganancia.</small>'+
 '</div>'+
 
 '<label for="st" style="display:block;margin-top:8px;font-weight:600">Envío</label>'+
@@ -2726,6 +2728,9 @@ priceMode,
 
 comision_fija_usd:
 fixedCommission,
+
+margen_max_porcentaje:
+$("pmm") ? Math.max(0, Math.min(20, $("pmm").value === "" ? 20 : Number($("pmm").value))) : null,
 
 disponibilidad:
 $("d").value,

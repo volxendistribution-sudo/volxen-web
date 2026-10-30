@@ -204,9 +204,9 @@
 
     function logoUrl() {
         try {
-            return new URL("logo.svg", document.baseURI).href;
+            return new URL("brand/logo.svg", document.baseURI).href;
         } catch (error) {
-            return "logo.svg";
+            return "brand/logo.svg";
         }
     }
 
@@ -479,69 +479,181 @@
         return canvasBlob(canvas);
     }
 
+    function measureLines(ctx, text, maxWidth) {
+        var words = String(text || "").split(/\s+/);
+        var line = "";
+        var lines = [];
+        words.forEach(function (word) {
+            var test = line ? line + " " + word : word;
+            if (ctx.measureText(test).width > maxWidth && line) {
+                lines.push(line);
+                line = word;
+            } else {
+                line = test;
+            }
+        });
+        if (line) lines.push(line);
+        return lines;
+    }
+
+    function fitFontSize(ctx, text, maxWidth, maxLines, maxSize, minSize, weight) {
+        var size = maxSize;
+        while (size >= minSize) {
+            ctx.font = weight + " " + size + 'px "DM Sans", sans-serif';
+            if (measureLines(ctx, text, maxWidth).length <= maxLines) return size;
+            size -= 4;
+        }
+        return minSize;
+    }
+
     async function productImageBlob(product, managerName) {
         if (document.fonts && document.fonts.ready) await document.fonts.ready;
         var canvas = document.createElement("canvas");
-        canvas.width = 1080;
-        canvas.height = 1350;
+        canvas.width = 1440;
+        canvas.height = 1260;
         var ctx = canvas.getContext("2d");
+
         ctx.fillStyle = BRAND.bg;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+
         ctx.fillStyle = BRAND.surface;
-        ctx.fillRect(0, 0, canvas.width, 168);
+        ctx.fillRect(0, 0, 22, canvas.height);
+
+        ctx.strokeStyle = "rgba(200,161,101,.28)";
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(1320, 110, 330, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.strokeStyle = "rgba(46,74,63,.10)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, 1260, 360, 0, Math.PI * 2);
+        ctx.stroke();
+
         try {
             var logo = await loadImage(logoUrl());
-            drawContain(ctx, logo, 64, 40, 84, 84);
+            drawContain(ctx, logo, 84, 70, 112, 112);
         } catch (error) {}
-        ctx.fillStyle = BRAND.ink;
-        ctx.font = '700 30px "DM Sans", sans-serif';
-        ctx.fillText("VOLXEN", 168, 82);
-        ctx.fillStyle = BRAND.muted;
-        ctx.font = '600 15px "Inter Tight", sans-serif';
-        ctx.fillText("CATÁLOGO", 168, 108);
 
-        ctx.fillStyle = "#FFFDF9";
-        roundRect(ctx, 64, 212, 952, 760, 22);
+        ctx.textAlign = "right";
+        ctx.fillStyle = BRAND.green;
+        ctx.font = '700 17px "Inter Tight", sans-serif';
+        ctx.fillText("CATÁLOGO PRIVADO", 1350, 94);
+        ctx.fillStyle = BRAND.muted;
+        ctx.font = '400 17px "Inter Tight", sans-serif';
+        ctx.fillText("Selección VOLXEN", 1350, 122);
+        ctx.textAlign = "left";
+
+        var stageX = 78;
+        var stageY = 242;
+        var stageW = 782;
+        var stageH = 700;
+        ctx.save();
+        ctx.shadowColor = "rgba(30,29,27,.10)";
+        ctx.shadowBlur = 38;
+        ctx.shadowOffsetY = 20;
+        ctx.fillStyle = BRAND.surface;
+        roundRect(ctx, stageX, stageY, stageW, stageH, 34);
         ctx.fill();
+        ctx.restore();
+
         var warning = "";
         if (product.image) {
             try {
                 var image = await loadImage(product.image);
-                drawContain(ctx, image, 88, 236, 904, 712);
+                drawContain(ctx, image, stageX + 34, stageY + 34, stageW - 68, stageH - 68);
             } catch (error) {
                 warning = "No se pudo incluir la foto del producto.";
-                drawProductPlaceholder(ctx);
+                drawProductPlaceholder(ctx, stageX, stageY, stageW, stageH);
             }
         } else {
-            drawProductPlaceholder(ctx);
+            drawProductPlaceholder(ctx, stageX, stageY, stageW, stageH);
         }
 
-        ctx.fillStyle = BRAND.muted;
-        ctx.font = '600 16px "Inter Tight", sans-serif';
-        ctx.fillText(String(product.category || "PRODUCTO").toUpperCase(), 64, 1038);
-        ctx.fillStyle = BRAND.ink;
-        ctx.font = '700 38px "DM Sans", sans-serif';
-        wrapText(ctx, product.name || "Producto", 64, 1084, 900, 44, 2);
+        var colX = 928;
+        var colW = 432;
         ctx.fillStyle = BRAND.green;
-        ctx.font = '700 42px "DM Sans", sans-serif';
-        ctx.fillText(money(product.price), 64, 1204);
+        ctx.font = '700 18px "Inter Tight", sans-serif';
+        ctx.fillText(String(product.category || "PRODUCTO").toUpperCase(), colX, 282);
+
+        var name = product.name || "Producto";
+        var nameSize = fitFontSize(ctx, name, colW, 4, 68, 38, '700');
+        var nameLineHeight = Math.round(nameSize * 1.08);
+        ctx.fillStyle = BRAND.ink;
+        ctx.font = '700 ' + nameSize + 'px "DM Sans", sans-serif';
+        var nameLines = wrapText(ctx, name, colX, 354, colW, nameLineHeight, 4);
+        var nameBottom = 354 + nameLines * nameLineHeight;
+
+        var description = String(product.description || "").trim();
+        var descBottom = nameBottom;
+        if (description) {
+            ctx.fillStyle = BRAND.muted;
+            ctx.font = '400 23px "Inter Tight", sans-serif';
+            var descLines = wrapText(ctx, description, colX, nameBottom + 34, colW, 31, 3);
+            descBottom = nameBottom + 34 + descLines * 31;
+        }
+
+        var priceY = Math.max(790, Math.min(884, descBottom + 76));
+        ctx.strokeStyle = BRAND.gold;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(colX, priceY - 54);
+        ctx.lineTo(colX + 92, priceY - 54);
+        ctx.stroke();
+
+        ctx.fillStyle = BRAND.muted;
+        ctx.font = '600 15px "Inter Tight", sans-serif';
+        ctx.fillText("PRECIO PÚBLICO", colX, priceY - 14);
+        ctx.fillStyle = BRAND.ink;
+        ctx.font = '700 86px "DM Sans", sans-serif';
+        ctx.fillText(money(product.price), colX, priceY + 66);
+        ctx.fillStyle = BRAND.muted;
+        ctx.font = '400 18px "Inter Tight", sans-serif';
+        ctx.fillText("Precio de la tienda VOLXEN", colX, priceY + 104);
+
+        var bandX = 78;
+        var bandY = 1012;
+        var bandW = 1284;
+        var bandH = 152;
+        ctx.fillStyle = BRAND.green;
+        roundRect(ctx, bandX, bandY, bandW, bandH, 26);
+        ctx.fill();
+
+        ctx.fillStyle = BRAND.gold;
+        ctx.font = '700 16px "Inter Tight", sans-serif';
+        ctx.fillText("COMPRA ASISTIDA", bandX + 42, bandY + 48);
+        ctx.fillStyle = "#FFFFFF";
+        ctx.font = '700 31px "DM Sans", sans-serif';
+        wrapText(ctx, "Comercial VOLXEN: " + managerName, bandX + 42, bandY + 88, 760, 38, 1);
+        ctx.fillStyle = "rgba(255,255,255,.72)";
+        ctx.font = '400 18px "Inter Tight", sans-serif';
+        ctx.fillText("Te acompaño en tu compra", bandX + 42, bandY + 120);
+
+        ctx.textAlign = "right";
+        ctx.fillStyle = "#FFFFFF";
+        ctx.font = '700 34px "DM Sans", sans-serif';
+        ctx.fillText("VOLXEN", bandX + bandW - 42, bandY + 74);
+        ctx.fillStyle = "rgba(255,255,255,.72)";
+        ctx.font = '400 17px "Inter Tight", sans-serif';
+        ctx.fillText("Catálogo privado", bandX + bandW - 42, bandY + 104);
+        ctx.textAlign = "left";
+
         ctx.fillStyle = BRAND.muted;
         ctx.font = '400 15px "Inter Tight", sans-serif';
-        ctx.fillText("Precio público de la tienda", 64, 1232);
-        ctx.fillStyle = BRAND.ink;
-        ctx.font = '600 20px "Inter Tight", sans-serif';
-        wrapText(ctx, "Comercial VOLXEN: " + managerName, 64, 1292, 900, 26, 1);
+        ctx.fillText("Precio público de la tienda. Este catálogo no incluye información interna de VOLXEN.", 78, 1212);
+
         return { blob: await canvasBlob(canvas), warning: warning };
     }
 
-    function drawProductPlaceholder(ctx) {
-        ctx.fillStyle = BRAND.surface;
-        roundRect(ctx, 88, 236, 904, 712, 18);
+    function drawProductPlaceholder(ctx, x, y, width, height) {
+        ctx.fillStyle = "rgba(255,253,249,.55)";
+        roundRect(ctx, x + 40, y + 40, width - 80, height - 80, 24);
         ctx.fill();
         ctx.fillStyle = BRAND.muted;
         ctx.font = '600 24px "Inter Tight", sans-serif';
         ctx.textAlign = "center";
-        ctx.fillText("Imagen no disponible", 540, 600);
+        ctx.fillText("Imagen no disponible", x + width / 2, y + height / 2);
         ctx.textAlign = "left";
     }
 

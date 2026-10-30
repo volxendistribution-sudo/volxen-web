@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="robots" content="noindex, nofollow">
     <meta name="theme-color" content="#F8F7F4">
     <meta name="description" content="Panel privado del gestor comercial de VOLXEN: resultados, pedidos, clientes, rendimiento y comisiones.">
@@ -27,7 +27,7 @@
     <header class="gs-header">
         <div class="gs-header-inner">
             <a class="gs-brand" href="index.html" aria-label="VOLXEN, ir al inicio">
-                <img src="logo.svg" alt="" width="40" height="40">
+                <img src="brand/logo.svg" alt="" width="40" height="40">
                 <span class="gs-brand-copy">
                     <strong>VOLXEN</strong>
                     <small>Panel del gestor</small>
@@ -43,6 +43,7 @@
     <main id="gsMain" class="gs-main">
         <div class="gs-state-shell">
             <section id="gsGuest" class="gs-state" hidden>
+                <img class="gs-state-logo" src="brand/logo.svg" alt="" width="68" height="68">
                 <p class="gs-eyebrow">Acceso privado</p>
                 <h1>Entra a tu panel de gestor</h1>
                 <p>Este panel muestra tu perfil, actividad, pedidos, notificaciones y comisiones asignadas por administración. El rol no se asigna automáticamente al iniciar sesión.</p>
@@ -53,6 +54,7 @@
             </section>
 
             <section id="gsDenied" class="gs-state" hidden>
+                <img class="gs-state-logo" src="brand/logo.svg" alt="" width="68" height="68">
                 <p class="gs-eyebrow">Cuenta sin acceso</p>
                 <h1>Tu cuenta no es de gestor</h1>
                 <p>Un administrador debe asignarte el rol de gestor comercial. Si ya lo hizo, cierra sesión y vuelve a entrar para actualizar el rol.</p>
@@ -63,6 +65,7 @@
             </section>
 
             <section id="gsLoading" class="gs-loading" aria-live="polite" aria-label="Cargando panel">
+                <div class="gs-loading-brand"><img src="brand/logo.svg" alt="" width="64" height="64"></div>
                 <div class="gs-skeleton gs-skeleton-hero"></div>
                 <div class="gs-skeleton-grid">
                     <div class="gs-skeleton"></div>
@@ -73,6 +76,7 @@
             </section>
 
             <section id="gsError" class="gs-state" hidden>
+                <img class="gs-state-logo" src="brand/logo.svg" alt="" width="68" height="68">
                 <p class="gs-eyebrow">No se pudo cargar</p>
                 <h1>El panel no está disponible</h1>
                 <p id="gsErrorText">Revisa tu conexión e inténtalo de nuevo.</p>
@@ -89,7 +93,7 @@
             <aside id="gsSidebar" class="gs-sidebar" aria-label="Navegación del panel">
                 <div class="gs-sidebar-top">
                     <a class="gs-sidebar-brand" href="index.html" aria-label="VOLXEN, ir al inicio">
-                        <img src="logo.svg" alt="" width="32" height="32">
+                        <img src="brand/logo.svg" alt="" width="32" height="32">
                         <span class="gs-sidebar-brand-copy">
                             <strong>VOLXEN</strong>
                             <small>Panel del gestor</small>
@@ -486,8 +490,14 @@
                                         <p class="gs-eyebrow">Seguimiento</p>
                                         <h2 id="gsNotificationsTitle">Notificaciones</h2>
                                     </div>
-                                    <span id="gsNotificationsCount" class="gs-chip-muted">Sin novedades</span>
+                                    <div class="gs-card-actions">
+                                        <span id="gsNotificationsCount" class="gs-chip-muted">Sin novedades</span>
+                                        <button id="gsNotificationsReadAll" class="gs-button gs-button-ghost" type="button" hidden>Marcar todo como leído</button>
+                                    </div>
                                 </div>
+                                <h3 class="gs-subsection-title">Cambios de producto</h3>
+                                <div id="gsProductChanges" class="gs-changes" aria-live="polite"></div>
+                                <h3 class="gs-subsection-title">Pedidos y comisiones</h3>
                                 <div id="gsNotifications" class="gs-notifications" aria-live="polite"></div>
                             </section>
                         </div>

@@ -75,7 +75,10 @@
         operatorOrder: null,
         operatorToken: 0,
         lastOrder: null,
-        managerNameOverride: ""
+        managerNameOverride: "",
+        productChanges: [],
+        productChangesLoading: false,
+        savedPriceAdjustments: []
     };
 
     const refs = {};
@@ -129,6 +132,45 @@
             ? Math.max(0, Math.min(MAX_MARGIN_PERCENT, margin))
             : MAX_MARGIN_PERCENT;
         return roundMoney(productBasePrice(product) * (1 + percent / 100));
+    }
+
+    function adjustSavedPrices() {
+        const api = catalogApi();
+        if (!api || typeof api.getG !== "function" || typeof api.gcSetPrice !== "function" || typeof api.getP !== "function") return;
+        const cart = api.getG() || {};
+        const products = api.getP() || [];
+        let adjusted = false;
+
+        Object.keys(cart).forEach(function (productId) {
+            const entry = cart[productId];
+            if (!entry || entry.price == null) return;
+            const product = products.find(function (item) {
+                return String(item.id) === String(productId);
+            });
+            if (!product || productMode(product) !== "sin_comision") return;
+
+            const saved = Number(entry.price);
+            const maxPrice = productMaxPrice(product);
+            if (!Number.isFinite(saved) || saved <= maxPrice) return;
+
+            api.gcSetPrice(productId, maxPrice);
+            if (!state.savedPriceAdjustments.some(function (item) {
+                return String(item.productId) === String(productId) && Number(item.from) === saved && Number(item.to) === maxPrice;
+            })) {
+                state.savedPriceAdjustments.push({
+                    productId: productId,
+                    name: product.nombre || "Producto",
+                    from: saved,
+                    to: maxPrice
+                });
+            }
+            adjusted = true;
+        });
+
+        if (adjusted) {
+            renderNotifications();
+            if (state.panelView === "cart") renderCart();
+        }
     }
 
     function productCommissionInfo(product) {
@@ -663,9 +705,69 @@
             : '<p class="gs-muted">Todavía no hay pedidos atribuidos a tu cuenta.</p>';
     }
 
+    function changeAmount(value) {
+        if (value == null || value === "") return "—";
+        const amount = Number(value);
+        return Number.isFinite(amount) ? money(amount) : "—";
+    }
+
+    function changePercent(value) {
+        if (value == null || value === "") return "—";
+        const amount = Number(value);
+        return Number.isFinite(amount) ? amount.toLocaleString("es-ES", { maximumFractionDigits: 1 }) + "%" : "—";
+    }
+
+    function productChangeSummary(change) {
+        const parts = [];
+        if (change.precio_anterior != null || change.precio_nuevo != null) {
+            parts.push("Precio: <b>" + escapeHtml(changeAmount(change.precio_anterior)) + " → " + escapeHtml(changeAmount(change.precio_nuevo)) + "</b>");
+        }
+        if (change.margen_anterior != null || change.margen_nuevo != null) {
+            parts.push("Límite de subida: <b>" + escapeHtml(changePercent(change.margen_anterior)) + " → " + escapeHtml(changePercent(change.margen_nuevo)) + "</b>");
+        }
+        if (!parts.length) parts.push("El producto se actualizó.");
+        return parts.join(" · ");
+    }
+
+    function renderProductChanges() {
+        if (!refs.gsProductChanges) return;
+
+        const changes = Array.isArray(state.productChanges) ? state.productChanges.slice(0, 8) : [];
+        const adjustments = Array.isArray(state.savedPriceAdjustments) ? state.savedPriceAdjustments.slice(0, 4) : [];
+        const rows = [];
+
+        adjustments.forEach(function (item) {
+            rows.push(
+                '<article class="gs-change is-local">' +
+                    '<span class="gs-change-icon" aria-hidden="true"><i class="fa-solid fa-wand-magic-sparkles"></i></span>' +
+                    '<span class="gs-change-copy"><strong>Ajustamos tu precio guardado</strong>' +
+                        '<small>' + escapeHtml(item.name) + ' · <b>' + escapeHtml(money(item.from)) + " → " + escapeHtml(money(item.to)) + "</b> · Nuevo límite de subida.</small></span>" +
+                "</article>"
+            );
+        });
+
+        changes.forEach(function (change) {
+            const unread = !change.leida;
+            rows.push(
+                '<article class="gs-change' + (unread ? " is-unread" : "") + '">' +
+                    '<span class="gs-change-icon" aria-hidden="true"><i class="fa-solid fa-tag"></i></span>' +
+                    '<span class="gs-change-copy"><strong>' + escapeHtml(change.producto_nombre || "Producto actualizado") + (unread ? ' · <span class="gs-chip-muted">Nuevo</span>' : "") + "</strong>" +
+                        '<small>' + productChangeSummary(change) + "</small></span>" +
+                    (unread ? '<button class="gs-change-read" type="button" data-change-read="' + escapeHtml(change.id) + '">Leer</button>' : "<time>" + escapeHtml(dateLabel(change.created_at)) + "</time>") +
+                "</article>"
+            );
+        });
+
+        refs.gsProductChanges.innerHTML = rows.length
+            ? rows.join("")
+            : '<p class="gs-empty"><strong>Sin cambios de producto.</strong>Si administración actualiza un precio o el límite de subida, aparecerá aquí.</p>';
+    }
+
     function renderNotifications() {
         if (!refs.gsNotifications) return;
 
+        const changes = Array.isArray(state.productChanges) ? state.productChanges : [];
+        const unreadChanges = changes.filter(function (change) { return !change.leida; }).length;
         const events = state.orders.map(commissionEvent)
             .filter(function (event) { return Boolean(event.date); })
             .sort(function (a, b) { return new Date(b.date) - new Date(a.date); })
@@ -675,15 +777,25 @@
         }).length;
 
         if (refs.gsNotificationsCount) {
-            refs.gsNotificationsCount.textContent = ready
-                ? count(ready) + " lista" + (ready === 1 ? "" : "s") + " para cobrar"
+            const summary = [];
+            if (unreadChanges) summary.push(count(unreadChanges) + " cambio" + (unreadChanges === 1 ? "" : "s") + " sin leer");
+            if (ready) summary.push(count(ready) + " lista" + (ready === 1 ? "" : "s") + " para cobrar");
+            refs.gsNotificationsCount.textContent = summary.length
+                ? summary.join(" · ")
                 : (events.length ? "Sin acciones pendientes" : "Sin novedades");
         }
 
-        if (refs.gsBellBadge) {
-            refs.gsBellBadge.hidden = !events.length;
-            refs.gsBellBadge.textContent = events.length ? count(Math.min(events.length, 9)) + (events.length > 9 ? "+" : "") : "";
+        if (refs.gsNotificationsReadAll) {
+            refs.gsNotificationsReadAll.hidden = !unreadChanges;
         }
+
+        if (refs.gsBellBadge) {
+            const pending = unreadChanges + events.length;
+            refs.gsBellBadge.hidden = !pending;
+            refs.gsBellBadge.textContent = pending ? count(Math.min(pending, 9)) + (pending > 9 ? "+" : "") : "";
+        }
+
+        renderProductChanges();
 
         refs.gsNotifications.innerHTML = events.length
             ? events.map(function (event) {
@@ -694,6 +806,61 @@
                 "</article>";
             }).join("")
             : '<p class="gs-empty"><strong>Sin notificaciones por ahora.</strong>Las novedades de tus pedidos y comisiones aparecerán aquí.</p>';
+    }
+
+    async function loadProductChanges() {
+        if (!window.VXAUTH || typeof VXAUTH.rest !== "function" || state.productChangesLoading) return;
+        state.productChangesLoading = true;
+        try {
+            const rows = await VXAUTH.rest(
+                "/gestor_notificaciones_producto?select=id,producto_id,producto_nombre,precio_anterior,precio_nuevo,margen_anterior,margen_nuevo,leida,created_at&order=created_at.desc&limit=20"
+            );
+            state.productChanges = Array.isArray(rows) ? rows : [];
+        } catch (error) {
+            state.productChanges = [];
+        } finally {
+            state.productChangesLoading = false;
+            renderNotifications();
+        }
+    }
+
+    async function markProductChangeRead(changeId) {
+        if (!changeId || !window.VXAUTH || typeof VXAUTH.rest !== "function") return;
+        const previous = state.productChanges;
+        state.productChanges = state.productChanges.map(function (change) {
+            return String(change.id) === String(changeId) ? Object.assign({}, change, { leida: true }) : change;
+        });
+        renderNotifications();
+        try {
+            await VXAUTH.rest("/gestor_notificaciones_producto?id=eq." + encodeURIComponent(changeId), {
+                method: "PATCH",
+                body: { leida: true }
+            });
+        } catch (error) {
+            state.productChanges = previous;
+            renderNotifications();
+            setNotice("No se pudo marcar el cambio como leído.", true);
+        }
+    }
+
+    async function markAllProductChangesRead() {
+        const uid = state.session && state.session.user ? state.session.user.id : "";
+        if (!uid || !window.VXAUTH || typeof VXAUTH.rest !== "function") return;
+        const previous = state.productChanges;
+        state.productChanges = state.productChanges.map(function (change) {
+            return Object.assign({}, change, { leida: true });
+        });
+        renderNotifications();
+        try {
+            await VXAUTH.rest("/gestor_notificaciones_producto?user_id=eq." + encodeURIComponent(uid) + "&leida=eq.false", {
+                method: "PATCH",
+                body: { leida: true }
+            });
+        } catch (error) {
+            state.productChanges = previous;
+            renderNotifications();
+            setNotice("No se pudieron marcar los cambios como leídos.", true);
+        }
     }
 
     function renderHistory() {
@@ -1177,14 +1344,14 @@
                         '<span class="gs-order-date">' + escapeHtml(dateLabel(order.created_at)) + "</span>" +
                     "</button>" +
                 "</td>" +
-                '<td class="gs-cell-product"><span class="gs-product-name">' + escapeHtml(firstItem || "Sin detalle") + "</span>" +
+                '<td class="gs-cell-product" data-label="Producto"><span class="gs-product-name">' + escapeHtml(firstItem || "Sin detalle") + "</span>" +
                     (extraItems ? "<small>+" + escapeHtml(count(extraItems)) + " producto" + (extraItems === 1 ? "" : "s") + "</small>" : (firstItem ? "<small>Producto principal</small>" : "")) + "</td>" +
-                '<td class="gs-cell-client"><span class="gs-order-client">' + escapeHtml(order.nombre_cliente || "Cliente") + "</span>" +
+                '<td class="gs-cell-client" data-label="Cliente"><span class="gs-order-client">' + escapeHtml(order.nombre_cliente || "Cliente") + "</span>" +
                     "<small>" + escapeHtml(order.telefono || order.email || "Sin contacto") + "</small></td>" +
-                '<td class="gs-cell-qty"><strong class="gs-order-total">' + escapeHtml(count(quantity)) + "</strong><small>uds.</small></td>" +
-                '<td class="gs-cell-total"><strong class="gs-order-total">' + escapeHtml(commissionMoney(order.comision_monto_usd)) + "</strong>" +
+                '<td class="gs-cell-qty" data-label="Unidades"><strong class="gs-order-total">' + escapeHtml(count(quantity)) + "</strong><small>uds.</small></td>" +
+                '<td class="gs-cell-total" data-label="Comisión"><strong class="gs-order-total">' + escapeHtml(commissionMoney(order.comision_monto_usd)) + "</strong>" +
                     "<small>" + escapeHtml(commissionLabel) + "</small></td>" +
-                '<td class="gs-cell-state"><span class="gs-badge gs-badge-state ' + statusInfo.className + '">' + escapeHtml(statusInfo.label) + "</span>" +
+                '<td class="gs-cell-state" data-label="Estado"><span class="gs-badge gs-badge-state ' + statusInfo.className + '">' + escapeHtml(statusInfo.label) + "</span>" +
                     '<button class="gs-order-op-link" type="button" data-operator-order="' + escapeHtml(order.id) + '">Operadora</button></td>' +
                 '<td class="gs-cell-chevron"><i class="fa-solid fa-chevron-down gs-order-chevron" aria-hidden="true"></i></td>' +
             "</tr>" +
@@ -1319,6 +1486,7 @@
             state.catalogLoading = false;
             renderCatalogCategories();
             renderCatalogProducts();
+            adjustSavedPrices();
         }).catch(function () {
             state.catalogLoading = false;
             if (refs.gsCatalogCount) refs.gsCatalogCount.textContent = "No se pudo cargar el catálogo.";
@@ -2306,6 +2474,7 @@
                 name: product.nombre || "Producto",
                 category: typeof api.cn === "function" ? api.cn(product.categoria_id) : "Producto",
                 price: typeof api.pr === "function" ? api.pr(product) : product.precio_usd,
+                description: product.descripcion || "",
                 image: productImage(product, 1200, 1200, "png")
             }, managerName);
 
@@ -2631,6 +2800,24 @@
                     await VXAUTH.signOut();
                 } catch (error) {}
                 window.location.href = "login.html?next=gestor.html";
+            });
+        }
+
+        if (refs.gsProductChanges) {
+            refs.gsProductChanges.addEventListener("click", function (event) {
+                const button = event.target.closest("[data-change-read]");
+                if (!button) return;
+                button.disabled = true;
+                markProductChangeRead(button.getAttribute("data-change-read"));
+            });
+        }
+
+        if (refs.gsNotificationsReadAll) {
+            refs.gsNotificationsReadAll.addEventListener("click", function () {
+                refs.gsNotificationsReadAll.disabled = true;
+                markAllProductChangesRead().finally(function () {
+                    if (refs.gsNotificationsReadAll) refs.gsNotificationsReadAll.disabled = false;
+                });
             });
         }
 
@@ -3206,7 +3393,7 @@
             "gsCommissionPaid", "gsCommissionPending", "gsCommissionReady", "gsCommissionDone",
             "gsProfileInitial", "gsProfileName", "gsProfileEmail", "gsProfileRole",
             "gsProfileCommission", "gsProfileState", "gsProfileSince", "gsActivity",
-            "gsNotifications", "gsNotificationsCount", "gsCommissionHistory",
+            "gsNotifications", "gsNotificationsCount", "gsNotificationsReadAll", "gsProductChanges", "gsCommissionHistory",
             "gsOrdersList", "gsClientsList", "gsSearch", "gsSearchLabel", "gsSearchResults", "gsStatusFilter", "gsMoreWrap", "gsMore",
             "gsLogout", "gsRetry", "gsErrorText", "gsApp", "gsSidebar", "gsSidebarToggle",
             "gsMenuToggle", "gsScrim", "gsDashboardScroll", "gsBellBadge", "gsSort", "gsPeriod",
@@ -3284,6 +3471,8 @@
         setPanelView("dashboard");
         setView("gsLoading");
         await load();
+        loadProductChanges();
+        ensureCatalog().catch(function () {});
         syncPanelFromLocation();
     }
 

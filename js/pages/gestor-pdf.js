@@ -29,6 +29,58 @@
         return new JsPDF({ unit: "mm", format: "a4", compress: true });
     }
 
+    function fontBase() {
+        var preload = document.querySelector('link[rel="preload"][as="font"]');
+        if (preload && preload.href) return preload.href.replace(/[^/]+$/, "");
+        try {
+            return new URL("dist/fonts/", document.baseURI).href;
+        } catch (error) {
+            return "dist/fonts/";
+        }
+    }
+
+    function arrayBufferToBase64(buffer) {
+        var bytes = new Uint8Array(buffer);
+        var binary = "";
+        var chunk = 0x8000;
+        for (var index = 0; index < bytes.length; index += chunk) {
+            binary += String.fromCharCode.apply(null, bytes.subarray(index, index + chunk));
+        }
+        return btoa(binary);
+    }
+
+    async function registerFonts(doc) {
+        if (doc.__vxFonts !== undefined) return;
+        var base = fontBase();
+        var files = [
+            ["DM-Sans-Regular.ttf", "DMSans", "normal"],
+            ["DM-Sans-Bold.ttf", "DMSans", "bold"],
+            ["InterTight-Regular.ttf", "InterTight", "normal"],
+            ["InterTight-SemiBold.ttf", "InterTight", "bold"]
+        ];
+        try {
+            for (var index = 0; index < files.length; index += 1) {
+                var response = await fetch(base + files[index][0]);
+                if (!response.ok) throw new Error("No se pudo cargar la fuente " + files[index][0]);
+                var buffer = await response.arrayBuffer();
+                doc.addFileToVFS(files[index][0], arrayBufferToBase64(buffer));
+                doc.addFont(files[index][0], files[index][1], files[index][2]);
+            }
+            doc.__vxFonts = true;
+        } catch (error) {
+            doc.__vxFonts = false;
+        }
+    }
+
+    function setFont(doc, style) {
+        var bold = style === "bold";
+        if (doc.__vxFonts) {
+            doc.setFont(bold ? "DMSans" : "InterTight", bold ? "bold" : "normal");
+        } else {
+            doc.setFont("helvetica", bold ? "bold" : "normal");
+        }
+    }
+
     function clean(value) {
         return String(value == null ? "" : value)
             .replace(/\u2013|\u2014/g, "-")
@@ -98,9 +150,9 @@
 
     function logoUrl() {
         try {
-            return new URL("logo.svg", document.baseURI).href;
+            return new URL("brand/logo.svg", document.baseURI).href;
         } catch (error) {
-            return "logo.svg";
+            return "brand/logo.svg";
         }
     }
 
@@ -136,7 +188,7 @@
     }
 
     function paragraph(doc, text, x, y, width, size, lineHeight, color, style) {
-        doc.setFont("helvetica", style || "normal");
+        setFont(doc, style === "bold" ? "bold" : "normal");
         doc.setFontSize(size);
         setText(doc, color || COLORS.ink);
         var lines = doc.splitTextToSize(clean(text), width);
@@ -150,11 +202,11 @@
         if (logo) {
             try { doc.addImage(logo, "JPEG", M, 12, 18, 18); } catch (error) {}
         }
-        doc.setFont("helvetica", "bold");
+        setFont(doc, "bold");
         doc.setFontSize(16);
         setText(doc, COLORS.ink);
         doc.text("VOLXEN", M + 22, 21);
-        doc.setFont("helvetica", "normal");
+        setFont(doc, "normal");
         doc.setFontSize(8);
         setText(doc, COLORS.muted);
         pageText(doc, subtitle, M + 22, 27);
@@ -168,7 +220,7 @@
         var total = doc.getNumberOfPages();
         for (var page = 1; page <= total; page += 1) {
             doc.setPage(page);
-            doc.setFont("helvetica", "normal");
+            setFont(doc, "normal");
             doc.setFontSize(7);
             setText(doc, COLORS.muted);
             pageText(doc, "Comercial VOLXEN: " + managerName, M, PAGE_H - 7);
@@ -183,11 +235,11 @@
             var left = x + index * (width + gap);
             setFill(doc, COLORS.surface);
             doc.roundedRect(left, y, width, 18, 2.5, 2.5, "F");
-            doc.setFont("helvetica", "normal");
+            setFont(doc, "normal");
             doc.setFontSize(6.5);
             setText(doc, COLORS.muted);
             pageText(doc, item.label, left + 4, y + 6);
-            doc.setFont("helvetica", "bold");
+            setFont(doc, "bold");
             doc.setFontSize(13);
             setText(doc, COLORS.ink);
             pageText(doc, item.value, left + 4, y + 14);
@@ -202,13 +254,13 @@
             counts[status] = (counts[status] || 0) + 1;
         });
         var rows = Object.keys(counts).sort();
-        doc.setFont("helvetica", "bold");
+        setFont(doc, "bold");
         doc.setFontSize(9);
         setText(doc, COLORS.ink);
         doc.text("Pedidos por estado", x, y);
         y += 5;
         if (!rows.length) {
-            doc.setFont("helvetica", "normal");
+            setFont(doc, "normal");
             doc.setFontSize(7.5);
             setText(doc, COLORS.muted);
             pageText(doc, "Sin pedidos en el periodo.", x, y);
@@ -218,11 +270,11 @@
         rows.forEach(function (status, index) {
             var left = x + (index % 2) * width;
             var top = y + Math.floor(index / 2) * 5;
-            doc.setFont("helvetica", "normal");
+            setFont(doc, "normal");
             doc.setFontSize(7.5);
             setText(doc, COLORS.muted);
             pageText(doc, status, left, top);
-            doc.setFont("helvetica", "bold");
+            setFont(doc, "bold");
             setText(doc, COLORS.ink);
             pageText(doc, String(counts[status]), left + width - 12, top, { align: "right" });
         });
@@ -248,7 +300,7 @@
 
     function drawChart(doc, chart, x, y, width, height) {
         var items = Array.isArray(chart.items) ? chart.items : [];
-        doc.setFont("helvetica", "bold");
+        setFont(doc, "bold");
         doc.setFontSize(8);
         setText(doc, COLORS.ink);
         pageText(doc, chart.title || "Gráfico", x, y + 4);
@@ -258,7 +310,7 @@
         var plotH = height - 24;
         var max = chartMax(items);
         if (!items.length || !items.some(function (item) { return Number(item.value) > 0; })) {
-            doc.setFont("helvetica", "normal");
+            setFont(doc, "normal");
             doc.setFontSize(7);
             setText(doc, COLORS.muted);
             pageText(doc, "Sin datos en este periodo.", x + 2, y + height / 2);
@@ -271,7 +323,7 @@
             var ratio = tick / 3;
             var gridY = plotY + plotH - ratio * plotH;
             doc.line(plotX, gridY, plotX + plotW, gridY);
-            doc.setFont("helvetica", "normal");
+            setFont(doc, "normal");
             doc.setFontSize(5.5);
             setText(doc, COLORS.muted);
             pageText(doc, chartValue(chart, max * ratio), plotX - 2, gridY + 1.5, { align: "right" });
@@ -283,7 +335,7 @@
                 var value = Math.max(0, Number(item.value) || 0);
                 var barW = (value / max) * (plotW - 30);
                 var top = plotY + index * rowH;
-                doc.setFont("helvetica", "normal");
+                setFont(doc, "normal");
                 doc.setFontSize(6);
                 setText(doc, COLORS.ink);
                 pageText(doc, String(item.label || "").slice(0, 14), x, top + rowH / 2 + 1);
@@ -291,7 +343,7 @@
                 doc.roundedRect(plotX + 27, top + rowH / 2 - 1.7, plotW - 30, 3.4, 1.4, 1.4, "F");
                 setFill(doc, COLORS.gold);
                 doc.roundedRect(plotX + 27, top + rowH / 2 - 1.7, Math.max(0.5, barW), 3.4, 1.4, 1.4, "F");
-                doc.setFont("helvetica", "bold");
+                setFont(doc, "bold");
                 doc.setFontSize(6);
                 setText(doc, COLORS.ink);
                 pageText(doc, chartValue(chart, value), plotX + plotW, top + rowH / 2 + 1, { align: "right" });
@@ -319,7 +371,7 @@
                 doc.setDrawColor(COLORS.green[0], COLORS.green[1], COLORS.green[2]);
                 doc.circle(point.x, point.y, 0.9, "FD");
                 if (pointIndex % 2 === 0 || points.length <= 7) {
-                    doc.setFont("helvetica", "normal");
+                    setFont(doc, "normal");
                     doc.setFontSize(5.2);
                     setText(doc, COLORS.muted);
                     pageText(doc, String(items[pointIndex].label || "").slice(0, 8), point.x, plotY + plotH + 4.5, { align: "center" });
@@ -337,7 +389,7 @@
             setFill(doc, COLORS.gold);
             doc.rect(left, plotY + plotH - barH, barW, Math.max(0.5, barH), "F");
             if (index % 2 === 0 || items.length <= 7) {
-                doc.setFont("helvetica", "normal");
+                setFont(doc, "normal");
                 doc.setFontSize(5.2);
                 setText(doc, COLORS.muted);
                 pageText(doc, String(item.label || "").slice(0, 8), left + barW / 2, plotY + plotH + 4.5, { align: "center" });
@@ -350,7 +402,7 @@
         var height = 7;
         setFill(doc, COLORS.ink);
         doc.rect(x, y, PAGE_W - M * 2, height, "F");
-        doc.setFont("helvetica", "bold");
+        setFont(doc, "bold");
         doc.setFontSize(6.5);
         setText(doc, COLORS.white);
         var left = x;
@@ -365,7 +417,7 @@
         var widths = [23, 21, 31, 59, 25, 23];
         var x = M;
         var y = 43;
-        doc.setFont("helvetica", "bold");
+        setFont(doc, "bold");
         doc.setFontSize(13);
         setText(doc, COLORS.ink);
         pageText(doc, "Pedidos del periodo", x, y);
@@ -373,7 +425,7 @@
         y = drawTableHeader(doc, x, y, widths);
 
         if (!orders.length) {
-            doc.setFont("helvetica", "normal");
+            setFont(doc, "normal");
             doc.setFontSize(8);
             setText(doc, COLORS.muted);
             pageText(doc, "Sin pedidos en el periodo seleccionado.", x + 2, y + 10);
@@ -403,7 +455,7 @@
             ];
             var left = x;
             cells.forEach(function (cell, index) {
-                doc.setFont("helvetica", cell[1]);
+                setFont(doc, cell[1]);
                 doc.setFontSize(index === 5 ? 7 : 6.5);
                 setText(doc, COLORS.ink);
                 var lines = Array.isArray(cell[0]) ? cell[0] : [clean(cell[0])];
@@ -455,6 +507,7 @@
     async function downloadReceipt(order, managerName, options) {
         var opts = options || {};
         var doc = newDoc();
+        await registerFonts(doc);
         var logo = await loadImageData(logoUrl(), 180, 180, 0.9);
         var items = orderItems(order);
         var total = Number(order && order.total_usd);
@@ -462,11 +515,11 @@
         var filename = "comprobante-" + safeFilename(order && (order.codigo || order.id)) + "-" + stamp() + ".pdf";
         var y = drawHeader(doc, logo, "Comprobante de pedido");
 
-        doc.setFont("helvetica", "bold");
+        setFont(doc, "bold");
         doc.setFontSize(22);
         setText(doc, COLORS.ink);
         pageText(doc, order && order.codigo || "Sin código", M, y + 4);
-        doc.setFont("helvetica", "normal");
+        setFont(doc, "normal");
         doc.setFontSize(8);
         setText(doc, COLORS.muted);
         pageText(doc, dateLabel(order && order.created_at) + " · " + (order && order.estado || "Pedido recibido"), M, y + 11);
@@ -474,17 +527,17 @@
 
         setFill(doc, COLORS.surface);
         doc.roundedRect(M, y, 118, 11, 2, 2, "F");
-        doc.setFont("helvetica", "bold");
+        setFont(doc, "bold");
         doc.setFontSize(8);
         setText(doc, COLORS.ink);
         pageText(doc, "Comercial VOLXEN: " + (managerName || ""), M + 3, y + 7);
         y += 18;
 
-        doc.setFont("helvetica", "normal");
+        setFont(doc, "normal");
         doc.setFontSize(7);
         setText(doc, COLORS.muted);
         doc.text("CLIENTE", M, y);
-        doc.setFont("helvetica", "bold");
+        setFont(doc, "bold");
         doc.setFontSize(10);
         setText(doc, COLORS.ink);
         pageText(doc, order && order.nombre_cliente || "Cliente", M, y + 5);
@@ -493,7 +546,7 @@
         if (opts.address && order && order.direccion) contact.push(clean(order.direccion));
         if (opts.phone && order && order.telefono) contact.push(clean(order.telefono));
         if (contact.length) {
-            doc.setFont("helvetica", "normal");
+            setFont(doc, "normal");
             doc.setFontSize(7.5);
             setText(doc, COLORS.muted);
             y = paragraph(doc, contact.join(" · "), M, y, PAGE_W - M * 2, 7.5, 4, COLORS.muted);
@@ -503,7 +556,7 @@
         var widths = [99, 16, 34, 33];
         setFill(doc, COLORS.ink);
         doc.rect(M, y, PAGE_W - M * 2, 7, "F");
-        doc.setFont("helvetica", "bold");
+        setFont(doc, "bold");
         doc.setFontSize(6.5);
         setText(doc, COLORS.white);
         var left = M;
@@ -521,7 +574,7 @@
                 y = drawHeader(doc, null, "Comprobante de pedido");
                 setFill(doc, COLORS.ink);
                 doc.rect(M, y, PAGE_W - M * 2, 7, "F");
-                doc.setFont("helvetica", "bold");
+                setFont(doc, "bold");
                 doc.setFontSize(6.5);
                 setText(doc, COLORS.white);
                 left = M;
@@ -534,7 +587,7 @@
             setDraw(doc, COLORS.line);
             doc.setLineWidth(0.15);
             doc.line(M, y + rowHeight, PAGE_W - M, y + rowHeight);
-            doc.setFont("helvetica", "normal");
+            setFont(doc, "normal");
             doc.setFontSize(7.5);
             setText(doc, COLORS.ink);
             nameLines.slice(0, 2).forEach(function (line, index) {
@@ -552,17 +605,17 @@
         }
         setFill(doc, COLORS.ink);
         doc.roundedRect(M, y + 4, PAGE_W - M * 2, 18, 2.5, 2.5, "F");
-        doc.setFont("helvetica", "normal");
+        setFont(doc, "normal");
         doc.setFontSize(7.5);
         setText(doc, COLORS.white);
         pageText(doc, "Total que paga el cliente", M + 4, y + 14);
-        doc.setFont("helvetica", "bold");
+        setFont(doc, "bold");
         doc.setFontSize(15);
         setText(doc, COLORS.gold);
         pageText(doc, money(total), PAGE_W - M - 4, y + 17, { align: "right" });
         y += 30;
 
-        doc.setFont("helvetica", "normal");
+        setFont(doc, "normal");
         doc.setFontSize(7.5);
         setText(doc, COLORS.muted);
         y = paragraph(doc, "Gracias por su compra. Este comprobante no incluye información interna de VOLXEN.", M, y, PAGE_W - M * 2, 7.5, 4, COLORS.muted);
@@ -576,23 +629,24 @@
         var orders = Array.isArray(data.orders) ? data.orders : [];
         var managerName = clean(data.managerName || "");
         var doc = newDoc();
+        await registerFonts(doc);
         var logo = await loadImageData(logoUrl(), 180, 180, 0.9);
         var y = drawHeader(doc, logo, "Reporte del gestor");
 
-        doc.setFont("helvetica", "bold");
+        setFont(doc, "bold");
         doc.setFontSize(24);
         setText(doc, COLORS.ink);
         pageText(doc, "Mi reporte", M, y + 2);
         y += 9;
         setFill(doc, COLORS.surface);
         doc.roundedRect(M, y, 120, 9, 2, 2, "F");
-        doc.setFont("helvetica", "bold");
+        setFont(doc, "bold");
         doc.setFontSize(8);
         setText(doc, COLORS.ink);
         pageText(doc, "Comercial VOLXEN: " + managerName, M + 3, y + 5.8);
         y += 14;
 
-        doc.setFont("helvetica", "normal");
+        setFont(doc, "normal");
         doc.setFontSize(7.5);
         setText(doc, COLORS.muted);
         pageText(doc, (data.periodLabel || "Periodo seleccionado") + " · Generado el " + generatedLabel(), M, y);
@@ -618,7 +672,7 @@
             drawChart(doc, chart, left, top, chartW, chartH);
         });
         if (!charts.length) {
-            doc.setFont("helvetica", "normal");
+            setFont(doc, "normal");
             doc.setFontSize(8);
             setText(doc, COLORS.muted);
             pageText(doc, "Sin datos para graficar en este periodo.", M, y + 6);
@@ -639,24 +693,25 @@
         var products = Array.isArray(data.products) ? data.products : [];
         var managerName = clean(data.managerName || "");
         var doc = newDoc();
+        await registerFonts(doc);
         var logo = await loadImageData(logoUrl(), 220, 220, 0.9);
         var y = drawHeader(doc, logo, "Catálogo de productos");
 
-        doc.setFont("helvetica", "bold");
+        setFont(doc, "bold");
         doc.setFontSize(42);
         setText(doc, COLORS.ink);
         doc.text("Catálogo", M, 90);
-        doc.setFont("helvetica", "normal");
+        setFont(doc, "normal");
         doc.setFontSize(10);
         setText(doc, COLORS.muted);
         pageText(doc, "Precios públicos de la tienda", M, 100);
         setFill(doc, COLORS.surface);
         doc.roundedRect(M, 110, 150, 13, 2.5, 2.5, "F");
-        doc.setFont("helvetica", "bold");
+        setFont(doc, "bold");
         doc.setFontSize(9);
         setText(doc, COLORS.ink);
         pageText(doc, "Comercial VOLXEN: " + managerName, M + 4, 118.5);
-        doc.setFont("helvetica", "normal");
+        setFont(doc, "normal");
         doc.setFontSize(8);
         setText(doc, COLORS.muted);
         pageText(doc, "Generado el " + generatedLabel(), M, 132);
@@ -690,30 +745,30 @@
             } else {
                 doc.setFillColor(COLORS.white[0], COLORS.white[1], COLORS.white[2]);
                 doc.rect(left + 2, top + 2, cardW - 4, 40, "F");
-                doc.setFont("helvetica", "normal");
+                setFont(doc, "normal");
                 doc.setFontSize(7);
                 setText(doc, COLORS.muted);
                 pageText(doc, "Imagen no disponible", left + cardW / 2, top + 23, { align: "center" });
             }
-            doc.setFont("helvetica", "normal");
+            setFont(doc, "normal");
             doc.setFontSize(6);
             setText(doc, COLORS.muted);
             pageText(doc, product.category || "Producto", left + 4, top + 48);
-            doc.setFont("helvetica", "bold");
+            setFont(doc, "bold");
             doc.setFontSize(8);
             setText(doc, COLORS.ink);
             var nameLines = doc.splitTextToSize(clean(product.name || "Producto"), cardW - 8);
             nameLines.slice(0, 2).forEach(function (line, lineIndex) {
                 pageText(doc, line, left + 4, top + 54 + lineIndex * 4);
             });
-            doc.setFont("helvetica", "bold");
+            setFont(doc, "bold");
             doc.setFontSize(11);
             setText(doc, COLORS.green);
             pageText(doc, money(product.price), left + 4, top + 67);
         }
 
         if (!products.length) {
-            doc.setFont("helvetica", "normal");
+            setFont(doc, "normal");
             doc.setFontSize(9);
             setText(doc, COLORS.muted);
             pageText(doc, "No hay productos disponibles en este momento.", M, y + 10);

@@ -124,8 +124,8 @@ test("el panel compartido incluye perfil, notificaciones e historial", () => {
     assert.match(js, /function renderNotifications/);
     assert.match(js, /function renderHistory/);
     assert.doesNotMatch(js, /admin_marcar_comision_pagada/, "El panel del promotor no debe ejecutar pagos");
-    assert.doesNotMatch(js, /method:\s*"PATCH"/);
     assert.doesNotMatch(js, /method:\s*"DELETE"/);
+    assert.match(js, /gestor_notificaciones_producto/);
 });
 
 test("el panel del gestor conserva la estructura visual y accesible del rediseño", () => {
