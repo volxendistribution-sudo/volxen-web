@@ -37,16 +37,20 @@ test("las notificaciones de producto son reales y se pueden marcar como leídas"
     assert.match(js, /productChanges/);
 });
 
-test("la tarjeta de producto usa 1440x1260 y el logo oficial", () => {
+test("la tarjeta de producto es minimalista, oscura y usa el logo oficial", () => {
     const docs = read("js/pages/gestor-docs.js");
 
     assert.doesNotThrow(() => new Function(docs));
     assert.match(docs, /canvas\.width = 1440/);
     assert.match(docs, /canvas\.height = 1260/);
     assert.match(docs, /brand\/logo\.svg/);
+    assert.match(docs, /brand\/logo-negativo\.svg/);
     assert.match(docs, /CATÁLOGO PRIVADO/);
-    assert.match(docs, /COMPRA ASISTIDA/);
-    assert.match(docs, /product\.description/);
+    assert.match(docs, /PRECIO PÚBLICO/);
+    assert.match(docs, /COMERCIAL VOLXEN/);
+    assert.match(docs, /#1C1A17/);
+    assert.doesNotMatch(docs, /COMPRA ASISTIDA/);
+    assert.doesNotMatch(docs, /product\.description/);
     assert.doesNotMatch(docs, /new URL\("logo\.svg"/);
 });
 
@@ -69,6 +73,28 @@ test("el build copia la marca y las fuentes TTF", () => {
     assert.match(pkg.scripts["copy:fonts"], /\.ttf/);
     assert.match(pkg.scripts["copy:brand"], /brand/);
     assert.match(pkg.scripts.build, /copy:brand/);
+});
+
+test("el panel usa safe-area y altura dinámica en Android", () => {
+    const css = read("gestor.css");
+
+    assert.match(css, /100dvh/);
+    assert.match(css, /env\(safe-area-inset-bottom\)/);
+    assert.match(css, /scroll-padding-top/);
+});
+
+test("el panel activa el fondo oscuro y permite cambiarlo", () => {
+    const html = read("gestor.html");
+    const css = read("gestor.css");
+    const js = read("js/pages/gestor-theme.js");
+
+    assert.match(html, /data-gs-theme="dark"/);
+    assert.match(html, /id="gsThemeToggle"/);
+    assert.match(html, /js\/pages\/gestor-theme\.js/);
+    assert.match(css, /:root\[data-gs-theme="dark"\]/);
+    assert.match(css, /\[data-gs-theme="dark"\] body\.gs-body/);
+    assert.match(js, /volxen-gs-theme/);
+    assert.match(js, /gsThemeToggle/);
 });
 
 test("administración puede editar el margen máximo", () => {

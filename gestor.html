@@ -1,12 +1,13 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-gs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="robots" content="noindex, nofollow">
-    <meta name="theme-color" content="#F8F7F4">
+    <meta name="theme-color" content="#12110F">
     <meta name="description" content="Panel privado del gestor comercial de VOLXEN: resultados, pedidos, clientes, rendimiento y comisiones.">
     <title>Panel del gestor · VOLXEN</title>
+    <script src="js/pages/gestor-theme.js"></script>
 
     <link rel="preload" as="font" type="font/woff2" crossorigin href="dist/fonts/DM-Sans-Regular.woff2">
     <link rel="preload" as="font" type="font/woff2" crossorigin href="dist/fonts/DM-Sans-SemiBold.woff2">
@@ -168,6 +169,9 @@
                     </div>
 
                     <div class="gs-topbar-actions">
+                        <button id="gsThemeToggle" class="gs-icon-button gs-theme-toggle" type="button" aria-label="Activar fondo claro" title="Fondo claro" aria-pressed="true">
+                            <i class="fa-solid fa-sun" aria-hidden="true"></i>
+                        </button>
                         <div class="gs-search-wrap">
                             <label class="gs-search gs-topbar-search">
                                 <span id="gsSearchLabel" class="gs-sr-only">Buscar pedidos y productos</span>

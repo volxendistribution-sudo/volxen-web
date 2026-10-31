@@ -506,151 +506,144 @@
         return minSize;
     }
 
+    function cardLogoUrl() {
+        try {
+            return new URL("brand/logo-negativo.svg", document.baseURI).href;
+        } catch (error) {
+            return "brand/logo-negativo.svg";
+        }
+    }
+
     async function productImageBlob(product, managerName) {
         if (document.fonts && document.fonts.ready) await document.fonts.ready;
         var canvas = document.createElement("canvas");
         canvas.width = 1440;
         canvas.height = 1260;
         var ctx = canvas.getContext("2d");
+        var card = {
+            ink: "#F8F7F4",
+            muted: "#AAA49A",
+            surface: "#23211D",
+            gold: "#C8A165",
+            line: "rgba(248,247,244,.10)"
+        };
 
-        ctx.fillStyle = BRAND.bg;
+        var background = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+        background.addColorStop(0, "#1C1A17");
+        background.addColorStop(1, "#100F0D");
+        ctx.fillStyle = background;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        ctx.fillStyle = BRAND.surface;
-        ctx.fillRect(0, 0, 22, canvas.height);
-
-        ctx.strokeStyle = "rgba(200,161,101,.28)";
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.arc(1320, 110, 330, 0, Math.PI * 2);
-        ctx.stroke();
-
-        ctx.strokeStyle = "rgba(46,74,63,.10)";
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(0, 1260, 360, 0, Math.PI * 2);
-        ctx.stroke();
+        var glow = ctx.createRadialGradient(1180, 120, 0, 1180, 120, 620);
+        glow.addColorStop(0, "rgba(200,161,101,.12)");
+        glow.addColorStop(1, "rgba(200,161,101,0)");
+        ctx.fillStyle = glow;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         try {
-            var logo = await loadImage(logoUrl());
-            drawContain(ctx, logo, 84, 70, 112, 112);
+            var logo = await loadImage(cardLogoUrl());
+            drawContain(ctx, logo, 80, 64, 76, 76);
         } catch (error) {}
 
-        ctx.textAlign = "right";
-        ctx.fillStyle = BRAND.green;
-        ctx.font = '700 17px "Inter Tight", sans-serif';
-        ctx.fillText("CATÁLOGO PRIVADO", 1350, 94);
-        ctx.fillStyle = BRAND.muted;
-        ctx.font = '400 17px "Inter Tight", sans-serif';
-        ctx.fillText("Selección VOLXEN", 1350, 122);
-        ctx.textAlign = "left";
+        ctx.fillStyle = card.ink;
+        ctx.font = '700 26px "DM Sans", sans-serif';
+        ctx.fillText("VOLXEN", 178, 104);
+        ctx.fillStyle = card.muted;
+        ctx.font = '600 12px "Inter Tight", sans-serif';
+        ctx.fillText("CATÁLOGO PRIVADO", 179, 128);
 
-        var stageX = 78;
-        var stageY = 242;
-        var stageW = 782;
-        var stageH = 700;
-        ctx.save();
-        ctx.shadowColor = "rgba(30,29,27,.10)";
-        ctx.shadowBlur = 38;
-        ctx.shadowOffsetY = 20;
-        ctx.fillStyle = BRAND.surface;
-        roundRect(ctx, stageX, stageY, stageW, stageH, 34);
+        var stageX = 80;
+        var stageY = 214;
+        var stageW = 712;
+        var stageH = 806;
+        ctx.fillStyle = card.surface;
+        roundRect(ctx, stageX, stageY, stageW, stageH, 28);
         ctx.fill();
-        ctx.restore();
+        ctx.strokeStyle = card.line;
+        ctx.lineWidth = 1;
+        roundRect(ctx, stageX + .5, stageY + .5, stageW - 1, stageH - 1, 27.5);
+        ctx.stroke();
 
         var warning = "";
         if (product.image) {
             try {
                 var image = await loadImage(product.image);
-                drawContain(ctx, image, stageX + 34, stageY + 34, stageW - 68, stageH - 68);
+                drawContain(ctx, image, stageX + 30, stageY + 30, stageW - 60, stageH - 60);
             } catch (error) {
                 warning = "No se pudo incluir la foto del producto.";
-                drawProductPlaceholder(ctx, stageX, stageY, stageW, stageH);
+                drawProductPlaceholder(ctx, stageX, stageY, stageW, stageH, {
+                    background: "rgba(255,255,255,.035)",
+                    color: card.muted
+                });
             }
         } else {
-            drawProductPlaceholder(ctx, stageX, stageY, stageW, stageH);
+            drawProductPlaceholder(ctx, stageX, stageY, stageW, stageH, {
+                background: "rgba(255,255,255,.035)",
+                color: card.muted
+            });
         }
 
-        var colX = 928;
-        var colW = 432;
-        ctx.fillStyle = BRAND.green;
-        ctx.font = '700 18px "Inter Tight", sans-serif';
-        ctx.fillText(String(product.category || "PRODUCTO").toUpperCase(), colX, 282);
+        var colX = 864;
+        var colW = 496;
+        var category = String(product.category || "PRODUCTO").toUpperCase();
+        if (category.length > 32) category = category.slice(0, 31) + "…";
+        var categorySize = 16;
+        ctx.font = '700 ' + categorySize + 'px "Inter Tight", sans-serif';
+        while (categorySize > 11 && ctx.measureText(category).width > colW) {
+            categorySize -= 1;
+            ctx.font = '700 ' + categorySize + 'px "Inter Tight", sans-serif';
+        }
+        ctx.fillStyle = card.gold;
+        ctx.fillText(category, colX, 258);
 
-        var name = product.name || "Producto";
-        var nameSize = fitFontSize(ctx, name, colW, 4, 68, 38, '700');
+        var name = String(product.name || "Producto");
+        var nameSize = fitFontSize(ctx, name, colW, 3, 64, 40, '700');
         var nameLineHeight = Math.round(nameSize * 1.08);
-        ctx.fillStyle = BRAND.ink;
+        ctx.fillStyle = card.ink;
         ctx.font = '700 ' + nameSize + 'px "DM Sans", sans-serif';
-        var nameLines = wrapText(ctx, name, colX, 354, colW, nameLineHeight, 4);
-        var nameBottom = 354 + nameLines * nameLineHeight;
+        var nameLines = wrapText(ctx, name, colX, 340, colW, nameLineHeight, 3);
+        var nameBottom = 340 + (nameLines - 1) * nameLineHeight;
 
-        var description = String(product.description || "").trim();
-        var descBottom = nameBottom;
-        if (description) {
-            ctx.fillStyle = BRAND.muted;
-            ctx.font = '400 23px "Inter Tight", sans-serif';
-            var descLines = wrapText(ctx, description, colX, nameBottom + 34, colW, 31, 3);
-            descBottom = nameBottom + 34 + descLines * 31;
-        }
-
-        var priceY = Math.max(790, Math.min(884, descBottom + 76));
-        ctx.strokeStyle = BRAND.gold;
-        ctx.lineWidth = 3;
+        var ruleY = Math.max(nameBottom + 42, 566);
+        ctx.strokeStyle = card.gold;
+        ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.moveTo(colX, priceY - 54);
-        ctx.lineTo(colX + 92, priceY - 54);
+        ctx.moveTo(colX, ruleY);
+        ctx.lineTo(colX + 64, ruleY);
         ctx.stroke();
 
-        ctx.fillStyle = BRAND.muted;
-        ctx.font = '600 15px "Inter Tight", sans-serif';
-        ctx.fillText("PRECIO PÚBLICO", colX, priceY - 14);
-        ctx.fillStyle = BRAND.ink;
-        ctx.font = '700 86px "DM Sans", sans-serif';
-        ctx.fillText(money(product.price), colX, priceY + 66);
-        ctx.fillStyle = BRAND.muted;
-        ctx.font = '400 18px "Inter Tight", sans-serif';
-        ctx.fillText("Precio de la tienda VOLXEN", colX, priceY + 104);
+        var priceY = Math.max(720, Math.min(820, ruleY + 154));
+        ctx.fillStyle = card.muted;
+        ctx.font = '600 14px "Inter Tight", sans-serif';
+        ctx.fillText("PRECIO PÚBLICO", colX, priceY);
+        var priceText = money(product.price);
+        var priceSize = fitFontSize(ctx, priceText, colW, 1, 84, 50, '700');
+        ctx.fillStyle = card.ink;
+        ctx.font = '700 ' + priceSize + 'px "DM Sans", sans-serif';
+        ctx.fillText(priceText, colX, priceY + Math.round(priceSize * .94));
 
-        var bandX = 78;
-        var bandY = 1012;
-        var bandW = 1284;
-        var bandH = 152;
-        ctx.fillStyle = BRAND.green;
-        roundRect(ctx, bandX, bandY, bandW, bandH, 26);
-        ctx.fill();
-
-        ctx.fillStyle = BRAND.gold;
-        ctx.font = '700 16px "Inter Tight", sans-serif';
-        ctx.fillText("COMPRA ASISTIDA", bandX + 42, bandY + 48);
-        ctx.fillStyle = "#FFFFFF";
-        ctx.font = '700 31px "DM Sans", sans-serif';
-        wrapText(ctx, "Comercial VOLXEN: " + managerName, bandX + 42, bandY + 88, 760, 38, 1);
-        ctx.fillStyle = "rgba(255,255,255,.72)";
-        ctx.font = '400 18px "Inter Tight", sans-serif';
-        ctx.fillText("Te acompaño en tu compra", bandX + 42, bandY + 120);
-
-        ctx.textAlign = "right";
-        ctx.fillStyle = "#FFFFFF";
-        ctx.font = '700 34px "DM Sans", sans-serif';
-        ctx.fillText("VOLXEN", bandX + bandW - 42, bandY + 74);
-        ctx.fillStyle = "rgba(255,255,255,.72)";
-        ctx.font = '400 17px "Inter Tight", sans-serif';
-        ctx.fillText("Catálogo privado", bandX + bandW - 42, bandY + 104);
-        ctx.textAlign = "left";
-
-        ctx.fillStyle = BRAND.muted;
+        var manager = String(managerName || "").trim() || "Equipo VOLXEN";
+        var managerSize = fitFontSize(ctx, manager, colW, 2, 29, 21, '700');
+        var managerLineHeight = Math.round(managerSize * 1.14);
+        ctx.fillStyle = card.muted;
+        ctx.font = '600 12px "Inter Tight", sans-serif';
+        ctx.fillText("COMERCIAL VOLXEN", colX, 1006);
+        ctx.fillStyle = card.ink;
+        ctx.font = '700 ' + managerSize + 'px "DM Sans", sans-serif';
+        wrapText(ctx, manager, colX, 1046, colW, managerLineHeight, 2);
+        ctx.fillStyle = card.muted;
         ctx.font = '400 15px "Inter Tight", sans-serif';
-        ctx.fillText("Precio público de la tienda. Este catálogo no incluye información interna de VOLXEN.", 78, 1212);
+        ctx.fillText("Te acompaño en tu compra", colX, 1102);
 
         return { blob: await canvasBlob(canvas), warning: warning };
     }
 
-    function drawProductPlaceholder(ctx, x, y, width, height) {
-        ctx.fillStyle = "rgba(255,253,249,.55)";
+    function drawProductPlaceholder(ctx, x, y, width, height, theme) {
+        var colors = theme || {};
+        ctx.fillStyle = colors.background || "rgba(255,253,249,.55)";
         roundRect(ctx, x + 40, y + 40, width - 80, height - 80, 24);
         ctx.fill();
-        ctx.fillStyle = BRAND.muted;
+        ctx.fillStyle = colors.color || BRAND.muted;
         ctx.font = '600 24px "Inter Tight", sans-serif';
         ctx.textAlign = "center";
         ctx.fillText("Imagen no disponible", x + width / 2, y + height / 2);

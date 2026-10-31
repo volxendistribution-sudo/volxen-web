@@ -4676,3 +4676,446 @@ body.gs-body {
 .gs-table tr.gs-order-detail[hidden] {
     display: none;
 }
+
+/* Correcciones Android: viewport dinámico, safe-area y anclas visibles */
+html {
+    scroll-padding-top: 124px;
+}
+
+body.gs-body {
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+#gsCartView,
+#gsCheckoutView,
+#gsHome,
+#gsOrdersSection,
+#gsClientsSection,
+#gsPerformance,
+#gsCommissionsSection,
+#gsNotificationsSection {
+    scroll-margin-top: 124px;
+}
+
+#ts {
+    right: max(18px, env(safe-area-inset-right));
+    bottom: calc(18px + env(safe-area-inset-bottom));
+    max-width: calc(100vw - 2rem - env(safe-area-inset-left) - env(safe-area-inset-right));
+}
+
+@supports (height: 100dvh) {
+    .gs-product-dialog-card,
+    .gs-doc-dialog-card {
+        max-height: calc(100dvh - 2rem);
+    }
+
+    .gs-receipt-preview {
+        max-height: min(46dvh, 620px);
+    }
+}
+
+@media (max-width: 820px) {
+    html {
+        scroll-padding-top: 164px;
+    }
+
+    #gsCartView,
+    #gsCheckoutView,
+    #gsHome,
+    #gsOrdersSection,
+    #gsClientsSection,
+    #gsPerformance,
+    #gsCommissionsSection,
+    #gsNotificationsSection {
+        scroll-margin-top: 164px;
+    }
+}
+
+@media (max-width: 640px) {
+    body.gs-body {
+        padding-top: env(safe-area-inset-top);
+    }
+
+    .gs-header {
+        width: calc(100% - 1.5rem);
+        padding-top: 14px;
+    }
+
+    .gs-app {
+        padding-bottom: calc(16px + env(safe-area-inset-bottom));
+    }
+
+    .gs-topbar {
+        top: max(4px, env(safe-area-inset-top));
+        gap: 8px;
+        padding: 10px;
+    }
+
+    .gs-search {
+        min-width: 0;
+    }
+
+    .gs-product-dialog,
+    .gs-doc-dialog {
+        width: calc(100% - .75rem);
+        max-width: none;
+        max-height: calc(100dvh - .75rem);
+    }
+
+    .gs-product-dialog-card,
+    .gs-doc-dialog-card {
+        max-height: calc(100dvh - 1rem - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    }
+
+    .gs-product-dialog-media {
+        min-height: 180px;
+        max-height: 30dvh;
+    }
+
+    .gs-product-dialog-body {
+        padding: 20px 16px calc(18px + env(safe-area-inset-bottom));
+    }
+
+    .gs-doc-dialog-card {
+        padding: 18px 14px calc(18px + env(safe-area-inset-bottom));
+    }
+
+    .gs-doc-dialog-actions,
+    .gs-product-dialog-actions {
+        position: sticky;
+        bottom: calc(-1 * env(safe-area-inset-bottom));
+        z-index: 3;
+        margin-right: -2px;
+        margin-left: -2px;
+        padding: 10px 2px calc(10px + env(safe-area-inset-bottom));
+        background: var(--gs-paper-solid);
+        box-shadow: 0 -10px 18px -14px rgba(30, 29, 27, .45);
+    }
+
+    .gs-receipt-preview {
+        max-height: 38dvh;
+    }
+
+    #ts {
+        right: 12px;
+        bottom: calc(12px + env(safe-area-inset-bottom));
+        left: 12px;
+        max-width: none;
+    }
+}
+
+/* Tema oscuro del panel */
+:root[data-gs-theme="dark"] {
+    color-scheme: dark;
+    --gs-bg: #12110F;
+    --gs-surface: #211E1A;
+    --gs-surface-soft: #26221D;
+    --gs-paper: rgba(31, 28, 24, .78);
+    --gs-paper-solid: #1B1815;
+    --gs-ink: #F4EFE5;
+    --gs-muted: #A8A095;
+    --gs-line: rgba(244, 239, 229, .10);
+    --gs-line-strong: rgba(244, 239, 229, .17);
+    --gs-gold: #C9A467;
+    --gs-gold-dark: #E1BC82;
+    --gs-gold-soft: rgba(201, 164, 103, .14);
+    --gs-green: #4C7A67;
+    --gs-green-soft: rgba(124, 179, 155, .16);
+    --gs-green-ink: #8FC4AC;
+    --gs-red: #E28C72;
+    --gs-red-soft: rgba(226, 140, 114, .14);
+    --gs-amber: #E3B66E;
+    --gs-amber-soft: rgba(227, 182, 110, .15);
+    --gs-shadow: 0 22px 60px rgba(0, 0, 0, .45);
+    --gs-shadow-soft: 0 10px 28px rgba(0, 0, 0, .28);
+}
+
+[data-gs-theme="dark"] body.gs-body {
+    background:
+        radial-gradient(circle at 12% 8%, rgba(201, 164, 103, .10), transparent 30rem),
+        radial-gradient(circle at 92% 88%, rgba(76, 122, 103, .12), transparent 34rem),
+        var(--gs-bg);
+    color: var(--gs-ink);
+}
+
+[data-gs-theme="dark"] .gs-brand img,
+[data-gs-theme="dark"] .gs-sidebar-brand img,
+[data-gs-theme="dark"] .gs-state-logo,
+[data-gs-theme="dark"] .gs-loading-brand img {
+    content: url("brand/logo-negativo.svg");
+}
+
+[data-gs-theme="dark"] .gs-app {
+    border-color: var(--gs-line);
+    background: #181613;
+    box-shadow: var(--gs-shadow);
+}
+
+[data-gs-theme="dark"] .gs-sidebar {
+    border-color: var(--gs-line);
+    background: #171512;
+}
+
+[data-gs-theme="dark"] .gs-sidebar-toggle,
+[data-gs-theme="dark"] .gs-search,
+[data-gs-theme="dark"] .gs-icon-button,
+[data-gs-theme="dark"] .gs-cat-chip,
+[data-gs-theme="dark"] .gs-cart-qty {
+    background: rgba(255, 255, 255, .05);
+}
+
+[data-gs-theme="dark"] .gs-side-link {
+    color: #B8B0A4;
+}
+
+[data-gs-theme="dark"] .gs-side-link:hover {
+    background: rgba(255, 255, 255, .06);
+}
+
+[data-gs-theme="dark"] .gs-side-link.is-active {
+    color: #17130E;
+}
+
+[data-gs-theme="dark"] .gs-side-note {
+    border-color: rgba(201, 164, 103, .26);
+    background:
+        radial-gradient(circle at 100% 0, rgba(201, 164, 103, .14), transparent 86px),
+        rgba(255, 255, 255, .035);
+}
+
+[data-gs-theme="dark"] .gs-side-note a {
+    color: #17130E;
+}
+
+[data-gs-theme="dark"] .gs-topbar {
+    border-color: var(--gs-line);
+    background: rgba(24, 22, 19, .88);
+}
+
+[data-gs-theme="dark"] .gs-search input::placeholder {
+    color: #8F887D;
+}
+
+[data-gs-theme="dark"] .gs-icon-button {
+    color: #C3BCB0;
+}
+
+[data-gs-theme="dark"] .gs-icon-badge {
+    border-color: var(--gs-bg);
+}
+
+[data-gs-theme="dark"] .gs-button:hover,
+[data-gs-theme="dark"] .gs-icon-button:hover,
+[data-gs-theme="dark"] .gs-search:focus-within,
+[data-gs-theme="dark"] .gs-select select:hover,
+[data-gs-theme="dark"] .gs-cat-chip:hover,
+[data-gs-theme="dark"] .gs-catalog-grid .pcd .gs-card-buy:hover,
+[data-gs-theme="dark"] .gs-cart-solo:hover,
+[data-gs-theme="dark"] .gs-operator-link:hover {
+    border-color: var(--gs-line-strong);
+    background: rgba(255, 255, 255, .09);
+}
+
+[data-gs-theme="dark"] .gs-button-primary:hover {
+    border-color: #5C8F7A;
+    background: #5C8F7A;
+}
+
+[data-gs-theme="dark"] .gs-kpi,
+[data-gs-theme="dark"] .gs-card,
+[data-gs-theme="dark"] .gs-catalog-view,
+[data-gs-theme="dark"] .gs-cart-view,
+[data-gs-theme="dark"] .gs-checkout-view,
+[data-gs-theme="dark"] .gs-cart-item,
+[data-gs-theme="dark"] .gs-cart-summary,
+[data-gs-theme="dark"] .gs-checkout-form,
+[data-gs-theme="dark"] .gs-table-card,
+[data-gs-theme="dark"] .gs-product-dialog-card,
+[data-gs-theme="dark"] .gs-doc-dialog-card,
+[data-gs-theme="dark"] .gs-bubble {
+    border-color: var(--gs-line);
+}
+
+[data-gs-theme="dark"] .gs-select select {
+    background-color: rgba(255, 255, 255, .05);
+    background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='m1 1 4 4 4-4' stroke='%23A8A095' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+[data-gs-theme="dark"] .gs-skeleton,
+[data-gs-theme="dark"] .gs-skeleton-card {
+    background: linear-gradient(100deg, rgba(255, 255, 255, .035) 20%, rgba(255, 255, 255, .08) 40%, rgba(255, 255, 255, .035) 60%);
+}
+
+[data-gs-theme="dark"] .gs-chart-empty {
+    background: rgba(255, 255, 255, .04);
+}
+
+[data-gs-theme="dark"] .gs-chart-tooltip {
+    border-color: var(--gs-line-strong);
+    background: #2A2621;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, .5);
+    color: var(--gs-ink);
+}
+
+[data-gs-theme="dark"] .gs-chart-axis,
+[data-gs-theme="dark"] .gs-chart-xlabel,
+[data-gs-theme="dark"] .gs-footer {
+    color: #8F887D;
+}
+
+[data-gs-theme="dark"] .gs-table th {
+    color: #E1BC82;
+}
+
+[data-gs-theme="dark"] .gs-table td {
+    background: rgba(255, 255, 255, .025);
+}
+
+[data-gs-theme="dark"] .gs-order-row:hover td {
+    background: rgba(255, 255, 255, .06);
+}
+
+[data-gs-theme="dark"] .gs-order-grid p,
+[data-gs-theme="dark"] .gs-order-grid address {
+    color: #B4ADA1;
+}
+
+[data-gs-theme="dark"] .gs-bubble-stage {
+    background:
+        radial-gradient(circle at 22% 24%, rgba(76, 122, 103, .16), transparent 45%),
+        radial-gradient(circle at 78% 78%, rgba(201, 164, 103, .16), transparent 50%),
+        rgba(255, 255, 255, .03);
+}
+
+[data-gs-theme="dark"] .gs-bubble.is-two {
+    color: #17130E;
+}
+
+[data-gs-theme="dark"] .gs-bubble.is-three {
+    background: rgba(201, 164, 103, .18);
+    color: var(--gs-ink);
+}
+
+[data-gs-theme="dark"] .gs-bubble-empty {
+    background: rgba(255, 255, 255, .03);
+}
+
+[data-gs-theme="dark"] .gs-chip-muted {
+    background: rgba(255, 255, 255, .05);
+}
+
+[data-gs-theme="dark"] .gs-gauge-rows div,
+[data-gs-theme="dark"] .gs-ledger-item,
+[data-gs-theme="dark"] .gs-client,
+[data-gs-theme="dark"] .gs-profile-data div {
+    background: rgba(255, 255, 255, .035);
+}
+
+[data-gs-theme="dark"] .gs-gauge-track {
+    stroke: rgba(244, 239, 229, .12);
+}
+
+[data-gs-theme="dark"] .gs-catalog-grid .pcd {
+    color: var(--gs-ink);
+    border-color: var(--gs-line);
+}
+
+[data-gs-theme="dark"] .gs-catalog-grid .pcd .im {
+    background: var(--gs-surface);
+}
+
+[data-gs-theme="dark"] .gs-catalog-grid .pcd .im img,
+[data-gs-theme="dark"] .gs-cart-thumb img,
+[data-gs-theme="dark"] .gs-product-dialog-media img {
+    mix-blend-mode: normal;
+}
+
+[data-gs-theme="dark"] .gs-catalog-grid .pcd .text-fg {
+    color: var(--gs-ink);
+}
+
+[data-gs-theme="dark"] .gs-catalog-grid .pcd .text-mu {
+    color: var(--gs-muted);
+}
+
+[data-gs-theme="dark"] .gs-catalog-grid .pcd .border-bd {
+    border-color: var(--gs-line);
+}
+
+[data-gs-theme="dark"] .gs-catalog-grid .pcd .badge-category {
+    border-color: rgba(201, 164, 103, .30);
+    background: rgba(201, 164, 103, .14);
+    color: var(--gs-gold-dark);
+}
+
+[data-gs-theme="dark"] .gs-catalog-empty {
+    background: rgba(255, 255, 255, .03);
+}
+
+[data-gs-theme="dark"] .gs-product-close {
+    background: rgba(27, 24, 21, .88);
+}
+
+[data-gs-theme="dark"] .gs-product-dialog-media {
+    background:
+        radial-gradient(circle at 50% 40%, rgba(255, 255, 255, .06), transparent 70%),
+        var(--gs-surface);
+}
+
+[data-gs-theme="dark"] .gs-product-sale input,
+[data-gs-theme="dark"] .gs-cart-price-field input,
+[data-gs-theme="dark"] .gs-field input,
+[data-gs-theme="dark"] .gs-field select,
+[data-gs-theme="dark"] .gs-field textarea {
+    background: rgba(255, 255, 255, .055);
+    color: var(--gs-ink);
+}
+
+[data-gs-theme="dark"] .gs-cart-thumb {
+    background: var(--gs-surface);
+}
+
+[data-gs-theme="dark"] .gs-cart-item.is-unselected {
+    background: rgba(0, 0, 0, .22);
+}
+
+[data-gs-theme="dark"] .gs-stepper li,
+[data-gs-theme="dark"] .gs-checkout-review {
+    background: rgba(255, 255, 255, .045);
+}
+
+[data-gs-theme="dark"] .gs-receipt-preview {
+    background: var(--gs-surface);
+}
+
+[data-gs-theme="dark"] .gs-notice,
+[data-gs-theme="dark"] .gs-kpi-delta.is-ready,
+[data-gs-theme="dark"] .gs-cell-total small,
+[data-gs-theme="dark"] .gs-badge-ready,
+[data-gs-theme="dark"] .gs-badge-state.is-complete,
+[data-gs-theme="dark"] .gs-order-grid a,
+[data-gs-theme="dark"] .gs-ledger-item.is-available strong,
+[data-gs-theme="dark"] .gs-client-contact a,
+[data-gs-theme="dark"] .gs-notification.is-ready .gs-notification-icon,
+[data-gs-theme="dark"] .gs-product-dialog-meta span,
+[data-gs-theme="dark"] .gs-product-commission,
+[data-gs-theme="dark"] .gs-product-features p i,
+[data-gs-theme="dark"] .gs-cart-mode.is-commission,
+[data-gs-theme="dark"] .gs-cart-totals .is-total dt,
+[data-gs-theme="dark"] .gs-cart-totals .is-total dd,
+[data-gs-theme="dark"] .gs-stepper li.is-active,
+[data-gs-theme="dark"] .gs-stepper li.is-complete > span,
+[data-gs-theme="dark"] .gs-order-success-code,
+[data-gs-theme="dark"] .gs-order-op-link,
+[data-gs-theme="dark"] .gs-operator-link i,
+[data-gs-theme="dark"] .gs-button-ghost,
+[data-gs-theme="dark"] .gs-change-icon,
+[data-gs-theme="dark"] .gs-change-read {
+    color: var(--gs-green-ink);
+}
+
+[data-gs-theme="dark"] .gs-change-read:hover {
+    border-color: var(--gs-green-ink);
+}

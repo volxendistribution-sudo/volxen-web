@@ -105,7 +105,7 @@ test("las gráficas calculan series reales y generan SVG accesible", () => {
 
     const charts = sandbox.window.VXGESTOR_CHARTS;
     const now = new Date();
-    const recent = new Date(now.getFullYear(), now.getMonth(), 1);
+    const recent = new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000);
     const orders = [
         { id: "1", estado: "Entregado", created_at: recent, comision_monto_usd: 25, items: [{ producto_nombre: "Nevera", cantidad: 2 }] },
         { id: "2", estado: "Cancelado", created_at: recent, comision_monto_usd: 99, items: [{ producto_nombre: "Nevera", cantidad: 5 }] },
