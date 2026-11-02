@@ -186,6 +186,26 @@ border-radius:16px;background:rgba(46,74,63,.09);color:var(--pf)
 .cm-tools input,.cm-tools select{flex:1;min-width:160px;margin:0}
 .cm-meta{display:block;color:var(--mu);font-size:12px;line-height:1.7;margin-top:4px}
 .op-meta{display:block;color:var(--mu);font-size:12px;line-height:1.6;margin-top:4px}
+#qrDlg{border:0;border-radius:20px;padding:20px;width:min(440px,92vw);background:var(--s2);color:var(--fg);box-shadow:0 20px 40px -12px rgba(18,16,12,.35)}
+#qrDlg::backdrop{background:rgba(18,16,12,.55)}
+.qr-dlg-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px}
+.qr-dlg-head h3{margin:0;font:700 18px/1.3 var(--d)}
+.qr-dlg-eyebrow{margin:0 0 2px;color:var(--mu);font:700 12px/1.3 var(--s);letter-spacing:.08em;text-transform:uppercase}
+.qr-dlg-close{border:0;background:transparent;color:var(--mu);font-size:24px;line-height:1;cursor:pointer;padding:0 2px}
+#qrDlgBody .vx-guarantee-card{display:grid;gap:.6rem;margin:0;padding:.85rem;background:#FFFDF8;border:1px solid var(--bd);border-radius:.85rem}
+#qrDlgBody .vx-guarantee-head{display:flex;align-items:flex-start;justify-content:space-between;gap:.75rem}
+#qrDlgBody .vx-guarantee-eyebrow{margin:0 0 .1rem;color:var(--mu);font-size:.65rem;font-weight:700;letter-spacing:.08em;line-height:1.3;text-transform:uppercase}
+#qrDlgBody .vx-guarantee-code{display:block;color:var(--fg);font-family:'DM Sans',sans-serif;font-size:.9rem;line-height:1.3}
+#qrDlgBody .vx-guarantee-badge{flex:0 0 auto;padding:.2rem .5rem;color:var(--pf);background:rgba(46,74,63,.1);border-radius:999px;font-size:.65rem;font-weight:700;line-height:1.6}
+#qrDlgBody .vx-guarantee-qr{width:min(100%,13rem);margin:.15rem auto;padding:.55rem;background:#FFF;border:1px solid rgba(30,29,27,.1);border-radius:.7rem}
+#qrDlgBody .vx-guarantee-qr canvas{display:block;width:100%;height:auto}
+#qrDlgBody .vx-guarantee-manager,#qrDlgBody .vx-guarantee-note{margin:0;color:var(--mu);font-size:.72rem;line-height:1.45;text-align:center}
+#qrDlgBody .vx-guarantee-link{display:grid;gap:.2rem;color:var(--mu);font-size:.65rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+#qrDlgBody .vx-guarantee-link input{width:100%;padding:.5rem .6rem;color:var(--fg);font:400 .72rem/1.4 var(--s);letter-spacing:0;text-transform:none;background:#FFF;border:1px solid var(--bd);border-radius:.5rem;margin:0}
+#qrDlgBody .vx-guarantee-actions{display:flex;gap:.5rem}
+#qrDlgBody .vx-guarantee-actions button{flex:1;min-height:2.35rem;padding:.45rem .7rem;color:var(--fg);font:600 .75rem/1.3 var(--s);background:transparent;border:1px solid var(--bd);border-radius:.55rem;cursor:pointer;margin:0}
+#qrDlgBody .vx-guarantee-actions button:hover{background:rgba(30,29,27,.04)}
+#qrDlgBody .vx-guarantee-actions .vx-guarantee-primary{color:#FFF;background:var(--pf);border-color:var(--pf)}
 </style>
 </head>
 
@@ -285,8 +305,21 @@ Salir
 </div>
 </dialog>
 
+<dialog id="qrDlg" aria-labelledby="qrDlgTitle">
+<div class="qr-dlg-head">
+<div>
+<p class="qr-dlg-eyebrow">Certificado</p>
+<h3 id="qrDlgTitle">QR de garantía</h3>
+</div>
+<button type="button" class="qr-dlg-close" id="qrDlgClose" aria-label="Cerrar QR" onclick="document.getElementById('qrDlg').close()">&times;</button>
+</div>
+<div id="qrDlgBody"></div>
+</dialog>
+
 <script src="config.js"></script>
 <script src="auth.js"></script>
+<script src="js/vendor/qrcode-generator.js"></script>
+<script src="js/pages/garantia-qr.js"></script>
 
 <script>
 
@@ -1389,6 +1422,59 @@ esc(e.message || "")+
    MOSTRAR PEDIDOS
 ========================= */
 
+async function generarQRGarantia(id){
+
+const dlg = $("qrDlg");
+const host = $("qrDlgBody");
+
+if(!dlg || !host)return;
+
+const o = D.find(function(x){ return String(x.id) === String(id); }) ||
+(OD && String(OD.id) === String(id) ? OD : null);
+
+host.innerHTML = '<p class="cm-meta">Generando certificado…</p>';
+
+if(typeof dlg.showModal === "function" && !dlg.open){
+dlg.showModal();
+}
+
+try{
+
+const rows = await api(
+"pedido_garantias?pedido_id=eq." +
+encodeURIComponent(id) +
+"&select=token,activo"
+);
+
+const row = Array.isArray(rows)
+? rows.find(function(x){ return x && x.activo === true && x.token; })
+: null;
+
+if(!row){
+host.innerHTML = '<p class="cm-meta">El certificado no está activo. El pedido debe estar Entregado.</p>';
+return;
+}
+
+if(!window.VXGarantia || typeof window.VXGarantia.renderInline !== "function"){
+host.innerHTML = '<p class="cm-meta">No se pudo cargar el generador de QR.</p>';
+return;
+}
+
+window.VXGarantia.renderInline(host, row.token, {
+code: (o && o.codigo) || "Pedido VOLXEN",
+managerName: (o && (o.gestor_nombre || o.nombre_cliente)) || "VOLXEN",
+showLink: true
+});
+
+}catch(e){
+
+console.error(e);
+host.innerHTML = '<p class="cm-meta">No se pudo generar el QR de garantía.</p>';
+
+}
+
+}
+
 function renderPedidos(a){
 
 const el = $("dl");
@@ -1459,6 +1545,14 @@ Number(o.total_usd || 0).toFixed(2)+
  ? '<br><small>Garantía QR: '+
  (o.garantia_activa ? "activa" : "inactiva")+
  '</small>'
+ : '')+
+
+(o.garantia_activa || /^Entregado$/i.test(o.estado || "")
+ ? '<br><button onclick="generarQRGarantia(\''+
+ o.id+
+ '\')">'+
+ 'GENERAR QR DE GARANTÍA'+
+ '</button>'
  : '')+
 
 
@@ -1904,6 +1998,14 @@ esc(o.notas || "—")+
  '<br>'+
 
  (o.garantia_activa ? "Activa" : "Inactiva")+
+
+ (o.garantia_activa || /^Entregado$/i.test(o.estado || "")
+ ? '<br><button onclick="generarQRGarantia(\''+
+ o.id+
+ '\')">'+
+ 'GENERAR QR DE GARANTÍA'+
+ '</button>'
+ : '')+
 
  '</div>'+
 

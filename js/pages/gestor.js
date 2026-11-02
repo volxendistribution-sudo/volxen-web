@@ -385,6 +385,49 @@
         }
     }
 
+    function openGuaranteeDialog(order) {
+        if (!order || !window.VXGarantia || typeof window.VXGarantia.renderInline !== "function") return;
+
+        let dialog = document.getElementById("gsGuaranteeDialog");
+        if (!dialog) {
+            dialog = document.createElement("dialog");
+            dialog.id = "gsGuaranteeDialog";
+            dialog.className = "gs-doc-dialog";
+            dialog.setAttribute("aria-labelledby", "gsGuaranteeTitle");
+            dialog.innerHTML =
+                '<div class="gs-doc-dialog-card">' +
+                    '<div class="gs-doc-dialog-head">' +
+                        '<div><p class="gs-eyebrow">Certificado</p><h2 id="gsGuaranteeTitle">QR de garantía</h2></div>' +
+                        '<button type="button" class="gs-product-close" data-guarantee-close aria-label="Cerrar QR"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>' +
+                    "</div>" +
+                    '<div data-guarantee-body aria-live="polite"></div>' +
+                "</div>";
+            document.body.appendChild(dialog);
+            dialog.addEventListener("click", function (event) {
+                if (event.target === dialog || event.target.closest("[data-guarantee-close]")) dialog.close();
+            });
+        }
+
+        const host = dialog.querySelector("[data-guarantee-body]");
+        if (!host) return;
+        host.innerHTML = '<p class="gs-timeline-state">Generando certificado…</p>';
+        dialog.showModal();
+
+        VXAUTH.rest("/rpc/promotor_garantia_pedido", { method: "POST", body: { p_pedido_id: order.id } }).then(function (data) {
+            if (!data || data.activo !== true || !data.token) {
+                host.innerHTML = '<p class="gs-timeline-state">El certificado no está activo. El pedido debe estar Entregado.</p>';
+                return;
+            }
+            window.VXGarantia.renderInline(host, data.token, {
+                code: order.codigo || "Pedido VOLXEN",
+                managerName: order.gestor_nombre || "VOLXEN",
+                showLink: true
+            });
+        }).catch(function () {
+            host.innerHTML = '<p class="gs-timeline-state">No se pudo generar el certificado.</p>';
+        });
+    }
+
     function normalize(value) {
         return String(value == null ? "" : value)
             .toLocaleLowerCase("es")
@@ -1445,7 +1488,11 @@
                 '<td class="gs-cell-product" data-label="Producto"><span class="gs-product-name">' + escapeHtml(firstItem || "Sin detalle") + "</span>" +
                     (extraItems ? "<small>+" + escapeHtml(count(extraItems)) + " producto" + (extraItems === 1 ? "" : "s") + "</small>" : (firstItem ? "<small>Producto principal</small>" : "")) + "</td>" +
                 '<td class="gs-cell-client" data-label="Cliente"><span class="gs-order-client">' + escapeHtml(order.nombre_cliente || "Cliente") + "</span>" +
-                    "<small>" + escapeHtml(order.telefono || order.email || "Sin contacto") + "</small></td>" +
+                    "<small>" + escapeHtml(order.telefono || order.email || "Sin contacto") + "</small>" +
+                    (statusInfo.label === "Entregado"
+                        ? '<button class="gs-order-qr-link" type="button" data-guarantee-qr="' + escapeHtml(order.id) + '"><i class="fa-solid fa-qrcode" aria-hidden="true"></i> Generar QR de garantía</button>'
+                        : "") +
+                    "</td>" +
                 '<td class="gs-cell-qty" data-label="Unidades"><strong class="gs-order-total">' + escapeHtml(count(quantity)) + "</strong><small>uds.</small></td>" +
                 '<td class="gs-cell-total" data-label="Comisión"><strong class="gs-order-total">' + escapeHtml(commissionMoney(order.comision_monto_usd)) + "</strong>" +
                     "<small>" + escapeHtml(commissionLabel) + "</small></td>" +
@@ -3146,6 +3193,13 @@
                 if (share) {
                     const order = findOrderById(share.getAttribute("data-share-order"));
                     if (order) openReceipt(order);
+                    return;
+                }
+
+                const guaranteeButton = event.target.closest("[data-guarantee-qr]");
+                if (guaranteeButton) {
+                    const order = findOrderById(guaranteeButton.getAttribute("data-guarantee-qr"));
+                    if (order) openGuaranteeDialog(order);
                     return;
                 }
 

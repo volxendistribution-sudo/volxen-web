@@ -4019,6 +4019,26 @@ body[data-gs-view="gsDashboard"] .gs-header {
     cursor: pointer;
 }
 
+.gs-order-qr-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
+    padding: 5px 9px;
+    border: 1px solid var(--gs-line);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--gs-green);
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.2;
+    cursor: pointer;
+}
+
+.gs-order-qr-link:hover {
+    background: var(--gs-green-soft);
+}
+
 .gs-order-actions {
     display: flex;
     grid-column: 1 / -1;
