@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="referrer" content="no-referrer">
+    <meta name="theme-color" content="#2E4A3F">
+    <meta name="description" content="Verificación del certificado de garantía VOLXEN.">
+    <title>Garantía VOLXEN</title>
+
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="dist/fonts/DM-Sans-SemiBold.woff2">
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="dist/fonts/DM-Sans-Bold.woff2">
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="dist/fonts/InterTight-Regular.woff2">
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="dist/fonts/InterTight-Medium.woff2">
+    <link rel="stylesheet" href="dist/volxen.css">
+    <link rel="stylesheet" href="garantia.css">
+</head>
+<body class="g-page">
+    <main class="g-shell" aria-labelledby="gTitle">
+        <header class="g-brand">
+            <img src="logo.svg" alt="" width="44" height="44">
+            <div>
+                <p class="g-brand-name">VOLXEN</p>
+                <p class="g-brand-sub">Certificado de garantía</p>
+            </div>
+        </header>
+
+        <section id="gLoading" class="g-state" aria-live="polite">
+            <span class="g-state-dot" aria-hidden="true"></span>
+            <p>Validando certificado…</p>
+        </section>
+
+        <section id="gError" class="g-state g-state-error" aria-live="polite" hidden>
+            <p class="g-state-title">Certificado no válido</p>
+            <p>Este certificado no existe, fue desactivado o el pedido ya no está entregado.</p>
+        </section>
+
+        <section id="gPanel" hidden>
+            <div class="g-head">
+                <div>
+                    <p class="g-eyebrow">Certificado válido</p>
+                    <h1 id="gTitle" class="g-code"></h1>
+                </div>
+                <span id="gStatus" class="g-status"></span>
+            </div>
+
+            <dl class="g-details">
+                <div>
+                    <dt>Fecha del pedido</dt>
+                    <dd id="gDate">—</dd>
+                </div>
+                <div>
+                    <dt>Fecha de entrega</dt>
+                    <dd id="gDelivered">—</dd>
+                </div>
+                <div class="g-details-wide">
+                    <dt>Total</dt>
+                    <dd id="gTotal">—</dd>
+                </div>
+                <div class="g-details-wide">
+                    <dt>Garantía</dt>
+                    <dd id="gWarranty">—</dd>
+                </div>
+            </dl>
+
+            <div class="g-products">
+                <h2>Productos</h2>
+                <ul id="gItems"></ul>
+            </div>
+
+            <p class="g-note">Este certificado solo es válido mientras el pedido figure como Entregado.</p>
+        </section>
+
+        <footer class="g-footer">
+            <span>VOLXEN</span>
+            <span>Garantía oficial</span>
+        </footer>
+    </main>
+
+    <script src="config.js"></script>
+    <script src="js/pages/garantia.js"></script>
+</body>
+</html>

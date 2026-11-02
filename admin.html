@@ -1447,13 +1447,20 @@ esc(pedidoGestor(o))+
 Number(o.total_usd || 0).toFixed(2)+
 '</strong>'+
 
-(o.promotor_id || o.gestor_nombre || o.gestor_telefono
-? '<br><small>Comisión ganada: '+
-esc(o.comision_estado || "pendiente")+
-' · '+
-adminMoney(o.comision_monto_usd)+
-'</small>'
-: '')+
+ (o.promotor_id || o.gestor_nombre || o.gestor_telefono
+ ? '<br><small>Comisión ganada: '+
+ esc(o.comision_estado || "pendiente")+
+ ' · '+
+ adminMoney(o.comision_monto_usd)+
+ '</small>'
+ : '')+
+
+ (o.garantia_activa || /^Entregado$/i.test(o.estado || "")
+ ? '<br><small>Garantía QR: '+
+ (o.garantia_activa ? "activa" : "inactiva")+
+ '</small>'
+ : '')+
+
 
 '<br>'+
 
@@ -1890,9 +1897,20 @@ esc(o.notas || "—")+
 
 '</div>'+
 
-'<div class="r">'+
+ '<div class="r">'+
 
-'<strong>PRODUCTOS</strong>'+
+ '<strong>GARANTÍA QR</strong>'+
+
+ '<br>'+
+
+ (o.garantia_activa ? "Activa" : "Inactiva")+
+
+ '</div>'+
+
+ '<div class="r">'+
+
+ '<strong>PRODUCTOS</strong>'+
+
 
 '<div class="order-items">'+
 

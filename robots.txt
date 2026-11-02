@@ -6,6 +6,7 @@ Sitemap: https://volxen.com/sitemap.xml
 # Disallow private/admin areas
 Disallow: /admin.html
 Disallow: /gestor.html
+Disallow: /garantia.html
 Disallow: /scripts/
 Disallow: /.agents/
 Disallow: /.opencode/

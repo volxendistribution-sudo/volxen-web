@@ -116,6 +116,7 @@ async function initAccount() {
                 return;
             }
             list.innerHTML = '<p class="account-orders-title">Historial de pedidos</p>' + orders.map(renderOrder).join("");
+            hydrateGuarantees(list);
         }).catch(function () {
             list.innerHTML = '<p class="account-empty" role="alert">No se pudieron cargar tus pedidos en este momento. Inténtalo de nuevo más tarde.</p>';
         });
@@ -214,11 +215,97 @@ function formatShortDate(value) {
     return date.toLocaleDateString("es", { day: "numeric", month: "short", year: "numeric" });
 }
 
+function formatDateTime(value) {
+    var date = value ? new Date(value) : null;
+    if (!date || isNaN(date.getTime())) return "";
+    return date.toLocaleString("es", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+}
+
+var TRACKING_STATES = [
+    "Pedido recibido",
+    "Confirmando pedido",
+    "Preparando pedido",
+    "En camino",
+    "Entregado"
+];
+
+function renderTimeline(order) {
+    var history = Array.isArray(order.historial) ? order.historial : [];
+    var byState = {};
+    history.slice().sort(function (a, b) {
+        return String(a.created_at).localeCompare(String(b.created_at));
+    }).forEach(function (item) {
+        if (item && item.estado) byState[VX.estadoLargo(item.estado)] = item;
+    });
+
+    var current = VX.estadoLargo(order.estado);
+    var isCancelled = /cancel|rechaz/i.test(String(order.estado || ""));
+    var states = TRACKING_STATES.slice();
+
+    if (isCancelled) {
+        states = history.map(function (item) { return VX.estadoLargo(item.estado); }).filter(function (state, index, all) {
+            return state && all.indexOf(state) === index;
+        });
+        if (states.indexOf("Cancelado") === -1) states.push("Cancelado");
+    } else if (!states.includes(current)) {
+        states.push(current);
+    }
+
+    var currentIndex = states.indexOf(current);
+    var steps = states.map(function (state, index) {
+        var entry = byState[state];
+        var reached = Boolean(entry) || state === current;
+        var done = reached && (currentIndex === -1 || index <= currentIndex);
+        var isCurrent = state === current;
+        var date = entry && entry.created_at ? formatDateTime(entry.created_at) : "";
+        var comment = entry && entry.comentario ? String(entry.comentario).trim() : "";
+
+        return '<li class="account-timeline-step ' +
+            (done ? "is-done " : "is-pending ") +
+            (isCurrent ? "is-current" : "") + '"' +
+            (isCurrent ? ' aria-current="step"' : "") + '>' +
+            '<span class="account-timeline-dot" aria-hidden="true"></span>' +
+            '<div class="account-timeline-copy">' +
+                '<p class="account-timeline-state">' + esc(VX.estadoLargo(state)) + '</p>' +
+                '<p class="account-timeline-date">' + esc(date || (isCurrent ? "En curso" : "Pendiente")) + '</p>' +
+                (comment ? '<p class="account-timeline-comment">' + esc(comment) + '</p>' : '') +
+            '</div>' +
+        '</li>';
+    }).join("");
+
+    return '<ol class="account-timeline">' + steps + '</ol>';
+}
+
+function hydrateGuarantees(list) {
+    if (!list || !window.VXGarantia || typeof window.VXGarantia.renderInline !== "function") return;
+    list.querySelectorAll("[data-guarantee-order]").forEach(function (host) {
+        var id = host.getAttribute("data-guarantee-order");
+        if (!id) return;
+
+        VXAUTH.rest("/rpc/mi_garantia", { method: "POST", body: { p_pedido_id: id } }).then(function (data) {
+            if (!data || data.activo !== true || !data.token) {
+                host.innerHTML = '<p class="account-order-empty">No incluye garantía documentada.</p>';
+                return;
+            }
+            window.VXGarantia.renderInline(host, data.token, {
+                code: host.getAttribute("data-guarantee-code") || "Pedido VOLXEN",
+                managerName: data.comercial || host.getAttribute("data-guarantee-manager") || "VOLXEN",
+                showLink: false
+            });
+        }).catch(function () {
+            host.remove();
+        });
+    });
+}
+
 function renderOrder(order) {
     var items = Array.isArray(order.items) ? order.items : [];
-    var history = Array.isArray(order.historial) ? order.historial.slice().sort(function (a, b) {
-        return String(a.created_at).localeCompare(String(b.created_at));
-    }).slice(-5) : [];
     var units = items.reduce(function (total, item) {
         return total + (Number(item.cantidad) || 0);
     }, 0);
@@ -227,15 +314,12 @@ function renderOrder(order) {
     var estado = VX.estadoLargo(order.estado);
     var cancelable = order.puede_cancelar === true && !/cancel|rechaz|entreg/.test(String(order.estado || "").toLowerCase());
     var whatsapp = whatsappFor(order);
+    var delivered = /entreg|complet/.test(String(order.estado || "").toLowerCase());
 
     var itemsHtml = items.map(function (item) {
         var quantity = Number(item.cantidad) || 0;
         return '<li><span>' + esc(item.producto_nombre || "Producto") + '</span><span>×' + quantity + '</span><span>' +
             VX.fm(Number(item.subtotal) || 0) + '</span></li>';
-    }).join("");
-
-    var historyHtml = history.map(function (item) {
-        return '<li><span>' + esc(VX.estadoLargo(item.estado)) + '</span><span>' + esc(formatShortDate(item.created_at)) + '</span></li>';
     }).join("");
 
     return '<details class="account-order-card">' +
@@ -255,8 +339,11 @@ function renderOrder(order) {
             (order.cancelado_por_cliente ? '<p class="account-order-cancel-note">Cancelaste este pedido.</p>' : '') +
             '<p class="account-order-label">Productos</p>' +
             (itemsHtml ? '<ul class="account-order-items">' + itemsHtml + '</ul>' : '<p class="account-order-empty">Sin productos registrados.</p>') +
-            '<p class="account-order-label">Historial</p>' +
-            (historyHtml ? '<ul class="account-order-history">' + historyHtml + '</ul>' : '<p class="account-order-empty">Sin movimientos registrados.</p>') +
+            '<p class="account-order-label">Seguimiento</p>' +
+            renderTimeline(order) +
+            (delivered
+                ? '<div class="account-guarantee" data-guarantee-order="' + esc(order.id) + '" data-guarantee-code="' + esc(order.codigo) + '" data-guarantee-manager="' + esc(order.gestor_nombre || "VOLXEN") + '"></div>'
+                : '') +
             '<div class="account-order-actions">' +
                 (whatsapp ? '<a class="account-order-wa" href="' + whatsapp + '" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Consultar por WhatsApp</a>' : '') +
                 (cancelable ? '<button type="button" class="account-order-cancel" data-cancel-order="' + esc(order.id) + '" data-order-code="' + esc(order.codigo) + '">Cancelar pedido</button>' : '') +

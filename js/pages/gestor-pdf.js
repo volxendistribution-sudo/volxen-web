@@ -469,7 +469,7 @@
         return y;
     }
 
-    async function loadImageData(url, width, height, quality) {
+    async function loadImageData(url, width, height, quality, mime) {
         if (!url || typeof Image !== "function") return "";
         return new Promise(function (resolve) {
             var image = new Image();
@@ -494,7 +494,7 @@
                     var drawW = image.naturalWidth * scale;
                     var drawH = image.naturalHeight * scale;
                     ctx.drawImage(image, (width - drawW) / 2, (height - drawH) / 2, drawW, drawH);
-                    finish(canvas.toDataURL("image/jpeg", quality || 0.84));
+                    finish(canvas.toDataURL(mime || "image/jpeg", quality || 0.84));
                 } catch (error) {
                     finish("");
                 }
@@ -614,6 +614,38 @@
         setText(doc, COLORS.gold);
         pageText(doc, money(total), PAGE_W - M - 4, y + 17, { align: "right" });
         y += 30;
+
+        var guaranteeToken = String(opts.guaranteeToken || "");
+        if (guaranteeToken && window.VXGarantia && typeof window.VXGarantia.qrDataUrl === "function") {
+            if (y + 70 > PAGE_H - 17) {
+                doc.addPage();
+                y = drawHeader(doc, null, "Comprobante de pedido");
+            }
+            var guaranteeUrl = "";
+            try { guaranteeUrl = window.VXGarantia.buildUrl(guaranteeToken); } catch (error) {}
+            var qrImage = "";
+            if (guaranteeUrl) {
+                qrImage = await loadImageData(window.VXGarantia.qrDataUrl(guaranteeUrl, 420), 260, 260, 1, "image/png");
+            }
+            setFill(doc, COLORS.surface);
+            doc.roundedRect(M, y + 2, PAGE_W - M * 2, 46, 2.5, 2.5, "F");
+            if (qrImage) {
+                try { doc.addImage(qrImage, "PNG", M + 4, y + 6, 38, 38); } catch (error) {}
+            }
+            setFont(doc, "bold");
+            doc.setFontSize(6.5);
+            setText(doc, COLORS.muted);
+            pageText(doc, "CERTIFICADO DE GARANTÍA", M + 47, y + 13);
+            setFont(doc, "bold");
+            doc.setFontSize(11);
+            setText(doc, COLORS.ink);
+            pageText(doc, order && order.codigo || "Pedido VOLXEN", M + 47, y + 21);
+            setFont(doc, "normal");
+            doc.setFontSize(7);
+            setText(doc, COLORS.muted);
+            pageText(doc, "Escanee para verificar. Válido mientras el pedido figure como Entregado.", M + 47, y + 29);
+            y += 54;
+        }
 
         setFont(doc, "normal");
         doc.setFontSize(7.5);

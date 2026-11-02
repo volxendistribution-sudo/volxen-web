@@ -69,6 +69,11 @@
         if (!Number.isFinite(total)) {
             total = items.reduce(function (sum, item) { return sum + item.subtotal; }, 0);
         }
+        var guaranteeToken = String(opts.guaranteeToken || "");
+        var guaranteeUrl = "";
+        if (guaranteeToken && window.VXGarantia && typeof window.VXGarantia.buildUrl === "function") {
+            try { guaranteeUrl = window.VXGarantia.buildUrl(guaranteeToken); } catch (error) {}
+        }
         return {
             code: String(order && order.codigo || "Sin código"),
             date: dateLabel(order && order.created_at),
@@ -78,6 +83,8 @@
             phone: opts.phone ? String(order && order.telefono || "") : "",
             total: total,
             managerName: String(managerName || "").trim(),
+            guaranteeToken: guaranteeToken,
+            guaranteeUrl: guaranteeUrl,
             items: items
         };
     }
@@ -88,6 +95,14 @@
                 return '<tr><td><strong>' + escapeHtml(item.name) + '</strong><span>' + escapeHtml(item.quantity) + ' × ' + escapeHtml(money(item.price)) + '</span></td><td>' + escapeHtml(money(item.subtotal)) + '</td></tr>';
             }).join("")
             : '<tr><td colspan="2">Sin detalle de productos.</td></tr>';
+        var guarantee = data.guaranteeToken && data.guaranteeUrl && window.VXGarantia &&
+            typeof window.VXGarantia.qrDataUrl === "function"
+            ? '<section class="doc-guarantee">' +
+                '<img class="doc-qr" src="' + escapeHtml(window.VXGarantia.qrDataUrl(data.guaranteeUrl, 420)) + '" alt="Código QR del certificado de garantía">' +
+                '<div><span>Certificado de garantía</span><strong>' + escapeHtml(data.code) + '</strong>' +
+                    '<p>Escanee para verificar. Válido mientras el pedido figure como Entregado.</p></div>' +
+              '</section>'
+            : "";
 
         return '<article class="doc doc-receipt">' +
             '<header class="doc-head">' +
@@ -106,6 +121,7 @@
             '</section>' +
             '<table class="doc-table"><thead><tr><th>Producto</th><th>Subtotal</th></tr></thead><tbody>' + rows + '</tbody></table>' +
             '<div class="doc-total"><span>Total que paga el cliente</span><strong>' + escapeHtml(money(data.total)) + '</strong></div>' +
+            guarantee +
             '<footer class="doc-foot">Gracias por su compra. Este comprobante no incluye información interna de VOLXEN.</footer>' +
         '</article>';
     }
@@ -249,6 +265,11 @@
         '.doc-total{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-top:18px;padding:16px;border-radius:12px;background:' + BRAND.ink + ';color:' + BRAND.bg + '}',
         '.doc-total span{font-size:12px;letter-spacing:.06em;text-transform:uppercase}',
         '.doc-total strong{font-family:"DM Sans",sans-serif;font-size:28px;color:' + BRAND.gold + '}',
+        '.doc-guarantee{display:flex;align-items:center;gap:16px;margin-top:14px;padding:14px;border:1px solid ' + BRAND.line + ';border-radius:12px;background:#fffdf9;break-inside:avoid}',
+        '.doc-qr{width:112px;height:112px;flex:0 0 auto;padding:6px;background:#fff;border:1px solid ' + BRAND.line + ';border-radius:8px}',
+        '.doc-guarantee span{display:block;color:' + BRAND.muted + ';font-size:10px;text-transform:uppercase;letter-spacing:.08em}',
+        '.doc-guarantee strong{display:block;margin-top:2px;font-family:"DM Sans",sans-serif;font-size:16px}',
+        '.doc-guarantee p{margin:4px 0 0;color:' + BRAND.muted + ';font-size:11px;line-height:1.45}',
         '.doc-foot{margin-top:26px;padding-top:12px;border-top:1px solid ' + BRAND.line + ';color:' + BRAND.muted + ';font-size:10px;line-height:1.5}',
         '.doc-meta-line{color:' + BRAND.muted + ';font-size:12px;margin:0 0 18px}',
         '.doc-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:18px 0}',
@@ -386,7 +407,7 @@
     async function receiptImageBlob(order, managerName, options) {
         if (document.fonts && document.fonts.ready) await document.fonts.ready;
         var data = receiptData(order, managerName, options);
-        var height = Math.max(1350, 820 + data.items.length * 76);
+        var height = Math.max(1350, 820 + data.items.length * 76 + (data.guaranteeToken ? 300 : 0));
         var canvas = document.createElement("canvas");
         canvas.width = 1080;
         canvas.height = height;
@@ -476,6 +497,29 @@
         ctx.fillStyle = BRAND.muted;
         ctx.font = '400 15px "Inter Tight", sans-serif';
         wrapText(ctx, "Gracias por su compra. Este comprobante no incluye información interna de VOLXEN.", 64, y + 160, 900, 22, 2);
+
+        if (data.guaranteeToken && data.guaranteeUrl && window.VXGarantia &&
+            typeof window.VXGarantia.qrDataUrl === "function") {
+            var qrY = y + 205;
+            ctx.fillStyle = "#FFFDF9";
+            roundRect(ctx, 64, qrY, 952, 200, 18);
+            ctx.fill();
+            ctx.strokeStyle = BRAND.line;
+            ctx.stroke();
+            try {
+                var qrImage = await loadImage(window.VXGarantia.qrDataUrl(data.guaranteeUrl, 420));
+                ctx.drawImage(qrImage, 88, qrY + 16, 168, 168);
+            } catch (error) {}
+            ctx.fillStyle = BRAND.muted;
+            ctx.font = '600 15px "Inter Tight", sans-serif';
+            ctx.fillText("CERTIFICADO DE GARANTÍA", 286, qrY + 46);
+            ctx.fillStyle = BRAND.ink;
+            ctx.font = '700 28px "DM Sans", sans-serif';
+            ctx.fillText(data.code, 286, qrY + 82);
+            ctx.fillStyle = BRAND.muted;
+            ctx.font = '400 16px "Inter Tight", sans-serif';
+            wrapText(ctx, "Escanee para verificar. Válido mientras el pedido figure como Entregado.", 286, qrY + 116, 690, 23, 2);
+        }
         return canvasBlob(canvas);
     }
 

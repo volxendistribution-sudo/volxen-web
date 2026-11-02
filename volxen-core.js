@@ -597,13 +597,60 @@ const D = {};
 const ask = (c, t) => fetch(C.SUPABASE_URL + "/rest/v1/rpc/consultar_pedido_tracking", { method: "POST", headers: { apikey: C.SUPABASE_KEY, "Content-Type": "application/json" }, body: JSON.stringify({ p_codigo: c, p_tracking_token: t }) }).then(async r => { const j = await r.json(); if (!r.ok) throw new Error((j && j.message) || "No se pudo consultar el pedido."); if (!j || !findValue(j, "codigo")) throw new Error("No encontramos un pedido con esos códigos."); return j });
 const inf = j => ({ c: findValue(j, "codigo"), e: findValue(j, "estado"), n: findValue(j, "nombre_cliente"), t: findValue(j, "total_usd"), it: fa(j, "producto_nombre") || [], hs: fa(j, "estado") || [] });
 
+const TRACK_STATES = [
+    "Pedido recibido",
+    "Confirmando pedido",
+    "Preparando pedido",
+    "En camino",
+    "Entregado"
+];
+
+function trackTimeline(o) {
+    const entries = o.hs.slice().sort((x, y) => String(x.created_at).localeCompare(String(y.created_at)));
+    const byState = {};
+    entries.forEach(x => {
+        if (x && x.estado) byState[estadoLargo(x.estado)] = x;
+    });
+
+    const current = estadoLargo(o.e);
+    const isCancelled = /cancel|rechaz/i.test(String(o.e || ""));
+    let states = TRACK_STATES.slice();
+
+    if (isCancelled) {
+        states = entries.map(x => estadoLargo(x.estado)).filter((state, index, all) => all.indexOf(state) === index);
+        if (states.indexOf("Cancelado") === -1) states.push("Cancelado");
+    } else if (states.indexOf(current) === -1) {
+        states.push(current);
+    }
+
+    const currentIndex = states.indexOf(current);
+    return '<ol class="account-timeline">' + states.map((state, index) => {
+        const entry = byState[state];
+        const reached = Boolean(entry) || state === current;
+        const done = reached && (currentIndex === -1 || index <= currentIndex);
+        const isCurrent = state === current;
+        const date = entry && entry.created_at ? new Date(entry.created_at) : null;
+        const dateLabel = date && !isNaN(date.getTime()) ? fh(date) : "";
+        const comment = entry && entry.comentario ? String(entry.comentario).trim() : "";
+
+        return '<li class="account-timeline-step ' + (done ? "is-done " : "is-pending ") + (isCurrent ? "is-current" : "") + '"' +
+            (isCurrent ? ' aria-current="step"' : "") + '>' +
+            '<span class="account-timeline-dot" aria-hidden="true"></span>' +
+            '<div class="account-timeline-copy">' +
+                '<p class="account-timeline-state">' + esc(state) + '</p>' +
+                '<p class="account-timeline-date">' + esc(dateLabel || (isCurrent ? "En curso" : "Pendiente")) + '</p>' +
+                (comment ? '<p class="account-timeline-comment">' + esc(comment) + '</p>' : '') +
+            '</div>' +
+        '</li>';
+    }).join("") + '</ol>';
+}
+
 function trackDet(c) {
     const pv = $("pv"); if (!pv) return;
     const o = D[c];
     if (!o) { pv.innerHTML = '<p class="form-error" role="alert">No encontramos un pedido con esos códigos.</p>'; return; }
     const cancelado = /cancel|rechaz/.test(String(o.e || "").toLowerCase());
     const fecha = dt(o) || (o.f ? new Date(o.f) : null);
-    const h = o.hs.slice().sort((x, y) => String(y.created_at).localeCompare(String(x.created_at)));
     pv.innerHTML =
         '<div class="track-head"><div><p class="ey">Pedido</p><h2 class="order-code">' + esc(o.c) + '</h2></div>' +
         '<span class="' + (cancelado ? 'badge-out-of-stock' : 'badge-category') + ' track-badge">' + esc(estadoLargo(o.e)) + '</span></div>' +
@@ -624,13 +671,8 @@ function trackDet(c) {
                 (p.subtotal != null ? ' <span class="track-subtotal">· ' + fm(Number(p.subtotal)) + '</span>' : '') + '</span></div></div>';
         }).join("") +
         '</div>' +
-        '<p class="lb" style="margin-top:2rem">Línea de tiempo</p>' +
-        (h.length ? '<div class="tl">' + h.map(x =>
-            '<p><span style="color:var(--fg)">' + esc(estadoLargo(x.estado)) + '</span>' +
-            (x.created_at ? '<br><time datetime="' + esc(x.created_at) + '">' + esc(fh(new Date(x.created_at))) + '</time>' : '') +
-            (x.comentario ? '<br><span class="nt">' + esc(x.comentario) + '</span>' : '') + '</p>'
-        ).join("") + '</div>' :
-            '<div class="tl"><p><span style="color:var(--fg)">Pedido recibido</span>' + (fecha ? '<br><time datetime="' + esc(fecha.toISOString()) + '">' + esc(fh(fecha)) + '</time>' : '') + '</p></div>') +
+        '<p class="lb" style="margin-top:2rem">Seguimiento</p>' +
+        trackTimeline(o) +
         '<a class="btn-primary track-action" href="' + wa("Buenas, necesito ayuda con mi pedido " + o.c) + '" target="_blank" rel="noopener">Hablar con una operadora</a>' +
         '<button class="btn-secondary track-action" type="button" id="trackNew">Consultar otro pedido</button>';
 }

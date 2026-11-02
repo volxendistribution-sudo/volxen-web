@@ -72,6 +72,7 @@
         searchToken: 0,
         searchBusy: false,
         receiptOrder: null,
+        receiptGuarantees: {},
         operatorOrder: null,
         operatorToken: 0,
         lastOrder: null,
@@ -285,6 +286,103 @@
             month: "short",
             year: "numeric"
         }).format(date);
+    }
+
+    function dateTimeLabel(value) {
+        if (!value) return "";
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return "";
+        return new Intl.DateTimeFormat("es-ES", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+        }).format(date);
+    }
+
+    function renderOrderTimeline(current, history) {
+        const entries = Array.isArray(history) ? history.slice().sort(function (a, b) {
+            return String(a.created_at).localeCompare(String(b.created_at));
+        }) : [];
+        const byState = {};
+        entries.forEach(function (entry) {
+            if (entry && entry.estado) byState[entry.estado] = entry;
+        });
+
+        const isCancelled = /cancel/i.test(String(current || ""));
+        let states = ORDER_STATUS_ORDER.filter(function (status) {
+            return status !== "Cancelado";
+        });
+
+        if (isCancelled) {
+            states = entries.map(function (entry) { return entry.estado; }).filter(function (state, index, all) {
+                return state && all.indexOf(state) === index;
+            });
+            if (states.indexOf("Cancelado") === -1) states.push("Cancelado");
+        } else if (states.indexOf(current) === -1) {
+            states.push(current);
+        }
+
+        const currentIndex = states.indexOf(current);
+        return '<ol class="gs-timeline">' + states.map(function (status, index) {
+            const entry = byState[status];
+            const reached = Boolean(entry) || status === current;
+            const done = reached && (currentIndex === -1 || index <= currentIndex);
+            const isCurrent = status === current;
+            const comment = entry && entry.comentario ? String(entry.comentario).trim() : "";
+            const date = entry ? dateTimeLabel(entry.created_at) : "";
+
+            return '<li class="gs-timeline-step ' + (done ? "is-done " : "is-pending ") + (isCurrent ? "is-current" : "") + '"' +
+                (isCurrent ? ' aria-current="step"' : "") + '>' +
+                '<span class="gs-timeline-dot" aria-hidden="true"></span>' +
+                '<div class="gs-timeline-copy">' +
+                    '<p class="gs-timeline-state">' + escapeHtml(orderStatusInfo(status).label) + "</p>" +
+                    '<p class="gs-timeline-date">' + escapeHtml(date || (isCurrent ? "En curso" : "Pendiente")) + "</p>" +
+                    (comment ? '<p class="gs-timeline-comment">' + escapeHtml(comment) + "</p>" : "") +
+                "</div>" +
+            "</li>";
+        }).join("") + "</ol>";
+    }
+
+    function loadOrderDetail(row, body) {
+        if (!row || !body || body.getAttribute("data-detail-loaded") === "true") return;
+        body.setAttribute("data-detail-loaded", "true");
+
+        const order = findOrderById(row.getAttribute("data-order-id"));
+        if (!order) return;
+
+        const historyHost = body.querySelector("[data-order-history]");
+        const guaranteeHost = body.querySelector("[data-guarantee-order]");
+
+        if (historyHost) {
+            historyHost.innerHTML = '<h3>Seguimiento</h3><p class="gs-timeline-state">Cargando seguimiento…</p>';
+            VXAUTH.rest("/rpc/promotor_pedido_historial", { method: "POST", body: { p_pedido_id: order.id } }).then(function (history) {
+                historyHost.innerHTML = "<h3>Seguimiento</h3>" + renderOrderTimeline(order.estado, history);
+            }).catch(function () {
+                historyHost.innerHTML = '<h3>Seguimiento</h3><p class="gs-timeline-state">No se pudo cargar el seguimiento.</p>';
+            });
+        }
+
+        if (guaranteeHost && window.VXGarantia && typeof window.VXGarantia.renderInline === "function") {
+            const managerName = order.gestor_nombre ||
+                (state.session && state.session.user && state.session.user.nombre) ||
+                "VOLXEN";
+            guaranteeHost.innerHTML = '<p class="gs-timeline-state">Cargando certificado…</p>';
+            VXAUTH.rest("/rpc/promotor_garantia_pedido", { method: "POST", body: { p_pedido_id: order.id } }).then(function (data) {
+                if (!data || data.activo !== true || !data.token) {
+                    guaranteeHost.innerHTML = '<p class="gs-timeline-state">El certificado de garantía no está activo.</p>';
+                    return;
+                }
+                window.VXGarantia.renderInline(guaranteeHost, data.token, {
+                    code: order.codigo || "Pedido VOLXEN",
+                    managerName: managerName,
+                    showLink: true
+                });
+            }).catch(function () {
+                guaranteeHost.innerHTML = '<p class="gs-timeline-state">No se pudo cargar el certificado de garantía.</p>';
+            });
+        }
     }
 
     function normalize(value) {
@@ -1361,6 +1459,10 @@
                         "<div><h3>Cliente</h3><p>" + escapeHtml(order.nombre_cliente || "Cliente") + "</p>" + contact + "</div>" +
                         "<div><h3>Entrega</h3><address>" + escapeHtml(order.direccion || "Sin dirección") + "<br>" + escapeHtml(order.municipio || "Sin municipio") + "</address></div>" +
                         "<div><h3>Productos</h3>" + renderItems(order.items) + "</div>" +
+                        '<div class="gs-order-timeline" data-order-history="' + escapeHtml(order.id) + '"><h3>Seguimiento</h3><p class="gs-timeline-state">Abra el detalle para cargar el seguimiento.</p></div>' +
+                        (statusInfo.label === "Entregado"
+                            ? '<div class="gs-order-guarantee" data-guarantee-order="' + escapeHtml(order.id) + '"><h3>Garantía</h3><p class="gs-timeline-state">Cargando certificado…</p></div>'
+                            : "") +
                         '<div class="gs-cell-commission"><h3>Comisión</h3>' +
                             '<p class="gs-commission-line"><strong class="gs-commission-amount">' + escapeHtml(commissionMoney(order.comision_monto_usd)) + "</strong>" +
                             '<span class="gs-badge ' + commissionClass + '">' + escapeHtml(commissionLabel) + "</span></p>" +
@@ -2159,10 +2261,36 @@
     }
 
     function receiptOptions() {
+        const delivered = state.receiptOrder && String(state.receiptOrder.estado || "") === "Entregado";
         return {
             address: Boolean(refs.gsReceiptAddress && refs.gsReceiptAddress.checked),
-            phone: Boolean(refs.gsReceiptPhone && refs.gsReceiptPhone.checked)
+            phone: Boolean(refs.gsReceiptPhone && refs.gsReceiptPhone.checked),
+            guaranteeToken: delivered
+                ? state.receiptGuarantees[String(state.receiptOrder.id)] || ""
+                : ""
         };
+    }
+
+    async function loadReceiptGuarantee(order) {
+        if (!order) return "";
+        const key = String(order.id || "");
+        if (String(order.estado || "") !== "Entregado") {
+            delete state.receiptGuarantees[key];
+            return "";
+        }
+
+        let token = "";
+        try {
+            const data = await VXAUTH.rest("/rpc/promotor_garantia_pedido", {
+                method: "POST",
+                body: { p_pedido_id: key }
+            });
+            if (data && data.activo === true && data.token) token = String(data.token);
+        } catch (error) {}
+
+        state.receiptGuarantees[key] = token;
+        if (state.receiptOrder && String(state.receiptOrder.id) === key) renderReceiptPreview();
+        return token;
     }
 
     function renderReceiptPreview() {
@@ -2193,6 +2321,8 @@
             else if (typeof refs.gsReceiptDialog.showModal !== "function") refs.gsReceiptDialog.setAttribute("open", "");
             if (refs.gsReceiptClose) refs.gsReceiptClose.focus({ preventScroll: true });
         }
+
+        loadReceiptGuarantee(order);
     }
 
     function closeReceiptDialog() {
@@ -2220,6 +2350,7 @@
         setReceiptBusy(true);
         setReceiptError("");
         try {
+            await loadReceiptGuarantee(order);
             const blob = await docs.receiptImageBlob(order, managerName, receiptOptions());
             const filename = "comprobante-" + safeFilename(order.codigo || order.id) + ".png";
             const result = await docs.shareFile(blob, filename, "Comprobante VOLXEN", "Comprobante del pedido " + (order.codigo || ""));
@@ -2253,6 +2384,7 @@
         setReceiptBusy(true);
         setReceiptError("");
         try {
+            await loadReceiptGuarantee(order);
             await pdf.downloadReceipt(order, managerName, receiptOptions());
             setNotice("Comprobante PDF descargado.");
         } catch (error) {
@@ -2272,6 +2404,7 @@
         setReceiptBusy(true);
         setReceiptError("");
         try {
+            await loadReceiptGuarantee(order);
             const blob = await docs.receiptImageBlob(order, managerName, receiptOptions());
             const filename = "comprobante-" + safeFilename(order.codigo || order.id) + ".png";
             const result = await docs.shareFile(blob, filename, "Comprobante VOLXEN", text);
@@ -3049,6 +3182,7 @@
                 toggle.setAttribute("aria-expanded", nextExpanded ? "true" : "false");
                 body.hidden = !nextExpanded;
                 if (row) row.classList.toggle("is-expanded", nextExpanded);
+                if (nextExpanded) loadOrderDetail(row, body);
             });
         }
 
