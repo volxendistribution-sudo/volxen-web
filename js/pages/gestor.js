@@ -2655,6 +2655,7 @@
                 category: typeof api.cn === "function" ? api.cn(product.categoria_id) : "Producto",
                 price: typeof api.pr === "function" ? api.pr(product) : product.precio_usd,
                 description: product.descripcion || "",
+                features: Array.isArray(product.caracteristicas) ? product.caracteristicas : [],
                 image: productImage(product, 1200, 1200, "png")
             }, managerName);
 

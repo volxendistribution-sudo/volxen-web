@@ -37,20 +37,22 @@ test("las notificaciones de producto son reales y se pueden marcar como leídas"
     assert.match(js, /productChanges/);
 });
 
-test("la tarjeta de producto es minimalista, oscura y usa el logo oficial", () => {
+test("la tarjeta de producto usa la plantilla oficial y el logo oficial", () => {
     const docs = read("js/pages/gestor-docs.js");
 
     assert.doesNotThrow(() => new Function(docs));
     assert.match(docs, /canvas\.width = 1440/);
     assert.match(docs, /canvas\.height = 1260/);
+    assert.match(docs, /brand\/fondo-plantilla\.jpg/);
     assert.match(docs, /brand\/logo\.svg/);
-    assert.match(docs, /brand\/logo-negativo\.svg/);
-    assert.match(docs, /CATÁLOGO PRIVADO/);
     assert.match(docs, /PRECIO PÚBLICO/);
-    assert.match(docs, /COMERCIAL VOLXEN/);
-    assert.match(docs, /#1C1A17/);
+    assert.match(docs, /Comercial VOLXEN/);
+    assert.match(docs, /product\.description/);
+    assert.match(docs, /product\.features/);
+    assert.doesNotMatch(docs, /logo-negativo/);
+    assert.doesNotMatch(docs, /CATÁLOGO PRIVADO/);
+    assert.doesNotMatch(docs, /#1C1A17/);
     assert.doesNotMatch(docs, /COMPRA ASISTIDA/);
-    assert.doesNotMatch(docs, /product\.description/);
     assert.doesNotMatch(docs, /new URL\("logo\.svg"/);
 });
 
