@@ -88,6 +88,24 @@ test("Fase B: panel de precio y etiqueta sobre el adorno, sin tapar el cristal",
     assert.match(js, /guarantee: product\.garantia/);
 });
 
+test("el diseño izquierdo sigue el modelo de la plantilla", () => {
+    const docs = read("js/pages/gestor-docs.js");
+
+    assert.doesNotMatch(docs, /paintPanel/);
+    assert.match(docs, /Tecnología, calidad y confianza en un solo producto\./);
+    assert.match(docs, /fitNameSize\(ctx, name, 540, 104, 48, 224, 2\)/);
+    assert.match(docs, /'800 ' \+ nameFit\.size/);
+    assert.match(docs, /features\.slice\(0, 3\)/);
+    assert.match(docs, /item\.title\.toUpperCase\(\)/);
+    assert.match(docs, /drawFeatureIcon\(ctx, index, 112, rowY \+ 2\)/);
+    assert.match(docs, /drawShieldIcon/);
+    assert.match(docs, /drawBoltIcon/);
+    assert.match(docs, /drawGearIcon/);
+    assert.match(docs, /¡CALIDAD/);
+    assert.match(docs, /GARANTIZADA!/);
+    assert.match(docs, /drawTagGlyph/);
+});
+
 test("la foto se contiene sin recortes y los datos que no caben se reportan", () => {
     const docs = read("js/pages/gestor-docs.js");
 
