@@ -39,21 +39,64 @@ test("las notificaciones de producto son reales y se pueden marcar como leídas"
 
 test("la tarjeta de producto usa la plantilla oficial y el logo oficial", () => {
     const docs = read("js/pages/gestor-docs.js");
+    const js = read("js/pages/gestor.js");
+    const css = read("volxen.css");
+    const html = read("gestor.html");
 
     assert.doesNotThrow(() => new Function(docs));
     assert.match(docs, /canvas\.width = 1440/);
     assert.match(docs, /canvas\.height = 1260/);
-    assert.match(docs, /brand\/fondo-plantilla\.jpg/);
+    assert.match(docs, /brand\/VOLXEN_plantilla_limpia_1440x1260\.png/);
     assert.match(docs, /brand\/logo\.svg/);
-    assert.match(docs, /PRECIO PÚBLICO/);
+    assert.match(docs, /drawOfficialLockup/);
+    assert.match(docs, /drawPricePanel/);
+    assert.match(docs, /drawGoldTag/);
+    assert.match(docs, /"PRECIO"/);
+    assert.doesNotMatch(docs, /PRECIO PÚBLICO/);
     assert.match(docs, /Comercial VOLXEN/);
-    assert.match(docs, /product\.description/);
     assert.match(docs, /product\.features/);
+    assert.match(docs, /No se pudo cargar la foto del producto/);
+    assert.doesNotMatch(docs, /drawProductPlaceholder/);
+    assert.doesNotMatch(docs, /Imagen no disponible/);
+    assert.match(docs, /document\.fonts\.load/);
+    assert.match(docs, /800 85px "DM Sans"/);
+    assert.match(js, /productImage\(product, 1200, null, "webp"\)/);
+    assert.doesNotMatch(js, /productImage\(product, 1200, 1200, "png"\)/);
+    assert.match(css, /font-weight:\s*800/);
+    assert.match(css, /DM-Sans-ExtraBold\.woff2/);
+    assert.match(html, /DM-Sans-ExtraBold\.woff2/);
+    assert.ok(fs.existsSync(path.join(ROOT, "public/fonts/DM-Sans-ExtraBold.ttf")));
     assert.doesNotMatch(docs, /logo-negativo/);
     assert.doesNotMatch(docs, /CATÁLOGO PRIVADO/);
     assert.doesNotMatch(docs, /#1C1A17/);
     assert.doesNotMatch(docs, /COMPRA ASISTIDA/);
     assert.doesNotMatch(docs, /new URL\("logo\.svg"/);
+});
+
+test("Fase B: panel de precio y etiqueta sobre el adorno, sin tapar el cristal", () => {
+    const docs = read("js/pages/gestor-docs.js");
+    const js = read("js/pages/gestor.js");
+
+    assert.match(docs, /drawPricePanel\(ctx, 840, 16, 400, 170\)/);
+    assert.match(docs, /drawGoldTag\(ctx, 1250, 40, 185, 110\)/);
+    assert.match(docs, /photoX = 658/);
+    assert.match(docs, /photoY = 334/);
+    assert.match(docs, /photoW = 711/);
+    assert.match(docs, /photoH = 561/);
+    assert.match(docs, /1180, 1232/);
+    assert.match(docs, /guarantee/);
+    assert.match(js, /guarantee: product\.garantia/);
+});
+
+test("la foto se contiene sin recortes y los datos que no caben se reportan", () => {
+    const docs = read("js/pages/gestor-docs.js");
+
+    assert.match(docs, /drawContain\(ctx, image, photoX, photoY, photoW, photoH\)/);
+    assert.doesNotMatch(docs, /drawCover\(/);
+    assert.doesNotMatch(docs, /truncateText\(/);
+    assert.match(docs, /CORS o crossOrigin/);
+    assert.match(docs, /Estos datos no caben completos en la imagen/);
+    assert.match(docs, /No se generó la imagen para no recortarlos/);
 });
 
 test("los PDFs incrustan las fuentes y el logo oficial", () => {

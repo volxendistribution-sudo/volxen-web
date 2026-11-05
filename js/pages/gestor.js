@@ -2656,11 +2656,16 @@
                 price: typeof api.pr === "function" ? api.pr(product) : product.precio_usd,
                 description: product.descripcion || "",
                 features: Array.isArray(product.caracteristicas) ? product.caracteristicas : [],
-                image: productImage(product, 1200, 1200, "png")
+                guarantee: product.garantia || "",
+                image: productImage(product, 1200, null, "webp")
             }, managerName);
 
+            if (result.warning) {
+                setNotice(result.warning, true);
+                return;
+            }
+
             const filename = "producto-" + safeFilename(product.nombre) + ".png";
-            if (result.warning) setNotice(result.warning, true);
             const shareResult = await docs.shareFile(result.blob, filename, "Producto VOLXEN", "Producto " + (product.nombre || "") + " · Precio público " + money(api.pr(product)));
 
             if (shareResult === "unsupported") {
@@ -2672,7 +2677,7 @@
                 setNotice("Imagen del producto compartida.");
             }
         } catch (error) {
-            setNotice("No se pudo generar la imagen del producto. Inténtalo de nuevo.", true);
+            setNotice(error && error.message ? error.message : "No se pudo generar la imagen del producto. Inténtalo de nuevo.", true);
         } finally {
             setProductShareBusy(false);
         }

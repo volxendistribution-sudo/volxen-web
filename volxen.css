@@ -31,6 +31,14 @@
         src: url('fonts/DM-Sans-Bold.woff2') format('woff2');
     }
     @font-face {
+        font-family: 'DM Sans';
+        font-style: normal;
+        font-weight: 800;
+        font-display: swap;
+        src: url('fonts/DM-Sans-ExtraBold.woff2') format('woff2'),
+             url('fonts/DM-Sans-ExtraBold.ttf') format('truetype');
+    }
+    @font-face {
         font-family: 'Inter Tight';
         font-style: normal;
         font-weight: 300;

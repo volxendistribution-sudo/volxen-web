@@ -544,7 +544,8 @@
         var size = maxSize;
         while (size >= minSize) {
             ctx.font = weight + " " + size + 'px "DM Sans", sans-serif';
-            if (measureLines(ctx, text, maxWidth).length <= maxLines) return size;
+            var lines = measureLines(ctx, text, maxWidth);
+            if (lines.length <= maxLines && lines.every(function (line) { return ctx.measureText(line).width <= maxWidth; })) return size;
             size -= 4;
         }
         return minSize;
@@ -552,9 +553,9 @@
 
     function templateUrl() {
         try {
-            return new URL("brand/fondo-plantilla.jpg", document.baseURI).href;
+            return new URL("brand/VOLXEN_plantilla_limpia_1440x1260.png", document.baseURI).href;
         } catch (error) {
-            return "brand/fondo-plantilla.jpg";
+            return "brand/VOLXEN_plantilla_limpia_1440x1260.png";
         }
     }
 
@@ -564,13 +565,6 @@
         } catch (error) {
             return "brand/logo.svg";
         }
-    }
-
-    function drawCover(ctx, image, x, y, width, height) {
-        var scale = Math.max(width / image.naturalWidth, height / image.naturalHeight);
-        var drawWidth = image.naturalWidth * scale;
-        var drawHeight = image.naturalHeight * scale;
-        ctx.drawImage(image, x + (width - drawWidth) / 2, y + (height - drawHeight) / 2, drawWidth, drawHeight);
     }
 
     function paintPanel(ctx, x, y, width, height, leftColor, rightColor, feather) {
@@ -602,15 +596,6 @@
         ctx.drawImage(off, x, y);
     }
 
-    function truncateText(ctx, text, maxWidth) {
-        var value = String(text || "");
-        if (ctx.measureText(value).width <= maxWidth) return value;
-        while (value.length > 1 && ctx.measureText(value + "…").width > maxWidth) {
-            value = value.slice(0, -1);
-        }
-        return value.replace(/\s+$/, "") + "…";
-    }
-
     function priceLabel(value) {
         var number = Number(value);
         if (!Number.isFinite(number)) return "—";
@@ -636,6 +621,7 @@
             ctx.font = '700 ' + size + 'px "DM Sans", sans-serif';
             var lines = measureLines(ctx, text, maxWidth);
             if (lines.length > 3) continue;
+            if (lines.some(function (line) { return ctx.measureText(line).width > maxWidth; })) continue;
             var lineHeight = Math.round(size * 1.08);
             var blockHeight = (lines.length - 1) * lineHeight + size;
             if (blockHeight <= maxBlock) {
@@ -650,13 +636,98 @@
         };
     }
 
+    function fitSingleLineSize(ctx, text, maxWidth, maxSize, minSize, weight, family) {
+        for (var size = maxSize; size >= minSize; size -= 1) {
+            ctx.font = weight + " " + size + 'px "' + family + '", sans-serif';
+            if (ctx.measureText(text).width <= maxWidth) return size;
+        }
+        ctx.font = weight + " " + minSize + 'px "' + family + '", sans-serif';
+        return minSize;
+    }
+
+    function trackedWidth(ctx, text, spacing) {
+        var width = 0;
+        for (var index = 0; index < text.length; index += 1) {
+            width += ctx.measureText(text.charAt(index)).width;
+        }
+        return width + spacing * Math.max(0, text.length - 1);
+    }
+
+    function fitTrackedSize(ctx, text, maxWidth, maxSize, minSize, weight, spacing) {
+        for (var size = maxSize; size >= minSize; size -= 1) {
+            ctx.font = weight + " " + size + 'px "Inter Tight", sans-serif';
+            if (trackedWidth(ctx, text, spacing) <= maxWidth) return size;
+        }
+        ctx.font = weight + " " + minSize + 'px "Inter Tight", sans-serif';
+        return minSize;
+    }
+
+    function drawTrackedText(ctx, text, x, y, spacing) {
+        var cursor = x;
+        for (var index = 0; index < text.length; index += 1) {
+            var character = text.charAt(index);
+            ctx.fillText(character, cursor, y);
+            cursor += ctx.measureText(character).width + spacing;
+        }
+    }
+
+    function drawPricePanel(ctx, x, y, width, height) {
+        var fill = ctx.createLinearGradient(x, y, x + width, y);
+        fill.addColorStop(0, "#0F2A23");
+        fill.addColorStop(1, "#183B31");
+        roundRect(ctx, x, y, width, height, 14);
+        ctx.fillStyle = fill;
+        ctx.fill();
+        ctx.strokeStyle = "#C8A165";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+    }
+
+    function drawGoldTag(ctx, x, y, width, height) {
+        roundRect(ctx, x, y, width, height, 8);
+        ctx.fillStyle = "#C8A165";
+        ctx.fill();
+        ctx.fillStyle = "#163A2D";
+        ctx.textAlign = "center";
+        ctx.font = '700 21px "Inter Tight", sans-serif';
+        ctx.fillText("CALIDAD", x + width / 2, y + 46);
+        ctx.fillText("GARANTIZADA", x + width / 2, y + 82);
+        ctx.textAlign = "left";
+    }
+
+    async function drawOfficialLockup(ctx) {
+        try {
+            var logo = await loadImage(officialLogoUrl());
+            ctx.drawImage(logo, 57, 16, 156, 156);
+        } catch (error) {}
+        var wordSize = fitSingleLineSize(ctx, "VOLXEN", 374, 110, 80, "800", "DM Sans");
+        ctx.fillStyle = "#163A2D";
+        ctx.font = '800 ' + wordSize + 'px "DM Sans", sans-serif';
+        ctx.fillText("VOLXEN", 207, 100);
+        var commercialSize = fitTrackedSize(ctx, "COMERCIALIZADORA", 373, 24, 14, "600", 9);
+        ctx.fillStyle = "#163A2D";
+        ctx.font = '600 ' + commercialSize + 'px "Inter Tight", sans-serif';
+        drawTrackedText(ctx, "COMERCIALIZADORA", 208, 130, 9);
+        var tagline = "Tecnología y energía en Cuba";
+        var taglineSize = fitSingleLineSize(ctx, tagline, 373, 26, 18, "400", "Inter Tight");
+        ctx.fillStyle = "#6B6B66";
+        ctx.font = '400 ' + taglineSize + 'px "Inter Tight", sans-serif';
+        ctx.fillText(tagline, 208, 160);
+    }
+
     async function productImageBlob(product, managerName) {
+        if (document.fonts && document.fonts.load) {
+            try { await document.fonts.load('800 85px "DM Sans"'); } catch (error) {}
+            try { await document.fonts.load('800 104px "DM Sans"'); } catch (error) {}
+            try { await document.fonts.load('600 24px "Inter Tight"'); } catch (error) {}
+            try { await document.fonts.load('400 26px "Inter Tight"'); } catch (error) {}
+            try { await document.fonts.load('700 24px "Inter Tight"'); } catch (error) {}
+        }
         if (document.fonts && document.fonts.ready) await document.fonts.ready;
         var canvas = document.createElement("canvas");
         canvas.width = 1440;
         canvas.height = 1260;
         var ctx = canvas.getContext("2d");
-        var warning = "";
 
         try {
             var background = await loadImage(templateUrl());
@@ -664,129 +735,163 @@
         } catch (error) {
             ctx.fillStyle = "#F3EDE3";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            try {
-                var fallbackLogo = await loadImage(officialLogoUrl());
-                drawContain(ctx, fallbackLogo, 80, 20, 100, 100);
-            } catch (logoError) {}
-            ctx.fillStyle = "#163A2D";
-            ctx.font = '700 38px "DM Sans", sans-serif';
-            ctx.fillText("VOLXEN", 207, 92);
-            ctx.fillStyle = "#C8A165";
-            ctx.font = '700 13px "Inter Tight", sans-serif';
-            ctx.fillText("DISTRIBUCIÓN OFICIAL", 208, 124);
         }
+        await drawOfficialLockup(ctx);
 
-        var photoX = 691;
-        var photoY = 332;
-        var photoW = 688;
-        var photoH = 654;
+        var photoX = 658;
+        var photoY = 334;
+        var photoW = 711;
+        var photoH = 561;
         ctx.save();
-        roundRect(ctx, photoX, photoY, photoW, photoH, 34);
+        roundRect(ctx, photoX, photoY, photoW, photoH, 30);
         ctx.clip();
-        if (product.image) {
-            try {
-                var image = await loadImage(product.image);
-                drawCover(ctx, image, photoX, photoY, photoW, photoH);
-            } catch (error) {
-                warning = "No se pudo incluir la foto del producto.";
-                drawProductPlaceholder(ctx, photoX, photoY, photoW, photoH, {
-                    background: "#E5DFD5",
-                    color: "#77736C"
-                });
-            }
-        } else {
-            drawProductPlaceholder(ctx, photoX, photoY, photoW, photoH, {
-                background: "#E5DFD5",
-                color: "#77736C"
-            });
+        if (!product.image) {
+            ctx.restore();
+            throw new Error("El producto no tiene foto. Agrega una foto antes de compartir.");
+        }
+        try {
+            var image = await loadImage(product.image);
+            drawContain(ctx, image, photoX, photoY, photoW, photoH);
+        } catch (error) {
+            ctx.restore();
+            throw new Error("No se pudo cargar la foto del producto desde Supabase (CORS o crossOrigin). No se generó la imagen sin foto.");
         }
         ctx.restore();
 
-        paintPanel(ctx, 58, 204, 610, 212, "#F3ECE4", "#EFE8DF");
-        var name = String(product.name || "Producto");
-        var nameFit = fitNameSize(ctx, name, 580, 76, 38, 198);
+        var name = String(product.name || "Producto").trim() || "Producto";
+        var nameFit = fitNameSize(ctx, name, 540, 76, 38, 198);
+        var description = String(product.description || "").trim() || String(product.category || "").trim();
+        var features = Array.isArray(product.features) ? product.features : [];
+        var featureRows = [
+            { baseline: 570, left: "#F0EDE3", right: "#ECE5DC" },
+            { baseline: 700, left: "#F5EDE0", right: "#EBE4DB" },
+            { baseline: 830, left: "#EDECE2", right: "#EAE4DD" }
+        ];
+        var priceText = priceLabel(product.price);
+        var priceSize = fitFontSize(ctx, priceText, 352, 1, 88, 30, '700');
+        var guarantee = String(product.guarantee || "").trim();
+        var guaranteeSize = guarantee ? fitSingleLineSize(ctx, guarantee, 900, 48, 24, "700", "DM Sans") : 0;
+        var manager = String(managerName || "").trim();
+        var warning = manager ? "" : "No se dibujó el comercial: falta el nombre en Mi cuenta.";
+        var overflow = [];
+
+        if (nameFit.lines.length > 3 || nameFit.lines.some(function (line) { return ctx.measureText(line).width > 540; })) {
+            overflow.push('nombre "' + name + '"');
+        }
+
+        if (description) {
+            ctx.font = '400 24px "Inter Tight", sans-serif';
+            var descriptionLines = measureLines(ctx, description, 540);
+            if (descriptionLines.length > 2 || descriptionLines.some(function (line) { return ctx.measureText(line).width > 540; })) {
+                overflow.push('descripción "' + description + '"');
+            }
+        }
+
+        if (features.length > 3) {
+            var extraFeatures = features.slice(3).map(function (item) {
+                return featurePair(item).title;
+            }).filter(Boolean);
+            if (extraFeatures.length) {
+                overflow.push('características adicionales: ' + extraFeatures.join(", "));
+            }
+        }
+
+        featureRows.forEach(function (row, index) {
+            var item = featurePair(features[index]);
+            if (!item.title) return;
+            if (item.detail) {
+                ctx.font = '700 26px "DM Sans", sans-serif';
+                if (ctx.measureText(item.title).width > 400) overflow.push('título de característica "' + item.title + '"');
+                ctx.font = '400 19px "Inter Tight", sans-serif';
+                var detailLines = measureLines(ctx, item.detail, 400);
+                if (detailLines.length > 2 || detailLines.some(function (line) { return ctx.measureText(line).width > 400; })) {
+                    overflow.push('detalle de característica "' + item.title + '"');
+                }
+            } else {
+                ctx.font = '600 22px "DM Sans", sans-serif';
+                var titleLines = measureLines(ctx, item.title, 400);
+                if (titleLines.length > 2 || titleLines.some(function (line) { return ctx.measureText(line).width > 400; })) {
+                    overflow.push('característica "' + item.title + '"');
+                }
+            }
+        });
+
+        ctx.font = '700 ' + priceSize + 'px "DM Sans", sans-serif';
+        if (ctx.measureText(priceText).width > 352) overflow.push('precio "' + priceText + '"');
+
+        if (guarantee) {
+            ctx.font = '700 ' + guaranteeSize + 'px "DM Sans", sans-serif';
+            if (ctx.measureText(guarantee).width > 900) overflow.push('garantía "' + guarantee + '"');
+        }
+
+        if (manager) {
+            ctx.font = '600 20px "Inter Tight", sans-serif';
+            if (ctx.measureText("Comercial VOLXEN: " + manager).width > 700) overflow.push('nombre del comercial "' + manager + '"');
+        }
+
+        if (overflow.length) {
+            throw new Error("Estos datos no caben completos en la imagen: " + overflow.join("; ") + ". No se generó la imagen para no recortarlos.");
+        }
+
+        paintPanel(ctx, 58, 204, 580, 212, "#F3ECE4", "#EFE8DF");
         ctx.fillStyle = "#163A2D";
         ctx.font = '700 ' + nameFit.size + 'px "DM Sans", sans-serif';
         var nameBaseline = 214 + Math.round(nameFit.size * .8);
-        wrapText(ctx, name, 76, nameBaseline, 580, nameFit.lineHeight, 3);
+        wrapText(ctx, name, 76, nameBaseline, 540, nameFit.lineHeight, 3);
 
-        paintPanel(ctx, 58, 416, 610, 96, "#F4EDE5", "#F0E9E1");
-        var description = String(product.description || "").trim() || String(product.category || "").trim();
+        paintPanel(ctx, 58, 416, 580, 96, "#F4EDE5", "#F0E9E1");
         if (description) {
             ctx.fillStyle = "#55524B";
             ctx.font = '400 24px "Inter Tight", sans-serif';
-            wrapText(ctx, description, 76, 452, 560, 31, 2);
+            wrapText(ctx, description, 76, 452, 540, 31, 2);
         }
 
-        var features = Array.isArray(product.features) ? product.features : [];
-        var featureRows = [
-            { baseline: 574, left: "#F0EDE3", right: "#ECE5DC" },
-            { baseline: 726, left: "#F5EDE0", right: "#EBE4DB" },
-            { baseline: 878, left: "#EDECE2", right: "#EAE4DD" }
-        ];
         featureRows.forEach(function (row, index) {
-            paintPanel(ctx, 212, row.baseline - 44, 456, 124, row.left, row.right, 8);
+            paintPanel(ctx, 212, row.baseline - 40, 426, 110, row.left, row.right, 8);
             var item = featurePair(features[index]);
             if (!item.title) return;
             if (item.detail) {
                 ctx.fillStyle = "#17392C";
                 ctx.font = '700 26px "DM Sans", sans-serif';
-                ctx.fillText(truncateText(ctx, item.title, 430), 226, row.baseline);
+                ctx.fillText(item.title, 226, row.baseline);
                 ctx.fillStyle = "#6B6B66";
                 ctx.font = '400 19px "Inter Tight", sans-serif';
-                wrapText(ctx, item.detail, 226, row.baseline + 34, 430, 30, 2);
+                wrapText(ctx, item.detail, 226, row.baseline + 30, 400, 28, 2);
             } else {
                 ctx.fillStyle = "#17392C";
                 ctx.font = '600 22px "DM Sans", sans-serif';
-                wrapText(ctx, item.title, 226, row.baseline, 430, 28, 2);
+                wrapText(ctx, item.title, 226, row.baseline, 400, 28, 2);
             }
         });
 
-        paintPanel(ctx, 756, 150, 388, 158, "#0F2A23", "#183B31", 12);
+        drawPricePanel(ctx, 840, 16, 400, 170);
         ctx.fillStyle = "#C8A165";
         ctx.font = '700 18px "Inter Tight", sans-serif';
-        ctx.fillText("PRECIO PÚBLICO", 772, 191);
-        var priceText = priceLabel(product.price);
-        var priceSize = fitFontSize(ctx, priceText, 356, 1, 88, 30, '700');
+        ctx.fillText("PRECIO", 864, 56);
         ctx.fillStyle = "#F8F7F4";
         ctx.font = '700 ' + priceSize + 'px "DM Sans", sans-serif';
-        ctx.fillText(priceText, 770, 292);
+        ctx.fillText(priceText, 862, 150);
 
-        var manager = String(managerName || "").trim() || "Equipo VOLXEN";
-        var managerParts = manager.split(/\s+/);
-        var shortManager = managerParts.length > 1
-            ? managerParts[0] + " " + managerParts[managerParts.length - 1].charAt(0).toUpperCase() + "."
-            : manager;
-        var footerMaxWidth = 500;
-        var footerSize = 16;
-        var footerText = "Comercial VOLXEN: " + manager;
-        while (footerSize > 12) {
-            ctx.font = '600 ' + footerSize + 'px "Inter Tight", sans-serif';
-            if (ctx.measureText(footerText).width <= footerMaxWidth) break;
-            footerText = "Comercial VOLXEN: " + shortManager;
-            if (ctx.measureText(footerText).width <= footerMaxWidth) break;
-            footerSize -= 1;
+        if (guarantee) {
+            drawGoldTag(ctx, 1250, 40, 185, 110);
+            ctx.fillStyle = "#C8A165";
+            ctx.font = '700 24px "Inter Tight", sans-serif';
+            drawTrackedText(ctx, "GARANTÍA", 64, 960, 4);
+            ctx.fillStyle = "#F5EEDC";
+            ctx.font = '700 ' + guaranteeSize + 'px "DM Sans", sans-serif';
+            ctx.fillText(guarantee, 64, 1015);
         }
-        ctx.font = '600 ' + footerSize + 'px "Inter Tight", sans-serif';
-        footerText = truncateText(ctx, footerText, footerMaxWidth);
-        ctx.fillStyle = "#6B6B66";
-        ctx.textAlign = "right";
-        ctx.fillText(footerText, 1184, 1206);
-        ctx.textAlign = "left";
+
+        if (manager) {
+            var footerText = "Comercial VOLXEN: " + manager;
+            ctx.fillStyle = "#4A4A46";
+            ctx.textAlign = "right";
+            ctx.font = '600 20px "Inter Tight", sans-serif';
+            ctx.fillText(footerText, 1180, 1232);
+            ctx.textAlign = "left";
+        }
 
         return { blob: await canvasBlob(canvas), warning: warning };
-    }
-
-    function drawProductPlaceholder(ctx, x, y, width, height, theme) {
-        var colors = theme || {};
-        ctx.fillStyle = colors.background || "rgba(255,253,249,.55)";
-        roundRect(ctx, x + 40, y + 40, width - 80, height - 80, 24);
-        ctx.fill();
-        ctx.fillStyle = colors.color || BRAND.muted;
-        ctx.font = '600 24px "Inter Tight", sans-serif';
-        ctx.textAlign = "center";
-        ctx.fillText("Imagen no disponible", x + width / 2, y + height / 2);
-        ctx.textAlign = "left";
     }
 
     async function shareFile(blob, filename, title, text) {
