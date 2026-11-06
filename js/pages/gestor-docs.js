@@ -680,6 +680,56 @@
         return { title: text, detail: "" };
     }
 
+    function normalizarClave(texto) {
+        return String(texto || "")
+            .toLowerCase()
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+            .replace(/[^a-z0-9\s]/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+    }
+
+    function iconosPorCategoria(clave) {
+        var reglas = [
+            { claves: ["watt", "vatios", "potencia"], iconos: ["rayo", "energia", "fusible"] },
+            { claves: ["amp", "amper", "amperaje"], iconos: ["fusible", "enchufe", "rayo"] },
+            { claves: ["voltaje", "voltage", "volt"], iconos: ["enchufe", "rayo", "fusible"] },
+            { claves: ["panel", "placa", "solar", "monocristal", "bifacial"], iconos: ["panel-solar", "techo", "caja"] },
+            { claves: ["techo", "instalacion", "montaje", "estructura"], iconos: ["techo", "casa", "panel-solar"] },
+            { claves: ["fuego", "calor", "termico", "llama"], iconos: ["llama", "gota", "caja"] },
+            { claves: ["agua", "lluvia", "humedad", "resistencia"], iconos: ["gota", "nube", "llave"] },
+            { claves: ["viento", "aire", "flujo"], iconos: ["viento", "abanico", "caja"] },
+            { claves: ["seguridad", "candado", "seguro", "cerradura"], iconos: ["candado", "llave", "caja"] },
+            { claves: ["llave", "herramienta", "ajuste"], iconos: ["llave", "candado", "caja"] },
+            { claves: ["peso", "kilos", "carga", "carga maxima"], iconos: ["caja", "pesa", "regla"] },
+            { claves: ["tamano", "tamaño", "grande", "dims", "medida"], iconos: ["regla", "cuadro", "caja"] },
+            { claves: ["bateria", "autonomia", "horas", "duracion"], iconos: ["bateria", "caja", "energia"] },
+            { claves: ["dimension", "ancho", "alto", "largo"], iconos: ["regla", "cuadro", "caja"] }
+        ];
+        for (var i = 0; i < reglas.length; i++) {
+            var regla = reglas[i];
+            for (var j = 0; j < regla.claves.length; j++) {
+                if (clave.indexOf(regla.claves[j]) !== -1) {
+                    return regla.iconos;
+                }
+            }
+        }
+        return ["circulo", "punto", "cuadro"];
+    }
+
+    function asignarIcono(clave, usados) {
+        var alternativas = iconosPorCategoria(clave);
+        for (var i = 0; i < alternativas.length; i++) {
+            var nombre = alternativas[i];
+            if (usados.indexOf(nombre) === -1) {
+                usados.push(nombre);
+                return nombre;
+            }
+        }
+        usados.push("circulo");
+        return "circulo";
+    }
+
     function fitNameSize(ctx, text, maxWidth, maxSize, minSize, maxBlock, maxLines) {
         var lineLimit = maxLines || 3;
         for (var size = maxSize; size >= minSize; size -= 2) {
@@ -852,18 +902,244 @@
         ctx.restore();
     }
 
-    function drawFeatureIcon(ctx, index, cx, cy, radius) {
-        var fills = ["#163A2D", "#C8A165", "#163A2D"];
+    function drawFeatureIcon(ctx, tipoIcono, cx, cy, radius, color) {
         var r = radius || 38;
         ctx.save();
         ctx.translate(cx, cy);
+        ctx.beginPath();
+        ctx.arc(0, 0, r, 0, Math.PI * 2);
+        ctx.fillStyle = color || "#2E4A3F";
+        ctx.fill();
         ctx.scale(r / 38, r / 38);
-        drawFeatureCircle(ctx, 0, 0, 38, fills[index]);
-        if (index === 0) drawShieldIcon(ctx, 0, 0);
-        else if (index === 1) drawBoltIcon(ctx, 0, 0);
-        else drawGearIcon(ctx, 0, 0, fills[index]);
+        ctx.fillStyle = "#FFFFFF";
+        ctx.strokeStyle = "#FFFFFF";
+        ctx.lineWidth = 2;
+        var dibujante = iconDrawers[tipoIcono] || iconDrawers.circulo;
+        dibujante(ctx);
         ctx.restore();
     }
+
+    var iconDrawers = {
+        rayo: function (ctx) {
+            ctx.beginPath();
+            ctx.moveTo(0, -14);
+            ctx.lineTo(6, -2);
+            ctx.lineTo(-2, -2);
+            ctx.lineTo(-2, 6);
+            ctx.lineTo(2, 6);
+            ctx.lineTo(2, 14);
+            ctx.lineTo(-6, 2);
+            ctx.lineTo(2, 2);
+            ctx.lineTo(2, -2);
+            ctx.lineTo(-6, -14);
+            ctx.closePath();
+            ctx.fill();
+        },
+        energia: function (ctx) {
+            ctx.beginPath();
+            ctx.arc(0, 0, 11, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(-9, 0); ctx.lineTo(9, 0);
+            ctx.moveTo(0, -9); ctx.lineTo(0, 9);
+            ctx.moveTo(-6, -6); ctx.lineTo(6, 6);
+            ctx.moveTo(6, -6); ctx.lineTo(-6, 6);
+            ctx.stroke();
+        },
+        fusible: function (ctx) {
+            ctx.beginPath();
+            ctx.moveTo(-10, -14); ctx.lineTo(10, -14);
+            ctx.lineTo(10, 14); ctx.lineTo(-10, 14);
+            ctx.closePath();
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(-6, -14); ctx.lineTo(-6, -10);
+            ctx.moveTo(6, -14); ctx.lineTo(6, -10);
+            ctx.moveTo(-6, 14); ctx.lineTo(-6, 10);
+            ctx.moveTo(6, 14); ctx.lineTo(6, 10);
+            ctx.stroke();
+        },
+        enchufe: function (ctx) {
+            ctx.beginPath();
+            ctx.moveTo(-7, -10); ctx.lineTo(7, -10);
+            ctx.lineTo(7, 10); ctx.lineTo(-7, 10);
+            ctx.closePath();
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(-4, -14); ctx.lineTo(-4, -10);
+            ctx.moveTo(4, -14); ctx.lineTo(4, -10);
+            ctx.stroke();
+        },
+        "panel-solar": function (ctx) {
+            ctx.beginPath();
+            ctx.moveTo(-11, -11); ctx.lineTo(11, -11);
+            ctx.lineTo(11, 11); ctx.lineTo(-11, 11);
+            ctx.closePath();
+            ctx.stroke();
+            for (var i = -7; i <= 7; i += 4) {
+                ctx.beginPath();
+                ctx.moveTo(i, -9); ctx.lineTo(i, 9);
+                ctx.stroke();
+            }
+        },
+        techo: function (ctx) {
+            ctx.beginPath();
+            ctx.moveTo(-11, 4); ctx.lineTo(0, -11);
+            ctx.lineTo(11, 4);
+            ctx.lineTo(-11, 4);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(-11, 4); ctx.lineTo(11, 4);
+            ctx.lineTo(11, 11); ctx.lineTo(-11, 11);
+            ctx.closePath();
+            ctx.fill();
+        },
+        casa: function (ctx) {
+            ctx.beginPath();
+            ctx.moveTo(0, -11); ctx.lineTo(11, 3);
+            ctx.lineTo(11, 11); ctx.lineTo(-11, 11);
+            ctx.lineTo(-11, 3);
+            ctx.closePath();
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(-2, 7); ctx.lineTo(2, 7);
+            ctx.moveTo(-2, 11); ctx.lineTo(-2, 7);
+            ctx.moveTo(2, 11); ctx.lineTo(2, 7);
+            ctx.stroke();
+        },
+        llama: function (ctx) {
+            ctx.beginPath();
+            ctx.moveTo(0, -12);
+            ctx.bezierCurveTo(6, -10, 6, 2, 0, 6);
+            ctx.bezierCurveTo(-6, 2, -6, -10, 0, -12);
+            ctx.fill();
+        },
+        gota: function (ctx) {
+            ctx.beginPath();
+            ctx.moveTo(0, -10);
+            ctx.bezierCurveTo(6, -6, 9, 2, 0, 8);
+            ctx.bezierCurveTo(-9, 2, -6, -6, 0, -10);
+            ctx.fill();
+        },
+        nube: function (ctx) {
+            ctx.beginPath();
+            ctx.arc(-6, -2, 6, 0, Math.PI * 2);
+            ctx.arc(0, -4, 7, 0, Math.PI * 2);
+            ctx.arc(6, -2, 6, 0, Math.PI * 2);
+            ctx.fill();
+        },
+        viento: function (ctx) {
+            ctx.beginPath();
+            ctx.moveTo(-10, -6); ctx.quadraticCurveTo(0, -6, 10, 2);
+            ctx.moveTo(-10, 2); ctx.quadraticCurveTo(0, 2, 10, -2);
+            ctx.moveTo(-10, 10); ctx.quadraticCurveTo(0, 10, 10, 6);
+            ctx.stroke();
+        },
+        abanico: function (ctx) {
+            ctx.beginPath();
+            ctx.arc(0, 0, 10, Math.PI * 0.25, Math.PI * 0.75);
+            ctx.lineTo(0, 0);
+            ctx.closePath();
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(-7, 3); ctx.lineTo(7, 3);
+            ctx.moveTo(-5, 1); ctx.lineTo(5, 1);
+            ctx.moveTo(-3, -1); ctx.lineTo(3, -1);
+            ctx.stroke();
+        },
+        candado: function (ctx) {
+            ctx.beginPath();
+            ctx.moveTo(-7, 0); ctx.lineTo(7, 0);
+            ctx.lineTo(7, 11); ctx.lineTo(-7, 11);
+            ctx.closePath();
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(0, 0, 5, Math.PI, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(-2, 0); ctx.lineTo(-2, -3);
+            ctx.moveTo(2, 0); ctx.lineTo(2, -3);
+            ctx.stroke();
+        },
+        llave: function (ctx) {
+            ctx.beginPath();
+            ctx.arc(-8, -2, 3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(-5, -2); ctx.lineTo(2, -2);
+            ctx.lineTo(2, 2); ctx.lineTo(-5, 2);
+            ctx.closePath();
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(2, -2); ctx.lineTo(4, -4);
+            ctx.moveTo(2, 2); ctx.lineTo(4, 4);
+            ctx.stroke();
+        },
+        caja: function (ctx) {
+            ctx.beginPath();
+            ctx.moveTo(-9, -9); ctx.lineTo(9, -9);
+            ctx.lineTo(9, 9); ctx.lineTo(-9, 9);
+            ctx.closePath();
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(-5, -3); ctx.lineTo(5, -3);
+            ctx.lineTo(5, 3); ctx.lineTo(-5, 3);
+            ctx.closePath();
+            ctx.stroke();
+        },
+        pesa: function (ctx) {
+            ctx.beginPath();
+            ctx.moveTo(-8, -10); ctx.lineTo(8, -10);
+            ctx.lineTo(8, 10); ctx.lineTo(-8, 10);
+            ctx.closePath();
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(0, 0, 4, 0, Math.PI * 2);
+            ctx.fillStyle = "#FFFFFF";
+            ctx.fill();
+        },
+        regla: function (ctx) {
+            ctx.beginPath();
+            ctx.moveTo(-10, -10); ctx.lineTo(10, -10);
+            ctx.lineTo(10, 10); ctx.lineTo(-10, 10);
+            ctx.closePath();
+            ctx.stroke();
+            for (var i = -8; i <= 8; i += 4) {
+                ctx.beginPath();
+                ctx.moveTo(i, -10); ctx.lineTo(i, -6);
+                ctx.stroke();
+            }
+        },
+        cuadro: function (ctx) {
+            ctx.beginPath();
+            ctx.moveTo(-9, -9); ctx.lineTo(9, -9);
+            ctx.lineTo(9, 9); ctx.lineTo(-9, 9);
+            ctx.closePath();
+            ctx.fill();
+        },
+        bateria: function (ctx) {
+            ctx.beginPath();
+            ctx.moveTo(-9, -8); ctx.lineTo(9, -8);
+            ctx.lineTo(9, 8); ctx.lineTo(-9, 8);
+            ctx.closePath();
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(7, -5); ctx.lineTo(11, -5);
+            ctx.lineTo(11, 5); ctx.lineTo(7, 5);
+            ctx.closePath();
+            ctx.fill();
+        },
+        circulo: function (ctx) {
+            ctx.beginPath();
+            ctx.arc(0, 0, 7, 0, Math.PI * 2);
+            ctx.fill();
+        },
+        punto: function (ctx) {
+            ctx.beginPath();
+            ctx.arc(0, 0, 3, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    };
 
     async function drawOfficialLockup(ctx) {
         try {
@@ -1006,9 +1282,13 @@
             overflow.push('texto fijo "' + fixedSubtitle + '"');
         }
 
+        var iconosUsados = [];
         var featureLayouts = visibleFeatures.map(function (feature, index) {
             var item = featurePair(feature);
             var titleText = item.title.toUpperCase();
+            var claveIcono = normalizarClave(item.title);
+            var tipoIcono = asignarIcono(claveIcono, iconosUsados);
+            var color = (index % 2 === 0) ? "#2E4A3F" : "#C8A165";
             var drawDetail = featureMode !== "compact" && Boolean(item.detail);
             var titleSize;
             var titleLines;
@@ -1072,6 +1352,8 @@
                 detailSize: detailSize,
                 detailLineHeight: detailLineHeight,
                 iconRadius: iconRadius,
+                icono: tipoIcono,
+                color: color,
                 separatorTop: drawDetail ? (featureMode === "normal" ? -30 : -24) : (featureMode === "normal" ? -28 : -(iconRadius + 2)),
                 separatorBottom: drawDetail ? (featureMode === "normal" ? 34 : 28) : (featureMode === "normal" ? 28 : iconRadius + 2),
                 center: featureCenters[index]
@@ -1135,7 +1417,7 @@
                 ctx.fillText(layout.titleLines[0], 210, summaryBaseline);
                 return;
             }
-            drawFeatureIcon(ctx, index, 112, layout.center, layout.iconRadius);
+            drawFeatureIcon(ctx, layout.icono, 112, layout.center, layout.iconRadius, layout.color);
 
             ctx.strokeStyle = "#C8A165";
             ctx.lineWidth = 3;

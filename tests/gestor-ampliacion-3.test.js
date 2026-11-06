@@ -111,7 +111,15 @@ test("el diseño izquierdo sigue el modelo de la plantilla", () => {
     assert.match(docs, /"Y " \+ \(featureCount - 4\) \+ " CARACTERÍSTICAS MÁS"/);
     assert.match(docs, /featureMode === "four" \? 20 : 18/);
     assert.match(docs, /item\.title\.toUpperCase\(\)/);
-    assert.match(docs, /drawFeatureIcon\(ctx, index, 112, layout\.center, layout\.iconRadius\)/);
+    assert.match(docs, /drawFeatureIcon\(ctx, layout\.icono, 112, layout\.center, layout\.iconRadius, layout\.color\)/);
+    assert.match(docs, /function normalizarClave/);
+    assert.match(docs, /function asignarIcono/);
+    assert.match(docs, /iconDrawers/);
+    assert.match(docs, /#2E4A3F/);
+    assert.match(docs, /#C8A165/);
+    assert.match(docs, /icono: tipoIcono/);
+    assert.match(docs, /color: color/);
+    assert.match(docs, /var iconosUsados = \[\]/);
     assert.match(docs, /featureRegionTop/);
     assert.match(docs, /featureRegionBottom = 878/);
     assert.match(docs, /#1E1D1B/);
