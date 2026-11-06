@@ -119,8 +119,10 @@ test("el diseño izquierdo sigue el modelo de la plantilla", () => {
     assert.match(docs, /#C8A165/);
     assert.match(docs, /icono: tipoIcono/);
     assert.match(docs, /color: color/);
-    assert.match(docs, /var iconNames = \[\]/);
-    assert.match(docs, /await preloadShareIcons\(iconNames\)/);
+    assert.match(docs, /function parsePathData/);
+    assert.match(docs, /DOMParser/);
+    assert.match(docs, /querySelectorAll/);
+    assert.match(docs, /imageSmoothingQuality = "high"/);
     assert.match(docs, /featureRegionTop/);
     assert.match(docs, /featureRegionBottom = 878/);
     assert.match(docs, /#1E1D1B/);
@@ -210,9 +212,11 @@ test("los iconos de características son reales (lucide-static) y no se repiten"
     assert.match(docs, /function normalizarClave/);
     assert.match(docs, /function iconosPorCategoria/);
     assert.match(docs, /function asignarIcono/);
-    assert.match(docs, /var iconImages = \{}/);
-    assert.match(docs, /async function preloadShareIcons/);
-    assert.match(docs, /await preloadShareIcons\(iconNames\)/);
+    assert.doesNotMatch(docs, /var iconImages/);
+    assert.doesNotMatch(docs, /svgDataUrl/);
+    assert.doesNotMatch(docs, /preloadShareIcon/);
+    assert.doesNotMatch(docs, /preloadShareIcons/);
+    assert.doesNotMatch(docs, /ctx\.drawImage\(img/);
 
     // No hay figuras de relleno (iconDrawers eliminado)
     assert.doesNotMatch(docs, /iconDrawers/);
@@ -220,9 +224,11 @@ test("los iconos de características son reales (lucide-static) y no se repiten"
     assert.doesNotMatch(docs, /function drawBoltIcon/);
     assert.doesNotMatch(docs, /function drawGearIcon/);
 
-    // drawFeatureIcon renderiza SVG como imagen con drawImage y smoothing high
+    // drawFeatureIcon dibuja paths SVG directamente en canvas con DOMParser
     assert.match(docs, /function drawFeatureIcon/);
-    assert.match(docs, /ctx\.drawImage\(img/);
+    assert.match(docs, /function parsePathData/);
+    assert.match(docs, /DOMParser/);
+    assert.match(docs, /querySelectorAll/);
     assert.match(docs, /imageSmoothingQuality = "high"/);
 
     // Colores verde y dorado, nunca negro
