@@ -1,3 +1,37 @@
+// Iconos automáticos para compartir imagen de producto
+// Fuente: lucide-static v1.7.0 (paquete lucide-static, npm)
+// Licencia: ISC (ver share-icons-license.txt)
+// Los iconos derivados de Feather llevan licencia MIT (ver LICENSE dentro del paquete).
+// Cada valor es el contenido SVG con currentColor reemplazado por #FFFFFF,
+// listo para renderizar como imagen en canvas con imageSmoothingQuality="high".
+// No se modificó package.json ni package-lock.json; es solo lectura del paquete en /tmp.
+
+const SHARE_ICONS = {
+  "potencia": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M15.914 4a1.5 1.5 0 00-2.474-1.561l-9 9A1.5 1.5 0 005.5 14h4.002a.5.5 0 01.471.666L8.086 20a1.5 1.5 0 002.475 1.56l9-9A1.5 1.5 0 0018.5 10h-3.997a.5.5 0 01-.472-.667z\" /> </svg>",
+  "voltaje": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M12 22v-5\" /> <path d=\"M15 8V2\" /> <path d=\"M17 8a1 1 0 0 1 1 1v4a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1z\" /> <path d=\"M9 8V2\" /> </svg>",
+  "bateria": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M 22 14 L 22 10\" /> <rect x=\"2\" y=\"6\" rx=\"2\" /> </svg>",
+  "solar": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M11 2h2\" /> <path d=\"m14.28 14-4.56 8\" /> <path d=\"m21 22-1.558-4H4.558\" /> <path d=\"M3 10v2\" /> <path d=\"M6.245 15.04A2 2 0 0 1 8 14h12a1 1 0 0 1 .864 1.505l-3.11 5.457A2 2 0 0 1 16 22H4a1 1 0 0 1-.863-1.506z\" /> <path d=\"M7 2a4 4 0 0 1-4 4\" /> <path d=\"m8.66 7.66 1.41 1.41\" /> </svg>",
+  "capacidad": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z\" /> <path d=\"M12 22V12\" /> <polyline points=\"3.29 7 12 12 20.71 7\" /> <path d=\"m7.5 4.27 9 5.15\" /> </svg>",
+  "pantalla": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <rect x=\"2\" y=\"3\" rx=\"2\" /> <line x1=\"8\" x2=\"16\" y1=\"21\" y2=\"21\" /> <line x1=\"12\" x2=\"12\" y1=\"17\" y2=\"21\" /> </svg>",
+  "wifi": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M12 20h.01\" /> <path d=\"M2 8.82a15 15 0 0 1 20 0\" /> <path d=\"M5 12.859a10 10 0 0 1 14 0\" /> <path d=\"M8.5 16.429a5 5 0 0 1 7 0\" /> </svg>",
+  "frio": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"m10 20-1.25-2.5L6 18\" /> <path d=\"M10 4 8.75 6.5 6 6\" /> <path d=\"m14 20 1.25-2.5L18 18\" /> <path d=\"m14 4 1.25 2.5L18 6\" /> <path d=\"m17 21-3-6h-4\" /> <path d=\"m17 3-3 6 1.5 3\" /> <path d=\"M2 12h6.5L10 9\" /> <path d=\"m20 10-1.5 2 1.5 2\" /> <path d=\"M22 12h-6.5L14 15\" /> <path d=\"m4 10 1.5 2L4 14\" /> <path d=\"m7 21 3-6-1.5-3\" /> <path d=\"m7 3 3 6h4\" /> </svg>",
+  "calor": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4\" /> </svg>",
+  "ahorro": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M11 20a10 10 0 0010-10 25.9 25.9 0 00-1.04-7.281 1 1 0 00-1.755-.325C15.833 5.5 13 5.5 9.8 6.1A7 7 0 0011 20\" /> <path d=\"M2 21a5 5 0 012.911-4.544C7.613 15.212 8.351 15.24 11 13\" /> </svg>",
+  "ventilacion": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M10.827 16.379a6.082 6.082 0 0 1-8.618-7.002l5.412 1.45a6.082 6.082 0 0 1 7.002-8.618l-1.45 5.412a6.082 6.082 0 0 1 8.618 7.002l-5.412-1.45a6.082 6.082 0 0 1-7.002 8.618l1.45-5.412Z\" /> <path d=\"M12 12v.01\" /> </svg>",
+  "iluminacion": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M12 12v6\" /> <path d=\"M4.077 10.615A1 1 0 0 0 5 12h14a1 1 0 0 0 .923-1.385l-3.077-7.384A2 2 0 0 0 15 2H9a2 2 0 0 0-1.846 1.23Z\" /> <path d=\"M8 20a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1z\" /> </svg>",
+  "durabilidad": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\" /> </svg>",
+  "garantia": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M12 10H6\" /> <path d=\"m20.69 15.479 1.29 4.88a.5.5 0 01-.698.591l-1.843-.849a1 1 0 00-.879.001l-1.846.85a.5.5 0 01-.692-.593l1.29-4.88\" /> <path d=\"M22 6.675V6a2 2 0 00-2-2H4a2 2 0 00-2 2v12a2 2 0 002 2h8\" /> <path d=\"M6 14h4\" /> <circle cx=\"19\" cy=\"13\" r=\"3\" /> </svg>",
+  "silencio": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z\" /> </svg>",
+  "material": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z\" /> <path d=\"m3.3 7 8.7 5 8.7-5\" /> <path d=\"M12 22V12\" /> </svg>",
+  "fuego": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4\" /> </svg>",
+  "neutro": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <circle cx=\"12\" cy=\"12\" r=\"10\" /> </svg>"
+};
+
+function getShareIcon(name) {
+  return SHARE_ICONS[name] || SHARE_ICONS.neutro;
+}
+
+
 (function () {
     "use strict";
 
@@ -833,73 +867,94 @@
         ctx.fillText("GARANTIZADA!", x + 46, y + 76);
     }
 
-    function drawFeatureCircle(ctx, cx, cy, radius, color) {
-        ctx.beginPath();
-        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-        ctx.fillStyle = color;
-        ctx.fill();
+    var iconImages = {};
+
+    function svgDataUrl(svg) {
+        return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
     }
 
-    function drawShieldIcon(ctx, cx, cy) {
-        ctx.save();
-        ctx.translate(cx, cy);
-        ctx.strokeStyle = "#F8F7F4";
-        ctx.lineWidth = 3;
-        ctx.lineJoin = "round";
-        ctx.lineCap = "round";
-        ctx.beginPath();
-        ctx.moveTo(0, -14);
-        ctx.lineTo(11, -9);
-        ctx.lineTo(11, 3);
-        ctx.quadraticCurveTo(11, 11, 0, 15);
-        ctx.quadraticCurveTo(-11, 11, -11, 3);
-        ctx.lineTo(-11, -9);
-        ctx.closePath();
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(-5, 0);
-        ctx.lineTo(-1, 5);
-        ctx.lineTo(7, -5);
-        ctx.stroke();
-        ctx.restore();
+    function preloadShareIcon(name) {
+        return new Promise(function (resolve, reject) {
+            var svg = getShareIcon(name);
+            if (!svg) { resolve(); return; }
+            var img = new Image();
+            img.onload = function () { iconImages[name] = img; resolve(); };
+            img.onerror = function () { resolve(); };
+            img.src = svgDataUrl(svg);
+        });
     }
 
-    function drawBoltIcon(ctx, cx, cy) {
-        ctx.save();
-        ctx.translate(cx, cy);
-        ctx.beginPath();
-        ctx.moveTo(2, -15);
-        ctx.lineTo(-10, 2);
-        ctx.lineTo(-2, 2);
-        ctx.lineTo(-4, 15);
-        ctx.lineTo(10, -3);
-        ctx.lineTo(2, -3);
-        ctx.closePath();
-        ctx.fillStyle = "#F8F7F4";
-        ctx.fill();
-        ctx.restore();
-    }
-
-    function drawGearIcon(ctx, cx, cy, holeColor) {
-        ctx.save();
-        ctx.translate(cx, cy);
-        ctx.beginPath();
-        for (var index = 0; index < 16; index += 1) {
-            var angle = Math.PI * 2 * index / 16 - Math.PI / 2;
-            var radius = index % 2 === 0 ? 15 : 10.5;
-            var px = Math.cos(angle) * radius;
-            var py = Math.sin(angle) * radius;
-            if (index === 0) ctx.moveTo(px, py);
-            else ctx.lineTo(px, py);
+    async function preloadShareIcons(names) {
+        var unicos = [];
+        for (var i = 0; i < names.length; i++) {
+            if (names[i] && unicos.indexOf(names[i]) === -1) {
+                unicos.push(names[i]);
+            }
         }
-        ctx.closePath();
-        ctx.fillStyle = "#F8F7F4";
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(0, 0, 5.5, 0, Math.PI * 2);
-        ctx.fillStyle = holeColor;
-        ctx.fill();
-        ctx.restore();
+        await Promise.all(unicos.map(function (n) { return preloadShareIcon(n); }));
+    }
+
+    function normalizarClave(texto) {
+        return String(texto || "")
+            .toLowerCase()
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+            .replace(/^[\s\-–—•·*]+/, "")
+            .replace(/[^a-z0-9\s]/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+    }
+
+    function iconosPorCategoria(clave) {
+        var reglas = [
+            { claves: ["watt", "vatios", "potencia"], iconos: ["potencia", "voltaje", "bateria"] },
+            { claves: ["amp", "amper", "amperaje"], iconos: ["voltaje", "potencia", "bateria"] },
+            { claves: ["voltaje", "voltage", "volt"], iconos: ["voltaje", "potencia", "bateria"] },
+            { claves: ["panel", "placa", "solar", "monocristal", "bifacial"], iconos: ["solar", "potencia", "bateria"] },
+            { claves: ["techo", "instalacion", "montaje", "estructura"], iconos: ["solar", "material", "capacidad"] },
+            { claves: ["fuego", "calor", "termico", "llama"], iconos: ["fuego", "calor", "material"] },
+            { claves: ["agua", "lluvia", "humedad", "resistencia"], iconos: ["frio", "material", "durabilidad"] },
+            { claves: ["viento", "aire", "flujo"], iconos: ["ventilacion", "frio", "material"] },
+            { claves: ["seguridad", "candado", "seguro", "cerradura"], iconos: ["durabilidad", "garantia", "material"] },
+            { claves: ["llave", "herramienta", "ajuste"], iconos: ["material", "durabilidad", "garantia"] },
+            { claves: ["peso", "kilos", "carga", "carga maxima"], iconos: ["capacidad", "material", "pantalla"] },
+            { claves: ["tamano", "tamaño", "grande", "dims", "medida"], iconos: ["capacidad", "pantalla", "material"] },
+            { claves: ["bateria", "autonomia", "horas", "duracion"], iconos: ["bateria", "ahorro", "durabilidad"] },
+            { claves: ["dimension", "ancho", "alto", "largo"], iconos: ["capacidad", "pantalla", "material"] },
+            { claves: ["pantalla", "resolucion", "pulgadas", "tv", "television"], iconos: ["pantalla", "material", "capacidad"] },
+            { claves: ["wifi", "bluetooth", "inalambrico"], iconos: ["wifi", "silencio", "material"] },
+            { claves: ["frio", "refrigeracion", "aire acondicionado", "climatizacion"], iconos: ["frio", "ventilacion", "calor"] },
+            { claves: ["calor", "termico", "calefaccion"], iconos: ["calor", "fuego", "frio"] },
+            { claves: ["ahorro", "inverter", "eco"], iconos: ["ahorro", "bateria", "durabilidad"] },
+            { claves: ["ventilacion", "ventilador"], iconos: ["ventilacion", "frio", "calor"] },
+            { claves: ["iluminacion", "led", "luz", "bombilla"], iconos: ["iluminacion", "ahorro", "material"] },
+            { claves: ["durabilidad", "resistente", "años", "anos"], iconos: ["durabilidad", "garantia", "material"] },
+            { claves: ["garantia", "garantía"], iconos: ["garantia", "durabilidad", "material"] },
+            { claves: ["silencio", "ruido", "silencioso"], iconos: ["silencio", "wifi", "material"] },
+            { claves: ["material", "acero", "aluminio", "plastico", "plástico"], iconos: ["material", "capacidad", "box"] },
+            { claves: ["fuego", "llama", "termico"], iconos: ["fuego", "calor", "iluminacion"] }
+        ];
+        for (var i = 0; i < reglas.length; i++) {
+            var regla = reglas[i];
+            for (var j = 0; j < regla.claves.length; j++) {
+                if (clave.indexOf(regla.claves[j]) !== -1) {
+                    return regla.iconos;
+                }
+            }
+        }
+        return ["neutro", "material", "durabilidad"];
+    }
+
+    function asignarIcono(clave, usados) {
+        var alternativas = iconosPorCategoria(clave);
+        for (var i = 0; i < alternativas.length; i++) {
+            var nombre = alternativas[i];
+            if (usados.indexOf(nombre) === -1) {
+                usados.push(nombre);
+                return nombre;
+            }
+        }
+        usados.push("neutro");
+        return "neutro";
     }
 
     function drawFeatureIcon(ctx, tipoIcono, cx, cy, radius, color) {
@@ -908,238 +963,21 @@
         ctx.translate(cx, cy);
         ctx.beginPath();
         ctx.arc(0, 0, r, 0, Math.PI * 2);
-        ctx.fillStyle = color || "#2E4A3F";
+        ctx.fillStyle = color || "#1E4A3F";
         ctx.fill();
-        ctx.scale(r / 38, r / 38);
-        ctx.fillStyle = "#FFFFFF";
-        ctx.strokeStyle = "#FFFFFF";
-        ctx.lineWidth = 2;
-        var dibujante = iconDrawers[tipoIcono] || iconDrawers.circulo;
-        dibujante(ctx);
         ctx.restore();
-    }
 
-    var iconDrawers = {
-        rayo: function (ctx) {
-            ctx.beginPath();
-            ctx.moveTo(0, -14);
-            ctx.lineTo(6, -2);
-            ctx.lineTo(-2, -2);
-            ctx.lineTo(-2, 6);
-            ctx.lineTo(2, 6);
-            ctx.lineTo(2, 14);
-            ctx.lineTo(-6, 2);
-            ctx.lineTo(2, 2);
-            ctx.lineTo(2, -2);
-            ctx.lineTo(-6, -14);
-            ctx.closePath();
-            ctx.fill();
-        },
-        energia: function (ctx) {
-            ctx.beginPath();
-            ctx.arc(0, 0, 11, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.beginPath();
-            ctx.moveTo(-9, 0); ctx.lineTo(9, 0);
-            ctx.moveTo(0, -9); ctx.lineTo(0, 9);
-            ctx.moveTo(-6, -6); ctx.lineTo(6, 6);
-            ctx.moveTo(6, -6); ctx.lineTo(-6, 6);
-            ctx.stroke();
-        },
-        fusible: function (ctx) {
-            ctx.beginPath();
-            ctx.moveTo(-10, -14); ctx.lineTo(10, -14);
-            ctx.lineTo(10, 14); ctx.lineTo(-10, 14);
-            ctx.closePath();
-            ctx.fill();
-            ctx.beginPath();
-            ctx.moveTo(-6, -14); ctx.lineTo(-6, -10);
-            ctx.moveTo(6, -14); ctx.lineTo(6, -10);
-            ctx.moveTo(-6, 14); ctx.lineTo(-6, 10);
-            ctx.moveTo(6, 14); ctx.lineTo(6, 10);
-            ctx.stroke();
-        },
-        enchufe: function (ctx) {
-            ctx.beginPath();
-            ctx.moveTo(-7, -10); ctx.lineTo(7, -10);
-            ctx.lineTo(7, 10); ctx.lineTo(-7, 10);
-            ctx.closePath();
-            ctx.fill();
-            ctx.beginPath();
-            ctx.moveTo(-4, -14); ctx.lineTo(-4, -10);
-            ctx.moveTo(4, -14); ctx.lineTo(4, -10);
-            ctx.stroke();
-        },
-        "panel-solar": function (ctx) {
-            ctx.beginPath();
-            ctx.moveTo(-11, -11); ctx.lineTo(11, -11);
-            ctx.lineTo(11, 11); ctx.lineTo(-11, 11);
-            ctx.closePath();
-            ctx.stroke();
-            for (var i = -7; i <= 7; i += 4) {
-                ctx.beginPath();
-                ctx.moveTo(i, -9); ctx.lineTo(i, 9);
-                ctx.stroke();
-            }
-        },
-        techo: function (ctx) {
-            ctx.beginPath();
-            ctx.moveTo(-11, 4); ctx.lineTo(0, -11);
-            ctx.lineTo(11, 4);
-            ctx.lineTo(-11, 4);
-            ctx.fill();
-            ctx.beginPath();
-            ctx.moveTo(-11, 4); ctx.lineTo(11, 4);
-            ctx.lineTo(11, 11); ctx.lineTo(-11, 11);
-            ctx.closePath();
-            ctx.fill();
-        },
-        casa: function (ctx) {
-            ctx.beginPath();
-            ctx.moveTo(0, -11); ctx.lineTo(11, 3);
-            ctx.lineTo(11, 11); ctx.lineTo(-11, 11);
-            ctx.lineTo(-11, 3);
-            ctx.closePath();
-            ctx.fill();
-            ctx.beginPath();
-            ctx.moveTo(-2, 7); ctx.lineTo(2, 7);
-            ctx.moveTo(-2, 11); ctx.lineTo(-2, 7);
-            ctx.moveTo(2, 11); ctx.lineTo(2, 7);
-            ctx.stroke();
-        },
-        llama: function (ctx) {
-            ctx.beginPath();
-            ctx.moveTo(0, -12);
-            ctx.bezierCurveTo(6, -10, 6, 2, 0, 6);
-            ctx.bezierCurveTo(-6, 2, -6, -10, 0, -12);
-            ctx.fill();
-        },
-        gota: function (ctx) {
-            ctx.beginPath();
-            ctx.moveTo(0, -10);
-            ctx.bezierCurveTo(6, -6, 9, 2, 0, 8);
-            ctx.bezierCurveTo(-9, 2, -6, -6, 0, -10);
-            ctx.fill();
-        },
-        nube: function (ctx) {
-            ctx.beginPath();
-            ctx.arc(-6, -2, 6, 0, Math.PI * 2);
-            ctx.arc(0, -4, 7, 0, Math.PI * 2);
-            ctx.arc(6, -2, 6, 0, Math.PI * 2);
-            ctx.fill();
-        },
-        viento: function (ctx) {
-            ctx.beginPath();
-            ctx.moveTo(-10, -6); ctx.quadraticCurveTo(0, -6, 10, 2);
-            ctx.moveTo(-10, 2); ctx.quadraticCurveTo(0, 2, 10, -2);
-            ctx.moveTo(-10, 10); ctx.quadraticCurveTo(0, 10, 10, 6);
-            ctx.stroke();
-        },
-        abanico: function (ctx) {
-            ctx.beginPath();
-            ctx.arc(0, 0, 10, Math.PI * 0.25, Math.PI * 0.75);
-            ctx.lineTo(0, 0);
-            ctx.closePath();
-            ctx.fill();
-            ctx.beginPath();
-            ctx.moveTo(-7, 3); ctx.lineTo(7, 3);
-            ctx.moveTo(-5, 1); ctx.lineTo(5, 1);
-            ctx.moveTo(-3, -1); ctx.lineTo(3, -1);
-            ctx.stroke();
-        },
-        candado: function (ctx) {
-            ctx.beginPath();
-            ctx.moveTo(-7, 0); ctx.lineTo(7, 0);
-            ctx.lineTo(7, 11); ctx.lineTo(-7, 11);
-            ctx.closePath();
-            ctx.fill();
-            ctx.beginPath();
-            ctx.arc(0, 0, 5, Math.PI, Math.PI * 2);
-            ctx.fill();
-            ctx.beginPath();
-            ctx.moveTo(-2, 0); ctx.lineTo(-2, -3);
-            ctx.moveTo(2, 0); ctx.lineTo(2, -3);
-            ctx.stroke();
-        },
-        llave: function (ctx) {
-            ctx.beginPath();
-            ctx.arc(-8, -2, 3, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.beginPath();
-            ctx.moveTo(-5, -2); ctx.lineTo(2, -2);
-            ctx.lineTo(2, 2); ctx.lineTo(-5, 2);
-            ctx.closePath();
-            ctx.fill();
-            ctx.beginPath();
-            ctx.moveTo(2, -2); ctx.lineTo(4, -4);
-            ctx.moveTo(2, 2); ctx.lineTo(4, 4);
-            ctx.stroke();
-        },
-        caja: function (ctx) {
-            ctx.beginPath();
-            ctx.moveTo(-9, -9); ctx.lineTo(9, -9);
-            ctx.lineTo(9, 9); ctx.lineTo(-9, 9);
-            ctx.closePath();
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(-5, -3); ctx.lineTo(5, -3);
-            ctx.lineTo(5, 3); ctx.lineTo(-5, 3);
-            ctx.closePath();
-            ctx.stroke();
-        },
-        pesa: function (ctx) {
-            ctx.beginPath();
-            ctx.moveTo(-8, -10); ctx.lineTo(8, -10);
-            ctx.lineTo(8, 10); ctx.lineTo(-8, 10);
-            ctx.closePath();
-            ctx.fill();
-            ctx.beginPath();
-            ctx.arc(0, 0, 4, 0, Math.PI * 2);
-            ctx.fillStyle = "#FFFFFF";
-            ctx.fill();
-        },
-        regla: function (ctx) {
-            ctx.beginPath();
-            ctx.moveTo(-10, -10); ctx.lineTo(10, -10);
-            ctx.lineTo(10, 10); ctx.lineTo(-10, 10);
-            ctx.closePath();
-            ctx.stroke();
-            for (var i = -8; i <= 8; i += 4) {
-                ctx.beginPath();
-                ctx.moveTo(i, -10); ctx.lineTo(i, -6);
-                ctx.stroke();
-            }
-        },
-        cuadro: function (ctx) {
-            ctx.beginPath();
-            ctx.moveTo(-9, -9); ctx.lineTo(9, -9);
-            ctx.lineTo(9, 9); ctx.lineTo(-9, 9);
-            ctx.closePath();
-            ctx.fill();
-        },
-        bateria: function (ctx) {
-            ctx.beginPath();
-            ctx.moveTo(-9, -8); ctx.lineTo(9, -8);
-            ctx.lineTo(9, 8); ctx.lineTo(-9, 8);
-            ctx.closePath();
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(7, -5); ctx.lineTo(11, -5);
-            ctx.lineTo(11, 5); ctx.lineTo(7, 5);
-            ctx.closePath();
-            ctx.fill();
-        },
-        circulo: function (ctx) {
-            ctx.beginPath();
-            ctx.arc(0, 0, 7, 0, Math.PI * 2);
-            ctx.fill();
-        },
-        punto: function (ctx) {
-            ctx.beginPath();
-            ctx.arc(0, 0, 3, 0, Math.PI * 2);
-            ctx.fill();
+        var img = iconImages[tipoIcono] || iconImages.neutro;
+        if (img) {
+            var iconSize = r * 0.5;
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = "high";
+            ctx.drawImage(img, -iconSize / 2, -iconSize / 2, iconSize, iconSize);
+            ctx.restore();
         }
-    };
+    }
 
     async function drawOfficialLockup(ctx) {
         try {
@@ -1408,6 +1246,14 @@
         fixedSubtitleLines.forEach(function (line, index) {
             ctx.fillText(line, subtitleX, subtitleFirstBaseline + index * subtitleLineHeight);
         });
+
+        var iconNames = [];
+        featureLayouts.forEach(function (layout) {
+            if (!layout.summary && layout.icono && iconNames.indexOf(layout.icono) === -1) {
+                iconNames.push(layout.icono);
+            }
+        });
+        await preloadShareIcons(iconNames);
 
         featureLayouts.forEach(function (layout, index) {
             if (layout.summary) {

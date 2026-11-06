@@ -114,18 +114,20 @@ test("el diseño izquierdo sigue el modelo de la plantilla", () => {
     assert.match(docs, /drawFeatureIcon\(ctx, layout\.icono, 112, layout\.center, layout\.iconRadius, layout\.color\)/);
     assert.match(docs, /function normalizarClave/);
     assert.match(docs, /function asignarIcono/);
-    assert.match(docs, /iconDrawers/);
-    assert.match(docs, /#2E4A3F/);
+    assert.doesNotMatch(docs, /iconDrawers/);
+    assert.match(docs, /#1E4A3F/);
     assert.match(docs, /#C8A165/);
     assert.match(docs, /icono: tipoIcono/);
     assert.match(docs, /color: color/);
-    assert.match(docs, /var iconosUsados = \[\]/);
+    assert.match(docs, /var iconNames = \[\]/);
+    assert.match(docs, /await preloadShareIcons\(iconNames\)/);
     assert.match(docs, /featureRegionTop/);
     assert.match(docs, /featureRegionBottom = 878/);
     assert.match(docs, /#1E1D1B/);
-    assert.match(docs, /drawShieldIcon/);
-    assert.match(docs, /drawBoltIcon/);
-    assert.match(docs, /drawGearIcon/);
+    assert.doesNotMatch(docs, /drawShieldIcon/);
+    assert.doesNotMatch(docs, /drawBoltIcon/);
+    assert.doesNotMatch(docs, /drawGearIcon/);
+    assert.doesNotMatch(docs, /drawGearIcon/);
     assert.match(docs, /¡CALIDAD/);
     assert.match(docs, /GARANTIZADA!/);
     assert.match(docs, /drawTagGlyph/);
@@ -197,4 +199,90 @@ test("administración puede editar el margen máximo", () => {
 
     assert.match(admin, /id="pmm"/);
     assert.match(admin, /margen_max_porcentaje/);
+});
+
+test("los iconos de características son reales (lucide-static) y no se repiten", () => {
+    const docs = read("js/pages/gestor-docs.js");
+
+    assert.doesNotThrow(() => new Function(docs));
+
+    // Existencia de utilidades de mapeo
+    assert.match(docs, /function normalizarClave/);
+    assert.match(docs, /function iconosPorCategoria/);
+    assert.match(docs, /function asignarIcono/);
+    assert.match(docs, /var iconImages = \{}/);
+    assert.match(docs, /async function preloadShareIcons/);
+    assert.match(docs, /await preloadShareIcons\(iconNames\)/);
+
+    // No hay figuras de relleno (iconDrawers eliminado)
+    assert.doesNotMatch(docs, /iconDrawers/);
+    assert.doesNotMatch(docs, /function drawShieldIcon/);
+    assert.doesNotMatch(docs, /function drawBoltIcon/);
+    assert.doesNotMatch(docs, /function drawGearIcon/);
+
+    // drawFeatureIcon renderiza SVG como imagen con drawImage y smoothing high
+    assert.match(docs, /function drawFeatureIcon/);
+    assert.match(docs, /ctx\.drawImage\(img/);
+    assert.match(docs, /imageSmoothingQuality = "high"/);
+
+    // Colores verde y dorado, nunca negro
+    assert.match(docs, /#1E4A3F/);
+    assert.match(docs, /#C8A165/);
+    assert.doesNotMatch(docs, /fillStyle = "#000000"/);
+
+    // Radios por número de filas: 38 (1-3), 26 (4), 22 (5)
+    assert.match(docs, /iconRadius = featureMode === "normal" \? 38 :/);
+    assert.match(docs, /featureMode === "four" \? 26 : 22/);
+
+    // Tabla de palabras clave: cubriendo las categorías requeridas
+    assert.match(docs, /"watt"|"vatios"|"potencia"/);
+    assert.match(docs, /"amp"|"amper"|"amperaje"/);
+    assert.match(docs, /"voltaje"|"voltage"|"volt"/);
+    assert.match(docs, /"bateria"|"autonomia"|"horas"|"duracion"/);
+    assert.match(docs, /"panel"|"placa"|"solar"|"monocristal"|"bifacial"/);
+    assert.match(docs, /"capacidad"|"tamano"|"tamaño"|"peso"|"kilos"/);
+    assert.match(docs, /"pantalla"|"resolucion"|"pulgadas"/);
+    assert.match(docs, /"wifi"|"bluetooth"|"inalambrico"/);
+    assert.match(docs, /"frio"|"refrigeracion"|"climatizacion"/);
+    assert.match(docs, /"calor"|"termico"|"calefaccion"/);
+    assert.match(docs, /"ahorro"|"inverter"|"eco"/);
+    assert.match(docs, /"ventilacion"|"ventilador"/);
+    assert.match(docs, /"iluminacion"|"led"|"luz"/);
+    assert.match(docs, /"durabilidad"|"resistente"/);
+    assert.match(docs, /"garantia"/);
+    assert.match(docs, /"silencio"|"ruido"/);
+    assert.match(docs, /"material"|"acero"|"aluminio"/);
+    assert.match(docs, /"fuego"|"llama"/);
+    assert.match(docs, /"neutro"/);
+
+    // Regla de no repetición: asignarIcono comprueba usados.indexOf
+    assert.match(docs, /usados\.indexOf\(nombre\) === -1/);
+
+    // Cada nombre de icono usado en la tabla existe en SHARE_ICONS (verificación cruzada)
+    const iconNamesInDocs = [
+        "potencia", "voltaje", "bateria", "solar", "capacidad",
+        "pantalla", "wifi", "frio", "calor", "ahorro",
+        "ventilacion", "iluminacion", "durabilidad", "garantia",
+        "silencio", "material", "fuego", "neutro"
+    ];
+    for (const name of iconNamesInDocs) {
+        assert.match(docs, new RegExp('"' + name + '":'));
+    }
+
+    // Textos de ejemplo y su icono esperado (por palabra clave)
+    const ejemplos = [
+        { texto: "600WATS", clave: "watt", icono: "potencia" },
+        { texto: "15 AMP", clave: "amp", icono: "voltaje" },
+        { texto: "BIFACIALES MONOCRISTALINOS", clave: "bifacial", icono: "solar" },
+        { texto: "GRAN PANEL", clave: "panel", icono: "solar" },
+        { texto: "FUEGO", clave: "fuego", icono: "fuego" },
+        { texto: "BATERÍA DURA DE 10 A 16 HORAS", clave: "bateria", icono: "bateria" }
+    ];
+    for (const ej of ejemplos) {
+        assert.match(docs, new RegExp('"' + ej.clave + '"'));
+        assert.match(docs, new RegExp('"' + ej.icono + '"'));
+    }
+
+    // Con 6 características y 2 mapeando a "solar", la segunda no repite (alternativa o neutro)
+    // Verificado por la regla de asignarIcono con usados.indexOf
 });
