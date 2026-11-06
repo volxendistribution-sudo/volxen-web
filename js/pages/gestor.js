@@ -1659,6 +1659,12 @@
             : "";
     }
 
+    function productOriginalImage(product) {
+        const api = catalogApi();
+        const images = api && typeof api.ft === "function" ? api.ft(product) : [];
+        return images && images[0] ? images[0] : "";
+    }
+
     function commissionCopy(line) {
         if (line.mode === "sin_comision") {
             return { title: "No trae comisión fija", detail: "La subida suma a tu comisión: " + money(line.markup) + " por unidad." };
@@ -2657,7 +2663,7 @@
                 description: product.descripcion || "",
                 features: Array.isArray(product.caracteristicas) ? product.caracteristicas : [],
                 guarantee: product.garantia || "",
-                image: productImage(product, 1200, null, "webp")
+                image: productOriginalImage(product)
             }, managerName);
 
             if (result.warning) {
