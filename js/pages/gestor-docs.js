@@ -365,6 +365,29 @@
         ctx.drawImage(image, x + (width - drawWidth) / 2, y + (height - drawHeight) / 2, drawWidth, drawHeight);
     }
 
+    function drawCover(ctx, image, x, y, width, height) {
+        var scale = Math.max(width / image.naturalWidth, height / image.naturalHeight);
+        var drawWidth = image.naturalWidth * scale;
+        var drawHeight = image.naturalHeight * scale;
+        ctx.drawImage(image, x + (width - drawWidth) / 2, y + (height - drawHeight) / 2, drawWidth, drawHeight);
+    }
+
+    function drawProductPhoto(ctx, image, x, y, width, height) {
+        var imageAspect = image.naturalWidth / image.naturalHeight;
+        var frameAspect = width / height;
+        var loss = 1 - Math.min(frameAspect / imageAspect, imageAspect / frameAspect);
+        if (loss > 0.18) {
+            ctx.save();
+            ctx.filter = "blur(26px)";
+            drawCover(ctx, image, x - 40, y - 40, width + 80, height + 80);
+            ctx.restore();
+            drawContain(ctx, image, x, y, width, height);
+            return "contain";
+        }
+        drawCover(ctx, image, x, y, width, height);
+        return "cover";
+    }
+
     function roundRect(ctx, x, y, width, height, radius) {
         var r = Math.min(radius, width / 2, height / 2);
         ctx.beginPath();
@@ -587,13 +610,6 @@
                 detail: text.slice(index + 1).trim()
             };
         }
-        var words = text.split(/\s+/).filter(Boolean);
-        if (words.length >= 3) {
-            return {
-                title: words[0],
-                detail: words.slice(1).join(" ")
-            };
-        }
         return { title: text, detail: "" };
     }
 
@@ -803,6 +819,8 @@
             try { await document.fonts.load('800 104px "DM Sans"'); } catch (error) {}
             try { await document.fonts.load('700 24px "DM Sans"'); } catch (error) {}
             try { await document.fonts.load('600 24px "Inter Tight"'); } catch (error) {}
+            try { await document.fonts.load('600 20px "Inter Tight"'); } catch (error) {}
+            try { await document.fonts.load('600 30px "Inter Tight"'); } catch (error) {}
             try { await document.fonts.load('400 26px "Inter Tight"'); } catch (error) {}
             try { await document.fonts.load('400 30px "Inter Tight"'); } catch (error) {}
             try { await document.fonts.load('400 19px "Inter Tight"'); } catch (error) {}
@@ -824,12 +842,12 @@
         }
         await drawOfficialLockup(ctx);
 
-        var photoX = 658;
-        var photoY = 334;
-        var photoW = 711;
-        var photoH = 561;
+        var photoX = 655;
+        var photoY = 331;
+        var photoW = 718;
+        var photoH = 537;
         ctx.save();
-        roundRect(ctx, photoX, photoY, photoW, photoH, 30);
+        roundRect(ctx, photoX, photoY, photoW, photoH, 28);
         ctx.clip();
         if (!product.image) {
             ctx.restore();
@@ -837,7 +855,7 @@
         }
         try {
             var image = await loadImage(product.image);
-            drawContain(ctx, image, photoX, photoY, photoW, photoH);
+            drawProductPhoto(ctx, image, photoX, photoY, photoW, photoH);
         } catch (error) {
             ctx.restore();
             throw new Error("No se pudo cargar la foto del producto desde Supabase (CORS o crossOrigin). No se generó la imagen sin foto.");
@@ -845,23 +863,32 @@
         ctx.restore();
 
         var name = String(product.name || "Producto").trim() || "Producto";
-        var fixedSubtitle = "Tecnología, calidad y confianza en un solo producto.";
+        var fixedSubtitleLines = ["Tecnología, calidad y confianza", "en un solo producto."];
+        var fixedSubtitle = fixedSubtitleLines.join(" ");
         var features = Array.isArray(product.features)
             ? product.features.map(function (item) { return String(item || "").trim(); }).filter(Boolean)
             : [];
-        var titleTop = 196;
-        var nameFit = fitNameSize(ctx, name, 540, 104, 48, 224, 2);
-        var subtitleSize = fitFontSize(ctx, fixedSubtitle, 540, 2, 30, 24, '400', "Inter Tight");
-        ctx.font = '400 ' + subtitleSize + 'px "Inter Tight", sans-serif';
-        var subtitleLines = measureLines(ctx, fixedSubtitle, 540);
-        var subtitleLineHeight = Math.round(subtitleSize * 1.22);
-        var titleBottom = titleTop + (nameFit.lines.length - 1) * nameFit.lineHeight + nameFit.size;
-        var subtitleTop = titleBottom + 18;
-        var subtitleBaseline = subtitleTop + Math.round(subtitleSize * 0.82);
-        var subtitleBottom = subtitleTop + (subtitleLines.length - 1) * subtitleLineHeight + subtitleSize;
+        var titleBlockTop = 196;
+        var titleBlockBottom = 410;
+        var titleBlockHeight = titleBlockBottom - titleBlockTop;
+        var nameFit = fitNameSize(ctx, name, 540, 104, 48, titleBlockHeight, 2);
+        var nameCapHeight = nameFit.size * 0.7;
+        var nameVisualHeight = (nameFit.lines.length - 1) * nameFit.lineHeight + nameCapHeight;
+        var nameTop = titleBlockTop + Math.max(0, (titleBlockHeight - nameVisualHeight) / 2);
+        var nameBaseline = nameTop + nameCapHeight;
+        var subtitleX = 76;
+        var subtitleMaxWidth = 450;
+        var subtitleSize = 30;
+        var subtitleLineHeight = 36;
+        var subtitleTop = titleBlockBottom + 24;
+        var subtitleFirstBaseline = subtitleTop + Math.round(subtitleSize * 0.82);
+        var subtitleBottom = subtitleTop + (fixedSubtitleLines.length - 1) * subtitleLineHeight + subtitleSize;
         var visibleFeatures = features.slice(0, 3);
-        var rowGap = visibleFeatures.length >= 3 ? 105 : 130;
-        var featureStart = Math.max(500, subtitleBottom + 48);
+        var featureRegionTop = subtitleBottom + 24;
+        var featureRegionBottom = 878;
+        var featureCenters = visibleFeatures.map(function (item, index) {
+            return featureRegionTop + (featureRegionBottom - featureRegionTop) * (index + 1) / (visibleFeatures.length + 1);
+        });
         var priceText = priceLabel(product.price);
         var priceSize = fitFontSize(ctx, priceText, 352, 1, 88, 30, '700');
         var guarantee = String(product.guarantee || "").trim();
@@ -875,8 +902,8 @@
             overflow.push('nombre "' + name + '"');
         }
 
-        ctx.font = '400 ' + subtitleSize + 'px "Inter Tight", sans-serif';
-        if (subtitleLines.length > 2 || subtitleLines.some(function (line) { return ctx.measureText(line).width > 540; })) {
+        ctx.font = '600 ' + subtitleSize + 'px "Inter Tight", sans-serif';
+        if (fixedSubtitleLines.some(function (line) { return ctx.measureText(line).width > subtitleMaxWidth; })) {
             overflow.push('texto fijo "' + fixedSubtitle + '"');
         }
 
@@ -889,24 +916,43 @@
             }
         }
 
-        visibleFeatures.forEach(function (feature, index) {
+        var featureLayouts = visibleFeatures.map(function (feature, index) {
             var item = featurePair(feature);
             var titleText = item.title.toUpperCase();
-            var titleSize = fitSingleLineSize(ctx, titleText, 410, 24, 16, "700", "DM Sans");
-            if (!titleText || ctx.measureText(titleText).width > 410) {
+            var hasDetail = Boolean(item.detail);
+            var titleSize = hasDetail
+                ? fitSingleLineSize(ctx, titleText, 410, 24, 16, "700", "DM Sans")
+                : fitFontSize(ctx, titleText, 410, 2, 24, 16, '700', "DM Sans");
+            ctx.font = '700 ' + titleSize + 'px "DM Sans", sans-serif';
+            var titleLines = measureLines(ctx, titleText, 410);
+            var titleLineHeight = Math.round(titleSize * 1.2);
+            var detailText = hasDetail ? item.detail.charAt(0).toUpperCase() + item.detail.slice(1) : "";
+            var detailLines = [];
+            if (hasDetail) {
+                ctx.font = '400 19px "Inter Tight", sans-serif';
+                detailLines = measureLines(ctx, detailText, 410);
+            }
+            if (!titleText || titleLines.length > (hasDetail ? 1 : 2) ||
+                titleLines.some(function (line) { return ctx.measureText(line).width > 410; })) {
                 overflow.push('título de característica "' + item.title + '"');
             }
-            if (item.detail) {
-                var detailText = item.detail.charAt(0).toUpperCase() + item.detail.slice(1);
-                ctx.font = '400 19px "Inter Tight", sans-serif';
-                var detailLines = measureLines(ctx, detailText, 410);
-                if (detailLines.length > 2 || detailLines.some(function (line) { return ctx.measureText(line).width > 410; })) {
-                    overflow.push('detalle de característica "' + item.title + '"');
-                }
+            if (hasDetail && (detailLines.length > 2 ||
+                detailLines.some(function (line) { return ctx.measureText(line).width > 410; }))) {
+                overflow.push('detalle de característica "' + item.title + '"');
             }
-            if (featureStart + index * rowGap + 68 > 890) {
-                overflow.push('características (no caben antes de la franja)');
+            if (featureCenters[index] - 52 < featureRegionTop || featureCenters[index] + 52 > 902) {
+                overflow.push('características (no caben entre el subtítulo y la franja)');
             }
+            return {
+                titleText: titleText,
+                hasDetail: hasDetail,
+                titleSize: titleSize,
+                titleLines: titleLines,
+                titleLineHeight: titleLineHeight,
+                detailText: detailText,
+                detailLines: detailLines,
+                center: featureCenters[index]
+            };
         });
 
         ctx.font = '700 ' + priceSize + 'px "DM Sans", sans-serif';
@@ -928,37 +974,52 @@
 
         ctx.fillStyle = "#163A2D";
         ctx.font = '800 ' + nameFit.size + 'px "DM Sans", sans-serif';
-        wrapText(ctx, name, 74, titleTop + Math.round(nameFit.size * .82), 540, nameFit.lineHeight, 2);
+        nameFit.lines.forEach(function (line, index) {
+            ctx.fillText(line, 74, nameBaseline + index * nameFit.lineHeight);
+        });
 
         ctx.fillStyle = "#4A4A46";
-        ctx.font = '400 ' + subtitleSize + 'px "Inter Tight", sans-serif';
-        wrapText(ctx, fixedSubtitle, 74, subtitleBaseline, 540, subtitleLineHeight, 2);
+        ctx.font = '600 ' + subtitleSize + 'px "Inter Tight", sans-serif';
+        fixedSubtitleLines.forEach(function (line, index) {
+            ctx.fillText(line, subtitleX, subtitleFirstBaseline + index * subtitleLineHeight);
+        });
 
-        visibleFeatures.forEach(function (feature, index) {
-            var rowY = featureStart + index * rowGap;
-            var item = featurePair(feature);
-            var titleText = item.title.toUpperCase();
-            var titleSize = fitSingleLineSize(ctx, titleText, 410, 24, 16, "700", "DM Sans");
-            var detailText = item.detail ? item.detail.charAt(0).toUpperCase() + item.detail.slice(1) : "";
-
-            drawFeatureIcon(ctx, index, 112, rowY + 2);
+        featureLayouts.forEach(function (layout, index) {
+            drawFeatureIcon(ctx, index, 112, layout.center);
 
             ctx.strokeStyle = "#C8A165";
             ctx.lineWidth = 3;
             ctx.lineCap = "round";
             ctx.beginPath();
-            ctx.moveTo(190, rowY - 24);
-            ctx.lineTo(190, rowY + (detailText ? 56 : 26));
+            if (layout.hasDetail) {
+                ctx.moveTo(190, layout.center - 30);
+                ctx.lineTo(190, layout.center + 34);
+            } else {
+                ctx.moveTo(190, layout.center - 28);
+                ctx.lineTo(190, layout.center + 28);
+            }
             ctx.stroke();
 
-            ctx.fillStyle = "#163A2D";
-            ctx.font = '700 ' + titleSize + 'px "DM Sans", sans-serif';
-            ctx.fillText(titleText, 210, rowY);
-
-            if (detailText) {
+            if (layout.hasDetail) {
+                var detailBaseline = layout.center - 6;
+                ctx.fillStyle = "#163A2D";
+                ctx.font = '700 ' + layout.titleSize + 'px "DM Sans", sans-serif';
+                ctx.fillText(layout.titleLines[0], 210, detailBaseline);
                 ctx.fillStyle = "#4A4A46";
                 ctx.font = '400 19px "Inter Tight", sans-serif';
-                wrapText(ctx, detailText, 210, rowY + 30, 410, 28, 2);
+                layout.detailLines.forEach(function (line, lineIndex) {
+                    ctx.fillText(line, 210, detailBaseline + 30 + lineIndex * 28);
+                });
+            } else {
+                var titleCapHeight = layout.titleSize * 0.7;
+                var titleVisualHeight = (layout.titleLines.length - 1) * layout.titleLineHeight + titleCapHeight;
+                var titleTop = layout.center - titleVisualHeight / 2;
+                var titleBaseline = titleTop + titleCapHeight;
+                ctx.fillStyle = "#1E1D1B";
+                ctx.font = '700 ' + layout.titleSize + 'px "DM Sans", sans-serif';
+                layout.titleLines.forEach(function (line, lineIndex) {
+                    ctx.fillText(line, 210, titleBaseline + lineIndex * layout.titleLineHeight);
+                });
             }
         });
 
@@ -972,12 +1033,14 @@
 
         if (guarantee) {
             drawGoldTag(ctx, 1250, 40, 185, 110);
+            var bandCenter = (902 + 1059) / 2;
+            var guaranteeX = 120;
             ctx.fillStyle = "#C8A165";
             ctx.font = '700 24px "Inter Tight", sans-serif';
-            drawTrackedText(ctx, "GARANTÍA", 64, 960, 4);
+            drawTrackedText(ctx, "GARANTÍA", guaranteeX, bandCenter - 13, 4);
             ctx.fillStyle = "#F5EEDC";
             ctx.font = '700 ' + guaranteeSize + 'px "DM Sans", sans-serif';
-            ctx.fillText(guarantee, 64, 1015);
+            ctx.fillText(guarantee, guaranteeX, bandCenter + 36);
         }
 
         if (manager) {
@@ -985,7 +1048,7 @@
             ctx.fillStyle = "#4A4A46";
             ctx.textAlign = "right";
             ctx.font = '600 20px "Inter Tight", sans-serif';
-            ctx.fillText(footerText, 1180, 1232);
+            ctx.fillText(footerText, 1180, 1120);
             ctx.textAlign = "left";
         }
 

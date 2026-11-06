@@ -79,11 +79,14 @@ test("Fase B: panel de precio y etiqueta sobre el adorno, sin tapar el cristal",
 
     assert.match(docs, /drawPricePanel\(ctx, 840, 16, 400, 170\)/);
     assert.match(docs, /drawGoldTag\(ctx, 1250, 40, 185, 110\)/);
-    assert.match(docs, /photoX = 658/);
-    assert.match(docs, /photoY = 334/);
-    assert.match(docs, /photoW = 711/);
-    assert.match(docs, /photoH = 561/);
-    assert.match(docs, /1180, 1232/);
+    assert.match(docs, /photoX = 655/);
+    assert.match(docs, /photoY = 331/);
+    assert.match(docs, /photoW = 718/);
+    assert.match(docs, /photoH = 537/);
+    assert.match(docs, /roundRect\(ctx, photoX, photoY, photoW, photoH, 28\)/);
+    assert.match(docs, /1180, 1120/);
+    assert.match(docs, /guaranteeX = 120/);
+    assert.match(docs, /bandCenter = \(902 \+ 1059\) \/ 2/);
     assert.match(docs, /guarantee/);
     assert.match(js, /guarantee: product\.garantia/);
 });
@@ -92,12 +95,20 @@ test("el diseño izquierdo sigue el modelo de la plantilla", () => {
     const docs = read("js/pages/gestor-docs.js");
 
     assert.doesNotMatch(docs, /paintPanel/);
-    assert.match(docs, /Tecnología, calidad y confianza en un solo producto\./);
-    assert.match(docs, /fitNameSize\(ctx, name, 540, 104, 48, 224, 2\)/);
+    assert.match(docs, /"Tecnología, calidad y confianza"/);
+    assert.match(docs, /"en un solo producto\."/);
+    assert.match(docs, /subtitleX = 76/);
+    assert.match(docs, /subtitleMaxWidth = 450/);
+    assert.match(docs, /'600 ' \+ subtitleSize/);
+    assert.match(docs, /fitNameSize\(ctx, name, 540, 104, 48, titleBlockHeight, 2\)/);
     assert.match(docs, /'800 ' \+ nameFit\.size/);
+    assert.match(docs, /nameVisualHeight/);
     assert.match(docs, /features\.slice\(0, 3\)/);
     assert.match(docs, /item\.title\.toUpperCase\(\)/);
-    assert.match(docs, /drawFeatureIcon\(ctx, index, 112, rowY \+ 2\)/);
+    assert.match(docs, /drawFeatureIcon\(ctx, index, 112, layout\.center\)/);
+    assert.match(docs, /featureRegionTop/);
+    assert.match(docs, /featureRegionBottom = 878/);
+    assert.match(docs, /#1E1D1B/);
     assert.match(docs, /drawShieldIcon/);
     assert.match(docs, /drawBoltIcon/);
     assert.match(docs, /drawGearIcon/);
@@ -106,15 +117,21 @@ test("el diseño izquierdo sigue el modelo de la plantilla", () => {
     assert.match(docs, /drawTagGlyph/);
 });
 
-test("la foto se contiene sin recortes y los datos que no caben se reportan", () => {
+test("la foto llena el cristal con cover y usa fondo desenfocado si hay que contener", () => {
     const docs = read("js/pages/gestor-docs.js");
+    const js = read("js/pages/gestor.js");
 
-    assert.match(docs, /drawContain\(ctx, image, photoX, photoY, photoW, photoH\)/);
-    assert.doesNotMatch(docs, /drawCover\(/);
+    assert.match(docs, /function drawCover/);
+    assert.match(docs, /function drawProductPhoto/);
+    assert.match(docs, /drawProductPhoto\(ctx, image, photoX, photoY, photoW, photoH\)/);
+    assert.match(docs, /loss > 0\.18/);
+    assert.match(docs, /ctx\.filter = "blur\(26px\)"/);
+    assert.match(docs, /drawContain\(ctx, image, x, y, width, height\)/);
     assert.doesNotMatch(docs, /truncateText\(/);
     assert.match(docs, /CORS o crossOrigin/);
     assert.match(docs, /Estos datos no caben completos en la imagen/);
     assert.match(docs, /No se generó la imagen para no recortarlos/);
+    assert.match(js, /guarantee: product\.garantia/);
 });
 
 test("los PDFs incrustan las fuentes y el logo oficial", () => {
