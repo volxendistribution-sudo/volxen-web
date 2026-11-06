@@ -60,8 +60,9 @@ test("la tarjeta de producto usa la plantilla oficial y el logo oficial", () => 
     assert.doesNotMatch(docs, /Imagen no disponible/);
     assert.match(docs, /document\.fonts\.load/);
     assert.match(docs, /800 85px "DM Sans"/);
-    assert.match(js, /productImage\(product, 1200, null, "webp"\)/);
-    assert.doesNotMatch(js, /productImage\(product, 1200, 1200, "png"\)/);
+    assert.match(js, /function productOriginalImage/);
+    assert.match(js, /image: productOriginalImage\(product\)/);
+    assert.doesNotMatch(js, /productImage\(product, 1200, null, "webp"\)/);
     assert.match(css, /font-weight:\s*800/);
     assert.match(css, /DM-Sans-ExtraBold\.woff2/);
     assert.match(html, /DM-Sans-ExtraBold\.woff2/);
@@ -79,12 +80,15 @@ test("Fase B: panel de precio y etiqueta sobre el adorno, sin tapar el cristal",
 
     assert.match(docs, /drawPricePanel\(ctx, 840, 16, 400, 170\)/);
     assert.match(docs, /drawGoldTag\(ctx, 1250, 40, 185, 110\)/);
-    assert.match(docs, /photoX = 655/);
-    assert.match(docs, /photoY = 331/);
-    assert.match(docs, /photoW = 718/);
-    assert.match(docs, /photoH = 537/);
-    assert.match(docs, /roundRect\(ctx, photoX, photoY, photoW, photoH, 28\)/);
+    assert.match(docs, /photoX = 658/);
+    assert.match(docs, /photoY = 334/);
+    assert.match(docs, /photoW = 712/);
+    assert.match(docs, /photoH = 531/);
+    assert.match(docs, /photoRadius = 32/);
+    assert.match(docs, /roundRect\(ctx, photoX, photoY, photoW, photoH, photoRadius\)/);
     assert.match(docs, /1180, 1120/);
+    assert.match(docs, /600 25px "Inter Tight"/);
+    assert.match(docs, /width > 513/);
     assert.match(docs, /guaranteeX = 120/);
     assert.match(docs, /bandCenter = \(902 \+ 1059\) \/ 2/);
     assert.match(docs, /guarantee/);
@@ -103,9 +107,11 @@ test("el diseño izquierdo sigue el modelo de la plantilla", () => {
     assert.match(docs, /fitNameSize\(ctx, name, 540, 104, 48, titleBlockHeight, 2\)/);
     assert.match(docs, /'800 ' \+ nameFit\.size/);
     assert.match(docs, /nameVisualHeight/);
-    assert.match(docs, /features\.slice\(0, 3\)/);
+    assert.match(docs, /featureCount <= 5 \? features : features\.slice\(0, 4\)/);
+    assert.match(docs, /"Y " \+ \(featureCount - 4\) \+ " CARACTERÍSTICAS MÁS"/);
+    assert.match(docs, /featureMode === "four" \? 20 : 18/);
     assert.match(docs, /item\.title\.toUpperCase\(\)/);
-    assert.match(docs, /drawFeatureIcon\(ctx, index, 112, layout\.center\)/);
+    assert.match(docs, /drawFeatureIcon\(ctx, index, 112, layout\.center, layout\.iconRadius\)/);
     assert.match(docs, /featureRegionTop/);
     assert.match(docs, /featureRegionBottom = 878/);
     assert.match(docs, /#1E1D1B/);
@@ -125,8 +131,9 @@ test("la foto llena el cristal con cover y usa fondo desenfocado si hay que cont
     assert.match(docs, /function drawProductPhoto/);
     assert.match(docs, /drawProductPhoto\(ctx, image, photoX, photoY, photoW, photoH\)/);
     assert.match(docs, /loss > 0\.18/);
-    assert.match(docs, /ctx\.filter = "blur\(26px\)"/);
-    assert.match(docs, /drawContain\(ctx, image, x, y, width, height\)/);
+    assert.match(docs, /ctx\.filter = "blur\(40px\)"/);
+    assert.match(docs, /drawFeatheredContain\(ctx, image, x, y, width, height, 24\)/);
+    assert.match(docs, /imageSmoothingQuality = "high"/);
     assert.doesNotMatch(docs, /truncateText\(/);
     assert.match(docs, /CORS o crossOrigin/);
     assert.match(docs, /Estos datos no caben completos en la imagen/);
