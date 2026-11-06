@@ -867,94 +867,55 @@ function getShareIcon(name) {
         ctx.fillText("GARANTIZADA!", x + 46, y + 76);
     }
 
-    var iconImages = {};
-
-    function svgDataUrl(svg) {
-        return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
-    }
-
-    function preloadShareIcon(name) {
-        return new Promise(function (resolve, reject) {
-            var svg = getShareIcon(name);
-            if (!svg) { resolve(); return; }
-            var img = new Image();
-            img.onload = function () { iconImages[name] = img; resolve(); };
-            img.onerror = function () { resolve(); };
-            img.src = svgDataUrl(svg);
-        });
-    }
-
-    async function preloadShareIcons(names) {
-        var unicos = [];
-        for (var i = 0; i < names.length; i++) {
-            if (names[i] && unicos.indexOf(names[i]) === -1) {
-                unicos.push(names[i]);
+    function parsePathData(ctx, d) {
+        var cmds = d.match(/[MLHVCSQTAZ][^MLHVCSQTAZ]*/gi) || [];
+        var x = 0, y = 0;
+        var startX = 0, startY = 0;
+        for (var i = 0; i < cmds.length; i++) {
+            var cmd = cmds[i];
+            var type = cmd.charAt(0);
+            var params = cmd.slice(1).trim().split(/[\s,]+/).filter(Boolean).map(parseFloat);
+            switch (type.toUpperCase()) {
+                case 'M':
+                    x = params[0]; y = params[1];
+                    ctx.moveTo(x, y);
+                    startX = x; startY = y;
+                    break;
+                case 'L':
+                    x = params[0]; y = params[1];
+                    ctx.lineTo(x, y);
+                    break;
+                case 'H':
+                    x = params[0];
+                    ctx.lineTo(x, y);
+                    break;
+                case 'V':
+                    y = params[0];
+                    ctx.lineTo(x, y);
+                    break;
+                case 'C':
+                    ctx.bezierCurveTo(params[0], params[1], params[2], params[3], params[4], params[5]);
+                    x = params[4]; y = params[5];
+                    break;
+                case 'Q':
+                    ctx.quadraticCurveTo(params[0], params[1], params[2], params[3]);
+                    x = params[2]; y = params[3];
+                    break;
+                case 'Z':
+                    ctx.closePath();
+                    x = startX; y = startY;
+                    break;
+                case 'T':
+                    x = params[0]; y = params[1];
+                    break;
+                case 'S':
+                    x = params[2]; y = params[3];
+                    break;
+                case 'A':
+                    x = params[5]; y = params[6];
+                    break;
             }
         }
-        await Promise.all(unicos.map(function (n) { return preloadShareIcon(n); }));
-    }
-
-    function normalizarClave(texto) {
-        return String(texto || "")
-            .toLowerCase()
-            .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-            .replace(/^[\s\-–—•·*]+/, "")
-            .replace(/[^a-z0-9\s]/g, " ")
-            .replace(/\s+/g, " ")
-            .trim();
-    }
-
-    function iconosPorCategoria(clave) {
-        var reglas = [
-            { claves: ["watt", "vatios", "potencia"], iconos: ["potencia", "voltaje", "bateria"] },
-            { claves: ["amp", "amper", "amperaje"], iconos: ["voltaje", "potencia", "bateria"] },
-            { claves: ["voltaje", "voltage", "volt"], iconos: ["voltaje", "potencia", "bateria"] },
-            { claves: ["panel", "placa", "solar", "monocristal", "bifacial"], iconos: ["solar", "potencia", "bateria"] },
-            { claves: ["techo", "instalacion", "montaje", "estructura"], iconos: ["solar", "material", "capacidad"] },
-            { claves: ["fuego", "calor", "termico", "llama"], iconos: ["fuego", "calor", "material"] },
-            { claves: ["agua", "lluvia", "humedad", "resistencia"], iconos: ["frio", "material", "durabilidad"] },
-            { claves: ["viento", "aire", "flujo"], iconos: ["ventilacion", "frio", "material"] },
-            { claves: ["seguridad", "candado", "seguro", "cerradura"], iconos: ["durabilidad", "garantia", "material"] },
-            { claves: ["llave", "herramienta", "ajuste"], iconos: ["material", "durabilidad", "garantia"] },
-            { claves: ["peso", "kilos", "carga", "carga maxima"], iconos: ["capacidad", "material", "pantalla"] },
-            { claves: ["tamano", "tamaño", "grande", "dims", "medida"], iconos: ["capacidad", "pantalla", "material"] },
-            { claves: ["bateria", "autonomia", "horas", "duracion"], iconos: ["bateria", "ahorro", "durabilidad"] },
-            { claves: ["dimension", "ancho", "alto", "largo"], iconos: ["capacidad", "pantalla", "material"] },
-            { claves: ["pantalla", "resolucion", "pulgadas", "tv", "television"], iconos: ["pantalla", "material", "capacidad"] },
-            { claves: ["wifi", "bluetooth", "inalambrico"], iconos: ["wifi", "silencio", "material"] },
-            { claves: ["frio", "refrigeracion", "aire acondicionado", "climatizacion"], iconos: ["frio", "ventilacion", "calor"] },
-            { claves: ["calor", "termico", "calefaccion"], iconos: ["calor", "fuego", "frio"] },
-            { claves: ["ahorro", "inverter", "eco"], iconos: ["ahorro", "bateria", "durabilidad"] },
-            { claves: ["ventilacion", "ventilador"], iconos: ["ventilacion", "frio", "calor"] },
-            { claves: ["iluminacion", "led", "luz", "bombilla"], iconos: ["iluminacion", "ahorro", "material"] },
-            { claves: ["durabilidad", "resistente", "años", "anos"], iconos: ["durabilidad", "garantia", "material"] },
-            { claves: ["garantia", "garantía"], iconos: ["garantia", "durabilidad", "material"] },
-            { claves: ["silencio", "ruido", "silencioso"], iconos: ["silencio", "wifi", "material"] },
-            { claves: ["material", "acero", "aluminio", "plastico", "plástico"], iconos: ["material", "capacidad", "box"] },
-            { claves: ["fuego", "llama", "termico"], iconos: ["fuego", "calor", "iluminacion"] }
-        ];
-        for (var i = 0; i < reglas.length; i++) {
-            var regla = reglas[i];
-            for (var j = 0; j < regla.claves.length; j++) {
-                if (clave.indexOf(regla.claves[j]) !== -1) {
-                    return regla.iconos;
-                }
-            }
-        }
-        return ["neutro", "material", "durabilidad"];
-    }
-
-    function asignarIcono(clave, usados) {
-        var alternativas = iconosPorCategoria(clave);
-        for (var i = 0; i < alternativas.length; i++) {
-            var nombre = alternativas[i];
-            if (usados.indexOf(nombre) === -1) {
-                usados.push(nombre);
-                return nombre;
-            }
-        }
-        usados.push("neutro");
-        return "neutro";
     }
 
     function drawFeatureIcon(ctx, tipoIcono, cx, cy, radius, color) {
@@ -967,16 +928,120 @@ function getShareIcon(name) {
         ctx.fill();
         ctx.restore();
 
-        var img = iconImages[tipoIcono] || iconImages.neutro;
-        if (img) {
-            var iconSize = r * 0.5;
+        var svg = getShareIcon(tipoIcono) || getShareIcon('neutro');
+        if (!svg) return;
+
+        var iconSize = r * 0.55;
+        var scale = iconSize / 24;
+
+        try {
+            var parser = new DOMParser();
+            var doc = parser.parseFromString(svg, 'image/svg+xml');
+            var svgEl = doc.documentElement;
+
+            var viewBox = svgEl.getAttribute('viewBox') || '0 0 24 24';
+            var vbParts = viewBox.split(/[\s,]+/).filter(Boolean).map(Number);
+            var vbW = vbParts[2] || 24;
+            var vbH = vbParts[3] || 24;
+
             ctx.save();
             ctx.translate(cx, cy);
+            ctx.scale(scale, scale);
+            ctx.translate(-vbW / 2, -vbH / 2);
             ctx.imageSmoothingEnabled = true;
             ctx.imageSmoothingQuality = "high";
-            ctx.drawImage(img, -iconSize / 2, -iconSize / 2, iconSize, iconSize);
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+
+            var elements = svgEl.querySelectorAll('path, rect, circle, line, polyline, polygon, ellipse');
+            elements.forEach(function(el) {
+                var tag = el.tagName.toLowerCase();
+                var fill = el.getAttribute('fill');
+                var stroke = el.getAttribute('stroke');
+                var strokeWidth = el.getAttribute('stroke-width');
+
+                var useFill = (fill && fill !== 'none') || (!stroke && !fill);
+                var useStroke = (stroke && stroke !== 'none') || (fill === 'none' && stroke === 'none');
+
+                ctx.beginPath();
+
+                if (tag === 'path') {
+                    var d = el.getAttribute('d');
+                    if (d) parsePathData(ctx, d);
+                } else if (tag === 'rect') {
+                    var x = parseFloat(el.getAttribute('x') || 0);
+                    var y = parseFloat(el.getAttribute('y') || 0);
+                    var w = parseFloat(el.getAttribute('width') || 0);
+                    var h = parseFloat(el.getAttribute('height') || 0);
+                    var rx = parseFloat(el.getAttribute('rx') || 0);
+                    var ry = parseFloat(el.getAttribute('ry') || rx);
+                    if (rx > 0) {
+                        ctx.moveTo(x + rx, y);
+                        ctx.lineTo(x + w - rx, y);
+                        ctx.quadraticCurveTo(x + w, y, x + w, y + ry);
+                        ctx.lineTo(x + w, y + h - ry);
+                        ctx.quadraticCurveTo(x + w, y + h, x + w - rx, y + h);
+                        ctx.lineTo(x + rx, y + h);
+                        ctx.quadraticCurveTo(x, y + h, x, y + h - ry);
+                        ctx.lineTo(x, y + ry);
+                        ctx.quadraticCurveTo(x, y, x + rx, y);
+                    } else {
+                        ctx.rect(x, y, w, h);
+                    }
+                    ctx.closePath();
+                } else if (tag === 'circle') {
+                    var cx2 = parseFloat(el.getAttribute('cx') || 0);
+                    var cy2 = parseFloat(el.getAttribute('cy') || 0);
+                    var r2 = parseFloat(el.getAttribute('r') || 0);
+                    ctx.arc(cx2, cy2, r2, 0, Math.PI * 2);
+                } else if (tag === 'line') {
+                    var x1 = parseFloat(el.getAttribute('x1') || 0);
+                    var y1 = parseFloat(el.getAttribute('y1') || 0);
+                    var x2 = parseFloat(el.getAttribute('x2') || 0);
+                    var y2 = parseFloat(el.getAttribute('y2') || 0);
+                    ctx.moveTo(x1, y1);
+                    ctx.lineTo(x2, y2);
+                } else if (tag === 'polyline' || tag === 'polygon') {
+                    var points = el.getAttribute('points');
+                    if (points) {
+                        var pts = points.split(/[\s,]+/).filter(Boolean).map(Number);
+                        if (pts.length >= 2) {
+                            ctx.moveTo(pts[0], pts[1]);
+                            for (var j = 2; j < pts.length; j += 2) {
+                                ctx.lineTo(pts[j], pts[j + 1]);
+                            }
+                            if (tag === 'polygon') ctx.closePath();
+                        }
+                    }
+                } else if (tag === 'ellipse') {
+                    var cx3 = parseFloat(el.getAttribute('cx') || 0);
+                    var cy3 = parseFloat(el.getAttribute('cy') || 0);
+                    var rx3 = parseFloat(el.getAttribute('rx') || 0);
+                    var ry3 = parseFloat(el.getAttribute('ry') || 0);
+                    var kappa = 0.5522848;
+                    var ox = rx3 * kappa;
+                    var oy = ry3 * kappa;
+                    ctx.moveTo(cx3 + rx3, cy3);
+                    ctx.bezierCurveTo(cx3 + rx3, cy3 - oy, cx3 + ox, cy3 - ry3, cx3, cy3 - ry3);
+                    ctx.bezierCurveTo(cx3 - ox, cy3 - ry3, cx3 - rx3, cy3 - oy, cx3 - rx3, cy3);
+                    ctx.bezierCurveTo(cx3 - rx3, cy3 + oy, cx3 - ox, cy3 + ry3, cx3, cy3 + ry3);
+                    ctx.bezierCurveTo(cx3 + ox, cy3 + ry3, cx3 + rx3, cy3 + oy, cx3 + rx3, cy3);
+                    ctx.closePath();
+                }
+
+                if (useFill) {
+                    ctx.fillStyle = (fill && fill !== 'none') ? fill : '#FFFFFF';
+                    ctx.fill();
+                }
+                if (useStroke) {
+                    ctx.strokeStyle = (stroke && stroke !== 'none') ? stroke : '#FFFFFF';
+                    ctx.lineWidth = strokeWidth ? parseFloat(strokeWidth) : 2;
+                    ctx.stroke();
+                }
+            });
+
             ctx.restore();
-        }
+        } catch (e) {}
     }
 
     async function drawOfficialLockup(ctx) {
@@ -1246,14 +1311,6 @@ function getShareIcon(name) {
         fixedSubtitleLines.forEach(function (line, index) {
             ctx.fillText(line, subtitleX, subtitleFirstBaseline + index * subtitleLineHeight);
         });
-
-        var iconNames = [];
-        featureLayouts.forEach(function (layout) {
-            if (!layout.summary && layout.icono && iconNames.indexOf(layout.icono) === -1) {
-                iconNames.push(layout.icono);
-            }
-        });
-        await preloadShareIcons(iconNames);
 
         featureLayouts.forEach(function (layout, index) {
             if (layout.summary) {
