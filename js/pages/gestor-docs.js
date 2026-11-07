@@ -1114,16 +1114,29 @@ function getShareIcon(name) {
         ctx.save();
         roundRect(ctx, photoX, photoY, photoW, photoH, photoRadius);
         ctx.clip();
-        if (!product.image) {
-            ctx.restore();
-            throw new Error("El producto no tiene foto. Agrega una foto antes de compartir.");
-        }
-        try {
-            var image = await loadImage(product.image);
-            drawProductPhoto(ctx, image, photoX, photoY, photoW, photoH);
-        } catch (error) {
-            ctx.restore();
-            throw new Error("No se pudo cargar la foto del producto desde Supabase (CORS o crossOrigin). No se generó la imagen sin foto.");
+        if (product.image) {
+            try {
+                var image = await loadImage(product.image);
+                drawProductPhoto(ctx, image, photoX, photoY, photoW, photoH);
+            } catch (error) {
+                // Si falla la carga (CORS, red, etc.), dibujar placeholder en blanco
+                ctx.fillStyle = "#EAE6DE";
+                ctx.fillRect(photoX, photoY, photoW, photoH);
+                ctx.fillStyle = "#77736C";
+                ctx.font = "400 24px 'Inter Tight', sans-serif";
+                ctx.textAlign = "center";
+                ctx.fillText("Sin foto", photoX + photoW / 2, photoY + photoH / 2);
+                ctx.textAlign = "left";
+            }
+        } else {
+            // Sin foto: placeholder en blanco
+            ctx.fillStyle = "#EAE6DE";
+            ctx.fillRect(photoX, photoY, photoW, photoH);
+            ctx.fillStyle = "#77736C";
+            ctx.font = "400 24px 'Inter Tight', sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText("Sin foto", photoX + photoW / 2, photoY + photoH / 2);
+            ctx.textAlign = "left";
         }
         ctx.restore();
 

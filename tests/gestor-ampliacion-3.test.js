@@ -55,7 +55,7 @@ test("la tarjeta de producto usa la plantilla oficial y el logo oficial", () => 
     assert.doesNotMatch(docs, /PRECIO PÚBLICO/);
     assert.match(docs, /Comercial VOLXEN/);
     assert.match(docs, /product\.features/);
-    assert.match(docs, /No se pudo cargar la foto del producto/);
+    assert.match(docs, /Sin foto/);
     assert.doesNotMatch(docs, /drawProductPlaceholder/);
     assert.doesNotMatch(docs, /Imagen no disponible/);
     assert.match(docs, /document\.fonts\.load/);
@@ -152,7 +152,7 @@ test("la foto llena el cristal con cover y usa fondo desenfocado si hay que cont
     assert.match(docs, /drawFeatheredContain\(ctx, image, x, y, width, height, 24\)/);
     assert.match(docs, /imageSmoothingQuality = "high"/);
     assert.doesNotMatch(docs, /truncateText\(/);
-    assert.match(docs, /CORS o crossOrigin/);
+    assert.match(docs, /ctx\.fillRect\(photoX, photoY, photoW, photoH\)/);
     assert.match(docs, /Estos datos no caben completos en la imagen/);
     assert.match(docs, /No se generó la imagen para no recortarlos/);
     assert.match(js, /guarantee: product\.garantia/);
