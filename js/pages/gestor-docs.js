@@ -928,7 +928,12 @@ function getShareIcon(name) {
         ctx.fill();
         ctx.restore();
 
-        var svg = getShareIcon(tipoIcono) || getShareIcon('neutro');
+        var svg;
+        try {
+            svg = getShareIcon(tipoIcono) || getShareIcon('neutro');
+        } catch (e) {
+            return;
+        }
         if (!svg) return;
 
         var iconSize = r * 0.55;
@@ -955,89 +960,91 @@ function getShareIcon(name) {
 
             var elements = svgEl.querySelectorAll('path, rect, circle, line, polyline, polygon, ellipse');
             elements.forEach(function(el) {
-                var tag = el.tagName.toLowerCase();
-                var fill = el.getAttribute('fill');
-                var stroke = el.getAttribute('stroke');
-                var strokeWidth = el.getAttribute('stroke-width');
+                try {
+                    var tag = el.tagName.toLowerCase();
+                    var fill = el.getAttribute('fill');
+                    var stroke = el.getAttribute('stroke');
+                    var strokeWidth = el.getAttribute('stroke-width');
 
-                var useFill = (fill && fill !== 'none') || (!stroke && !fill);
-                var useStroke = (stroke && stroke !== 'none') || (fill === 'none' && stroke === 'none');
+                    var useFill = (fill && fill !== 'none') || (!stroke && !fill);
+                    var useStroke = (stroke && stroke !== 'none') || (fill === 'none' && stroke === 'none');
 
-                ctx.beginPath();
+                    ctx.beginPath();
 
-                if (tag === 'path') {
-                    var d = el.getAttribute('d');
-                    if (d) parsePathData(ctx, d);
-                } else if (tag === 'rect') {
-                    var x = parseFloat(el.getAttribute('x') || 0);
-                    var y = parseFloat(el.getAttribute('y') || 0);
-                    var w = parseFloat(el.getAttribute('width') || 0);
-                    var h = parseFloat(el.getAttribute('height') || 0);
-                    var rx = parseFloat(el.getAttribute('rx') || 0);
-                    var ry = parseFloat(el.getAttribute('ry') || rx);
-                    if (rx > 0) {
-                        ctx.moveTo(x + rx, y);
-                        ctx.lineTo(x + w - rx, y);
-                        ctx.quadraticCurveTo(x + w, y, x + w, y + ry);
-                        ctx.lineTo(x + w, y + h - ry);
-                        ctx.quadraticCurveTo(x + w, y + h, x + w - rx, y + h);
-                        ctx.lineTo(x + rx, y + h);
-                        ctx.quadraticCurveTo(x, y + h, x, y + h - ry);
-                        ctx.lineTo(x, y + ry);
-                        ctx.quadraticCurveTo(x, y, x + rx, y);
-                    } else {
-                        ctx.rect(x, y, w, h);
-                    }
-                    ctx.closePath();
-                } else if (tag === 'circle') {
-                    var cx2 = parseFloat(el.getAttribute('cx') || 0);
-                    var cy2 = parseFloat(el.getAttribute('cy') || 0);
-                    var r2 = parseFloat(el.getAttribute('r') || 0);
-                    ctx.arc(cx2, cy2, r2, 0, Math.PI * 2);
-                } else if (tag === 'line') {
-                    var x1 = parseFloat(el.getAttribute('x1') || 0);
-                    var y1 = parseFloat(el.getAttribute('y1') || 0);
-                    var x2 = parseFloat(el.getAttribute('x2') || 0);
-                    var y2 = parseFloat(el.getAttribute('y2') || 0);
-                    ctx.moveTo(x1, y1);
-                    ctx.lineTo(x2, y2);
-                } else if (tag === 'polyline' || tag === 'polygon') {
-                    var points = el.getAttribute('points');
-                    if (points) {
-                        var pts = points.split(/[\s,]+/).filter(Boolean).map(Number);
-                        if (pts.length >= 2) {
-                            ctx.moveTo(pts[0], pts[1]);
-                            for (var j = 2; j < pts.length; j += 2) {
-                                ctx.lineTo(pts[j], pts[j + 1]);
-                            }
-                            if (tag === 'polygon') ctx.closePath();
+                    if (tag === 'path') {
+                        var d = el.getAttribute('d');
+                        if (d) parsePathData(ctx, d);
+                    } else if (tag === 'rect') {
+                        var x = parseFloat(el.getAttribute('x') || 0);
+                        var y = parseFloat(el.getAttribute('y') || 0);
+                        var w = parseFloat(el.getAttribute('width') || 0);
+                        var h = parseFloat(el.getAttribute('height') || 0);
+                        var rx = parseFloat(el.getAttribute('rx') || 0);
+                        var ry = parseFloat(el.getAttribute('ry') || rx);
+                        if (rx > 0) {
+                            ctx.moveTo(x + rx, y);
+                            ctx.lineTo(x + w - rx, y);
+                            ctx.quadraticCurveTo(x + w, y, x + w, y + ry);
+                            ctx.lineTo(x + w, y + h - ry);
+                            ctx.quadraticCurveTo(x + w, y + h, x + w - rx, y + h);
+                            ctx.lineTo(x + rx, y + h);
+                            ctx.quadraticCurveTo(x, y + h, x, y + h - ry);
+                            ctx.lineTo(x, y + ry);
+                            ctx.quadraticCurveTo(x, y, x + rx, y);
+                        } else {
+                            ctx.rect(x, y, w, h);
                         }
+                        ctx.closePath();
+                    } else if (tag === 'circle') {
+                        var cx2 = parseFloat(el.getAttribute('cx') || 0);
+                        var cy2 = parseFloat(el.getAttribute('cy') || 0);
+                        var r2 = parseFloat(el.getAttribute('r') || 0);
+                        ctx.arc(cx2, cy2, r2, 0, Math.PI * 2);
+                    } else if (tag === 'line') {
+                        var x1 = parseFloat(el.getAttribute('x1') || 0);
+                        var y1 = parseFloat(el.getAttribute('y1') || 0);
+                        var x2 = parseFloat(el.getAttribute('x2') || 0);
+                        var y2 = parseFloat(el.getAttribute('y2') || 0);
+                        ctx.moveTo(x1, y1);
+                        ctx.lineTo(x2, y2);
+                    } else if (tag === 'polyline' || tag === 'polygon') {
+                        var points = el.getAttribute('points');
+                        if (points) {
+                            var pts = points.split(/[\s,]+/).filter(Boolean).map(Number);
+                            if (pts.length >= 2) {
+                                ctx.moveTo(pts[0], pts[1]);
+                                for (var j = 2; j < pts.length; j += 2) {
+                                    ctx.lineTo(pts[j], pts[j + 1]);
+                                }
+                                if (tag === 'polygon') ctx.closePath();
+                            }
+                        }
+                    } else if (tag === 'ellipse') {
+                        var cx3 = parseFloat(el.getAttribute('cx') || 0);
+                        var cy3 = parseFloat(el.getAttribute('cy') || 0);
+                        var rx3 = parseFloat(el.getAttribute('rx') || 0);
+                        var ry3 = parseFloat(el.getAttribute('ry') || 0);
+                        var kappa = 0.5522848;
+                        var ox = rx3 * kappa;
+                        var oy = ry3 * kappa;
+                        ctx.moveTo(cx3 + rx3, cy3);
+                        ctx.bezierCurveTo(cx3 + rx3, cy3 - oy, cx3 + ox, cy3 - ry3, cx3, cy3 - ry3);
+                        ctx.bezierCurveTo(cx3 - ox, cy3 - ry3, cx3 - rx3, cy3 - oy, cx3 - rx3, cy3);
+                        ctx.bezierCurveTo(cx3 - rx3, cy3 + oy, cx3 - ox, cy3 + ry3, cx3, cy3 + ry3);
+                        ctx.bezierCurveTo(cx3 + ox, cy3 + ry3, cx3 + rx3, cy3 + oy, cx3 + rx3, cy3);
+                        ctx.closePath();
                     }
-                } else if (tag === 'ellipse') {
-                    var cx3 = parseFloat(el.getAttribute('cx') || 0);
-                    var cy3 = parseFloat(el.getAttribute('cy') || 0);
-                    var rx3 = parseFloat(el.getAttribute('rx') || 0);
-                    var ry3 = parseFloat(el.getAttribute('ry') || 0);
-                    var kappa = 0.5522848;
-                    var ox = rx3 * kappa;
-                    var oy = ry3 * kappa;
-                    ctx.moveTo(cx3 + rx3, cy3);
-                    ctx.bezierCurveTo(cx3 + rx3, cy3 - oy, cx3 + ox, cy3 - ry3, cx3, cy3 - ry3);
-                    ctx.bezierCurveTo(cx3 - ox, cy3 - ry3, cx3 - rx3, cy3 - oy, cx3 - rx3, cy3);
-                    ctx.bezierCurveTo(cx3 - rx3, cy3 + oy, cx3 - ox, cy3 + ry3, cx3, cy3 + ry3);
-                    ctx.bezierCurveTo(cx3 + ox, cy3 + ry3, cx3 + rx3, cy3 + oy, cx3 + rx3, cy3);
-                    ctx.closePath();
-                }
 
-                if (useFill) {
-                    ctx.fillStyle = (fill && fill !== 'none') ? fill : '#FFFFFF';
-                    ctx.fill();
-                }
-                if (useStroke) {
-                    ctx.strokeStyle = (stroke && stroke !== 'none') ? stroke : '#FFFFFF';
-                    ctx.lineWidth = strokeWidth ? parseFloat(strokeWidth) : 2;
-                    ctx.stroke();
-                }
+                    if (useFill) {
+                        ctx.fillStyle = (fill && fill !== 'none') ? fill : '#FFFFFF';
+                        ctx.fill();
+                    }
+                    if (useStroke) {
+                        ctx.strokeStyle = (stroke && stroke !== 'none') ? stroke : '#FFFFFF';
+                        ctx.lineWidth = strokeWidth ? parseFloat(strokeWidth) : 2;
+                        ctx.stroke();
+                    }
+                } catch (e) {}
             });
 
             ctx.restore();
