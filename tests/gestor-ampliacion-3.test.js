@@ -140,7 +140,7 @@ test("el diseño izquierdo sigue el modelo de la plantilla", () => {
     assert.match(docs, /drawTagGlyph/);
 });
 
-test("la foto llena el cristal con cover y usa fondo desenfocado si hay que contener", () => {
+test("la foto llena el cristal con cover y usa fondo limpio si hay que contener", () => {
     const docs = read("js/pages/gestor-docs.js");
     const js = read("js/pages/gestor.js");
 
@@ -148,7 +148,10 @@ test("la foto llena el cristal con cover y usa fondo desenfocado si hay que cont
     assert.match(docs, /function drawProductPhoto/);
     assert.match(docs, /drawProductPhoto\(ctx, image, photoX, photoY, photoW, photoH\)/);
     assert.match(docs, /loss > 0\.18/);
-    assert.match(docs, /ctx\.filter = "blur\(40px\)"/);
+    // El branch "contain" ya NO desenfoca ni vela: fondo limpio a tono de plantilla
+    assert.match(docs, /fillStyle = "#F3EDE3"/);
+    assert.doesNotMatch(docs, /blur\(40px\)/);
+    assert.doesNotMatch(docs, /rgba\(248,247,244,0\.55\)/);
     assert.match(docs, /drawFeatheredContain\(ctx, image, x, y, width, height, 24\)/);
     assert.match(docs, /imageSmoothingQuality = "high"/);
     assert.doesNotMatch(docs, /truncateText\(/);
@@ -299,6 +302,14 @@ test("los iconos de características son reales (iconos-volxen.zip) y no se repi
     for (const name of iconosKit) {
         assert.match(sicons, new RegExp('"' + name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + '":'));
     }
+    // Regla 1 del kit: cada icono es un svg COMPLETO (envoltorio + fragmento del JSON).
+    // Los fragmentos multi-raíz sin envoltorio no son XML válido y el dibujante no pinta nada.
+    for (const name of iconosKit) {
+        assert.match(sicons, new RegExp('"' + name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + '": "<svg'));
+    }
+    assert.strictEqual((sicons.match(/<\/svg>",/g) || []).length, iconosKit.length);
+    assert.match(sicons, /stroke-width="1\.75"/);
+    assert.match(sicons, /stroke="currentColor"/);
     assert.match(sicons, /function getShareIcon/);
 
     // Tono reglamentario del dibujante y reglas de textStyle del kit en canvas

@@ -425,12 +425,11 @@
         var frameAspect = width / height;
         var loss = 1 - Math.min(frameAspect / imageAspect, imageAspect / frameAspect);
         if (loss > 0.18) {
+            // Foto contenida sobre fondo LIMPIO: sin fondo desenfocado ni velo.
+            // El desenfoque era lo que hacía verse borrosas las fotos de productos
+            // con aspect distinto al marco (solo los paneles entraían por cover).
             ctx.save();
-            ctx.filter = "blur(40px)";
-            drawCover(ctx, image, x - 60, y - 60, width + 120, height + 120);
-            ctx.restore();
-            ctx.save();
-            ctx.fillStyle = "rgba(248,247,244,0.55)";
+            ctx.fillStyle = "#F3EDE3";
             ctx.fillRect(x, y, width, height);
             ctx.restore();
             drawFeatheredContain(ctx, image, x, y, width, height, 24);
