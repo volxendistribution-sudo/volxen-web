@@ -119,11 +119,14 @@ test("el diseño izquierdo sigue el modelo de la plantilla", () => {
     assert.match(docs, /#C8A165/);
     assert.match(docs, /icono: tipoIcono/);
     assert.match(docs, /color: color/);
-    assert.match(docs, /var iconImages/);
-    assert.match(docs, /svgDataUrl/);
-    assert.match(docs, /preloadShareIcon/);
-    assert.match(docs, /preloadShareIcons/);
-    assert.match(docs, /ctx\.drawImage\(img/);
+    assert.doesNotMatch(docs, /var iconImages/);
+    assert.doesNotMatch(docs, /svgDataUrl/);
+    assert.doesNotMatch(docs, /preloadShareIcon/);
+    assert.doesNotMatch(docs, /preloadShareIcons/);
+    assert.doesNotMatch(docs, /ctx\.drawImage\(img/);
+    assert.match(docs, /function parsePathData/);
+    assert.match(docs, /DOMParser/);
+    assert.match(docs, /querySelectorAll/);
     assert.match(docs, /imageSmoothingQuality = "high"/);
     assert.match(docs, /featureRegionTop/);
     assert.match(docs, /featureRegionBottom = 878/);
@@ -214,23 +217,23 @@ test("los iconos de características son reales (lucide-static) y no se repiten"
     assert.match(docs, /function normalizarClave/);
     assert.match(docs, /function iconosPorCategoria/);
     assert.match(docs, /function asignarIcono/);
-    assert.match(docs, /var iconImages/);
-    assert.match(docs, /svgDataUrl/);
-    assert.match(docs, /preloadShareIcon/);
-    assert.match(docs, /preloadShareIcons/);
-    assert.match(docs, /ctx\.drawImage\(img/);
+    assert.doesNotMatch(docs, /var iconImages/);
+    assert.doesNotMatch(docs, /svgDataUrl/);
+    assert.doesNotMatch(docs, /preloadShareIcon/);
+    assert.doesNotMatch(docs, /preloadShareIcons/);
+    assert.doesNotMatch(docs, /ctx\.drawImage\(img/);
 
     // No hay figuras de relleno (iconDrawers eliminado)
     assert.doesNotMatch(docs, /iconDrawers/);
     assert.doesNotMatch(docs, /function drawShieldIcon/);
     assert.doesNotMatch(docs, /function drawBoltIcon/);
     assert.doesNotMatch(docs, /function drawGearIcon/);
-    assert.doesNotMatch(docs, /function parsePathData/);
-    assert.doesNotMatch(docs, /DOMParser/);
-    assert.doesNotMatch(docs, /querySelectorAll/);
 
-    // drawFeatureIcon dibuja PNG del kit de marca con drawImage
+    // drawFeatureIcon dibuja SVG del iconos-volxen.zip directamente en canvas con DOMParser
     assert.match(docs, /function drawFeatureIcon/);
+    assert.match(docs, /function parsePathData/);
+    assert.match(docs, /DOMParser/);
+    assert.match(docs, /querySelectorAll/);
     assert.match(docs, /imageSmoothingQuality = "high"/);
 
     // Colores verde y dorado del kit de marca, nunca negro
