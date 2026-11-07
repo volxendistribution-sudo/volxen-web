@@ -2676,7 +2676,10 @@
 
             if (shareResult === "unsupported") {
                 docs.downloadBlob(result.blob, filename);
-                setNotice("Imagen descargada. Puedes adjuntarla en WhatsApp.");
+                var waText = "Producto VOLXEN: " + (product.nombre || "") + " · Precio público " + money(api.pr(product)) + "\nDescarga la imagen adjunta y compártela.";
+                var waUrl = docs.whatsappUrl ? docs.whatsappUrl(waText) : ("https://wa.me/?text=" + encodeURIComponent(waText));
+                try { window.open(waUrl, "_blank"); } catch (e) {}
+                setNotice("Imagen descargada. Se abrió WhatsApp para que adjuntes la imagen.");
             } else if (shareResult === "error") {
                 setNotice("No se pudo compartir la imagen. Descárgala e inténtalo de nuevo.", true);
             } else if (shareResult === "shared") {
