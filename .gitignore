@@ -21,3 +21,6 @@ config.js
 # OS
 .DS_Store
 Thumbs.db
+
+# Artefactos generados en runtime (QR de garantias)
+garantias/

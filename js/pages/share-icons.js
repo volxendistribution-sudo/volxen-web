@@ -1,33 +1,67 @@
 // Iconos automáticos para compartir imagen de producto
-// Fuente: iconos-volxen.zip (repositorio VOLXEN)
-// Iconos SVG oficiales para características de producto
-// Cada valor es el contenido SVG con stroke="#FFFFFF", listo para parsear con DOMParser
-// y dibujar directamente en canvas con ctx.fill/ctx.stroke en blanco.
-// Colores del kit de marca: verde #2E4A3F y dorado #C8A165 para los círculos.
+// Fuente única: volxen-icons.json (52 iconos, paquete files.zip / instrucciones INSTRUCCIONES-ICONOS.md)
+// Los fragmentos svg son los EXACTOS del JSON (sin envoltorio): el dibujante los envuelve
+// y aplica el estilo del kit: fill="none" stroke="currentColor" stroke-width="1.75".
+// En canvas currentColor se sustituye por el tono reglamentario: marfil #F8F7F4 sobre
+// disco verde #2E4A3F y carbón #1E1D1B sobre disco dorado #C8A165 (nunca blanco sobre dorado).
 
 const SHARE_ICONS = {
-  "potencia": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke=\"#FFFFFF\"><title>Potencia</title><path d=\"M3.5 17a8.5 8.5 0 0 1 17 0 M12 17l4.5-5 M12 8.5v1.5 M5.8 12l1.1 1 M18.2 12l-1.1 1\"/><circle cx=\"12\" cy=\"17\" r=\"1.2\"/></svg>",
-  "voltaje": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke=\"#FFFFFF\"><title>Voltaje</title><circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M13 6.5l-4 6h3l-1 5 4-6h-3z\"/></svg>",
-  "bateria": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke=\"#FFFFFF\"><title>Autonomía</title><path d=\"M4 7h13a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z M22 10.5v3 M6 10.5v3 M9.5 10.5v3 M13 10.5v3\"/></svg>",
-  "solar": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke=\"#FFFFFF\"><title>Panel solar</title><path d=\"M6 5h12l3 11H3z M12 5v11 M4.5 10.5h15 M12 16v4 M8 20h8\"/></svg>",
-  "capacidad": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke=\"#FFFFFF\"><title>Dimensiones</title><path d=\"M12 3l8 4.5v9L12 21l-8-4.5v-9z M4 7.5l8 4.5 8-4.5 M12 12v9\"/></svg>",
-  "pantalla": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke=\"#FFFFFF\"><title>Pantalla</title><rect x=\"3\" y=\"5\" rx=\"2\"/><path d=\"M9 21h6 M12 17v4\"/></svg>",
-  "wifi": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke=\"#FFFFFF\"><title>Control remoto</title><rect x=\"8\" y=\"2.5\" rx=\"2.5\"/><circle cx=\"12\" cy=\"7\" r=\"1.4\"/><path d=\"M10.5 12h3 M10.5 15h3 M10.5 18h3\"/></svg>",
-  "frio": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke=\"#FFFFFF\"><title>Climatización</title><path d=\"M12 3v18 M4.2 7.5l15.6 9 M4.2 16.5l15.6-9 M9.5 4.7L12 7.2l2.5-2.5 M9.5 19.3L12 16.8l2.5 2.5\"/></svg>",
-  "calor": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke=\"#FFFFFF\"><title>Climatización</title><path d=\"M12 3v18 M4.2 7.5l15.6 9 M4.2 16.5l15.6-9 M9.5 4.7L12 7.2l2.5-2.5 M9.5 19.3L12 16.8l2.5 2.5\"/></svg>",
-  "ahorro": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke=\"#FFFFFF\"><title>Eficiencia</title><path d=\"M19.5 4.5C10 4.5 5 9 5 15.5c0 1.3.3 2.4.8 3.3C7 19.2 8.2 19.5 9.5 19.5c6.5 0 10-5 10-15z M4.5 20c2-4.5 5-7.5 9-10\"/></svg>",
-  "ventilacion": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke=\"#FFFFFF\"><title>Silencioso</title><path d=\"M4 9.5h3.5L12 6v12l-4.5-3.5H4z M16 9.5l5 5 M21 9.5l-5 5\"/></svg>",
-  "iluminacion": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke=\"#FFFFFF\"><title>Iluminación</title><path d=\"M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.3 1.1 2.2h5c0-.9.4-1.7 1.1-2.2A6 6 0 0 0 12 3z M9.5 19h5 M10.5 21.5h3\"/></svg>",
-  "durabilidad": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke=\"#FFFFFF\"><title>Resistente al agua</title><path d=\"M12 3c3.8 4.6 6 7.8 6 10.8a6 6 0 0 1-12 0C6 10.8 8.2 7.6 12 3z M9 14.5a3 3 0 0 0 3 3\"/></svg>",
-  "garantia": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke=\"#FFFFFF\"><title>Garantía</title><path d=\"M12 3l7.5 3v5.5c0 4.7-3.1 8.2-7.5 9.5-4.4-1.3-7.5-4.8-7.5-9.5V6z M8.8 12l2.2 2.2 4.2-4.4\"/></svg>",
-  "silencio": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke=\"#FFFFFF\"><title>Silencioso</title><path d=\"M4 9.5h3.5L12 6v12l-4.5-3.5H4z M16 9.5l5 5 M21 9.5l-5 5\"/></svg>",
-  "material": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke=\"#FFFFFF\"><title>Alcance</title><path d=\"M12 21s-6.5-5.4-6.5-10.5a6.5 6.5 0 0 1 13 0C18.5 15.6 12 21 12 21z\"/><circle cx=\"12\" cy=\"10.5\" r=\"2.3\"/></svg>",
-  "fuego": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke=\"#FFFFFF\"><title>Cocina</title><path d=\"M5 10h14v7a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3z M3 10h18 M10 10V8.5a2 2 0 0 1 4 0V10 M5 13H3 M19 13h2\"/></svg>",
-  "neutro": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke=\"#FFFFFF\"><title>Alcance</title><path d=\"M12 21s-6.5-5.4-6.5-10.5a6.5 6.5 0 0 1 13 0C18.5 15.6 12 21 12 21z\"/><circle cx=\"12\" cy=\"10.5\" r=\"2.3\"/></svg>"
+  "autonomia": "<path d=\"M4 7h13a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z M22 10.5v3 M6 10.5v3 M9.5 10.5v3 M13 10.5v3\"/>",
+  "carga-rapida": "<path d=\"M13 2.5L5 13.5h6l-1 8 8-11h-6z\"/>",
+  "estacion": "<path d=\"M5 8h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2z M8.5 8V6a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1v2 M7.5 14h3 M9 12.5v3 M14 14h3\"/>",
+  "potencia": "<path d=\"M3.5 17a8.5 8.5 0 0 1 17 0 M12 17l4.5-5 M12 8.5v1.5 M5.8 12l1.1 1 M18.2 12l-1.1 1\"/><circle cx=\"12\" cy=\"17\" r=\"1.2\"/>",
+  "voltaje": "<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M13 6.5l-4 6h3l-1 5 4-6h-3z\"/>",
+  "garantia": "<path d=\"M12 3l7.5 3v5.5c0 4.7-3.1 8.2-7.5 9.5-4.4-1.3-7.5-4.8-7.5-9.5V6z M8.8 12l2.2 2.2 4.2-4.4\"/>",
+  "velocidad": "<path d=\"M2 9h8 M1 12h9 M3 15h7 M13 7l6 5-6 5\"/>",
+  "alcance": "<path d=\"M12 21s-6.5-5.4-6.5-10.5a6.5 6.5 0 0 1 13 0C18.5 15.6 12 21 12 21z\"/><circle cx=\"12\" cy=\"10.5\" r=\"2.3\"/>",
+  "peso": "<path d=\"M7 9h10l2.5 11h-15z M9.5 9a2.5 2.5 0 0 1 5 0\"/>",
+  "dimensiones": "<path d=\"M12 3l8 4.5v9L12 21l-8-4.5v-9z M4 7.5l8 4.5 8-4.5 M12 12v9\"/>",
+  "tiempo-carga": "<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 7v5l3 2\"/>",
+  "panel-solar": "<path d=\"M6 5h12l3 11H3z M12 5v11 M4.5 10.5h15 M12 16v4 M8 20h8\"/>",
+  "puertos": "<rect x=\"3\" y=\"7\" width=\"18\" height=\"10\" rx=\"2.5\"/><path d=\"M8 11v2 M12 11v2 M16 11v2\"/>",
+  "toma-ac": "<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M9.5 9v2.5 M14.5 9v2.5 M9.5 15.5h5\"/>",
+  "silencioso": "<path d=\"M4 9.5h3.5L12 6v12l-4.5-3.5H4z M16 9.5l5 5 M21 9.5l-5 5\"/>",
+  "control-remoto": "<rect x=\"8\" y=\"2.5\" width=\"8\" height=\"19\" rx=\"2.5\"/><circle cx=\"12\" cy=\"7\" r=\"1.4\"/><path d=\"M10.5 12h3 M10.5 15h3 M10.5 18h3\"/>",
+  "iluminacion": "<path d=\"M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.3 1.1 2.2h5c0-.9.4-1.7 1.1-2.2A6 6 0 0 0 12 3z M9.5 19h5 M10.5 21.5h3\"/>",
+  "eficiencia": "<path d=\"M19.5 4.5C10 4.5 5 9 5 15.5c0 1.3.3 2.4.8 3.3C7 19.2 8.2 19.5 9.5 19.5c6.5 0 10-5 10-15z M4.5 20c2-4.5 5-7.5 9-10\"/>",
+  "climatizacion": "<path d=\"M12 3v18 M4.2 7.5l15.6 9 M4.2 16.5l15.6-9 M9.5 4.7L12 7.2l2.5-2.5 M9.5 19.3L12 16.8l2.5 2.5\"/>",
+  "nevera": "<rect x=\"6\" y=\"2.5\" width=\"12\" height=\"19\" rx=\"2\"/><path d=\"M6 10h12 M9.5 5.5v2 M9.5 13v3\"/>",
+  "pantalla": "<rect x=\"3\" y=\"5\" width=\"18\" height=\"12\" rx=\"2\"/><path d=\"M9 21h6 M12 17v4\"/>",
+  "cocina": "<path d=\"M5 10h14v7a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3z M3 10h18 M10 10V8.5a2 2 0 0 1 4 0V10 M5 13H3 M19 13h2\"/>",
+  "lavadora": "<rect x=\"4\" y=\"3\" width=\"16\" height=\"18\" rx=\"2\"/><circle cx=\"12\" cy=\"14\" r=\"4\"/><path d=\"M7.5 6.5h2 M12.5 6.5h.01\"/>",
+  "entrega": "<path d=\"M2.5 6.5h11v10h-11z M13.5 9.5h4l3 3v4h-7\"/><circle cx=\"7\" cy=\"18\" r=\"1.8\"/><circle cx=\"17\" cy=\"18\" r=\"1.8\"/>",
+  "movilidad": "<circle cx=\"6\" cy=\"17\" r=\"2.8\"/><circle cx=\"18\" cy=\"17\" r=\"2.8\"/><path d=\"M8.8 17h6.4 M15.2 17L12.8 6 M11 6h4\"/>",
+  "resistente-agua": "<path d=\"M12 3c3.8 4.6 6 7.8 6 10.8a6 6 0 0 1-12 0C6 10.8 8.2 7.6 12 3z M9 14.5a3 3 0 0 0 3 3\"/>",
+  "llama": "<path d=\"M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2 1-3.2 2-4.2.2 1.4.9 2.2 1.7 2.7C10.3 8.5 10.5 5.5 12 3z\"/>",
+  "corriente": "<path d=\"M3 5h18 M3 19h18 M3 12c2.2-5 4.5-5 6 0s3.8 5 6 0 3.8-5 6 0\"/>",
+  "bifacial": "<rect x=\"3\" y=\"6\" width=\"11\" height=\"14\" rx=\"1.5\"/><path d=\"M14 8h4.5A1.5 1.5 0 0 1 20 9.5v9a1.5 1.5 0 0 1-1.5 1.5H14 M8.5 6v14 M3 13h11\"/>",
+  "check": "<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M8 12.3l2.8 2.8 5.5-5.6\"/>",
+  "wifi": "<path d=\"M2 9a15 15 0 0 1 20 0 M5.5 12.5a10 10 0 0 1 13 0 M9 16a5 5 0 0 1 6 0\"/><circle cx=\"12\" cy=\"19.5\" r=\"1\"/>",
+  "bluetooth": "<path d=\"M7 7l10 10-5 4V3l5 4L7 17\"/>",
+  "smart-tv": "<rect x=\"3\" y=\"5\" width=\"18\" height=\"12\" rx=\"2\"/><path d=\"M8.5 11.5a4.5 4.5 0 0 1 7 0 M10.5 13.5a2 2 0 0 1 3 0 M9 21h6 M12 17v4\"/>",
+  "aire": "<rect x=\"3\" y=\"5\" width=\"18\" height=\"8\" rx=\"2\"/><path d=\"M7 9h10 M8 16c0 1.5-1 2-1 3.5 M12 16c0 1.5-1 2-1 3.5 M16 16c0 1.5-1 2-1 3.5\"/>",
+  "sol": "<circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v2 M12 20v2 M2 12h2 M20 12h2 M4.9 4.9l1.4 1.4 M17.7 17.7l1.4 1.4 M4.9 19.1l1.4-1.4 M17.7 6.3l1.4-1.4\"/>",
+  "ciclos": "<path d=\"M20 12a8 8 0 0 1-14.3 4.9 M4 12A8 8 0 0 1 18.3 7.1 M18.5 3v4.5H14 M5.5 21v-4.5H10\"/>",
+  "bateria-llena": "<path d=\"M4 7h13a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z M22 10.5v3 M5.5 10.5h10v3h-10z\"/>",
+  "inversor": "<rect x=\"2\" y=\"5\" width=\"20\" height=\"14\" rx=\"2\"/><path d=\"M6 10h5 M6 14h2 M9.5 14h1.5 M13 14c1-3 2-3 3 0s2 3 3 0\"/>",
+  "enchufe": "<path d=\"M8 3v5 M16 3v5 M5.5 8h13v3a6.5 6.5 0 0 1-13 0z M12 17.5V21\"/>",
+  "pago": "<rect x=\"2.5\" y=\"5\" width=\"19\" height=\"14\" rx=\"2\"/><path d=\"M2.5 10h19 M6 15h4\"/>",
+  "precio": "<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 6.5v11 M15 9.3c-.5-.9-1.5-1.3-3-1.3-1.8 0-3 .8-3 2.1 0 3 6 1.6 6 4.4 0 1.3-1.2 2.1-3 2.1-1.5 0-2.5-.4-3-1.3\"/>",
+  "calendario": "<rect x=\"3.5\" y=\"5\" width=\"17\" height=\"16\" rx=\"2\"/><path d=\"M3.5 10h17 M8 3v4 M16 3v4\"/>",
+  "calidad": "<path d=\"M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z\"/>",
+  "telefono": "<path d=\"M5 4h4l1.5 4.5-2 1.3a10 10 0 0 0 4.7 4.7l1.3-2L19 14v4a2 2 0 0 1-2 2A13 13 0 0 1 3 6a2 2 0 0 1 2-2z\"/>",
+  "motor": "<circle cx=\"12\" cy=\"12\" r=\"3\"/><circle cx=\"12\" cy=\"12\" r=\"6.5\"/><path d=\"M12 3v3 M12 18v3 M3 12h3 M18 12h3 M5.6 5.6l2.1 2.1 M16.3 16.3l2.1 2.1 M5.6 18.4l2.1-2.1 M16.3 7.7l2.1-2.1\"/>",
+  "rueda": "<circle cx=\"12\" cy=\"12\" r=\"9\"/><circle cx=\"12\" cy=\"12\" r=\"3\"/><path d=\"M12 3v6 M12 15v6 M3 12h6 M15 12h6\"/>",
+  "personas": "<circle cx=\"12\" cy=\"7\" r=\"3.2\"/><path d=\"M5.5 21a6.5 6.5 0 0 1 13 0\"/>",
+  "subida": "<path d=\"M3 19l6.5-11 4 6.5L16 11l5 8z\"/>",
+  "temperatura": "<path d=\"M10 14.5V5a2 2 0 0 1 4 0v9.5a4 4 0 1 1-4 0z\"/>",
+  "induccion": "<rect x=\"3\" y=\"6\" width=\"18\" height=\"12\" rx=\"2\"/><circle cx=\"8.5\" cy=\"12\" r=\"2.5\"/><circle cx=\"15.5\" cy=\"12\" r=\"2.5\"/>",
+  "pulgadas": "<rect x=\"3\" y=\"6\" width=\"18\" height=\"12\" rx=\"2\"/><path d=\"M7.5 15.5l9-7 M7.5 15.5h2.5 M7.5 15.5v-2.5 M16.5 8.5h-2.5 M16.5 8.5v2.5\"/>",
+  "app-movil": "<rect x=\"7\" y=\"2.5\" width=\"10\" height=\"19\" rx=\"2\"/><path d=\"M11 18.5h2\"/>",
 };
 
 function getShareIcon(name) {
-  return SHARE_ICONS[name] || SHARE_ICONS.neutro;
+  return SHARE_ICONS[name] || SHARE_ICONS.check;
 }
 
 if (typeof module !== 'undefined' && module.exports) {

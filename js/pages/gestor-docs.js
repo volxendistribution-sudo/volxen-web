@@ -1,36 +1,6 @@
-// Iconos automáticos para compartir imagen de producto
-// Fuente: lucide-static v1.7.0 (paquete lucide-static, npm)
-// Licencia: ISC (ver share-icons-license.txt)
-// Los iconos derivados de Feather llevan licencia MIT (ver LICENSE dentro del paquete).
-// Cada valor es el contenido SVG con currentColor reemplazado por #FFFFFF,
-// listo para renderizar como imagen en canvas con imageSmoothingQuality="high".
-// No se modificó package.json ni package-lock.json; es solo lectura del paquete en /tmp.
-
-const SHARE_ICONS = {
-  "potencia": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M15.914 4a1.5 1.5 0 00-2.474-1.561l-9 9A1.5 1.5 0 005.5 14h4.002a.5.5 0 01.471.666L8.086 20a1.5 1.5 0 002.475 1.56l9-9A1.5 1.5 0 0018.5 10h-3.997a.5.5 0 01-.472-.667z\" /> </svg>",
-  "voltaje": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M12 22v-5\" /> <path d=\"M15 8V2\" /> <path d=\"M17 8a1 1 0 0 1 1 1v4a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1z\" /> <path d=\"M9 8V2\" /> </svg>",
-  "bateria": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M 22 14 L 22 10\" /> <rect x=\"2\" y=\"6\" rx=\"2\" /> </svg>",
-  "solar": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M11 2h2\" /> <path d=\"m14.28 14-4.56 8\" /> <path d=\"m21 22-1.558-4H4.558\" /> <path d=\"M3 10v2\" /> <path d=\"M6.245 15.04A2 2 0 0 1 8 14h12a1 1 0 0 1 .864 1.505l-3.11 5.457A2 2 0 0 1 16 22H4a1 1 0 0 1-.863-1.506z\" /> <path d=\"M7 2a4 4 0 0 1-4 4\" /> <path d=\"m8.66 7.66 1.41 1.41\" /> </svg>",
-  "capacidad": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z\" /> <path d=\"M12 22V12\" /> <polyline points=\"3.29 7 12 12 20.71 7\" /> <path d=\"m7.5 4.27 9 5.15\" /> </svg>",
-  "pantalla": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <rect x=\"2\" y=\"3\" rx=\"2\" /> <line x1=\"8\" x2=\"16\" y1=\"21\" y2=\"21\" /> <line x1=\"12\" x2=\"12\" y1=\"17\" y2=\"21\" /> </svg>",
-  "wifi": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M12 20h.01\" /> <path d=\"M2 8.82a15 15 0 0 1 20 0\" /> <path d=\"M5 12.859a10 10 0 0 1 14 0\" /> <path d=\"M8.5 16.429a5 5 0 0 1 7 0\" /> </svg>",
-  "frio": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"m10 20-1.25-2.5L6 18\" /> <path d=\"M10 4 8.75 6.5 6 6\" /> <path d=\"m14 20 1.25-2.5L18 18\" /> <path d=\"m14 4 1.25 2.5L18 6\" /> <path d=\"m17 21-3-6h-4\" /> <path d=\"m17 3-3 6 1.5 3\" /> <path d=\"M2 12h6.5L10 9\" /> <path d=\"m20 10-1.5 2 1.5 2\" /> <path d=\"M22 12h-6.5L14 15\" /> <path d=\"m4 10 1.5 2L4 14\" /> <path d=\"m7 21 3-6-1.5-3\" /> <path d=\"m7 3 3 6h4\" /> </svg>",
-  "calor": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4\" /> </svg>",
-  "ahorro": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M11 20a10 10 0 0010-10 25.9 25.9 0 00-1.04-7.281 1 1 0 00-1.755-.325C15.833 5.5 13 5.5 9.8 6.1A7 7 0 0011 20\" /> <path d=\"M2 21a5 5 0 012.911-4.544C7.613 15.212 8.351 15.24 11 13\" /> </svg>",
-  "ventilacion": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M10.827 16.379a6.082 6.082 0 0 1-8.618-7.002l5.412 1.45a6.082 6.082 0 0 1 7.002-8.618l-1.45 5.412a6.082 6.082 0 0 1 8.618 7.002l-5.412-1.45a6.082 6.082 0 0 1-7.002 8.618l1.45-5.412Z\" /> <path d=\"M12 12v.01\" /> </svg>",
-  "iluminacion": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M12 12v6\" /> <path d=\"M4.077 10.615A1 1 0 0 0 5 12h14a1 1 0 0 0 .923-1.385l-3.077-7.384A2 2 0 0 0 15 2H9a2 2 0 0 0-1.846 1.23Z\" /> <path d=\"M8 20a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1z\" /> </svg>",
-  "durabilidad": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\" /> </svg>",
-  "garantia": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M12 10H6\" /> <path d=\"m20.69 15.479 1.29 4.88a.5.5 0 01-.698.591l-1.843-.849a1 1 0 00-.879.001l-1.846.85a.5.5 0 01-.692-.593l1.29-4.88\" /> <path d=\"M22 6.675V6a2 2 0 00-2-2H4a2 2 0 00-2 2v12a2 2 0 002 2h8\" /> <path d=\"M6 14h4\" /> <circle cx=\"19\" cy=\"13\" r=\"3\" /> </svg>",
-  "silencio": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z\" /> </svg>",
-  "material": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z\" /> <path d=\"m3.3 7 8.7 5 8.7-5\" /> <path d=\"M12 22V12\" /> </svg>",
-  "fuego": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <path d=\"M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4\" /> </svg>",
-  "neutro": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" > <circle cx=\"12\" cy=\"12\" r=\"10\" /> </svg>"
-};
-
-function getShareIcon(name) {
-  return SHARE_ICONS[name] || SHARE_ICONS.neutro;
-}
-
+// Los iconos SVG de características viven SOLO en share-icons.js (mapa SHARE_ICONS).
+// Redeclararlos aquí lanzaría "Identifier has already been declared" y mataría todo
+// este script en el navegador, porque ambos comparten el scope global de la página.
 
 (function () {
     "use strict";
@@ -723,32 +693,34 @@ function getShareIcon(name) {
             .trim();
     }
 
+    // Tabla EXACTA portada de volxen-iconfor.js (paquete files.zip, fuente volxen-icons.json).
+    // Las regexes y el orden son la fuente de verdad: no reordenar ni inventar
+    // coincidencias (regla 5 de INSTRUCCIONES-ICONOS.md). Fallback oficial: "check".
+    var mapaIconosVolxen = [
+        [/bifacial/, "bifacial"], [/gran|tamano|dimension|medida|largo|ancho/, "dimensiones"], [/pulgada|"/, "pulgadas"], [/smart/, "smart-tv"],
+        [/panel|monocrist|policrist/, "panel-solar"], [/solar|\bsol\b/, "sol"],
+        [/wat|\bw\b|potencia/, "potencia"], [/amp\b|\ba\b|corriente/, "corriente"], [/volt|\bv\b/, "voltaje"],
+        [/alcance|\bkm\b/, "alcance"], [/velocidad|km\/h/, "velocidad"], [/ciclo|vida util/, "ciclos"],
+        [/carga rapida/, "carga-rapida"], [/tiempo.*carga|carga completa/, "tiempo-carga"], [/bater|litio|lifepo|\bwh\b|kwh/, "bateria-llena"],
+        [/autonom|duracion|horas|\bh\b/, "autonomia"], [/btu|\baire\b|split|climatiz/, "aire"], [/inversor|inverter/, "inversor"],
+        [/usb|puerto|hdmi/, "puertos"], [/cable|enchufe/, "enchufe"], [/toma|\bac\b|salida/, "toma-ac"],
+        [/wifi|wi-fi/, "wifi"], [/bluetooth/, "bluetooth"], [/\bapp\b|aplicacion/, "app-movil"], [/remoto/, "control-remoto"],
+        [/ilumin|\bluz\b|lampara|foco/, "iluminacion"], [/led|lcd|oled|pantalla|\btv\b/, "pantalla"],
+        [/frio|refriger|nevera|congel/, "nevera"], [/fuego|llama|incend|\bgas\b/, "llama"], [/induccion/, "induccion"],
+        [/cocina|olla|arroz|hornilla/, "cocina"], [/lava|ropa/, "lavadora"], [/moto|triciclo|scooter|patin/, "movilidad"],
+        [/motor/, "motor"], [/pasajero|persona|asiento/, "personas"], [/subida|pendiente/, "subida"], [/rueda|neumatico|llanta/, "rueda"],
+        [/peso|libras/, "peso"], [/garant/, "garantia"], [/agua|\bip\d|impermeable/, "resistente-agua"], [/silenc|ruido/, "silencioso"],
+        [/eficien|ahorro|consumo/, "eficiencia"], [/temperatura|calor/, "temperatura"], [/entrega|envio|domicilio/, "entrega"],
+        [/precio|cuota/, "precio"], [/pago|tarjeta|zelle/, "pago"], [/calidad|original|nuevo|sellad/, "calidad"],
+        [/calendario|\bmes\b/, "calendario"], [/telefono|whatsapp|contacto/, "telefono"]
+    ];
+
     function iconosPorCategoria(clave) {
-        var reglas = [
-            { claves: ["watt", "vatios", "potencia"], iconos: ["rayo", "energia", "fusible"] },
-            { claves: ["amp", "amper", "amperaje"], iconos: ["fusible", "enchufe", "rayo"] },
-            { claves: ["voltaje", "voltage", "volt"], iconos: ["enchufe", "rayo", "fusible"] },
-            { claves: ["panel", "placa", "solar", "monocristal", "bifacial"], iconos: ["panel-solar", "techo", "caja"] },
-            { claves: ["techo", "instalacion", "montaje", "estructura"], iconos: ["techo", "casa", "panel-solar"] },
-            { claves: ["fuego", "calor", "termico", "llama"], iconos: ["llama", "gota", "caja"] },
-            { claves: ["agua", "lluvia", "humedad", "resistencia"], iconos: ["gota", "nube", "llave"] },
-            { claves: ["viento", "aire", "flujo"], iconos: ["viento", "abanico", "caja"] },
-            { claves: ["seguridad", "candado", "seguro", "cerradura"], iconos: ["candado", "llave", "caja"] },
-            { claves: ["llave", "herramienta", "ajuste"], iconos: ["llave", "candado", "caja"] },
-            { claves: ["peso", "kilos", "carga", "carga maxima"], iconos: ["caja", "pesa", "regla"] },
-            { claves: ["tamano", "tamaño", "grande", "dims", "medida"], iconos: ["regla", "cuadro", "caja"] },
-            { claves: ["bateria", "autonomia", "horas", "duracion"], iconos: ["bateria", "caja", "energia"] },
-            { claves: ["dimension", "ancho", "alto", "largo"], iconos: ["regla", "cuadro", "caja"] }
-        ];
-        for (var i = 0; i < reglas.length; i++) {
-            var regla = reglas[i];
-            for (var j = 0; j < regla.claves.length; j++) {
-                if (clave.indexOf(regla.claves[j]) !== -1) {
-                    return regla.iconos;
-                }
-            }
+        var coincidencias = [];
+        for (var i = 0; i < mapaIconosVolxen.length; i++) {
+            if (mapaIconosVolxen[i][0].test(clave)) coincidencias.push(mapaIconosVolxen[i][1]);
         }
-        return ["circulo", "punto", "cuadro"];
+        return coincidencias.length ? coincidencias : ["check"];
     }
 
     function asignarIcono(clave, usados) {
@@ -760,8 +732,8 @@ function getShareIcon(name) {
                 return nombre;
             }
         }
-        usados.push("circulo");
-        return "circulo";
+        usados.push("check");
+        return "check";
     }
 
     function fitNameSize(ctx, text, maxWidth, maxSize, minSize, maxBlock, maxLines) {
@@ -930,14 +902,19 @@ function getShareIcon(name) {
 
         var svg;
         try {
-            svg = getShareIcon(tipoIcono) || getShareIcon('neutro');
+            svg = getShareIcon(tipoIcono) || getShareIcon('check');
         } catch (e) {
             return;
         }
         if (!svg) return;
 
-        var iconSize = r * 0.55;
+        // Regla de insignia del kit: el icono mide la mitad del diámetro del disco.
+        var iconSize = r;
         var scale = iconSize / 24;
+        // Tono reglamentario: marfil #F8F7F4 frente a disco verde, carbón #1E1D1B
+        // frente a disco dorado. Nunca blanco sobre dorado (INSTRUCCIONES-ICONOS.md).
+        var discColor = String(color || "#2E4A3F");
+        var toneColor = discColor === "#C8A165" ? "#1E1D1B" : "#F8F7F4";
 
         try {
             var parser = new DOMParser();
@@ -966,8 +943,12 @@ function getShareIcon(name) {
                     var stroke = el.getAttribute('stroke');
                     var strokeWidth = el.getAttribute('stroke-width');
 
-                    var useFill = (fill && fill !== 'none') || (!stroke && !fill);
-                    var useStroke = (stroke && stroke !== 'none') || (fill === 'none' && stroke === 'none');
+                    // El kit véndese como fragmentos sin atributos (el estilo vive en el
+                    // envoltorio): fill none + stroke currentColor 1.75 con caps redondos.
+                    // Sin atributos se trate como line-art: se traza con el tono del kit;
+                    // currentColor se sustituye por el tono (regla 8, canvas no pinta currentColor).
+                    var useFill = Boolean(fill && fill !== 'none');
+                    var useStroke = Boolean(stroke && stroke !== 'none') || !useFill;
 
                     ctx.beginPath();
 
@@ -1036,12 +1017,12 @@ function getShareIcon(name) {
                     }
 
                     if (useFill) {
-                        ctx.fillStyle = (fill && fill !== 'none') ? fill : '#FFFFFF';
+                        ctx.fillStyle = (fill === 'currentColor') ? toneColor : fill;
                         ctx.fill();
                     }
                     if (useStroke) {
-                        ctx.strokeStyle = (stroke && stroke !== 'none') ? stroke : '#FFFFFF';
-                        ctx.lineWidth = strokeWidth ? parseFloat(strokeWidth) : 2;
+                        ctx.strokeStyle = toneColor;
+                        ctx.lineWidth = strokeWidth ? parseFloat(strokeWidth) : 1.75;
                         ctx.stroke();
                     }
                 } catch (e) {}
@@ -1311,9 +1292,15 @@ function getShareIcon(name) {
             if (ctx.measureText(guarantee).width > 900) overflow.push('garantía "' + guarantee + '"');
         }
 
+        var managerText = manager ? "Comercial VOLXEN: " + manager : "";
+        var managerSize = 25;
         if (manager) {
             ctx.font = '600 25px "Inter Tight", sans-serif';
-            if (ctx.measureText("Comercial VOLXEN: " + manager).width > 513) overflow.push('nombre del comercial "' + manager + '"');
+            if (ctx.measureText(managerText).width > 513) {
+                managerSize = fitFontSize(ctx, managerText, 513, 1, 25, 16, '600', "Inter Tight");
+                ctx.font = '600 ' + managerSize + 'px "Inter Tight", sans-serif';
+                managerText = truncateToWidth(ctx, managerText, 513);
+            }
         }
 
         if (overflow.length) {
@@ -1395,11 +1382,10 @@ function getShareIcon(name) {
         }
 
         if (manager) {
-            var footerText = "Comercial VOLXEN: " + manager;
             ctx.fillStyle = "#4A4A46";
             ctx.textAlign = "right";
-            ctx.font = '600 25px "Inter Tight", sans-serif';
-            ctx.fillText(footerText, 1180, 1120);
+            ctx.font = '600 ' + managerSize + 'px "Inter Tight", sans-serif';
+            ctx.fillText(managerText, 1180, 1120);
             ctx.textAlign = "left";
         }
 

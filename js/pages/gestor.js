@@ -591,6 +591,17 @@
         return "";
     }
 
+    function ensureManagerNameForShare() {
+        const current = sessionManagerName();
+        if (current) return current;
+        const entered = window.prompt("Escribe tu nombre de comercial para la imagen (opcional):", "");
+        if (entered && entered.trim()) {
+            state.managerNameOverride = entered.trim();
+            return state.managerNameOverride;
+        }
+        return "";
+    }
+
     function fullWhatsapp(value) {
         const prefix = String(configApi().PREFIJO_CUBA || "53").replace(/\D/g, "") || "53";
         let digits = cleanPhone(value);
@@ -2650,8 +2661,8 @@
         const docs = docsApi();
         const api = catalogApi();
         const product = findCatalogProduct(state.catalogProductId);
-        const managerName = ensureManagerName();
-        if (!docs || !api || !product || !managerName) return;
+        if (!docs || !api || !product) return;
+        const managerName = ensureManagerNameForShare();
 
         setProductShareBusy(true);
         setNotice("");
@@ -2665,11 +2676,6 @@
                 guarantee: product.garantia || "",
                 image: productOriginalImage(product)
             }, managerName);
-
-            if (result.warning) {
-                setNotice(result.warning, true);
-                return;
-            }
 
             const filename = "producto-" + safeFilename(product.nombre) + ".png";
             const shareResult = await docs.shareFile(result.blob, filename, "Producto VOLXEN", "Producto " + (product.nombre || "") + " · Precio público " + money(api.pr(product)));

@@ -208,10 +208,21 @@ test("administración puede editar el margen máximo", () => {
     assert.match(admin, /margen_max_porcentaje/);
 });
 
-test("los iconos de características son reales (lucide-static) y no se repiten", () => {
+test("los iconos de características son reales (iconos-volxen.zip) y no se repiten", () => {
     const docs = read("js/pages/gestor-docs.js");
+    const sicons = read("js/pages/share-icons.js");
+    const html = read("gestor.html");
 
     assert.doesNotThrow(() => new Function(docs));
+
+    // SHARE_ICONS vive SOLO en share-icons.js: si gestor-docs.js lo redeclara, el
+    // SyntaxError "Identifier has already been declared" mata todo el script y el
+    // botón compartir deja de responder por completo.
+    assert.match(sicons, /const SHARE_ICONS/);
+    assert.doesNotMatch(docs, /const SHARE_ICONS/);
+
+    // Orden de carga: share-icons.js ANTES de gestor-docs.js
+    assert.match(html, /share-icons\.js[\s\S]*gestor-docs\.js/);
 
     // Existencia de utilidades de mapeo
     assert.match(docs, /function normalizarClave/);
@@ -245,55 +256,71 @@ test("los iconos de características son reales (lucide-static) y no se repiten"
     assert.match(docs, /iconRadius = featureMode === "normal" \? 38 :/);
     assert.match(docs, /featureMode === "four" \? 26 : 22/);
 
-    // Tabla de palabras clave: cubriendo las categorías requeridas
-    assert.match(docs, /"watt"|"vatios"|"potencia"/);
-    assert.match(docs, /"amp"|"amper"|"amperaje"/);
-    assert.match(docs, /"voltaje"|"voltage"|"volt"/);
-    assert.match(docs, /"bateria"|"autonomia"|"horas"|"duracion"/);
-    assert.match(docs, /"panel"|"placa"|"solar"|"monocristal"|"bifacial"/);
-    assert.match(docs, /"capacidad"|"tamano"|"tamaño"|"peso"|"kilos"/);
-    assert.match(docs, /"pantalla"|"resolucion"|"pulgadas"/);
-    assert.match(docs, /"wifi"|"bluetooth"|"inalambrico"/);
-    assert.match(docs, /"frio"|"refrigeracion"|"climatizacion"/);
-    assert.match(docs, /"calor"|"termico"|"calefaccion"/);
-    assert.match(docs, /"ahorro"|"inverter"|"eco"/);
-    assert.match(docs, /"ventilacion"|"ventilador"/);
-    assert.match(docs, /"iluminacion"|"led"|"luz"/);
-    assert.match(docs, /"durabilidad"|"resistente"/);
-    assert.match(docs, /"garantia"/);
-    assert.match(docs, /"silencio"|"ruido"/);
-    assert.match(docs, /"material"|"acero"|"aluminio"/);
-    assert.match(docs, /"fuego"|"llama"/);
-    assert.match(docs, /"neutro"/);
+    // La tabla del gestor es la portada EXACTA de volxen-iconfor.js (kit files.zip):
+    // los nombres y el orden del MAP son la fuente de verdad y el fallback oficial es "check"
+    for (const regla of [
+        "bifacial", "gran|tamano|dimension|medida|largo|ancho", "pulgada|", "smart",
+        "panel|monocrist|policrist", "solar|\\bsol\\b",
+        "wat|\\bw\\b|potencia", "amp\\b|\\ba\\b|corriente", "volt|\\bv\\b",
+        "alcance|\\bkm\\b", "velocidad|km\\/h", "ciclo|vida util",
+        "carga rapida", "tiempo.*carga|carga completa", "bater|litio|lifepo|\\bwh\\b|kwh",
+        "autonom|duracion|horas|\\bh\\b", "btu|\\baire\\b|split|climatiz", "inversor|inverter",
+        "usb|puerto|hdmi", "cable|enchufe", "toma|\\bac\\b|salida",
+        "wifi|wi-fi", "bluetooth", "\\bapp\\b|aplicacion", "remoto",
+        "ilumin|\\bluz\\b|lampara|foco", "led|lcd|oled|pantalla|\\btv\\b",
+        "frio|refriger|nevera|congel", "fuego|llama|incend|\\bgas\\b", "induccion",
+        "cocina|olla|arroz|hornilla", "lava|ropa", "moto|triciclo|scooter|patin",
+        "motor", "pasajero|persona|asiento", "subida|pendiente", "rueda|neumatico|llanta",
+        "peso|libras", "garant", "agua|\\bip\\d|impermeable", "silenc|ruido",
+        "eficien|ahorro|consumo", "temperatura|calor", "entrega|envio|domicilio",
+        "precio|cuota", "pago|tarjeta|zelle", "calidad|original|nuevo|sellad",
+        "calendario|\\bmes\\b", "telefono|whatsapp|contacto"
+    ]) {
+        assert.match(docs, new RegExp("/" + regla.replace(/[/\\]/g, "\\\\$") + "/,\\s*\""));
+    }
+    assert.match(docs, /coincidencias\.length \? coincidencias : \["check"\]/);
+    assert.match(docs, /usados\.push\("check"\)/);
 
     // Regla de no repetición: asignarIcono comprueba usados.indexOf
     assert.match(docs, /usados\.indexOf\(nombre\) === -1/);
 
-    // Cada nombre de icono usado en la tabla existe en SHARE_ICONS (verificación cruzada)
-    const iconNamesInDocs = [
-        "potencia", "voltaje", "bateria", "solar", "capacidad",
-        "pantalla", "wifi", "frio", "calor", "ahorro",
-        "ventilacion", "iluminacion", "durabilidad", "garantia",
-        "silencio", "material", "fuego", "neutro"
+    // Los 52 iconos del kit existen en SHARE_ICONS de share-icons.js (verificación cruzada)
+    const iconosKit = [
+        "autonomia", "carga-rapida", "estacion", "potencia", "voltaje", "garantia",
+        "velocidad", "alcance", "peso", "dimensiones", "tiempo-carga", "panel-solar",
+        "puertos", "toma-ac", "silencioso", "control-remoto", "iluminacion", "eficiencia",
+        "climatizacion", "nevera", "pantalla", "cocina", "lavadora", "entrega",
+        "movilidad", "resistente-agua", "llama", "corriente", "bifacial", "check",
+        "wifi", "bluetooth", "smart-tv", "aire", "sol", "ciclos", "bateria-llena",
+        "inversor", "enchufe", "pago", "precio", "calendario", "calidad", "telefono",
+        "motor", "rueda", "personas", "subida", "temperatura", "induccion",
+        "pulgadas", "app-movil"
     ];
-    for (const name of iconNamesInDocs) {
-        assert.match(docs, new RegExp('"' + name + '":'));
+    for (const name of iconosKit) {
+        assert.match(sicons, new RegExp('"' + name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + '":'));
+    }
+    assert.match(sicons, /function getShareIcon/);
+
+    // Tono reglamentario del dibujante y reglas de textStyle del kit en canvas
+    assert.match(docs, /toneColor = discColor === "#C8A165" \? "#1E1D1B" : "#F8F7F4"/);
+    assert.match(docs, /getShareIcon\(tipoIcono\) \|\| getShareIcon\('check'\)/);
+    assert.match(docs, /parseFloat\(strokeWidth\) : 1\.75/);
+    // Insignia: el icono mide la mitad del diámetro del disco (regla 3)
+    assert.match(docs, /var iconSize = r;/);
+    // Mapeos requeridos literalmente por INSTRUCCIONES-ICONOS.md (pruebas)
+    const requeridos = [
+        { texto: "600 W", icono: "potencia" },
+        { texto: "15 AMP", icono: "corriente" },
+        { texto: "Bifaciales monocristalinos", icono: "bifacial" },
+        { texto: "Gran panel", icono: "dimensiones" },
+        { texto: "Fuego", icono: "llama" },
+        { texto: "LED / LCD", icono: "pantalla" }
+    ];
+    for (const req of requeridos) {
+        assert.match(docs, new RegExp('"' + req.icono + '"'));
+        assert.match(sicons, new RegExp('"' + req.icono + '":'));
     }
 
-    // Textos de ejemplo y su icono esperado (por palabra clave)
-    const ejemplos = [
-        { texto: "600WATS", clave: "watt", icono: "potencia" },
-        { texto: "15 AMP", clave: "amp", icono: "voltaje" },
-        { texto: "BIFACIALES MONOCRISTALINOS", clave: "bifacial", icono: "solar" },
-        { texto: "GRAN PANEL", clave: "panel", icono: "solar" },
-        { texto: "FUEGO", clave: "fuego", icono: "fuego" },
-        { texto: "BATERÍA DURA DE 10 A 16 HORAS", clave: "bateria", icono: "bateria" }
-    ];
-    for (const ej of ejemplos) {
-        assert.match(docs, new RegExp('"' + ej.clave + '"'));
-        assert.match(docs, new RegExp('"' + ej.icono + '"'));
-    }
-
-    // Con 6 características y 2 mapeando a "solar", la segunda no repite (alternativa o neutro)
+    // Con 6 características y 2 mapeando a "panel-solar", la segunda no repite (alternativa o check)
     // Verificado por la regla de asignarIcono con usados.indexOf
 });
