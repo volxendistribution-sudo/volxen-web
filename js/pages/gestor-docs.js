@@ -1,7 +1,3 @@
-// Los iconos SVG de características viven SOLO en share-icons.js (mapa SHARE_ICONS).
-// Redeclararlos aquí lanzaría "Identifier has already been declared" y mataría todo
-// este script en el navegador, porque ambos comparten el scope global de la página.
-
 (function () {
     "use strict";
 
@@ -376,92 +372,16 @@
         ctx.drawImage(image, x + (width - drawWidth) / 2, y + (height - drawHeight) / 2, drawWidth, drawHeight);
     }
 
-    function drawFeatheredContain(ctx, image, x, y, width, height, fade) {
-        var scale = Math.min(width / image.naturalWidth, height / image.naturalHeight);
-        var drawWidth = image.naturalWidth * scale;
-        var drawHeight = image.naturalHeight * scale;
-        var drawX = (width - drawWidth) / 2;
-        var drawY = (height - drawHeight) / 2;
-        var layer = document.createElement("canvas");
-        layer.width = Math.max(1, Math.ceil(width));
-        layer.height = Math.max(1, Math.ceil(height));
-        var layerCtx = layer.getContext("2d");
-        layerCtx.imageSmoothingEnabled = true;
-        layerCtx.imageSmoothingQuality = "high";
-        layerCtx.drawImage(image, drawX, drawY, drawWidth, drawHeight);
-
-        // destination-in SOLO conserva el destino donde hay fuente: antes las franjas
-        // de bordes eran el ÚNICO relleno y el COMEDIO de la foto se borraba (la foto
-        // del ventilador desaparecía). Ahora el velo cubre TODO el lienzo con un
-        // degradado opaco en el centro, anclado a los bordes PROPIOS de la foto;
-        // dos pasadas multiplican el alfa por eje.
-        var featherPass = function (stops) {
-            layerCtx.globalCompositeOperation = "destination-in";
-            layerCtx.fillStyle = stops;
-            layerCtx.fillRect(0, 0, layer.width, layer.height);
-            layerCtx.globalCompositeOperation = "source-over";
-        };
-        if (drawWidth < width - 0.5) {
-            var edgeX = Math.min(fade, drawX, (width - drawWidth - drawX) / 2, drawWidth / 2);
-            var gradientX = layerCtx.createLinearGradient(0, 0, layer.width, 0);
-            gradientX.addColorStop(Math.max(0, drawX / layer.width), "rgba(0,0,0,0)");
-            gradientX.addColorStop(Math.max(0, (drawX + edgeX) / layer.width), "rgba(0,0,0,1)");
-            gradientX.addColorStop(Math.min(1, (drawX + drawWidth - edgeX) / layer.width), "rgba(0,0,0,1)");
-            gradientX.addColorStop(Math.min(1, (drawX + drawWidth) / layer.width), "rgba(0,0,0,0)");
-            featherPass(gradientX);
-        }
-        if (drawHeight < height - 0.5) {
-            var edgeY = Math.min(fade, drawY, (height - drawHeight - drawY) / 2, drawHeight / 2);
-            var gradientY = layerCtx.createLinearGradient(0, 0, 0, layer.height);
-            gradientY.addColorStop(Math.max(0, drawY / layer.height), "rgba(0,0,0,0)");
-            gradientY.addColorStop(Math.max(0, (drawY + edgeY) / layer.height), "rgba(0,0,0,1)");
-            gradientY.addColorStop(Math.min(1, (drawY + drawHeight - edgeY) / layer.height), "rgba(0,0,0,1)");
-            gradientY.addColorStop(Math.min(1, (drawY + drawHeight) / layer.height), "rgba(0,0,0,0)");
-            featherPass(gradientY);
-        }
-        ctx.drawImage(layer, x, y);
-    }
-
-    function photoEdgeTone(image) {
-        try {
-            var sample = document.createElement("canvas");
-            var ssize = 24;
-            sample.width = ssize;
-            sample.height = ssize;
-            var sctx = sample.getContext("2d");
-            if (!sctx) return "#F3EDE3";
-            sctx.drawImage(image, 0, 0, ssize, ssize);
-            var data = sctx.getImageData(0, 0, ssize, ssize).data;
-            var r = 0, g = 0, b = 0, count = 0;
-            for (var i = 0; i < data.length; i += 4) {
-                var index = i >> 2;
-                var px = index % ssize;
-                var py = (index - px) / ssize;
-                var border = px === 0 || py === 0 || px === ssize - 1 || py === ssize - 1;
-                if (!border || data[i + 3] < 24) continue;
-                r += data[i]; g += data[i + 1]; b += data[i + 2];
-                count += 1;
-            }
-            if (!count) return "#F3EDE3";
-            var hex = function (v) { var s = Math.round(v).toString(16); return s.length < 2 ? "0" + s : s; };
-            return "#" + hex(r / count) + hex(g / count) + hex(b / count);
-        } catch (error) {
-            return "#F3EDE3";
-        }
-    }
-
     function drawProductPhoto(ctx, image, x, y, width, height) {
         var imageAspect = image.naturalWidth / image.naturalHeight;
         var frameAspect = width / height;
         var loss = 1 - Math.min(frameAspect / imageAspect, imageAspect / frameAspect);
         if (loss > 0.18) {
-            // Foto contenida SIN recortar nada: el hueco restante del cristal se
-            // rellena con el tono del PROPIO fondo de la foto (muestreado en sus
-            // bordes), así la foto se ve al tamaño del marco como las demás y el
-            // relleno es imperceptible. Ni fondo desenfocado ni velo plano.
-            ctx.fillStyle = photoEdgeTone(image);
-            ctx.fillRect(x, y, width, height);
-            drawFeatheredContain(ctx, image, x, y, width, height, 24);
+            ctx.save();
+            ctx.filter = "blur(26px)";
+            drawCover(ctx, image, x - 40, y - 40, width + 80, height + 80);
+            ctx.restore();
+            drawContain(ctx, image, x, y, width, height);
             return "contain";
         }
         drawCover(ctx, image, x, y, width, height);
@@ -499,18 +419,6 @@
             ctx.fillText(value, x, y + index * lineHeight);
         });
         return Math.min(lines.length, limit);
-    }
-
-    function truncateToWidth(ctx, text, maxWidth) {
-        var value = String(text || "").trim();
-        if (!value || ctx.measureText(value).width <= maxWidth) return value;
-        var cut = value.length;
-        while (cut > 0) {
-            var candidate = value.slice(0, cut).replace(/\s+\S*$/, "") + "…";
-            if (candidate !== "…" && ctx.measureText(candidate).width <= maxWidth) return candidate;
-            cut -= 1;
-        }
-        return "…";
     }
 
     function canvasBlob(canvas) {
@@ -693,75 +601,16 @@
         }) + " USD";
     }
 
-    function cleanText(value) {
-        return String(value == null ? "" : value)
-            .replace(/^[\s\-–—•·*▪●○◦‣]+/, "")
-            .replace(/\s+/g, " ")
-            .trim();
-    }
-
     function featurePair(value) {
-        var text = cleanText(value);
+        var text = String(value || "").trim();
         var index = text.indexOf(":");
         if (index !== -1) {
             return {
-                title: cleanText(text.slice(0, index)),
-                detail: cleanText(text.slice(index + 1))
+                title: text.slice(0, index).trim(),
+                detail: text.slice(index + 1).trim()
             };
         }
         return { title: text, detail: "" };
-    }
-
-    function normalizarClave(texto) {
-        return String(texto || "")
-            .toLowerCase()
-            .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-            .replace(/[^a-z0-9\s]/g, " ")
-            .replace(/\s+/g, " ")
-            .trim();
-    }
-
-    // Tabla EXACTA portada de volxen-iconfor.js (paquete files.zip, fuente volxen-icons.json).
-    // Las regexes y el orden son la fuente de verdad: no reordenar ni inventar
-    // coincidencias (regla 5 de INSTRUCCIONES-ICONOS.md). Fallback oficial: "check".
-    var mapaIconosVolxen = [
-        [/bifacial/, "bifacial"], [/gran|tamano|dimension|medida|largo|ancho/, "dimensiones"], [/pulgada|"/, "pulgadas"], [/smart/, "smart-tv"],
-        [/panel|monocrist|policrist/, "panel-solar"], [/solar|\bsol\b/, "sol"],
-        [/wat|\bw\b|potencia/, "potencia"], [/amp\b|\ba\b|corriente/, "corriente"], [/volt|\bv\b/, "voltaje"],
-        [/alcance|\bkm\b/, "alcance"], [/velocidad|km\/h/, "velocidad"], [/ciclo|vida util/, "ciclos"],
-        [/carga rapida/, "carga-rapida"], [/tiempo.*carga|carga completa/, "tiempo-carga"], [/bater|litio|lifepo|\bwh\b|kwh/, "bateria-llena"],
-        [/autonom|duracion|horas|\bh\b/, "autonomia"], [/btu|\baire\b|split|climatiz/, "aire"], [/inversor|inverter/, "inversor"],
-        [/usb|puerto|hdmi/, "puertos"], [/cable|enchufe/, "enchufe"], [/toma|\bac\b|salida/, "toma-ac"],
-        [/wifi|wi-fi/, "wifi"], [/bluetooth/, "bluetooth"], [/\bapp\b|aplicacion/, "app-movil"], [/remoto/, "control-remoto"],
-        [/ilumin|\bluz\b|lampara|foco/, "iluminacion"], [/led|lcd|oled|pantalla|\btv\b/, "pantalla"],
-        [/frio|refriger|nevera|congel/, "nevera"], [/fuego|llama|incend|\bgas\b/, "llama"], [/induccion/, "induccion"],
-        [/cocina|olla|arroz|hornilla/, "cocina"], [/lava|ropa/, "lavadora"], [/moto|triciclo|scooter|patin/, "movilidad"],
-        [/motor/, "motor"], [/pasajero|persona|asiento/, "personas"], [/subida|pendiente/, "subida"], [/rueda|neumatico|llanta/, "rueda"],
-        [/peso|libras/, "peso"], [/garant/, "garantia"], [/agua|\bip\d|impermeable/, "resistente-agua"], [/silenc|ruido/, "silencioso"],
-        [/eficien|ahorro|consumo/, "eficiencia"], [/temperatura|calor/, "temperatura"], [/entrega|envio|domicilio/, "entrega"],
-        [/precio|cuota/, "precio"], [/pago|tarjeta|zelle/, "pago"], [/calidad|original|nuevo|sellad/, "calidad"],
-        [/calendario|\bmes\b/, "calendario"], [/telefono|whatsapp|contacto/, "telefono"]
-    ];
-
-    function iconosPorCategoria(clave) {
-        var coincidencias = [];
-        for (var i = 0; i < mapaIconosVolxen.length; i++) {
-            if (mapaIconosVolxen[i][0].test(clave)) coincidencias.push(mapaIconosVolxen[i][1]);
-        }
-        return coincidencias.length ? coincidencias : ["check"];
-    }
-
-    function asignarIcono(clave, usados) {
-        var alternativas = iconosPorCategoria(clave);
-        for (var i = 0; i < alternativas.length; i++) {
-            var nombre = alternativas[i];
-            if (usados.indexOf(nombre) === -1) {
-                usados.push(nombre);
-                return nombre;
-            }
-        }
-        usados.push("check");
-        return "check";
     }
 
     function fitNameSize(ctx, text, maxWidth, maxSize, minSize, maxBlock, maxLines) {
@@ -867,250 +716,81 @@
         ctx.fillText("GARANTIZADA!", x + 46, y + 76);
     }
 
-    function parsePathData(ctx, d) {
-        var cmds = d.match(/[MLHVCSQTAZ][^MLHVCSQTAZ]*/gi) || [];
-        var x = 0, y = 0;
-        var startX = 0, startY = 0;
-        for (var i = 0; i < cmds.length; i++) {
-            var cmd = cmds[i];
-            var type = cmd.charAt(0);
-            var params = cmd.slice(1).trim().split(/[\s,]+/).filter(Boolean).map(parseFloat);
-            switch (type.toUpperCase()) {
-                case 'M':
-                    x = params[0]; y = params[1];
-                    ctx.moveTo(x, y);
-                    startX = x; startY = y;
-                    break;
-                case 'L':
-                    x = params[0]; y = params[1];
-                    ctx.lineTo(x, y);
-                    break;
-                case 'H':
-                    x = params[0];
-                    ctx.lineTo(x, y);
-                    break;
-                case 'V':
-                    y = params[0];
-                    ctx.lineTo(x, y);
-                    break;
-                case 'C':
-                    ctx.bezierCurveTo(params[0], params[1], params[2], params[3], params[4], params[5]);
-                    x = params[4]; y = params[5];
-                    break;
-                case 'Q':
-                    ctx.quadraticCurveTo(params[0], params[1], params[2], params[3]);
-                    x = params[2]; y = params[3];
-                    break;
-                case 'Z':
-                    ctx.closePath();
-                    x = startX; y = startY;
-                    break;
-                case 'T':
-                    x = params[0]; y = params[1];
-                    break;
-                case 'S':
-                    x = params[2]; y = params[3];
-                    break;
-                case 'A':
-                    x = params[5]; y = params[6];
-                    break;
-            }
-        }
+    function drawFeatureCircle(ctx, cx, cy, radius, color) {
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
     }
 
-    // ---- Render NATIVO de iconos: el SVG del kit se rasteriza con el motor SVG
-    // del navegador (<img> desde data URI). A diferencia del parser manual, el
-    // motor NATIVO soporta TODOS los comandos de path: arcos (a/A) y relativos
-    // (h/v/l/t/s), que eran los que deformaban los iconos y los hacían verse
-    // "plásticos". El parser manual queda SOLO como respaldo.
-    var iconImageCache = {};
-
-    function shareIconTone(discColor) {
-        return String(discColor) === "#C8A165" ? "#1E1D1B" : "#F8F7F4";
+    function drawShieldIcon(ctx, cx, cy) {
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.strokeStyle = "#F8F7F4";
+        ctx.lineWidth = 3;
+        ctx.lineJoin = "round";
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(0, -14);
+        ctx.lineTo(11, -9);
+        ctx.lineTo(11, 3);
+        ctx.quadraticCurveTo(11, 11, 0, 15);
+        ctx.quadraticCurveTo(-11, 11, -11, 3);
+        ctx.lineTo(-11, -9);
+        ctx.closePath();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(-5, 0);
+        ctx.lineTo(-1, 5);
+        ctx.lineTo(7, -5);
+        ctx.stroke();
+        ctx.restore();
     }
 
-    function iconSrcFor(name, tone) {
-        var svg = getShareIcon(name) || getShareIcon('check');
-        // currentColor no existe en canvas y el data URI exige xmlns + tamaño
-        // explícito. width/height 192 = raster fino al reducir al tamaño final.
-        var painted = String(svg)
-            .replace(/<svg /, '<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" ')
-            .replace(/currentColor/g, tone);
-        return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(painted);
-    }
-
-    function renderIconImage(name, tone) {
-        var key = name + "|" + tone;
-        if (iconImageCache[key]) return iconImageCache[key];
-        var job = new Promise(function (resolve) {
-            var raster = new Image();
-            raster.onload = function () {
-                iconImageCache[key] = raster.naturalWidth ? raster : null;
-                resolve(iconImageCache[key]);
-            };
-            raster.onerror = function () {
-                iconImageCache[key] = null;
-                resolve(null);
-            };
-            raster.src = iconSrcFor(name, tone);
-        });
-        iconImageCache[key] = job;
-        return job;
-    }
-
-    function drawFeatureIcon(ctx, tipoIcono, cx, cy, radius, color) {
-        var r = radius || 38;
+    function drawBoltIcon(ctx, cx, cy) {
         ctx.save();
         ctx.translate(cx, cy);
         ctx.beginPath();
-        ctx.arc(0, 0, r, 0, Math.PI * 2);
-        ctx.fillStyle = color || "#2E4A3F";
+        ctx.moveTo(2, -15);
+        ctx.lineTo(-10, 2);
+        ctx.lineTo(-2, 2);
+        ctx.lineTo(-4, 15);
+        ctx.lineTo(10, -3);
+        ctx.lineTo(2, -3);
+        ctx.closePath();
+        ctx.fillStyle = "#F8F7F4";
         ctx.fill();
         ctx.restore();
+    }
 
-        var discColor = String(color || "#2E4A3F");
-        var toneColor = discColor === "#C8A165" ? "#1E1D1B" : "#F8F7F4";
-
-        // Camino NATIVO preferido: imagen SVG ya cargada en el precargado.
-        var raster = iconImageCache[tipoIcono + "|" + toneColor];
-        if (raster && raster.naturalWidth) {
-            // Regla de insignia del kit: el icono mide la mitad del diámetro del disco.
-            ctx.save();
-            ctx.translate(cx, cy);
-            ctx.imageSmoothingEnabled = true;
-            ctx.imageSmoothingQuality = "high";
-            ctx.drawImage(raster, -r / 2, -r / 2, r, r);
-            ctx.restore();
-            return;
+    function drawGearIcon(ctx, cx, cy, holeColor) {
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.beginPath();
+        for (var index = 0; index < 16; index += 1) {
+            var angle = Math.PI * 2 * index / 16 - Math.PI / 2;
+            var radius = index % 2 === 0 ? 15 : 10.5;
+            var px = Math.cos(angle) * radius;
+            var py = Math.sin(angle) * radius;
+            if (index === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
         }
+        ctx.closePath();
+        ctx.fillStyle = "#F8F7F4";
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(0, 0, 5.5, 0, Math.PI * 2);
+        ctx.fillStyle = holeColor;
+        ctx.fill();
+        ctx.restore();
+    }
 
-        // Respaldo: parser SVG → canvas para entornos sin SVG en <img>.
-        var svg;
-        try {
-            svg = getShareIcon(tipoIcono) || getShareIcon('check');
-        } catch (e) {
-            return;
-        }
-        if (!svg) return;
-
-        // Regla de insignia del kit: el icono mide la mitad del diámetro del disco.
-        var iconSize = r;
-        var scale = iconSize / 24;
-
-        try {
-            var parser = new DOMParser();
-            var doc = parser.parseFromString(svg, 'image/svg+xml');
-            var svgEl = doc.documentElement;
-
-            var viewBox = svgEl.getAttribute('viewBox') || '0 0 24 24';
-            var vbParts = viewBox.split(/[\s,]+/).filter(Boolean).map(Number);
-            var vbW = vbParts[2] || 24;
-            var vbH = vbParts[3] || 24;
-
-            ctx.save();
-            ctx.translate(cx, cy);
-            ctx.scale(scale, scale);
-            ctx.translate(-vbW / 2, -vbH / 2);
-            ctx.imageSmoothingEnabled = true;
-            ctx.imageSmoothingQuality = "high";
-            ctx.lineCap = "round";
-            ctx.lineJoin = "round";
-
-            var elements = svgEl.querySelectorAll('path, rect, circle, line, polyline, polygon, ellipse');
-            elements.forEach(function(el) {
-                try {
-                    var tag = el.tagName.toLowerCase();
-                    var fill = el.getAttribute('fill');
-                    var stroke = el.getAttribute('stroke');
-                    var strokeWidth = el.getAttribute('stroke-width');
-
-                    // El kit véndese como fragmentos sin atributos (el estilo vive en el
-                    // envoltorio): fill none + stroke currentColor 1.75 con caps redondos.
-                    // Sin atributos se trate como line-art: se traza con el tono del kit;
-                    // currentColor se sustituye por el tono (regla 8, canvas no pinta currentColor).
-                    var useFill = Boolean(fill && fill !== 'none');
-                    var useStroke = Boolean(stroke && stroke !== 'none') || !useFill;
-
-                    ctx.beginPath();
-
-                    if (tag === 'path') {
-                        var d = el.getAttribute('d');
-                        if (d) parsePathData(ctx, d);
-                    } else if (tag === 'rect') {
-                        var x = parseFloat(el.getAttribute('x') || 0);
-                        var y = parseFloat(el.getAttribute('y') || 0);
-                        var w = parseFloat(el.getAttribute('width') || 0);
-                        var h = parseFloat(el.getAttribute('height') || 0);
-                        var rx = parseFloat(el.getAttribute('rx') || 0);
-                        var ry = parseFloat(el.getAttribute('ry') || rx);
-                        if (rx > 0) {
-                            ctx.moveTo(x + rx, y);
-                            ctx.lineTo(x + w - rx, y);
-                            ctx.quadraticCurveTo(x + w, y, x + w, y + ry);
-                            ctx.lineTo(x + w, y + h - ry);
-                            ctx.quadraticCurveTo(x + w, y + h, x + w - rx, y + h);
-                            ctx.lineTo(x + rx, y + h);
-                            ctx.quadraticCurveTo(x, y + h, x, y + h - ry);
-                            ctx.lineTo(x, y + ry);
-                            ctx.quadraticCurveTo(x, y, x + rx, y);
-                        } else {
-                            ctx.rect(x, y, w, h);
-                        }
-                        ctx.closePath();
-                    } else if (tag === 'circle') {
-                        var cx2 = parseFloat(el.getAttribute('cx') || 0);
-                        var cy2 = parseFloat(el.getAttribute('cy') || 0);
-                        var r2 = parseFloat(el.getAttribute('r') || 0);
-                        ctx.arc(cx2, cy2, r2, 0, Math.PI * 2);
-                    } else if (tag === 'line') {
-                        var x1 = parseFloat(el.getAttribute('x1') || 0);
-                        var y1 = parseFloat(el.getAttribute('y1') || 0);
-                        var x2 = parseFloat(el.getAttribute('x2') || 0);
-                        var y2 = parseFloat(el.getAttribute('y2') || 0);
-                        ctx.moveTo(x1, y1);
-                        ctx.lineTo(x2, y2);
-                    } else if (tag === 'polyline' || tag === 'polygon') {
-                        var points = el.getAttribute('points');
-                        if (points) {
-                            var pts = points.split(/[\s,]+/).filter(Boolean).map(Number);
-                            if (pts.length >= 2) {
-                                ctx.moveTo(pts[0], pts[1]);
-                                for (var j = 2; j < pts.length; j += 2) {
-                                    ctx.lineTo(pts[j], pts[j + 1]);
-                                }
-                                if (tag === 'polygon') ctx.closePath();
-                            }
-                        }
-                    } else if (tag === 'ellipse') {
-                        var cx3 = parseFloat(el.getAttribute('cx') || 0);
-                        var cy3 = parseFloat(el.getAttribute('cy') || 0);
-                        var rx3 = parseFloat(el.getAttribute('rx') || 0);
-                        var ry3 = parseFloat(el.getAttribute('ry') || 0);
-                        var kappa = 0.5522848;
-                        var ox = rx3 * kappa;
-                        var oy = ry3 * kappa;
-                        ctx.moveTo(cx3 + rx3, cy3);
-                        ctx.bezierCurveTo(cx3 + rx3, cy3 - oy, cx3 + ox, cy3 - ry3, cx3, cy3 - ry3);
-                        ctx.bezierCurveTo(cx3 - ox, cy3 - ry3, cx3 - rx3, cy3 - oy, cx3 - rx3, cy3);
-                        ctx.bezierCurveTo(cx3 - rx3, cy3 + oy, cx3 - ox, cy3 + ry3, cx3, cy3 + ry3);
-                        ctx.bezierCurveTo(cx3 + ox, cy3 + ry3, cx3 + rx3, cy3 + oy, cx3 + rx3, cy3);
-                        ctx.closePath();
-                    }
-
-                    if (useFill) {
-                        ctx.fillStyle = (fill === 'currentColor') ? toneColor : fill;
-                        ctx.fill();
-                    }
-                    if (useStroke) {
-                        ctx.strokeStyle = toneColor;
-                        ctx.lineWidth = strokeWidth ? parseFloat(strokeWidth) : 1.75;
-                        ctx.stroke();
-                    }
-                } catch (e) {}
-            });
-
-            ctx.restore();
-        } catch (e) {}
+    function drawFeatureIcon(ctx, index, cx, cy) {
+        var fills = ["#163A2D", "#C8A165", "#163A2D"];
+        drawFeatureCircle(ctx, cx, cy, 38, fills[index]);
+        if (index === 0) drawShieldIcon(ctx, cx, cy);
+        else if (index === 1) drawBoltIcon(ctx, cx, cy);
+        else drawGearIcon(ctx, cx, cy, fills[index]);
     }
 
     async function drawOfficialLockup(ctx) {
@@ -1137,17 +817,13 @@
         if (document.fonts && document.fonts.load) {
             try { await document.fonts.load('800 85px "DM Sans"'); } catch (error) {}
             try { await document.fonts.load('800 104px "DM Sans"'); } catch (error) {}
-            try { await document.fonts.load('800 20px "DM Sans"'); } catch (error) {}
-            try { await document.fonts.load('800 18px "DM Sans"'); } catch (error) {}
             try { await document.fonts.load('700 24px "DM Sans"'); } catch (error) {}
             try { await document.fonts.load('600 24px "Inter Tight"'); } catch (error) {}
-            try { await document.fonts.load('600 25px "Inter Tight"'); } catch (error) {}
             try { await document.fonts.load('600 20px "Inter Tight"'); } catch (error) {}
             try { await document.fonts.load('600 30px "Inter Tight"'); } catch (error) {}
             try { await document.fonts.load('400 26px "Inter Tight"'); } catch (error) {}
             try { await document.fonts.load('400 30px "Inter Tight"'); } catch (error) {}
             try { await document.fonts.load('400 19px "Inter Tight"'); } catch (error) {}
-            try { await document.fonts.load('400 15px "Inter Tight"'); } catch (error) {}
             try { await document.fonts.load('700 24px "Inter Tight"'); } catch (error) {}
             try { await document.fonts.load('700 18px "Inter Tight"'); } catch (error) {}
         }
@@ -1156,8 +832,6 @@
         canvas.width = 1440;
         canvas.height = 1260;
         var ctx = canvas.getContext("2d");
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = "high";
 
         try {
             var background = await loadImage(templateUrl());
@@ -1168,52 +842,31 @@
         }
         await drawOfficialLockup(ctx);
 
-        var photoX = 658;
-        var photoY = 334;
-        var photoW = 712;
-        var photoH = 531;
-        var photoRadius = 32;
+        var photoX = 655;
+        var photoY = 331;
+        var photoW = 718;
+        var photoH = 537;
         ctx.save();
-        roundRect(ctx, photoX, photoY, photoW, photoH, photoRadius);
+        roundRect(ctx, photoX, photoY, photoW, photoH, 28);
         ctx.clip();
-        if (product.image) {
-            try {
-                var image = await loadImage(product.image);
-                drawProductPhoto(ctx, image, photoX, photoY, photoW, photoH);
-            } catch (error) {
-                // Si falla la carga (CORS, red, etc.), dibujar placeholder en blanco
-                ctx.fillStyle = "#EAE6DE";
-                ctx.fillRect(photoX, photoY, photoW, photoH);
-                ctx.fillStyle = "#77736C";
-                ctx.font = "400 24px 'Inter Tight', sans-serif";
-                ctx.textAlign = "center";
-                ctx.fillText("Sin foto", photoX + photoW / 2, photoY + photoH / 2);
-                ctx.textAlign = "left";
-            }
-        } else {
-            // Sin foto: placeholder en blanco
-            ctx.fillStyle = "#EAE6DE";
-            ctx.fillRect(photoX, photoY, photoW, photoH);
-            ctx.fillStyle = "#77736C";
-            ctx.font = "400 24px 'Inter Tight', sans-serif";
-            ctx.textAlign = "center";
-            ctx.fillText("Sin foto", photoX + photoW / 2, photoY + photoH / 2);
-            ctx.textAlign = "left";
+        if (!product.image) {
+            ctx.restore();
+            throw new Error("El producto no tiene foto. Agrega una foto antes de compartir.");
+        }
+        try {
+            var image = await loadImage(product.image);
+            drawProductPhoto(ctx, image, photoX, photoY, photoW, photoH);
+        } catch (error) {
+            ctx.restore();
+            throw new Error("No se pudo cargar la foto del producto desde Supabase (CORS o crossOrigin). No se generó la imagen sin foto.");
         }
         ctx.restore();
 
-        ctx.save();
-        roundRect(ctx, photoX, photoY, photoW, photoH, photoRadius);
-        ctx.strokeStyle = "rgba(46,74,63,0.18)";
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-        ctx.restore();
-
-        var name = cleanText(product.name) || "Producto";
+        var name = String(product.name || "Producto").trim() || "Producto";
         var fixedSubtitleLines = ["Tecnología, calidad y confianza", "en un solo producto."];
         var fixedSubtitle = fixedSubtitleLines.join(" ");
         var features = Array.isArray(product.features)
-            ? product.features.map(function (item) { return cleanText(item); }).filter(Boolean)
+            ? product.features.map(function (item) { return String(item || "").trim(); }).filter(Boolean)
             : [];
         var titleBlockTop = 196;
         var titleBlockBottom = 410;
@@ -1230,30 +883,17 @@
         var subtitleTop = titleBlockBottom + 24;
         var subtitleFirstBaseline = subtitleTop + Math.round(subtitleSize * 0.82);
         var subtitleBottom = subtitleTop + (fixedSubtitleLines.length - 1) * subtitleLineHeight + subtitleSize;
+        var visibleFeatures = features.slice(0, 3);
         var featureRegionTop = subtitleBottom + 24;
         var featureRegionBottom = 878;
-        var featureCount = features.length;
-        var featureMode = featureCount <= 3 ? "normal" : (featureCount === 4 ? "four" : "compact");
-        var visibleFeatures = featureCount <= 5 ? features : features.slice(0, 4);
-        var summaryText = featureCount > 5 ? "Y " + (featureCount - 4) + " CARACTERÍSTICAS MÁS" : "";
-        var featureSlots = featureCount > 5 ? 5 : featureCount;
-        var featureCenters;
-        if (featureMode === "normal") {
-            featureCenters = visibleFeatures.map(function (item, index) {
-                return featureRegionTop + (featureRegionBottom - featureRegionTop) * (index + 1) / (visibleFeatures.length + 1);
-            });
-        } else {
-            var featureStep = (featureRegionBottom - featureRegionTop) / (featureSlots + 1);
-            featureCenters = [];
-            for (var slot = 0; slot < featureSlots; slot += 1) {
-                featureCenters.push(featureRegionTop + featureStep * (slot + 1));
-            }
-        }
+        var featureCenters = visibleFeatures.map(function (item, index) {
+            return featureRegionTop + (featureRegionBottom - featureRegionTop) * (index + 1) / (visibleFeatures.length + 1);
+        });
         var priceText = priceLabel(product.price);
         var priceSize = fitFontSize(ctx, priceText, 352, 1, 88, 30, '700');
-        var guarantee = cleanText(product.guarantee);
+        var guarantee = String(product.guarantee || "").trim();
         var guaranteeSize = guarantee ? fitSingleLineSize(ctx, guarantee, 900, 48, 24, "700", "DM Sans") : 0;
-        var manager = cleanText(managerName);
+        var manager = String(managerName || "").trim();
         var warning = manager ? "" : "No se dibujó el comercial: falta el nombre en Mi cuenta.";
         var overflow = [];
 
@@ -1267,103 +907,53 @@
             overflow.push('texto fijo "' + fixedSubtitle + '"');
         }
 
-        var iconosUsados = [];
+        if (features.length > 3) {
+            var extraFeatures = features.slice(3).map(function (item) {
+                return featurePair(item).title;
+            }).filter(Boolean);
+            if (extraFeatures.length) {
+                overflow.push('características adicionales: ' + extraFeatures.join(", "));
+            }
+        }
+
         var featureLayouts = visibleFeatures.map(function (feature, index) {
             var item = featurePair(feature);
             var titleText = item.title.toUpperCase();
-            var claveIcono = normalizarClave(item.title);
-            var tipoIcono = asignarIcono(claveIcono, iconosUsados);
-            var color = (index % 2 === 0) ? "#2E4A3F" : "#C8A165";
-            var drawDetail = featureMode !== "compact" && Boolean(item.detail);
-            var titleSize;
-            var titleLines;
-            var detailText = "";
+            var hasDetail = Boolean(item.detail);
+            var titleSize = hasDetail
+                ? fitSingleLineSize(ctx, titleText, 410, 24, 16, "700", "DM Sans")
+                : fitFontSize(ctx, titleText, 410, 2, 24, 16, '700', "DM Sans");
+            ctx.font = '700 ' + titleSize + 'px "DM Sans", sans-serif';
+            var titleLines = measureLines(ctx, titleText, 410);
+            var titleLineHeight = Math.round(titleSize * 1.2);
+            var detailText = hasDetail ? item.detail.charAt(0).toUpperCase() + item.detail.slice(1) : "";
             var detailLines = [];
-            var detailSize = 0;
-            var detailLineHeight = 0;
-            var iconRadius = featureMode === "normal" ? 38 : (featureMode === "four" ? 26 : 22);
-
-            if (featureMode === "normal") {
-                titleSize = drawDetail
-                    ? fitSingleLineSize(ctx, titleText, 410, 24, 16, "800", "DM Sans")
-                    : fitFontSize(ctx, titleText, 410, 2, 24, 16, "800", "DM Sans");
-                ctx.font = '800 ' + titleSize + 'px "DM Sans", sans-serif';
-                titleLines = measureLines(ctx, titleText, 410);
-                if (!titleText || titleLines.length > (drawDetail ? 1 : 2) ||
-                    titleLines.some(function (line) { return ctx.measureText(line).width > 410; })) {
-                    overflow.push('título de característica "' + item.title + '"');
-                }
-                if (drawDetail) {
-                    detailSize = 19;
-                    detailLineHeight = 28;
-                    detailText = item.detail.charAt(0).toUpperCase() + item.detail.slice(1);
-                    ctx.font = '400 ' + detailSize + 'px "Inter Tight", sans-serif';
-                    detailLines = measureLines(ctx, detailText, 410);
-                    if (detailLines.length > 2 ||
-                        detailLines.some(function (line) { return ctx.measureText(line).width > 410; })) {
-                        overflow.push('detalle de característica "' + item.title + '"');
-                    }
-                }
-                if (featureCenters[index] - 52 < featureRegionTop || featureCenters[index] + 52 > featureRegionBottom) {
-                    overflow.push('características (no caben entre el subtítulo y la franja)');
-                }
-            } else {
-                var maxTitleSize = featureMode === "four" ? 20 : 18;
-                titleSize = fitSingleLineSize(ctx, titleText, 410, maxTitleSize, 16, "800", "DM Sans");
-                ctx.font = '800 ' + titleSize + 'px "DM Sans", sans-serif';
-                titleLines = [truncateToWidth(ctx, titleText, 410)];
-                if (drawDetail) {
-                    detailSize = 15;
-                    detailLineHeight = 18;
-                    detailText = item.detail.charAt(0).toUpperCase() + item.detail.slice(1);
-                    ctx.font = '400 ' + detailSize + 'px "Inter Tight", sans-serif';
-                    detailLines = [truncateToWidth(ctx, detailText, 410)];
-                }
-                var rowHalf = featureMode === "four" ? 32 : 28;
-                if (featureCenters[index] - rowHalf < featureRegionTop || featureCenters[index] + rowHalf > featureRegionBottom) {
-                    overflow.push('características (no caben entre el subtítulo y la franja)');
-                }
+            if (hasDetail) {
+                ctx.font = '400 19px "Inter Tight", sans-serif';
+                detailLines = measureLines(ctx, detailText, 410);
             }
-
+            if (!titleText || titleLines.length > (hasDetail ? 1 : 2) ||
+                titleLines.some(function (line) { return ctx.measureText(line).width > 410; })) {
+                overflow.push('título de característica "' + item.title + '"');
+            }
+            if (hasDetail && (detailLines.length > 2 ||
+                detailLines.some(function (line) { return ctx.measureText(line).width > 410; }))) {
+                overflow.push('detalle de característica "' + item.title + '"');
+            }
+            if (featureCenters[index] - 52 < featureRegionTop || featureCenters[index] + 52 > 902) {
+                overflow.push('características (no caben entre el subtítulo y la franja)');
+            }
             return {
-                summary: false,
                 titleText: titleText,
-                hasDetail: drawDetail,
+                hasDetail: hasDetail,
                 titleSize: titleSize,
                 titleLines: titleLines,
-                titleLineHeight: Math.round(titleSize * 1.2),
+                titleLineHeight: titleLineHeight,
                 detailText: detailText,
                 detailLines: detailLines,
-                detailSize: detailSize,
-                detailLineHeight: detailLineHeight,
-                iconRadius: iconRadius,
-                icono: tipoIcono,
-                color: color,
-                separatorTop: drawDetail ? (featureMode === "normal" ? -30 : -24) : (featureMode === "normal" ? -28 : -(iconRadius + 2)),
-                separatorBottom: drawDetail ? (featureMode === "normal" ? 34 : 28) : (featureMode === "normal" ? 28 : iconRadius + 2),
                 center: featureCenters[index]
             };
         });
-
-        if (summaryText) {
-            ctx.font = '800 18px "DM Sans", sans-serif';
-            featureLayouts.push({
-                summary: true,
-                titleText: truncateToWidth(ctx, summaryText, 410),
-                hasDetail: false,
-                titleSize: 18,
-                titleLines: [truncateToWidth(ctx, summaryText, 410)],
-                titleLineHeight: Math.round(18 * 1.2),
-                detailText: "",
-                detailLines: [],
-                detailSize: 0,
-                detailLineHeight: 0,
-                iconRadius: 0,
-                separatorTop: 0,
-                separatorBottom: 0,
-                center: featureCenters[4]
-            });
-        }
 
         ctx.font = '700 ' + priceSize + 'px "DM Sans", sans-serif';
         if (ctx.measureText(priceText).width > 352) overflow.push('precio "' + priceText + '"');
@@ -1373,29 +963,14 @@
             if (ctx.measureText(guarantee).width > 900) overflow.push('garantía "' + guarantee + '"');
         }
 
-        var managerText = manager ? "Comercial VOLXEN: " + manager : "";
-        var managerSize = 25;
         if (manager) {
-            ctx.font = '600 25px "Inter Tight", sans-serif';
-            if (ctx.measureText(managerText).width > 513) {
-                managerSize = fitFontSize(ctx, managerText, 513, 1, 25, 16, '600', "Inter Tight");
-                ctx.font = '600 ' + managerSize + 'px "Inter Tight", sans-serif';
-                managerText = truncateToWidth(ctx, managerText, 513);
-            }
+            ctx.font = '600 20px "Inter Tight", sans-serif';
+            if (ctx.measureText("Comercial VOLXEN: " + manager).width > 700) overflow.push('nombre del comercial "' + manager + '"');
         }
 
         if (overflow.length) {
             throw new Error("Estos datos no caben completos en la imagen: " + overflow.join("; ") + ". No se generó la imagen para no recortarlos.");
         }
-
-        // Precarga de iconos: rasterizar cada SVG del kit ANTES del bucle de dibujo
-        // (drawImage con <img> es sincrónico cuando la imagen ya está cargada).
-        var iconPreloads = [];
-        featureLayouts.forEach(function (layout) {
-            if (layout.summary) return;
-            iconPreloads.push(renderIconImage(layout.icono, shareIconTone(layout.color)));
-        });
-        await Promise.all(iconPreloads);
 
         ctx.fillStyle = "#163A2D";
         ctx.font = '800 ' + nameFit.size + 'px "DM Sans", sans-serif';
@@ -1410,33 +985,30 @@
         });
 
         featureLayouts.forEach(function (layout, index) {
-            if (layout.summary) {
-                var summaryBaseline = layout.center + layout.titleSize * 0.35;
-                ctx.fillStyle = "#163A2D";
-                ctx.font = '800 ' + layout.titleSize + 'px "DM Sans", sans-serif';
-                ctx.fillText(layout.titleLines[0], 210, summaryBaseline);
-                return;
-            }
-            drawFeatureIcon(ctx, layout.icono, 112, layout.center, layout.iconRadius, layout.color);
+            drawFeatureIcon(ctx, index, 112, layout.center);
 
             ctx.strokeStyle = "#C8A165";
             ctx.lineWidth = 3;
             ctx.lineCap = "round";
             ctx.beginPath();
-            ctx.moveTo(190, layout.center + layout.separatorTop);
-            ctx.lineTo(190, layout.center + layout.separatorBottom);
+            if (layout.hasDetail) {
+                ctx.moveTo(190, layout.center - 30);
+                ctx.lineTo(190, layout.center + 34);
+            } else {
+                ctx.moveTo(190, layout.center - 28);
+                ctx.lineTo(190, layout.center + 28);
+            }
             ctx.stroke();
 
             if (layout.hasDetail) {
-                var detailTitleBaseline = layout.detailSize === 19 ? layout.center - 6 : layout.center - 4;
+                var detailBaseline = layout.center - 6;
                 ctx.fillStyle = "#163A2D";
-                ctx.font = '800 ' + layout.titleSize + 'px "DM Sans", sans-serif';
-                ctx.fillText(layout.titleLines[0], 210, detailTitleBaseline);
+                ctx.font = '700 ' + layout.titleSize + 'px "DM Sans", sans-serif';
+                ctx.fillText(layout.titleLines[0], 210, detailBaseline);
                 ctx.fillStyle = "#4A4A46";
-                ctx.font = '400 ' + layout.detailSize + 'px "Inter Tight", sans-serif';
-                var detailBaseline = layout.detailSize === 19 ? detailTitleBaseline + 30 : layout.center + 17;
+                ctx.font = '400 19px "Inter Tight", sans-serif';
                 layout.detailLines.forEach(function (line, lineIndex) {
-                    ctx.fillText(line, 210, detailBaseline + lineIndex * layout.detailLineHeight);
+                    ctx.fillText(line, 210, detailBaseline + 30 + lineIndex * 28);
                 });
             } else {
                 var titleCapHeight = layout.titleSize * 0.7;
@@ -1444,7 +1016,7 @@
                 var titleTop = layout.center - titleVisualHeight / 2;
                 var titleBaseline = titleTop + titleCapHeight;
                 ctx.fillStyle = "#1E1D1B";
-                ctx.font = '800 ' + layout.titleSize + 'px "DM Sans", sans-serif';
+                ctx.font = '700 ' + layout.titleSize + 'px "DM Sans", sans-serif';
                 layout.titleLines.forEach(function (line, lineIndex) {
                     ctx.fillText(line, 210, titleBaseline + lineIndex * layout.titleLineHeight);
                 });
@@ -1472,10 +1044,11 @@
         }
 
         if (manager) {
+            var footerText = "Comercial VOLXEN: " + manager;
             ctx.fillStyle = "#4A4A46";
             ctx.textAlign = "right";
-            ctx.font = '600 ' + managerSize + 'px "Inter Tight", sans-serif';
-            ctx.fillText(managerText, 1180, 1120);
+            ctx.font = '600 20px "Inter Tight", sans-serif';
+            ctx.fillText(footerText, 1180, 1120);
             ctx.textAlign = "left";
         }
 

@@ -591,17 +591,6 @@
         return "";
     }
 
-    function ensureManagerNameForShare() {
-        const current = sessionManagerName();
-        if (current) return current;
-        const entered = window.prompt("Escribe tu nombre de comercial para la imagen (opcional):", "");
-        if (entered && entered.trim()) {
-            state.managerNameOverride = entered.trim();
-            return state.managerNameOverride;
-        }
-        return "";
-    }
-
     function fullWhatsapp(value) {
         const prefix = String(configApi().PREFIJO_CUBA || "53").replace(/\D/g, "") || "53";
         let digits = cleanPhone(value);
@@ -1670,12 +1659,6 @@
             : "";
     }
 
-    function productOriginalImage(product) {
-        const api = catalogApi();
-        const images = api && typeof api.ft === "function" ? api.ft(product) : [];
-        return images && images[0] ? images[0] : "";
-    }
-
     function commissionCopy(line) {
         if (line.mode === "sin_comision") {
             return { title: "No trae comisión fija", detail: "La subida suma a tu comisión: " + money(line.markup) + " por unidad." };
@@ -2661,8 +2644,8 @@
         const docs = docsApi();
         const api = catalogApi();
         const product = findCatalogProduct(state.catalogProductId);
-        if (!docs || !api || !product) return;
-        const managerName = ensureManagerNameForShare();
+        const managerName = ensureManagerName();
+        if (!docs || !api || !product || !managerName) return;
 
         setProductShareBusy(true);
         setNotice("");
@@ -2674,18 +2657,20 @@
                 description: product.descripcion || "",
                 features: Array.isArray(product.caracteristicas) ? product.caracteristicas : [],
                 guarantee: product.garantia || "",
-                image: productOriginalImage(product)
+                image: productImage(product, 1200, null, "webp")
             }, managerName);
+
+            if (result.warning) {
+                setNotice(result.warning, true);
+                return;
+            }
 
             const filename = "producto-" + safeFilename(product.nombre) + ".png";
             const shareResult = await docs.shareFile(result.blob, filename, "Producto VOLXEN", "Producto " + (product.nombre || "") + " · Precio público " + money(api.pr(product)));
 
             if (shareResult === "unsupported") {
                 docs.downloadBlob(result.blob, filename);
-                var waText = "Producto VOLXEN: " + (product.nombre || "") + " · Precio público " + money(api.pr(product)) + "\nDescarga la imagen adjunta y compártela.";
-                var waUrl = docs.whatsappUrl ? docs.whatsappUrl(waText) : ("https://wa.me/?text=" + encodeURIComponent(waText));
-                try { window.open(waUrl, "_blank"); } catch (e) {}
-                setNotice("Imagen descargada. Se abrió WhatsApp para que adjuntes la imagen.");
+                setNotice("Imagen descargada. Puedes adjuntarla en WhatsApp.");
             } else if (shareResult === "error") {
                 setNotice("No se pudo compartir la imagen. Descárgala e inténtalo de nuevo.", true);
             } else if (shareResult === "shared") {
