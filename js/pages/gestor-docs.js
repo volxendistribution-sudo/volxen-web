@@ -390,34 +390,64 @@
         layerCtx.imageSmoothingQuality = "high";
         layerCtx.drawImage(image, drawX, drawY, drawWidth, drawHeight);
 
-        var edge = Math.min(fade, width / 2, height / 2);
-        layerCtx.globalCompositeOperation = "destination-in";
+        // destination-in SOLO conserva el destino donde hay fuente: antes las franjas
+        // de bordes eran el ÚNICO relleno y el COMEDIO de la foto se borraba (la foto
+        // del ventilador desaparecía). Ahora el velo cubre TODO el lienzo con un
+        // degradado opaco en el centro, anclado a los bordes PROPIOS de la foto;
+        // dos pasadas multiplican el alfa por eje.
+        var featherPass = function (stops) {
+            layerCtx.globalCompositeOperation = "destination-in";
+            layerCtx.fillStyle = stops;
+            layerCtx.fillRect(0, 0, layer.width, layer.height);
+            layerCtx.globalCompositeOperation = "source-over";
+        };
         if (drawWidth < width - 0.5) {
-            var left = layerCtx.createLinearGradient(0, 0, edge, 0);
-            left.addColorStop(0, "rgba(0,0,0,0)");
-            left.addColorStop(1, "rgba(0,0,0,1)");
-            layerCtx.fillStyle = left;
-            layerCtx.fillRect(0, 0, edge, height);
-            var right = layerCtx.createLinearGradient(width, 0, width - edge, 0);
-            right.addColorStop(0, "rgba(0,0,0,0)");
-            right.addColorStop(1, "rgba(0,0,0,1)");
-            layerCtx.fillStyle = right;
-            layerCtx.fillRect(width - edge, 0, edge, height);
+            var edgeX = Math.min(fade, drawX, (width - drawWidth - drawX) / 2, drawWidth / 2);
+            var gradientX = layerCtx.createLinearGradient(0, 0, layer.width, 0);
+            gradientX.addColorStop(Math.max(0, drawX / layer.width), "rgba(0,0,0,0)");
+            gradientX.addColorStop(Math.max(0, (drawX + edgeX) / layer.width), "rgba(0,0,0,1)");
+            gradientX.addColorStop(Math.min(1, (drawX + drawWidth - edgeX) / layer.width), "rgba(0,0,0,1)");
+            gradientX.addColorStop(Math.min(1, (drawX + drawWidth) / layer.width), "rgba(0,0,0,0)");
+            featherPass(gradientX);
         }
         if (drawHeight < height - 0.5) {
-            var top = layerCtx.createLinearGradient(0, 0, 0, edge);
-            top.addColorStop(0, "rgba(0,0,0,0)");
-            top.addColorStop(1, "rgba(0,0,0,1)");
-            layerCtx.fillStyle = top;
-            layerCtx.fillRect(0, 0, width, edge);
-            var bottom = layerCtx.createLinearGradient(0, height, 0, height - edge);
-            bottom.addColorStop(0, "rgba(0,0,0,0)");
-            bottom.addColorStop(1, "rgba(0,0,0,1)");
-            layerCtx.fillStyle = bottom;
-            layerCtx.fillRect(0, height - edge, width, edge);
+            var edgeY = Math.min(fade, drawY, (height - drawHeight - drawY) / 2, drawHeight / 2);
+            var gradientY = layerCtx.createLinearGradient(0, 0, 0, layer.height);
+            gradientY.addColorStop(Math.max(0, drawY / layer.height), "rgba(0,0,0,0)");
+            gradientY.addColorStop(Math.max(0, (drawY + edgeY) / layer.height), "rgba(0,0,0,1)");
+            gradientY.addColorStop(Math.min(1, (drawY + drawHeight - edgeY) / layer.height), "rgba(0,0,0,1)");
+            gradientY.addColorStop(Math.min(1, (drawY + drawHeight) / layer.height), "rgba(0,0,0,0)");
+            featherPass(gradientY);
         }
-        layerCtx.globalCompositeOperation = "source-over";
         ctx.drawImage(layer, x, y);
+    }
+
+    function photoEdgeTone(image) {
+        try {
+            var sample = document.createElement("canvas");
+            var ssize = 24;
+            sample.width = ssize;
+            sample.height = ssize;
+            var sctx = sample.getContext("2d");
+            if (!sctx) return "#F3EDE3";
+            sctx.drawImage(image, 0, 0, ssize, ssize);
+            var data = sctx.getImageData(0, 0, ssize, ssize).data;
+            var r = 0, g = 0, b = 0, count = 0;
+            for (var i = 0; i < data.length; i += 4) {
+                var index = i >> 2;
+                var px = index % ssize;
+                var py = (index - px) / ssize;
+                var border = px === 0 || py === 0 || px === ssize - 1 || py === ssize - 1;
+                if (!border || data[i + 3] < 24) continue;
+                r += data[i]; g += data[i + 1]; b += data[i + 2];
+                count += 1;
+            }
+            if (!count) return "#F3EDE3";
+            var hex = function (v) { var s = Math.round(v).toString(16); return s.length < 2 ? "0" + s : s; };
+            return "#" + hex(r / count) + hex(g / count) + hex(b / count);
+        } catch (error) {
+            return "#F3EDE3";
+        }
     }
 
     function drawProductPhoto(ctx, image, x, y, width, height) {
@@ -425,13 +455,12 @@
         var frameAspect = width / height;
         var loss = 1 - Math.min(frameAspect / imageAspect, imageAspect / frameAspect);
         if (loss > 0.18) {
-            // Foto contenida sobre fondo LIMPIO: sin fondo desenfocado ni velo.
-            // El desenfoque era lo que hacía verse borrosas las fotos de productos
-            // con aspect distinto al marco (solo los paneles entraían por cover).
-            ctx.save();
-            ctx.fillStyle = "#F3EDE3";
+            // Foto contenida SIN recortar nada: el hueco restante del cristal se
+            // rellena con el tono del PROPIO fondo de la foto (muestreado en sus
+            // bordes), así la foto se ve al tamaño del marco como las demás y el
+            // relleno es imperceptible. Ni fondo desenfocado ni velo plano.
+            ctx.fillStyle = photoEdgeTone(image);
             ctx.fillRect(x, y, width, height);
-            ctx.restore();
             drawFeatheredContain(ctx, image, x, y, width, height, 24);
             return "contain";
         }
@@ -889,6 +918,46 @@
         }
     }
 
+    // ---- Render NATIVO de iconos: el SVG del kit se rasteriza con el motor SVG
+    // del navegador (<img> desde data URI). A diferencia del parser manual, el
+    // motor NATIVO soporta TODOS los comandos de path: arcos (a/A) y relativos
+    // (h/v/l/t/s), que eran los que deformaban los iconos y los hacían verse
+    // "plásticos". El parser manual queda SOLO como respaldo.
+    var iconImageCache = {};
+
+    function shareIconTone(discColor) {
+        return String(discColor) === "#C8A165" ? "#1E1D1B" : "#F8F7F4";
+    }
+
+    function iconSrcFor(name, tone) {
+        var svg = getShareIcon(name) || getShareIcon('check');
+        // currentColor no existe en canvas y el data URI exige xmlns + tamaño
+        // explícito. width/height 192 = raster fino al reducir al tamaño final.
+        var painted = String(svg)
+            .replace(/<svg /, '<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" ')
+            .replace(/currentColor/g, tone);
+        return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(painted);
+    }
+
+    function renderIconImage(name, tone) {
+        var key = name + "|" + tone;
+        if (iconImageCache[key]) return iconImageCache[key];
+        var job = new Promise(function (resolve) {
+            var raster = new Image();
+            raster.onload = function () {
+                iconImageCache[key] = raster.naturalWidth ? raster : null;
+                resolve(iconImageCache[key]);
+            };
+            raster.onerror = function () {
+                iconImageCache[key] = null;
+                resolve(null);
+            };
+            raster.src = iconSrcFor(name, tone);
+        });
+        iconImageCache[key] = job;
+        return job;
+    }
+
     function drawFeatureIcon(ctx, tipoIcono, cx, cy, radius, color) {
         var r = radius || 38;
         ctx.save();
@@ -899,6 +968,23 @@
         ctx.fill();
         ctx.restore();
 
+        var discColor = String(color || "#2E4A3F");
+        var toneColor = discColor === "#C8A165" ? "#1E1D1B" : "#F8F7F4";
+
+        // Camino NATIVO preferido: imagen SVG ya cargada en el precargado.
+        var raster = iconImageCache[tipoIcono + "|" + toneColor];
+        if (raster && raster.naturalWidth) {
+            // Regla de insignia del kit: el icono mide la mitad del diámetro del disco.
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = "high";
+            ctx.drawImage(raster, -r / 2, -r / 2, r, r);
+            ctx.restore();
+            return;
+        }
+
+        // Respaldo: parser SVG → canvas para entornos sin SVG en <img>.
         var svg;
         try {
             svg = getShareIcon(tipoIcono) || getShareIcon('check');
@@ -910,10 +996,6 @@
         // Regla de insignia del kit: el icono mide la mitad del diámetro del disco.
         var iconSize = r;
         var scale = iconSize / 24;
-        // Tono reglamentario: marfil #F8F7F4 frente a disco verde, carbón #1E1D1B
-        // frente a disco dorado. Nunca blanco sobre dorado (INSTRUCCIONES-ICONOS.md).
-        var discColor = String(color || "#2E4A3F");
-        var toneColor = discColor === "#C8A165" ? "#1E1D1B" : "#F8F7F4";
 
         try {
             var parser = new DOMParser();
@@ -1305,6 +1387,15 @@
         if (overflow.length) {
             throw new Error("Estos datos no caben completos en la imagen: " + overflow.join("; ") + ". No se generó la imagen para no recortarlos.");
         }
+
+        // Precarga de iconos: rasterizar cada SVG del kit ANTES del bucle de dibujo
+        // (drawImage con <img> es sincrónico cuando la imagen ya está cargada).
+        var iconPreloads = [];
+        featureLayouts.forEach(function (layout) {
+            if (layout.summary) return;
+            iconPreloads.push(renderIconImage(layout.icono, shareIconTone(layout.color)));
+        });
+        await Promise.all(iconPreloads);
 
         ctx.fillStyle = "#163A2D";
         ctx.font = '800 ' + nameFit.size + 'px "DM Sans", sans-serif';

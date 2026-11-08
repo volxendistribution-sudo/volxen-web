@@ -148,8 +148,11 @@ test("la foto llena el cristal con cover y usa fondo limpio si hay que contener"
     assert.match(docs, /function drawProductPhoto/);
     assert.match(docs, /drawProductPhoto\(ctx, image, photoX, photoY, photoW, photoH\)/);
     assert.match(docs, /loss > 0\.18/);
-    // El branch "contain" ya NO desenfoca ni vela: fondo limpio a tono de plantilla
-    assert.match(docs, /fillStyle = "#F3EDE3"/);
+    // El branch "contain" NO recorta ni desenfoca ni vela: rellena el cristal con el
+    // tono del PROPIO fondo de la foto (muestreado en sus bordes) para que la foto
+    // se vea completa y al tamaño del marco como en los productos que van a cover.
+    assert.match(docs, /function photoEdgeTone/);
+    assert.match(docs, /ctx\.fillStyle = photoEdgeTone\(image\)/);
     assert.doesNotMatch(docs, /blur\(40px\)/);
     assert.doesNotMatch(docs, /rgba\(248,247,244,0\.55\)/);
     assert.match(docs, /drawFeatheredContain\(ctx, image, x, y, width, height, 24\)/);
@@ -250,6 +253,15 @@ test("los iconos de características son reales (iconos-volxen.zip) y no se repi
     assert.match(docs, /querySelectorAll/);
     assert.match(docs, /imageSmoothingQuality = "high"/);
 
+    // Render NATIVO preferido: SVG completo rasterizado con el motor del navegador
+    // (<img> desde data URI). El parser manual no soporta arcos ni comandos
+    // relativos y deformaba los iconos; queda SOLO como respaldo.
+    assert.match(docs, /data:image\/svg\+xml/);
+    assert.match(docs, /xmlns="http:\/\/www\.w3\.org\/2000\/svg"/);
+    assert.match(docs, /function renderIconImage/);
+    assert.match(docs, /iconImageCache/);
+    assert.match(docs, /function shareIconTone/);
+    assert.match(docs, /drawImage\(raster/);
     // Colores verde y dorado del kit de marca, nunca negro
     assert.match(docs, /#2E4A3F/);
     assert.match(docs, /#C8A165/);
