@@ -601,8 +601,40 @@
         }) + " USD";
     }
 
+    function cleanFeature(value) {
+        return String(value || "").replace(/^[\s\-–—•·*▪●○◦]+/, "").trim();
+    }
+
+    function featurePlan(values) {
+        var list = Array.isArray(values)
+            ? values.map(cleanFeature).filter(Boolean)
+            : [];
+        var showMore = list.length >= 6;
+        var visible = list.slice(0, showMore ? 4 : 5);
+        var remaining = showMore ? list.length - visible.length : 0;
+        return {
+            all: list,
+            visible: visible,
+            remaining: remaining,
+            moreLabel: remaining ? "Y " + remaining + " CARACTERÍSTICAS MÁS" : ""
+        };
+    }
+
+    function featureCenterList(count, top, bottom, radius) {
+        if (count <= 0) return [];
+        if (count === 1) return [(top + bottom) / 2];
+        var first = top + radius;
+        var last = bottom - radius;
+        var step = (last - first) / (count - 1);
+        var centers = [];
+        for (var index = 0; index < count; index += 1) {
+            centers.push(first + step * index);
+        }
+        return centers;
+    }
+
     function featurePair(value) {
-        var text = String(value || "").trim();
+        var text = cleanFeature(value);
         var index = text.indexOf(":");
         if (index !== -1) {
             return {
@@ -817,6 +849,9 @@
         if (document.fonts && document.fonts.load) {
             try { await document.fonts.load('800 85px "DM Sans"'); } catch (error) {}
             try { await document.fonts.load('800 104px "DM Sans"'); } catch (error) {}
+            try { await document.fonts.load('800 24px "DM Sans"'); } catch (error) {}
+            try { await document.fonts.load('800 22px "DM Sans"'); } catch (error) {}
+            try { await document.fonts.load('800 16px "DM Sans"'); } catch (error) {}
             try { await document.fonts.load('700 24px "DM Sans"'); } catch (error) {}
             try { await document.fonts.load('600 24px "Inter Tight"'); } catch (error) {}
             try { await document.fonts.load('600 20px "Inter Tight"'); } catch (error) {}
@@ -865,9 +900,9 @@
         var name = String(product.name || "Producto").trim() || "Producto";
         var fixedSubtitleLines = ["Tecnología, calidad y confianza", "en un solo producto."];
         var fixedSubtitle = fixedSubtitleLines.join(" ");
-        var features = Array.isArray(product.features)
-            ? product.features.map(function (item) { return String(item || "").trim(); }).filter(Boolean)
-            : [];
+        var featureData = featurePlan(product.features);
+        var visibleFeatures = featureData.visible;
+        var featureMoreLabel = featureData.moreLabel;
         var titleBlockTop = 196;
         var titleBlockBottom = 410;
         var titleBlockHeight = titleBlockBottom - titleBlockTop;
@@ -883,12 +918,16 @@
         var subtitleTop = titleBlockBottom + 24;
         var subtitleFirstBaseline = subtitleTop + Math.round(subtitleSize * 0.82);
         var subtitleBottom = subtitleTop + (fixedSubtitleLines.length - 1) * subtitleLineHeight + subtitleSize;
-        var visibleFeatures = features.slice(0, 3);
-        var featureRegionTop = subtitleBottom + 24;
-        var featureRegionBottom = 878;
-        var featureCenters = visibleFeatures.map(function (item, index) {
-            return featureRegionTop + (featureRegionBottom - featureRegionTop) * (index + 1) / (visibleFeatures.length + 1);
-        });
+        var featureRows = visibleFeatures.length + (featureMoreLabel ? 1 : 0);
+        var compactFeatures = featureRows >= 5;
+        var featureRegionTop = subtitleBottom + (compactFeatures ? 8 : 24);
+        var featureRegionBottom = featureMoreLabel ? 816 : (compactFeatures ? 890 : 878);
+        var featureCenters = visibleFeatures.length >= 4
+            ? featureCenterList(visibleFeatures.length, featureRegionTop, featureRegionBottom, 38)
+            : visibleFeatures.map(function (item, index) {
+                return featureRegionTop + (featureRegionBottom - featureRegionTop) * (index + 1) / (visibleFeatures.length + 1);
+            });
+        var featureMoreBaseline = featureMoreLabel ? 864 : 0;
         var priceText = priceLabel(product.price);
         var priceSize = fitFontSize(ctx, priceText, 352, 1, 88, 30, '700');
         var guarantee = String(product.guarantee || "").trim();
@@ -907,23 +946,14 @@
             overflow.push('texto fijo "' + fixedSubtitle + '"');
         }
 
-        if (features.length > 3) {
-            var extraFeatures = features.slice(3).map(function (item) {
-                return featurePair(item).title;
-            }).filter(Boolean);
-            if (extraFeatures.length) {
-                overflow.push('características adicionales: ' + extraFeatures.join(", "));
-            }
-        }
-
         var featureLayouts = visibleFeatures.map(function (feature, index) {
             var item = featurePair(feature);
             var titleText = item.title.toUpperCase();
             var hasDetail = Boolean(item.detail);
             var titleSize = hasDetail
-                ? fitSingleLineSize(ctx, titleText, 410, 24, 16, "700", "DM Sans")
-                : fitFontSize(ctx, titleText, 410, 2, 24, 16, '700', "DM Sans");
-            ctx.font = '700 ' + titleSize + 'px "DM Sans", sans-serif';
+                ? fitSingleLineSize(ctx, titleText, 410, 24, 16, "800", "DM Sans")
+                : fitFontSize(ctx, titleText, 410, 2, 24, 16, '800', "DM Sans");
+            ctx.font = '800 ' + titleSize + 'px "DM Sans", sans-serif';
             var titleLines = measureLines(ctx, titleText, 410);
             var titleLineHeight = Math.round(titleSize * 1.2);
             var detailText = hasDetail ? item.detail.charAt(0).toUpperCase() + item.detail.slice(1) : "";
@@ -940,7 +970,7 @@
                 detailLines.some(function (line) { return ctx.measureText(line).width > 410; }))) {
                 overflow.push('detalle de característica "' + item.title + '"');
             }
-            if (featureCenters[index] - 52 < featureRegionTop || featureCenters[index] + 52 > 902) {
+            if (featureCenters[index] - 38 < featureRegionTop - 0.5 || featureCenters[index] + 38 > featureRegionBottom + 0.5) {
                 overflow.push('características (no caben entre el subtítulo y la franja)');
             }
             return {
@@ -1003,7 +1033,7 @@
             if (layout.hasDetail) {
                 var detailBaseline = layout.center - 6;
                 ctx.fillStyle = "#163A2D";
-                ctx.font = '700 ' + layout.titleSize + 'px "DM Sans", sans-serif';
+                ctx.font = '800 ' + layout.titleSize + 'px "DM Sans", sans-serif';
                 ctx.fillText(layout.titleLines[0], 210, detailBaseline);
                 ctx.fillStyle = "#4A4A46";
                 ctx.font = '400 19px "Inter Tight", sans-serif';
@@ -1016,12 +1046,19 @@
                 var titleTop = layout.center - titleVisualHeight / 2;
                 var titleBaseline = titleTop + titleCapHeight;
                 ctx.fillStyle = "#1E1D1B";
-                ctx.font = '700 ' + layout.titleSize + 'px "DM Sans", sans-serif';
+                ctx.font = '800 ' + layout.titleSize + 'px "DM Sans", sans-serif';
                 layout.titleLines.forEach(function (line, lineIndex) {
                     ctx.fillText(line, 210, titleBaseline + lineIndex * layout.titleLineHeight);
                 });
             }
         });
+
+        if (featureMoreLabel) {
+            var featureMoreSize = fitSingleLineSize(ctx, featureMoreLabel, 410, 22, 16, "800", "DM Sans");
+            ctx.fillStyle = "#4A4A46";
+            ctx.font = '800 ' + featureMoreSize + 'px "DM Sans", sans-serif';
+            ctx.fillText(featureMoreLabel, 210, featureMoreBaseline);
+        }
 
         drawPricePanel(ctx, 840, 16, 400, 170);
         ctx.fillStyle = "#C8A165";
@@ -1100,6 +1137,8 @@
         openPrint: openPrint,
         receiptImageBlob: receiptImageBlob,
         productImageBlob: productImageBlob,
+        cleanFeature: cleanFeature,
+        featurePlan: featurePlan,
         shareFile: shareFile,
         downloadBlob: downloadBlob,
         whatsappUrl: whatsappUrl

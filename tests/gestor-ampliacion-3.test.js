@@ -2,6 +2,7 @@ const { test } = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
+const vm = require("node:vm");
 
 const ROOT = path.resolve(__dirname, "..");
 const read = (file) => fs.readFileSync(path.join(ROOT, file), "utf8");
@@ -103,11 +104,17 @@ test("el diseño izquierdo sigue el modelo de la plantilla", () => {
     assert.match(docs, /fitNameSize\(ctx, name, 540, 104, 48, titleBlockHeight, 2\)/);
     assert.match(docs, /'800 ' \+ nameFit\.size/);
     assert.match(docs, /nameVisualHeight/);
-    assert.match(docs, /features\.slice\(0, 3\)/);
+    assert.match(docs, /function cleanFeature/);
+    assert.match(docs, /list\.length >= 6/);
+    assert.match(docs, /list\.slice\(0, showMore \? 4 : 5\)/);
+    assert.match(docs, /"Y " \+ remaining \+ " CARACTERÍSTICAS MÁS"/);
     assert.match(docs, /item\.title\.toUpperCase\(\)/);
     assert.match(docs, /drawFeatureIcon\(ctx, index, 112, layout\.center\)/);
     assert.match(docs, /featureRegionTop/);
-    assert.match(docs, /featureRegionBottom = 878/);
+    assert.match(docs, /compactFeatures \? 890 : 878/);
+    assert.match(docs, /fitSingleLineSize\(ctx, titleText, 410, 24, 16, "800", "DM Sans"\)/);
+    assert.match(docs, /'800 ' \+ layout\.titleSize/);
+    assert.match(docs, /document\.fonts\.load\('800 24px "DM Sans"'\)/);
     assert.match(docs, /#1E1D1B/);
     assert.match(docs, /drawShieldIcon/);
     assert.match(docs, /drawBoltIcon/);
@@ -115,6 +122,38 @@ test("el diseño izquierdo sigue el modelo de la plantilla", () => {
     assert.match(docs, /¡CALIDAD/);
     assert.match(docs, /GARANTIZADA!/);
     assert.match(docs, /drawTagGlyph/);
+});
+
+test("las características limpian viñetas y se limitan a 5 o 4 + resumen", () => {
+    const sandbox = {
+        window: {},
+        URL,
+        document: {
+            baseURI: "https://volxen.example/gestor.html",
+            fonts: { status: "loaded" },
+            querySelector: () => null
+        }
+    };
+    vm.runInNewContext(read("js/pages/gestor-docs.js"), sandbox);
+    const docs = sandbox.window.VXGESTOR_DOCS;
+
+    assert.equal(docs.cleanFeature("  - • Calidad: alta"), "Calidad: alta");
+
+    const five = docs.featurePlan(["- Uno", "• Dos", "– Tres", "— Cuatro", "* Cinco"]);
+    assert.deepEqual(five.visible, ["Uno", "Dos", "Tres", "Cuatro", "Cinco"]);
+    assert.equal(five.moreLabel, "");
+
+    const six = docs.featurePlan(["- A", "- B", "- C", "- D", "- E", "- F"]);
+    assert.deepEqual(six.visible, ["A", "B", "C", "D"]);
+    assert.equal(six.moreLabel, "Y 2 CARACTERÍSTICAS MÁS");
+
+    const ten = docs.featurePlan(Array.from({ length: 10 }, (_, index) => "- " + (index + 1)));
+    assert.deepEqual(ten.visible, ["1", "2", "3", "4"]);
+    assert.equal(ten.moreLabel, "Y 6 CARACTERÍSTICAS MÁS");
+
+    const empty = docs.featurePlan([" - ", "• ", "", null]);
+    assert.deepEqual(empty.visible, []);
+    assert.equal(empty.moreLabel, "");
 });
 
 test("la foto llena el cristal con cover y usa fondo desenfocado si hay que contener", () => {
