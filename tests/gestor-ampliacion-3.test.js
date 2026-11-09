@@ -2,6 +2,7 @@ const { test } = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
+const vm = require("node:vm");
 
 const ROOT = path.resolve(__dirname, "..");
 const read = (file) => fs.readFileSync(path.join(ROOT, file), "utf8");
@@ -103,18 +104,137 @@ test("el diseño izquierdo sigue el modelo de la plantilla", () => {
     assert.match(docs, /fitNameSize\(ctx, name, 540, 104, 48, titleBlockHeight, 2\)/);
     assert.match(docs, /'800 ' \+ nameFit\.size/);
     assert.match(docs, /nameVisualHeight/);
-    assert.match(docs, /features\.slice\(0, 3\)/);
+    assert.match(docs, /function cleanFeature/);
+    assert.match(docs, /list\.length >= 6/);
+    assert.match(docs, /list\.slice\(0, showMore \? 4 : 5\)/);
+    assert.match(docs, /"Y " \+ remaining \+ " CARACTERÍSTICAS MÁS"/);
     assert.match(docs, /item\.title\.toUpperCase\(\)/);
-    assert.match(docs, /drawFeatureIcon\(ctx, index, 112, layout\.center\)/);
+    assert.match(docs, /drawFeatureIcon\(ctx, layout\.iconName, 112, layout\.center, featureRadius, layout\.discColor, layout\.iconColor\)/);
     assert.match(docs, /featureRegionTop/);
-    assert.match(docs, /featureRegionBottom = 878/);
+    assert.match(docs, /function featureGeometry/);
+    assert.match(docs, /FEATURE_RADIUS_COMPACT = 32/);
+    assert.match(docs, /FEATURE_DETAIL_SIZE_COMPACT = 17/);
+    assert.match(docs, /bottom = compact \? 880 : 878/);
+    assert.match(docs, /fitSingleLineSize\(ctx, titleText, 410, 24, 16, "800", "DM Sans"\)/);
+    assert.match(docs, /'800 ' \+ layout\.titleSize/);
+    assert.match(docs, /document\.fonts\.load\('800 24px "DM Sans"'\)/);
     assert.match(docs, /#1E1D1B/);
-    assert.match(docs, /drawShieldIcon/);
-    assert.match(docs, /drawBoltIcon/);
-    assert.match(docs, /drawGearIcon/);
+    assert.match(docs, /ensureShareIcons/);
+    assert.match(docs, /window\.selectShareIcon\(item\.title, item\.detail, usedIcons\)/);
+    assert.match(docs, /#1E4A3F/);
+    assert.match(docs, /#C8A165/);
+    assert.match(docs, /radius \* 1\.2/);
+    assert.match(docs, /No se pudieron dibujar estos iconos del kit/);
     assert.match(docs, /¡CALIDAD/);
     assert.match(docs, /GARANTIZADA!/);
     assert.match(docs, /drawTagGlyph/);
+});
+
+test("las características limpian viñetas y se limitan a 5 o 4 + resumen", () => {
+    const sandbox = {
+        window: {},
+        URL,
+        document: {
+            baseURI: "https://volxen.example/gestor.html",
+            fonts: { status: "loaded" },
+            querySelector: () => null
+        }
+    };
+    vm.runInNewContext(read("js/pages/gestor-docs.js"), sandbox);
+    const docs = sandbox.window.VXGESTOR_DOCS;
+
+    assert.equal(docs.cleanFeature("  - • Calidad: alta"), "Calidad: alta");
+
+    const five = docs.featurePlan(["- Uno", "• Dos", "– Tres", "— Cuatro", "* Cinco"]);
+    assert.deepEqual(five.visible, ["Uno", "Dos", "Tres", "Cuatro", "Cinco"]);
+    assert.equal(five.moreLabel, "");
+
+    const six = docs.featurePlan(["- A", "- B", "- C", "- D", "- E", "- F"]);
+    assert.deepEqual(six.visible, ["A", "B", "C", "D"]);
+    assert.equal(six.moreLabel, "Y 2 CARACTERÍSTICAS MÁS");
+
+    const ten = docs.featurePlan(Array.from({ length: 10 }, (_, index) => "- " + (index + 1)));
+    assert.deepEqual(ten.visible, ["1", "2", "3", "4"]);
+    assert.equal(ten.moreLabel, "Y 6 CARACTERÍSTICAS MÁS");
+
+    const empty = docs.featurePlan([" - ", "• ", "", null]);
+    assert.deepEqual(empty.visible, []);
+    assert.equal(empty.moreLabel, "");
+});
+
+test("la geometría conserva 1-3 filas y usa r=32 en 4-5 sin tocar el adorno", () => {
+    const sandbox = {
+        window: {},
+        URL,
+        document: {
+            baseURI: "https://volxen.example/gestor.html",
+            fonts: { status: "loaded" },
+            querySelector: () => null
+        }
+    };
+    vm.runInNewContext(read("js/pages/gestor-docs.js"), sandbox);
+    const docs = sandbox.window.VXGESTOR_DOCS;
+
+    const one = docs.featureGeometry(["A"], 500);
+    assert.equal(one.compact, false);
+    assert.equal(one.top, 524);
+    assert.equal(one.bottom, 878);
+    assert.equal(one.radius, 38);
+    assert.deepEqual(one.centers, [701]);
+
+    const three = docs.featureGeometry(["A", "B", "C"], 500);
+    assert.equal(three.compact, false);
+    assert.deepEqual(three.centers, [612.5, 701, 789.5]);
+
+    const four = docs.featureGeometry(["A", "B", "C", "D"], 500);
+    assert.equal(four.compact, true);
+    assert.equal(four.top, 508);
+    assert.equal(four.bottom, 880);
+    assert.equal(four.radius, 32);
+    assert.deepEqual(four.centers.map((value) => Math.round(value * 100) / 100), [540, 642.67, 745.33, 848]);
+
+    const five = docs.featureGeometry(["A", "B", "C", "D", "E"], 500);
+    assert.equal(five.radius, 32);
+    assert.deepEqual(five.centers, [540, 617, 694, 771, 848]);
+    assert.ok(five.step >= five.radius * 2);
+
+    const six = docs.featureGeometry(["A", "B", "C", "D", "E", "F"], 500);
+    assert.equal(six.plan.moreLabel, "Y 2 CARACTERÍSTICAS MÁS");
+    assert.deepEqual(six.centers, [540, 622, 704, 786]);
+    assert.equal(six.moreCenter, 868);
+    assert.ok(six.moreCenter + six.summaryHalf <= six.bottom);
+    assert.ok(six.step >= six.radius * 2);
+    assert.ok(six.centers.every((center) => center - six.radius >= six.top));
+});
+
+test("los iconos se eligen del kit por palabras clave y no se repiten", () => {
+    const getShareIcon = require("../js/pages/share-icons.js");
+    const used = [];
+    assert.equal(getShareIcon.selectShareIcon("Potencia", "3000W", used), "potencia");
+    assert.equal(getShareIcon.selectShareIcon("Batería", "Litio 100Ah", used), "bateria-llena");
+    assert.equal(getShareIcon.selectShareIcon("Panel solar", "450W", used), "panel-solar");
+    assert.equal(getShareIcon.selectShareIcon("Voltaje", "110V", used), "voltaje");
+    assert.equal(getShareIcon.selectShareIcon("Garantía", "12 meses", used), "garantia");
+    assert.equal(new Set(used).size, used.length);
+
+    const repeat = [];
+    assert.equal(getShareIcon.selectShareIcon("Potencia", "3000W", repeat), "potencia");
+    assert.equal(getShareIcon.selectShareIcon("Potencia", "5000W", repeat), "check");
+    assert.notEqual(repeat[0], repeat[1]);
+
+    const unknown = [];
+    assert.equal(getShareIcon.selectShareIcon("Sin palabra clave", "nada", unknown), "check");
+    assert.equal(getShareIcon.selectShareIcon("Sin palabra clave", "nada", unknown), "calidad");
+    assert.notEqual(unknown[0], unknown[1]);
+});
+
+test("el texto de características no se recorta en silencio", () => {
+    const docs = read("js/pages/gestor-docs.js");
+
+    assert.doesNotMatch(docs, /truncateToWidth/);
+    assert.match(docs, /título de característica/);
+    assert.match(docs, /detalle de característica/);
+    assert.match(docs, /Estos datos no caben completos en la imagen/);
 });
 
 test("la foto llena el cristal con cover y usa fondo desenfocado si hay que contener", () => {
