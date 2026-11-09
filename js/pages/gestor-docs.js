@@ -620,17 +620,50 @@
         };
     }
 
-    function featureCenterList(count, top, bottom, radius) {
-        if (count <= 0) return [];
-        if (count === 1) return [(top + bottom) / 2];
-        var first = top + radius;
-        var last = bottom - radius;
-        var step = (last - first) / (count - 1);
+    var FEATURE_RADIUS_NORMAL = 38;
+    var FEATURE_RADIUS_COMPACT = 32;
+    var FEATURE_DETAIL_SIZE_NORMAL = 19;
+    var FEATURE_DETAIL_SIZE_COMPACT = 17;
+    var FEATURE_DETAIL_LINE_NORMAL = 28;
+    var FEATURE_DETAIL_LINE_COMPACT = 22;
+    var FEATURE_SUMMARY_SIZE = 18;
+    var FEATURE_SUMMARY_HALF = 12;
+
+    function featureGeometry(values, subtitleBottom) {
+        var plan = featurePlan(values);
+        var rows = plan.visible.length + (plan.moreLabel ? 1 : 0);
+        var compact = rows >= 4;
+        var top = subtitleBottom + (compact ? 8 : 24);
+        var bottom = compact ? 880 : 878;
+        var radius = compact ? FEATURE_RADIUS_COMPACT : FEATURE_RADIUS_NORMAL;
         var centers = [];
-        for (var index = 0; index < count; index += 1) {
-            centers.push(first + step * index);
+        var step = 0;
+        var moreCenter = null;
+        if (!compact) {
+            centers = plan.visible.map(function (item, index) {
+                return top + (bottom - top) * (index + 1) / (plan.visible.length + 1);
+            });
+        } else {
+            var first = top + radius;
+            var last = bottom - (plan.moreLabel ? FEATURE_SUMMARY_HALF : radius);
+            step = (last - first) / Math.max(1, rows - 1);
+            centers = plan.visible.map(function (item, index) {
+                return first + step * index;
+            });
+            if (plan.moreLabel) moreCenter = last;
         }
-        return centers;
+        return {
+            plan: plan,
+            rows: rows,
+            compact: compact,
+            top: top,
+            bottom: bottom,
+            radius: radius,
+            centers: centers,
+            step: step,
+            moreCenter: moreCenter,
+            summaryHalf: FEATURE_SUMMARY_HALF
+        };
     }
 
     function featurePair(value) {
@@ -817,12 +850,81 @@
         ctx.restore();
     }
 
-    function drawFeatureIcon(ctx, index, cx, cy) {
-        var fills = ["#163A2D", "#C8A165", "#163A2D"];
-        drawFeatureCircle(ctx, cx, cy, 38, fills[index]);
-        if (index === 0) drawShieldIcon(ctx, cx, cy);
-        else if (index === 1) drawBoltIcon(ctx, cx, cy);
-        else drawGearIcon(ctx, cx, cy, fills[index]);
+    var shareIconsReady = null;
+    var shareIconCache = {};
+
+    function ensureShareIcons() {
+        if (typeof window !== "undefined" &&
+            typeof window.getShareIcon === "function" &&
+            typeof window.selectShareIcon === "function") {
+            return Promise.resolve();
+        }
+        if (shareIconsReady) return shareIconsReady;
+        if (typeof document === "undefined" || !document.createElement) {
+            return Promise.reject(new Error("No hay documento para cargar js/pages/share-icons.js."));
+        }
+        shareIconsReady = new Promise(function (resolve, reject) {
+            var script = document.createElement("script");
+            try {
+                script.src = new URL("js/pages/share-icons.js", document.baseURI).href;
+            } catch (error) {
+                script.src = "js/pages/share-icons.js";
+            }
+            script.onload = function () {
+                if (typeof window.getShareIcon === "function" && typeof window.selectShareIcon === "function") {
+                    resolve();
+                } else {
+                    reject(new Error("js/pages/share-icons.js no expuso getShareIcon/selectShareIcon."));
+                }
+            };
+            script.onerror = function () {
+                reject(new Error("No se pudo cargar js/pages/share-icons.js."));
+            };
+            (document.head || document.documentElement).appendChild(script);
+        });
+        return shareIconsReady;
+    }
+
+    function iconSrcFor(name, tone) {
+        var svg = window.getShareIcon(name) || window.getShareIcon("check");
+        var painted = String(svg)
+            .replace(/<svg /, '<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" ')
+            .replace(/currentColor/g, tone);
+        return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(painted);
+    }
+
+    function renderShareIcon(name, tone) {
+        var key = name + "|" + tone;
+        if (shareIconCache[key]) return shareIconCache[key];
+        var job = new Promise(function (resolve) {
+            var image = new Image();
+            image.onload = function () {
+                shareIconCache[key] = image.naturalWidth ? image : null;
+                resolve(shareIconCache[key]);
+            };
+            image.onerror = function () {
+                shareIconCache[key] = null;
+                resolve(null);
+            };
+            image.src = iconSrcFor(name, tone);
+        });
+        shareIconCache[key] = job;
+        return job;
+    }
+
+    function drawFeatureIcon(ctx, iconName, cx, cy, radius, discColor, iconColor) {
+        drawFeatureCircle(ctx, cx, cy, radius, discColor);
+        var icon = shareIconCache[iconName + "|" + iconColor];
+        if (!icon || !icon.naturalWidth) {
+            throw new Error('No se pudo dibujar el icono "' + iconName + '" del kit.');
+        }
+        var size = radius * 1.2;
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
+        ctx.drawImage(icon, -size / 2, -size / 2, size, size);
+        ctx.restore();
     }
 
     async function drawOfficialLockup(ctx) {
@@ -851,6 +953,7 @@
             try { await document.fonts.load('800 104px "DM Sans"'); } catch (error) {}
             try { await document.fonts.load('800 24px "DM Sans"'); } catch (error) {}
             try { await document.fonts.load('800 22px "DM Sans"'); } catch (error) {}
+            try { await document.fonts.load('800 18px "DM Sans"'); } catch (error) {}
             try { await document.fonts.load('800 16px "DM Sans"'); } catch (error) {}
             try { await document.fonts.load('700 24px "DM Sans"'); } catch (error) {}
             try { await document.fonts.load('600 24px "Inter Tight"'); } catch (error) {}
@@ -859,10 +962,16 @@
             try { await document.fonts.load('400 26px "Inter Tight"'); } catch (error) {}
             try { await document.fonts.load('400 30px "Inter Tight"'); } catch (error) {}
             try { await document.fonts.load('400 19px "Inter Tight"'); } catch (error) {}
+            try { await document.fonts.load('400 17px "Inter Tight"'); } catch (error) {}
             try { await document.fonts.load('700 24px "Inter Tight"'); } catch (error) {}
             try { await document.fonts.load('700 18px "Inter Tight"'); } catch (error) {}
         }
         if (document.fonts && document.fonts.ready) await document.fonts.ready;
+        try {
+            await ensureShareIcons();
+        } catch (error) {
+            throw new Error("No se pudo cargar el kit de iconos (js/pages/share-icons.js). No se generó la imagen.");
+        }
         var canvas = document.createElement("canvas");
         canvas.width = 1440;
         canvas.height = 1260;
@@ -900,9 +1009,6 @@
         var name = String(product.name || "Producto").trim() || "Producto";
         var fixedSubtitleLines = ["Tecnología, calidad y confianza", "en un solo producto."];
         var fixedSubtitle = fixedSubtitleLines.join(" ");
-        var featureData = featurePlan(product.features);
-        var visibleFeatures = featureData.visible;
-        var featureMoreLabel = featureData.moreLabel;
         var titleBlockTop = 196;
         var titleBlockBottom = 410;
         var titleBlockHeight = titleBlockBottom - titleBlockTop;
@@ -918,16 +1024,16 @@
         var subtitleTop = titleBlockBottom + 24;
         var subtitleFirstBaseline = subtitleTop + Math.round(subtitleSize * 0.82);
         var subtitleBottom = subtitleTop + (fixedSubtitleLines.length - 1) * subtitleLineHeight + subtitleSize;
-        var featureRows = visibleFeatures.length + (featureMoreLabel ? 1 : 0);
-        var compactFeatures = featureRows >= 5;
-        var featureRegionTop = subtitleBottom + (compactFeatures ? 8 : 24);
-        var featureRegionBottom = featureMoreLabel ? 816 : (compactFeatures ? 890 : 878);
-        var featureCenters = visibleFeatures.length >= 4
-            ? featureCenterList(visibleFeatures.length, featureRegionTop, featureRegionBottom, 38)
-            : visibleFeatures.map(function (item, index) {
-                return featureRegionTop + (featureRegionBottom - featureRegionTop) * (index + 1) / (visibleFeatures.length + 1);
-            });
-        var featureMoreBaseline = featureMoreLabel ? 864 : 0;
+        var featureLayoutPlan = featureGeometry(product.features, subtitleBottom);
+        var visibleFeatures = featureLayoutPlan.plan.visible;
+        var featureMoreLabel = featureLayoutPlan.plan.moreLabel;
+        var compactFeatures = featureLayoutPlan.compact;
+        var featureRegionTop = featureLayoutPlan.top;
+        var featureRegionBottom = featureLayoutPlan.bottom;
+        var featureRadius = featureLayoutPlan.radius;
+        var featureCenters = featureLayoutPlan.centers;
+        var featureMoreCenter = featureLayoutPlan.moreCenter;
+        var usedIcons = [];
         var priceText = priceLabel(product.price);
         var priceSize = fitFontSize(ctx, priceText, 352, 1, 88, 30, '700');
         var guarantee = String(product.guarantee || "").trim();
@@ -956,10 +1062,12 @@
             ctx.font = '800 ' + titleSize + 'px "DM Sans", sans-serif';
             var titleLines = measureLines(ctx, titleText, 410);
             var titleLineHeight = Math.round(titleSize * 1.2);
+            var detailSize = compactFeatures ? FEATURE_DETAIL_SIZE_COMPACT : FEATURE_DETAIL_SIZE_NORMAL;
+            var detailLineHeight = compactFeatures ? FEATURE_DETAIL_LINE_COMPACT : FEATURE_DETAIL_LINE_NORMAL;
             var detailText = hasDetail ? item.detail.charAt(0).toUpperCase() + item.detail.slice(1) : "";
             var detailLines = [];
             if (hasDetail) {
-                ctx.font = '400 19px "Inter Tight", sans-serif';
+                ctx.font = '400 ' + detailSize + 'px "Inter Tight", sans-serif';
                 detailLines = measureLines(ctx, detailText, 410);
             }
             if (!titleText || titleLines.length > (hasDetail ? 1 : 2) ||
@@ -970,9 +1078,37 @@
                 detailLines.some(function (line) { return ctx.measureText(line).width > 410; }))) {
                 overflow.push('detalle de característica "' + item.title + '"');
             }
-            if (featureCenters[index] - 38 < featureRegionTop - 0.5 || featureCenters[index] + 38 > featureRegionBottom + 0.5) {
+            var titleCapHeight = titleSize * 0.7;
+            var titleVisualHeight = (titleLines.length - 1) * titleLineHeight + titleCapHeight;
+            var blockHalf = titleVisualHeight / 2;
+            var detailTitleBaseline = 0;
+            var detailBaseline = 0;
+            if (hasDetail) {
+                if (compactFeatures) {
+                    var detailCapHeight = detailSize * 0.7;
+                    var blockHeight = titleCapHeight + 4 + (detailLines.length - 1) * detailLineHeight + detailCapHeight;
+                    var blockTop = featureCenters[index] - blockHeight / 2;
+                    detailTitleBaseline = blockTop + titleCapHeight;
+                    detailBaseline = blockTop + titleCapHeight + 4 + detailCapHeight;
+                    blockHalf = blockHeight / 2;
+                } else {
+                    detailTitleBaseline = featureCenters[index] - 6;
+                    detailBaseline = detailTitleBaseline + 30;
+                }
+            }
+            if (compactFeatures) {
+                if (featureCenters[index] - blockHalf < featureRegionTop - 0.5 ||
+                    featureCenters[index] + blockHalf > featureRegionBottom + 0.5 ||
+                    blockHalf > featureRadius + 0.5) {
+                    overflow.push('características (no caben sin solaparse)');
+                }
+            } else if (featureCenters[index] - 38 < featureRegionTop - 0.5 ||
+                featureCenters[index] + 38 > featureRegionBottom + 0.5) {
                 overflow.push('características (no caben entre el subtítulo y la franja)');
             }
+            var iconName = window.selectShareIcon(item.title, item.detail, usedIcons);
+            var discColor = index % 2 === 0 ? "#1E4A3F" : "#C8A165";
+            var iconColor = discColor === "#C8A165" ? "#163A2D" : "#F8F7F4";
             return {
                 titleText: titleText,
                 hasDetail: hasDetail,
@@ -981,9 +1117,33 @@
                 titleLineHeight: titleLineHeight,
                 detailText: detailText,
                 detailLines: detailLines,
+                detailSize: detailSize,
+                detailLineHeight: detailLineHeight,
+                detailTitleBaseline: detailTitleBaseline,
+                detailBaseline: detailBaseline,
+                iconName: iconName,
+                discColor: discColor,
+                iconColor: iconColor,
                 center: featureCenters[index]
             };
         });
+        if (compactFeatures && featureLayoutPlan.step < featureRadius * 2 - 0.5) {
+            overflow.push('características (no caben sin solaparse)');
+        }
+
+        var featureMoreSize = 0;
+        if (featureMoreLabel) {
+            featureMoreSize = fitSingleLineSize(ctx, featureMoreLabel, 410, FEATURE_SUMMARY_SIZE, 14, "800", "DM Sans");
+            ctx.font = '800 ' + featureMoreSize + 'px "DM Sans", sans-serif';
+            if (ctx.measureText(featureMoreLabel).width > 410) {
+                overflow.push('resumen de características "' + featureMoreLabel + '"');
+            }
+            if (featureMoreCenter == null ||
+                featureMoreCenter - FEATURE_SUMMARY_HALF < featureRegionTop - 0.5 ||
+                featureMoreCenter + FEATURE_SUMMARY_HALF > featureRegionBottom + 0.5) {
+                overflow.push('resumen de características "' + featureMoreLabel + '"');
+            }
+        }
 
         ctx.font = '700 ' + priceSize + 'px "DM Sans", sans-serif';
         if (ctx.measureText(priceText).width > 352) overflow.push('precio "' + priceText + '"');
@@ -1002,6 +1162,17 @@
             throw new Error("Estos datos no caben completos en la imagen: " + overflow.join("; ") + ". No se generó la imagen para no recortarlos.");
         }
 
+        var iconImages = await Promise.all(featureLayouts.map(function (layout) {
+            return renderShareIcon(layout.iconName, layout.iconColor);
+        }));
+        var missingIcons = [];
+        featureLayouts.forEach(function (layout, index) {
+            if (!iconImages[index]) missingIcons.push(layout.iconName);
+        });
+        if (missingIcons.length) {
+            throw new Error('No se pudieron dibujar estos iconos del kit: ' + missingIcons.join(", ") + '. No se generó la imagen.');
+        }
+
         ctx.fillStyle = "#163A2D";
         ctx.font = '800 ' + nameFit.size + 'px "DM Sans", sans-serif';
         nameFit.lines.forEach(function (line, index) {
@@ -1014,16 +1185,18 @@
             ctx.fillText(line, subtitleX, subtitleFirstBaseline + index * subtitleLineHeight);
         });
 
-        featureLayouts.forEach(function (layout, index) {
-            drawFeatureIcon(ctx, index, 112, layout.center);
+        featureLayouts.forEach(function (layout) {
+            drawFeatureIcon(ctx, layout.iconName, 112, layout.center, featureRadius, layout.discColor, layout.iconColor);
 
             ctx.strokeStyle = "#C8A165";
             ctx.lineWidth = 3;
             ctx.lineCap = "round";
             ctx.beginPath();
             if (layout.hasDetail) {
-                ctx.moveTo(190, layout.center - 30);
-                ctx.lineTo(190, layout.center + 34);
+                var separatorTop = compactFeatures ? 28 : 30;
+                var separatorBottom = compactFeatures ? 28 : 34;
+                ctx.moveTo(190, layout.center - separatorTop);
+                ctx.lineTo(190, layout.center + separatorBottom);
             } else {
                 ctx.moveTo(190, layout.center - 28);
                 ctx.lineTo(190, layout.center + 28);
@@ -1031,14 +1204,13 @@
             ctx.stroke();
 
             if (layout.hasDetail) {
-                var detailBaseline = layout.center - 6;
                 ctx.fillStyle = "#163A2D";
                 ctx.font = '800 ' + layout.titleSize + 'px "DM Sans", sans-serif';
-                ctx.fillText(layout.titleLines[0], 210, detailBaseline);
+                ctx.fillText(layout.titleLines[0], 210, layout.detailTitleBaseline);
                 ctx.fillStyle = "#4A4A46";
-                ctx.font = '400 19px "Inter Tight", sans-serif';
+                ctx.font = '400 ' + layout.detailSize + 'px "Inter Tight", sans-serif';
                 layout.detailLines.forEach(function (line, lineIndex) {
-                    ctx.fillText(line, 210, detailBaseline + 30 + lineIndex * 28);
+                    ctx.fillText(line, 210, layout.detailBaseline + lineIndex * layout.detailLineHeight);
                 });
             } else {
                 var titleCapHeight = layout.titleSize * 0.7;
@@ -1054,10 +1226,10 @@
         });
 
         if (featureMoreLabel) {
-            var featureMoreSize = fitSingleLineSize(ctx, featureMoreLabel, 410, 22, 16, "800", "DM Sans");
+            var moreBaseline = featureMoreCenter + featureMoreSize * 0.35;
             ctx.fillStyle = "#4A4A46";
             ctx.font = '800 ' + featureMoreSize + 'px "DM Sans", sans-serif';
-            ctx.fillText(featureMoreLabel, 210, featureMoreBaseline);
+            ctx.fillText(featureMoreLabel, 210, moreBaseline);
         }
 
         drawPricePanel(ctx, 840, 16, 400, 170);
@@ -1139,6 +1311,7 @@
         productImageBlob: productImageBlob,
         cleanFeature: cleanFeature,
         featurePlan: featurePlan,
+        featureGeometry: featureGeometry,
         shareFile: shareFile,
         downloadBlob: downloadBlob,
         whatsappUrl: whatsappUrl

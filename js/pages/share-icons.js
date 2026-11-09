@@ -3,8 +3,8 @@
 // Regla 1 del kit: el icono se incrusta como <svg viewBox="0 0 24 24"> en línea, con el
 // fragmento EXACTO del JSON adentro y el estilo del kit en el envoltorio:
 // fill="none" stroke="currentColor" stroke-width="1.75", caps y juntas redondas.
-// En canvas currentColor se sustituye por el tono reglamentario: marfil #F8F7F4 sobre
-// disco verde #2E4A3F y carbón #1E1D1B sobre disco dorado #C8A165 (nunca blanco sobre dorado).
+// En canvas currentColor se sustituye por: crema #F8F7F4 sobre disco verde #1E4A3F
+// y verde oscuro #163A2D sobre disco dorado #C8A165 (alternados por fila).
 // Cada entrada es un svg COMPLETO y xml-válido: sin envoltorio el parser de
 // image/svg+xml no acepta fragmentos multi-raíz (parsererror) y no dibuja el icono.
 
@@ -63,8 +63,120 @@ const SHARE_ICONS = {
   "app-movil": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"7\" y=\"2.5\" width=\"10\" height=\"19\" rx=\"2\"/><path d=\"M11 18.5h2\"/></svg>",
 };
 
+// Selección automática por palabras clave del título y la descripción.
+// El orden importa: la primera coincidencia disponible gana y nunca se repite
+// un icono dentro de la misma imagen.
+var SHARE_ICON_KEYWORDS = [
+  [/bifacial/, "bifacial"],
+  [/gran|tamano|dimension|medida|largo|ancho/, "dimensiones"],
+  [/pulgada/, "pulgadas"],
+  [/smart/, "smart-tv"],
+  [/panel|monocrist|policrist/, "panel-solar"],
+  [/solar|\bsol\b/, "sol"],
+  [/wat|\bw\b|potencia/, "potencia"],
+  [/amp\b|\ba\b|corriente/, "corriente"],
+  [/volt|\bv\b/, "voltaje"],
+  [/alcance|\bkm\b/, "alcance"],
+  [/velocidad|km\/h/, "velocidad"],
+  [/ciclo|vida util/, "ciclos"],
+  [/carga rapida/, "carga-rapida"],
+  [/tiempo.*carga|carga completa/, "tiempo-carga"],
+  [/bater|litio|lifepo|\bwh\b|kwh/, "bateria-llena"],
+  [/autonom|duracion|horas|\bh\b/, "autonomia"],
+  [/btu|\baire\b|split|climatiz/, "aire"],
+  [/inversor|inverter/, "inversor"],
+  [/usb|puerto|hdmi/, "puertos"],
+  [/cable|enchufe/, "enchufe"],
+  [/toma|\bac\b|salida/, "toma-ac"],
+  [/wifi|wi-fi/, "wifi"],
+  [/bluetooth/, "bluetooth"],
+  [/\bapp\b|aplicacion/, "app-movil"],
+  [/remoto/, "control-remoto"],
+  [/ilumin|\bluz\b|lampara|foco/, "iluminacion"],
+  [/led|lcd|oled|pantalla|\btv\b/, "pantalla"],
+  [/frio|refriger|nevera|congel/, "nevera"],
+  [/fuego|llama|incend|\bgas\b/, "llama"],
+  [/induccion/, "induccion"],
+  [/cocina|olla|arroz|hornilla/, "cocina"],
+  [/lava|ropa/, "lavadora"],
+  [/moto|triciclo|scooter|patin/, "movilidad"],
+  [/motor/, "motor"],
+  [/pasajero|persona|asiento/, "personas"],
+  [/subida|pendiente/, "subida"],
+  [/rueda|neumatico|llanta/, "rueda"],
+  [/peso|libras/, "peso"],
+  [/garant/, "garantia"],
+  [/agua|\bip\d|impermeable/, "resistente-agua"],
+  [/silenc|ruido/, "silencioso"],
+  [/eficien|ahorro|consumo/, "eficiencia"],
+  [/temperatura|calor/, "temperatura"],
+  [/entrega|envio|domicilio/, "entrega"],
+  [/precio|cuota/, "precio"],
+  [/pago|tarjeta|zelle/, "pago"],
+  [/calidad|original|nuevo|sellad/, "calidad"],
+  [/calendario|\bmes\b/, "calendario"],
+  [/telefono|whatsapp|contacto/, "telefono"]
+];
+
+// Neutrales del kit, en orden de preferencia. "check" es el neutro principal;
+// si ya se usó, se toma el siguiente para no repetir icono en la misma imagen.
+var SHARE_NEUTRAL_ICONS = ["check", "calidad", "entrega", "personas", "calendario"];
+
+function normalizeIconText(texto) {
+  return String(texto || "")
+    .toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function iconCandidates(texto) {
+  var clave = normalizeIconText(texto);
+  if (!clave) return [];
+  var resultado = [];
+  for (var i = 0; i < SHARE_ICON_KEYWORDS.length; i += 1) {
+    if (SHARE_ICON_KEYWORDS[i][0].test(clave)) resultado.push(SHARE_ICON_KEYWORDS[i][1]);
+  }
+  return resultado;
+}
+
+function selectShareIcon(title, detail, used) {
+  var usados = Array.isArray(used) ? used : [];
+  var candidatos = iconCandidates(title).concat(iconCandidates(detail));
+  for (var i = 0; i < candidatos.length; i += 1) {
+    var nombre = candidatos[i];
+    if (usados.indexOf(nombre) === -1) {
+      usados.push(nombre);
+      return nombre;
+    }
+  }
+  for (var n = 0; n < SHARE_NEUTRAL_ICONS.length; n += 1) {
+    var neutro = SHARE_NEUTRAL_ICONS[n];
+    if (usados.indexOf(neutro) === -1) {
+      usados.push(neutro);
+      return neutro;
+    }
+  }
+  usados.push("check");
+  return "check";
+}
+
 function getShareIcon(name) {
   return SHARE_ICONS[name] || SHARE_ICONS.check;
+}
+
+getShareIcon.SHARE_ICONS = SHARE_ICONS;
+getShareIcon.iconCandidates = iconCandidates;
+getShareIcon.normalizeIconText = normalizeIconText;
+getShareIcon.selectShareIcon = selectShareIcon;
+
+if (typeof window !== "undefined") {
+  window.SHARE_ICONS = SHARE_ICONS;
+  window.getShareIcon = getShareIcon;
+  window.iconCandidates = iconCandidates;
+  window.normalizeIconText = normalizeIconText;
+  window.selectShareIcon = selectShareIcon;
 }
 
 if (typeof module !== "undefined" && module.exports) module.exports = getShareIcon;
