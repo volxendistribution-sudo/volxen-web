@@ -259,6 +259,7 @@ test("la foto se recorta para llenar el cristal y el fondo oscuro no asoma", () 
 
 test("los PDFs incrustan las fuentes y el logo oficial", () => {
     const pdf = read("js/pages/gestor-pdf.js");
+    const html = read("gestor.html");
 
     assert.doesNotThrow(() => new Function(pdf));
     assert.match(pdf, /brand\/logo\.svg/);
@@ -268,6 +269,10 @@ test("los PDFs incrustan las fuentes y el logo oficial", () => {
     assert.match(pdf, /addFileToVFS/);
     assert.match(pdf, /addFont/);
     assert.doesNotMatch(pdf, /new URL\("logo\.svg"/);
+    assert.match(html, /js\/pages\/share-icons\.js/);
+    assert.match(pdf, /outline\.add/);
+    assert.match(pdf, /Precios en USD vigentes al/);
+    assert.match(pdf, /Cómo comprar/);
 });
 
 test("el build copia la marca y las fuentes TTF", () => {

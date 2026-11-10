@@ -10,9 +10,23 @@ const read = (file) => fs.readFileSync(path.join(ROOT, file), "utf8");
 function fakeJsPDF() {
     function FakePDF() {
         this.page = 1;
+        this.totalPages = 1;
+        this.fontSize = 10;
         this.texts = [];
         this.images = [];
+        this.links = [];
         this.saved = "";
+        this.outline = {
+            entries: [],
+            add: function (parent, title, options) {
+                this.entries.push({
+                    parent,
+                    title: String(title || ""),
+                    pageNumber: options && options.pageNumber
+                });
+                return this;
+            }
+        };
         this.internal = {
             pageSize: {
                 getWidth: () => 210,
@@ -21,7 +35,10 @@ function fakeJsPDF() {
         };
     }
     FakePDF.prototype.setFont = function () { return this; };
-    FakePDF.prototype.setFontSize = function () { return this; };
+    FakePDF.prototype.setFontSize = function (size) {
+        this.fontSize = Number(size) || 10;
+        return this;
+    };
     FakePDF.prototype.setTextColor = function () { return this; };
     FakePDF.prototype.setFillColor = function () { return this; };
     FakePDF.prototype.setDrawColor = function () { return this; };
@@ -33,6 +50,18 @@ function fakeJsPDF() {
     FakePDF.prototype.roundedRect = function () { return this; };
     FakePDF.prototype.circle = function () { return this; };
     FakePDF.prototype.line = function () { return this; };
+    FakePDF.prototype.link = function (x, y, width, height, options) {
+        this.links.push({ x, y, width, height, pageNumber: options && options.pageNumber });
+        return this;
+    };
+    FakePDF.prototype.textWithLink = function (value, x, y, options) {
+        this.text(value, x, y);
+        this.link(x, y - 3, this.getTextWidth(value), 6, options);
+        return this;
+    };
+    FakePDF.prototype.getTextWidth = function (value) {
+        return String(value || "").length * this.fontSize * 0.18;
+    };
     FakePDF.prototype.text = function (value) {
         this.texts.push(String(value));
         return this;
@@ -48,6 +77,7 @@ function fakeJsPDF() {
     };
     FakePDF.prototype.addPage = function () {
         this.page += 1;
+        this.totalPages += 1;
         return this;
     };
     FakePDF.prototype.setPage = function (page) {
@@ -55,7 +85,7 @@ function fakeJsPDF() {
         return this;
     };
     FakePDF.prototype.getNumberOfPages = function () {
-        return this.page;
+        return this.totalPages;
     };
     FakePDF.prototype.save = function (filename) {
         this.saved = String(filename || "");
@@ -155,7 +185,7 @@ test("el reporte se guarda como PDF directo con la línea del comercial", async 
     assert.doesNotMatch(text, /ganancia total/i);
 });
 
-test("el catálogo se guarda como PDF directo y respeta datos públicos", async () => {
+test("el catálogo agrupa por categoría y respeta datos públicos", async () => {
     const loaded = loadPdf();
     const api = loaded.api;
     const filename = await api.downloadCatalog({
@@ -169,8 +199,50 @@ test("el catálogo se guarda como PDF directo y respeta datos públicos", async 
     assert.match(text, /Catálogo/);
     assert.match(text, /Comercial VOLXEN: Ana/);
     assert.match(text, /Nevera/);
-    assert.match(text, /\$120\.00/);
+    assert.match(text, /120 USD/);
+    assert.match(text, /Contenido/);
+    assert.match(text, /Línea blanca/);
+    assert.match(text, /Cómo comprar/);
+    assert.match(text, /Precios en USD vigentes al/);
     assert.doesNotMatch(text, /comisión|ganancia/i);
+    assert.equal(loaded.instance.page, 3);
+});
+
+test("el catálogo enlaza el índice, marca categorías y comparte una sola categoría", async () => {
+    const loaded = loadPdf();
+    const api = loaded.api;
+    const filename = await api.downloadCatalog({
+        managerName: "Ana",
+        scopeLabel: "Climatización",
+        categories: [{ id: "c1", nombre: "Climatización", orden: 1 }],
+        contacts: [{ name: "Atención principal 1", phone: "5350760258" }],
+        products: [{
+            name: "Aire split",
+            category: "Climatización",
+            categoryId: "c1",
+            price: 160,
+            features: ["600W", "15 amp"],
+            guarantee: "1 mes",
+            availability: "disponible"
+        }]
+    });
+
+    assert.match(filename, /^catalogo-volxen-climatizacion-\d{4}-\d{2}-\d{2}\.pdf$/);
+    const text = loaded.instance.texts.join("\n");
+    assert.match(text, /160 USD/);
+    assert.match(text, /600W/);
+    assert.match(text, /Garantía: 1 mes/);
+    assert.match(text, /Disponible/);
+    assert.match(text, /Entrega/);
+    assert.match(text, /Pago/);
+    assert.match(text, /Horario/);
+    assert.match(text, /Contacto/);
+    assert.match(text, /\+53 50760258/);
+    assert.ok(loaded.instance.outline.entries.some((entry) => entry.title === "Climatización" && entry.pageNumber === 2));
+    assert.ok(loaded.instance.outline.entries.some((entry) => entry.title === "Cómo comprar" && entry.pageNumber === 3));
+    assert.ok(loaded.instance.links.some((link) => link.pageNumber === 2));
+    assert.ok(loaded.instance.links.some((link) => link.pageNumber === 3));
+    assert.equal(loaded.instance.page, 3);
 });
 
 test("el comprobante PDF es directo y no filtra datos privados", async () => {

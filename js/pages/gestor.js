@@ -54,6 +54,7 @@
         catalogQuery: "",
         catalogQueryInput: "",
         catalogSort: "featured",
+        catalogPdfScope: "",
         catalogReady: false,
         catalogLoading: false,
         catalogPromise: null,
@@ -160,7 +161,7 @@
             })) {
                 state.savedPriceAdjustments.push({
                     productId: productId,
-                    name: product.nombre || "Producto",
+                    name: product.nombre || "",
                     from: saved,
                     to: maxPrice
                 });
@@ -1558,6 +1559,31 @@
         refs.gsCatalogCategories.innerHTML = buttons.join("");
     }
 
+    function renderCatalogPdfScope() {
+        if (!refs.gsCatalogPdfScope) return;
+
+        const api = catalogApi();
+        const categories = api && typeof api.getCs === "function" ? api.getCs() : [];
+        const products = api && typeof api.getP === "function" ? api.getP() : [];
+        const counts = {};
+        products.forEach(function (product) {
+            if (typeof api.ag === "function" && api.ag(product)) return;
+            const key = String(product.categoria_id || "");
+            counts[key] = (counts[key] || 0) + 1;
+        });
+
+        const options = ['<option value="">Catálogo completo</option>'];
+        categories.forEach(function (category) {
+            const value = String(category.id || "");
+            if (!counts[value]) return;
+            options.push('<option value="' + escapeHtml(value) + '">' + escapeHtml(category.nombre || "Categoría") + "</option>");
+        });
+        refs.gsCatalogPdfScope.innerHTML = options.join("");
+
+        if (state.catalogPdfScope && !counts[state.catalogPdfScope]) state.catalogPdfScope = "";
+        refs.gsCatalogPdfScope.value = state.catalogPdfScope;
+    }
+
     function catalogProducts() {
         const api = catalogApi();
         if (!api || typeof api.getP !== "function") return [];
@@ -1615,6 +1641,7 @@
 
     function ensureCatalog() {
         if (state.catalogReady) {
+            renderCatalogPdfScope();
             renderCatalogProducts();
             return Promise.resolve();
         }
@@ -1634,6 +1661,7 @@
             state.catalogReady = true;
             state.catalogLoading = false;
             renderCatalogCategories();
+            renderCatalogPdfScope();
             renderCatalogProducts();
             adjustSavedPrices();
         }).catch(function () {
@@ -2614,18 +2642,53 @@
                 setNotice("No se pudo cargar el catálogo. Inténtalo de nuevo.", true);
                 return;
             }
+            const scope = state.catalogPdfScope;
+            const allCategories = typeof api.getCs === "function" ? api.getCs() : [];
+            const categories = allCategories.filter(function (category) {
+                return !scope || String(category.id) === scope;
+            });
+            const categoryNames = {};
+            allCategories.forEach(function (category) {
+                categoryNames[String(category.id || "")] = category.nombre || "";
+            });
             const products = api.getP().filter(function (product) {
+                if (scope && String(product.categoria_id || "") !== scope) return false;
                 return typeof api.ag === "function" ? !api.ag(product) : true;
             }).map(function (product) {
                 return {
-                    name: product.nombre || "Producto",
-                    category: typeof api.cn === "function" ? api.cn(product.categoria_id) : "Producto",
+                    name: product.nombre || "",
+                    category: categoryNames[String(product.categoria_id || "")] || "",
+                    categoryId: product.categoria_id || "",
                     price: typeof api.pr === "function" ? api.pr(product) : product.precio_usd,
-                    image: productImage(product, 600, 450)
+                    image: productImage(product, 900, 494),
+                    features: Array.isArray(product.caracteristicas) ? product.caracteristicas : [],
+                    guarantee: product.garantia || "",
+                    availability: product.disponibilidad || ""
+                };
+            }).filter(function (product) {
+                return product.name;
+            });
+            if (!products.length) {
+                setNotice("No hay productos disponibles para el catálogo seleccionado.", true);
+                return;
+            }
+            const contacts = primaryOperators().map(function (operator) {
+                return {
+                    name: operator.nombre || "Atención VOLXEN",
+                    phone: fullWhatsapp(operator.whatsapp)
                 };
             });
+            const scopeCategory = categories.find(function (category) {
+                return String(category.id) === scope;
+            });
 
-            await pdf.downloadCatalog({ products: products, managerName: managerName });
+            await pdf.downloadCatalog({
+                products: products,
+                categories: categories,
+                managerName: managerName,
+                contacts: contacts,
+                scopeLabel: scopeCategory ? scopeCategory.nombre : ""
+            });
             setNotice("Catálogo PDF descargado.");
         } catch (error) {
             setNotice("No se pudo generar el catálogo PDF. Inténtalo de nuevo.", true);
@@ -2651,7 +2714,7 @@
         setNotice("");
         try {
             const result = await docs.productImageBlob({
-                name: product.nombre || "Producto",
+                name: product.nombre || "",
                 category: typeof api.cn === "function" ? api.cn(product.categoria_id) : "Producto",
                 price: typeof api.pr === "function" ? api.pr(product) : product.precio_usd,
                 description: product.descripcion || "",
@@ -3263,13 +3326,21 @@
             });
         }
 
+        if (refs.gsCatalogPdfScope) {
+            refs.gsCatalogPdfScope.addEventListener("change", function (event) {
+                state.catalogPdfScope = event.target.value || "";
+            });
+        }
+
         if (refs.gsCatalogReset) {
             refs.gsCatalogReset.addEventListener("click", function () {
                 state.catalogCategory = "";
                 state.catalogQuery = "";
                 state.catalogQueryInput = "";
                 state.catalogSort = "featured";
+                state.catalogPdfScope = "";
                 if (refs.gsCatalogSort) refs.gsCatalogSort.value = "featured";
+                if (refs.gsCatalogPdfScope) refs.gsCatalogPdfScope.value = "";
                 renderCatalogCategories();
                 renderCatalogProducts();
             });
@@ -3596,7 +3667,7 @@
             "gsGauge", "gsGaugeProgress", "gsGaugeValue", "gsGaugeLabel",
             "gsGaugeBadge", "gsGaugeNote", "gsStatusTrack", "gsStatusBadge",
             "gsCatalogView", "gsCatalogCategories", "gsCatalogGrid", "gsCatalogEmpty",
-            "gsCatalogCount", "gsCatalogSort", "gsCatalogReset", "gsCatalogShare", "gsProductDialog",
+            "gsCatalogCount", "gsCatalogSort", "gsCatalogPdfScope", "gsCatalogReset", "gsCatalogShare", "gsProductDialog",
             "gsProductClose", "gsProductMedia", "gsProductCategory", "gsProductTitle",
             "gsProductDescription", "gsProductPrice", "gsProductStock", "gsProductAdd",
             "gsProductCart", "gsProductBuy", "gsProductShare", "gsProductCommission", "gsProductModeNote", "gsProductSaleWrap",

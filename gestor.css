@@ -4005,6 +4005,10 @@ body[data-gs-view="gsDashboard"] .gs-header {
     font-size: 11px;
 }
 
+.gs-catalog-controls #gsCatalogPdfScope {
+    max-width: 190px;
+}
+
 .gs-order-op-link {
     display: inline-flex;
     margin-top: 4px;

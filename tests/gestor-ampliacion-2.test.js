@@ -24,6 +24,7 @@ test("el panel incluye buscador agrupado, reporte, catálogo y diálogos nuevos"
     assert.match(html, /id="gsDownloadReport"/);
     assert.match(html, /id="gsEvolutionChart"/);
     assert.match(html, /id="gsCatalogShare"/);
+    assert.match(html, /id="gsCatalogPdfScope"/);
     assert.match(html, /id="gsProductShare"/);
     assert.match(html, /id="gsOrderSuccessShare"/);
     assert.match(html, /id="gsReceiptDialog"/);
@@ -52,6 +53,8 @@ test("el gestor pagina todo el historial y usa los módulos de gráficas y docum
     assert.match(js, /function shareReceipt/);
     assert.match(js, /function downloadReport/);
     assert.match(js, /function shareCatalog/);
+    assert.match(js, /catalogPdfScope/);
+    assert.match(js, /function renderCatalogPdfScope/);
     assert.match(js, /function shareProductImage/);
     assert.doesNotMatch(js, /gsChartGrid|gsChartPlot|gsChartTooltip|gsBubbleEmpty|gsBubbleNote|gsStatusLegend/);
     assert.doesNotMatch(js, /\/rest\/v1\/pedidos/);

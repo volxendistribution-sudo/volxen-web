@@ -7,6 +7,7 @@
     var COLORS = {
         ink: [30, 29, 27],
         surface: [234, 230, 222],
+        paper: [248, 247, 244],
         gold: [200, 161, 101],
         green: [46, 74, 63],
         muted: [119, 115, 108],
@@ -469,8 +470,9 @@
         return y;
     }
 
-    async function loadImageData(url, width, height, quality, mime) {
+    async function loadImageData(url, width, height, quality, mime, options) {
         if (!url || typeof Image !== "function") return "";
+        var opts = options || {};
         return new Promise(function (resolve) {
             var image = new Image();
             var done = false;
@@ -481,18 +483,22 @@
                 clearTimeout(timer);
                 resolve(data);
             }
-            image.crossOrigin = "anonymous";
+            if (!/^data:/i.test(url)) image.crossOrigin = "anonymous";
             image.onload = function () {
                 try {
                     var canvas = document.createElement("canvas");
                     canvas.width = width;
                     canvas.height = height;
                     var ctx = canvas.getContext("2d");
-                    ctx.fillStyle = "#FFFFFF";
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    var scale = Math.min(width / image.naturalWidth, height / image.naturalHeight);
-                    var drawW = image.naturalWidth * scale;
-                    var drawH = image.naturalHeight * scale;
+                    if (!opts.transparent) {
+                        ctx.fillStyle = "#FFFFFF";
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    }
+                    var naturalWidth = image.naturalWidth || image.width || width;
+                    var naturalHeight = image.naturalHeight || image.height || height;
+                    var scale = Math.min(width / naturalWidth, height / naturalHeight);
+                    var drawW = naturalWidth * scale;
+                    var drawH = naturalHeight * scale;
                     ctx.drawImage(image, (width - drawW) / 2, (height - drawH) / 2, drawW, drawH);
                     finish(canvas.toDataURL(mime || "image/jpeg", quality || 0.84));
                 } catch (error) {
@@ -720,94 +726,555 @@
         return filename;
     }
 
-    async function downloadCatalog(payload) {
-        var data = payload || {};
-        var products = Array.isArray(data.products) ? data.products : [];
-        var managerName = clean(data.managerName || "");
-        var doc = newDoc();
-        await registerFonts(doc);
-        var logo = await loadImageData(logoUrl(), 220, 220, 0.9);
-        var y = drawHeader(doc, logo, "Catálogo de productos");
+    function pad2(value) {
+        var number = Math.max(0, Number(value) || 0);
+        return String(number).padStart(2, "0");
+    }
+
+    function priceUsd(value) {
+        var number = Number(value);
+        if (!Number.isFinite(number) || number <= 0) return "";
+        return number.toLocaleString("en-US", {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2
+        }) + " USD";
+    }
+
+    function availabilityLabel(value) {
+        var key = clean(value).trim().toLowerCase();
+        if (key === "disponible") return "Disponible";
+        if (key === "bajo_pedido") return "Bajo pedido";
+        if (key === "agotado") return "Agotado";
+        return clean(value).trim();
+    }
+
+    function phoneLabel(value) {
+        var digits = String(value == null ? "" : value).replace(/\D/g, "");
+        if (!digits) return "";
+        if (digits.indexOf("53") === 0 && digits.length > 8) return "+53 " + digits.slice(2);
+        if (digits.length === 8) return "+53 " + digits;
+        return "+" + digits;
+    }
+
+    function measureText(doc, text, size) {
+        if (typeof doc.getTextWidth === "function") return doc.getTextWidth(clean(text));
+        return clean(text).length * Number(size || 7) * 0.18;
+    }
+
+    function fitText(doc, text, maxWidth, size, style) {
+        setFont(doc, style === "bold" ? "bold" : "normal");
+        doc.setFontSize(size || 7);
+        var value = clean(text);
+        if (measureText(doc, value, size) <= maxWidth) return value;
+        var suffix = "...";
+        var result = value;
+        while (result.length > 0 && measureText(doc, result + suffix, size) > maxWidth) {
+            result = result.slice(0, -1);
+        }
+        return result ? result + suffix : "";
+    }
+
+    function fitLines(doc, text, width, maxLines, size, style) {
+        setFont(doc, style === "bold" ? "bold" : "normal");
+        doc.setFontSize(size || 7);
+        var lines = doc.splitTextToSize(clean(text), width);
+        if (lines.length <= maxLines) return lines;
+        lines = lines.slice(0, maxLines);
+        var last = lines[maxLines - 1];
+        while (last.length > 0 && measureText(doc, last + "...", size) > width) {
+            last = last.slice(0, -1);
+        }
+        lines[maxLines - 1] = last + "...";
+        return lines;
+    }
+
+    function paintPage(doc) {
+        setFill(doc, COLORS.paper);
+        doc.rect(0, 0, PAGE_W, PAGE_H, "F");
+    }
+
+    function addOutline(doc, title, pageNumber) {
+        if (!doc.outline || typeof doc.outline.add !== "function") return;
+        doc.outline.add(null, clean(title), { pageNumber: pageNumber });
+    }
+
+    function addLink(doc, x, y, width, height, pageNumber) {
+        if (typeof doc.link !== "function") return;
+        doc.link(x, y, width, height, { pageNumber: pageNumber });
+    }
+
+    function catalogProduct(product) {
+        var features = product && (Array.isArray(product.features) ? product.features : product.caracteristicas);
+        if (!Array.isArray(features)) features = [];
+        return {
+            name: clean(product && (product.name || product.nombre) || "").trim(),
+            category: clean(product && (product.category || product.category_name) || "").trim(),
+            categoryId: String(product && (product.categoryId || product.categoria_id) || ""),
+            price: Number(product && (product.price != null ? product.price : product.precio_usd)),
+            image: product && (product.image || product.imagen_principal) || "",
+            features: features.map(function (feature) { return clean(feature).trim().replace(/^[-\u2022\u00B7*]\s*/, ""); }).filter(Boolean),
+            guarantee: clean(product && (product.guarantee || product.garantia) || "").trim(),
+            availability: clean(product && (product.availability || product.disponibilidad) || "").trim()
+        };
+    }
+
+    function catalogSections(products, categories) {
+        var categoryMap = {};
+        (Array.isArray(categories) ? categories : []).forEach(function (category) {
+            if (category && category.id) categoryMap[String(category.id)] = category;
+        });
+        var groups = {};
+        var order = [];
+        products.forEach(function (product) {
+            var category = categoryMap[product.categoryId] || null;
+            var key = product.categoryId || product.category || "otros";
+            if (!groups[key]) {
+                groups[key] = {
+                    title: product.category || (category && category.nombre) || "Otros productos",
+                    order: category && Number.isFinite(Number(category.orden)) ? Number(category.orden) : 999,
+                    products: []
+                };
+                order.push(key);
+            }
+            groups[key].products.push(product);
+        });
+        var sections = order.map(function (key) { return groups[key]; });
+        sections.sort(function (a, b) {
+            return a.order - b.order || String(a.title).localeCompare(String(b.title), "es");
+        });
+        sections.forEach(function (section) {
+            section.products.sort(function (a, b) {
+                return String(a.name).localeCompare(String(b.name), "es");
+            });
+            section.pageCount = Math.max(1, Math.ceil(section.products.length / 4));
+        });
+        return sections;
+    }
+
+    function catalogContacts(data) {
+        var list = Array.isArray(data && data.contacts) ? data.contacts : [];
+        if (!list.length) {
+            var config = (typeof window !== "undefined" && window.VOLXEN_CONFIG) || {};
+            list = Array.isArray(config.OPERADORAS_PRINCIPALES) ? config.OPERADORAS_PRINCIPALES : [];
+            if (!list.length && config.WHATSAPP) list = [{ nombre: "Atención VOLXEN", whatsapp: config.WHATSAPP }];
+        }
+        return list.map(function (contact) {
+            return {
+                name: clean(contact && (contact.name || contact.nombre) || "").trim(),
+                phone: phoneLabel(contact && (contact.phone || contact.whatsapp) || "")
+            };
+        }).filter(function (contact) { return contact.phone; });
+    }
+
+    function colorHex(color) {
+        return "#" + color.map(function (value) {
+            return Math.max(0, Math.min(255, Number(value) || 0)).toString(16).padStart(2, "0");
+        }).join("");
+    }
+
+    async function loadIconData(name, color) {
+        if (typeof window.getShareIcon !== "function") return "";
+        var svg = "";
+        try { svg = window.getShareIcon(name) || ""; } catch (error) { return ""; }
+        if (!svg) return "";
+        var hex = colorHex(color);
+        var colored = svg.replace(/currentColor/g, hex).replace(/<svg\b([^>]*)>/, function (match, attributes) {
+            var extra = "";
+            if (!/(^|\s)xmlns=/.test(attributes)) extra += ' xmlns="http://www.w3.org/2000/svg"';
+            if (!/(^|\s)width=/.test(attributes)) extra += ' width="64"';
+            if (!/(^|\s)height=/.test(attributes)) extra += ' height="64"';
+            return "<svg" + extra + attributes + ">";
+        });
+        var url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(colored);
+        return loadImageData(url, 64, 64, 1, "image/png", { transparent: true });
+    }
+
+    async function catalogIcon(cache, name, color) {
+        var key = String(name) + "|" + color.join(",");
+        if (!Object.prototype.hasOwnProperty.call(cache, key)) {
+            cache[key] = loadIconData(name, color);
+        }
+        return cache[key];
+    }
+
+    function drawChip(doc, x, y, text, icon, options) {
+        var opts = options || {};
+        var maxX = opts.maxX == null ? PAGE_W - M : opts.maxX;
+        var available = Math.max(0, maxX - x);
+        if (available < 12) return x;
+        setFont(doc, "normal");
+        doc.setFontSize(5.5);
+        var requested = opts.maxWidth == null ? available : opts.maxWidth;
+        var label = fitText(doc, text, Math.max(0, Math.min(requested, available) - 9), 5.5, "normal");
+        if (!label) return x;
+        var width = Math.min(available, measureText(doc, label, 5.5) + 9);
+        setFill(doc, opts.fill || COLORS.surface);
+        doc.roundedRect(x, y, width, 5.5, 2.5, 2.5, "F");
+        if (icon) {
+            try { doc.addImage(icon, "PNG", x + 1.6, y + 1.2, 3.1, 3.1); } catch (error) {}
+        } else {
+            setFill(doc, opts.dot || COLORS.gold);
+            doc.circle(x + 3.1, y + 2.75, 0.8, "F");
+        }
+        setFont(doc, "normal");
+        doc.setFontSize(5.5);
+        setText(doc, opts.text || COLORS.green);
+        pageText(doc, label, x + 5.8, y + 3.7);
+        return x + width;
+    }
+
+    async function drawCatalogCard(doc, product, x, y, width, height, iconCache) {
+        setFill(doc, COLORS.white);
+        setDraw(doc, COLORS.line);
+        doc.setLineWidth(0.2);
+        doc.roundedRect(x, y, width, height, 3, 3, "FD");
+
+        setFill(doc, COLORS.paper);
+        doc.roundedRect(x + 3, y + 3, width - 6, 45, 2, 2, "F");
+        var image = product.image ? await loadImageData(product.image, 900, 494, 0.84) : "";
+        if (image) {
+            try { doc.addImage(image, "JPEG", x + 3, y + 3, width - 6, 45); } catch (error) {}
+        } else {
+            setFont(doc, "normal");
+            doc.setFontSize(6.5);
+            setText(doc, COLORS.muted);
+            pageText(doc, "Sin imagen", x + width / 2, y + 27, { align: "center" });
+        }
+
+        if (product.category) {
+            setFont(doc, "normal");
+            doc.setFontSize(5.5);
+            setText(doc, COLORS.muted);
+            pageText(doc, fitText(doc, product.category.toUpperCase(), width - 8, 5.5, "normal"), x + 4, y + 53);
+        }
 
         setFont(doc, "bold");
-        doc.setFontSize(42);
+        doc.setFontSize(8.5);
         setText(doc, COLORS.ink);
-        doc.text("Catálogo", M, 90);
-        setFont(doc, "normal");
-        doc.setFontSize(10);
-        setText(doc, COLORS.muted);
-        pageText(doc, "Precios públicos de la tienda", M, 100);
-        setFill(doc, COLORS.surface);
-        doc.roundedRect(M, 110, 150, 13, 2.5, 2.5, "F");
+        var nameLines = fitLines(doc, product.name, width - 8, 2, 8.5, "bold");
+        nameLines.forEach(function (line, index) {
+            pageText(doc, line, x + 4, y + 58 + index * 3.8);
+        });
+
+        var price = priceUsd(product.price);
+        if (price) {
+            setFont(doc, "bold");
+            doc.setFontSize(12);
+            setText(doc, COLORS.green);
+            pageText(doc, price, x + 4, y + 72);
+        }
+
+        var usedIcons = [];
+        var specY = y + 80;
+        var specBottom = y + 95;
+        var features = product.features.slice(0, 4);
+        for (var featureIndex = 0; featureIndex < features.length; featureIndex += 1) {
+            var feature = features[featureIndex];
+            var lines = fitLines(doc, feature, width - 14, 2, 6.3, "normal");
+            var rowHeight = lines.length * 3.1 + 1.6;
+            if (specY + rowHeight > specBottom) break;
+            var iconName = typeof window.selectShareIcon === "function" ? window.selectShareIcon(feature, "", usedIcons) : "check";
+            var icon = await catalogIcon(iconCache, iconName, COLORS.green);
+            if (icon) {
+                try { doc.addImage(icon, "PNG", x + 4, specY, 3.4, 3.4); } catch (error) {}
+            } else {
+                setFill(doc, COLORS.gold);
+                doc.circle(x + 5.7, specY + 1.7, 0.9, "F");
+            }
+            setFont(doc, "normal");
+            doc.setFontSize(6.3);
+            setText(doc, COLORS.ink);
+            lines.forEach(function (line, lineIndex) {
+                pageText(doc, line, x + 9.5, specY + 2.6 + lineIndex * 3.1);
+            });
+            specY += rowHeight;
+        }
+
+        var chipY = y + height - 8.5;
+        var chipX = x + 4;
+        var chipMaxX = x + width - 4;
+        if (product.guarantee) {
+            var guaranteeIcon = await catalogIcon(iconCache, "garantia", COLORS.green);
+            var reserve = product.availability ? 20 : 0;
+            chipX = drawChip(doc, chipX, chipY, "Garantía: " + product.guarantee, guaranteeIcon, {
+                fill: COLORS.surface,
+                text: COLORS.green,
+                dot: COLORS.green,
+                maxWidth: chipMaxX - chipX - reserve,
+                maxX: chipMaxX
+            });
+            chipX += 2;
+        }
+        if (product.availability) {
+            var label = availabilityLabel(product.availability);
+            if (label) {
+                var available = label === "Disponible";
+                var availabilityIcon = await catalogIcon(iconCache, available ? "check" : "calendario", available ? COLORS.white : COLORS.ink);
+                chipX = drawChip(doc, chipX, chipY, label, availabilityIcon, {
+                    fill: available ? COLORS.green : COLORS.gold,
+                    text: available ? COLORS.white : COLORS.ink,
+                    dot: available ? COLORS.white : COLORS.ink,
+                    maxWidth: chipMaxX - chipX,
+                    maxX: chipMaxX
+                });
+            }
+        }
+    }
+
+    async function drawCatalogCategoryPage(doc, section, pageIndex, sectionIndex, logo, iconCache) {
+        drawHeader(doc, logo, "Catálogo de productos");
+        var continuation = pageIndex > 0;
+        var title = continuation ? section.title + " (continuación)" : section.title;
+        var titleX = continuation ? M : M + 13;
+        if (!continuation) {
+            setFont(doc, "bold");
+            doc.setFontSize(10);
+            setText(doc, COLORS.gold);
+            pageText(doc, pad2(sectionIndex + 1), M, 48);
+        }
         setFont(doc, "bold");
-        doc.setFontSize(9);
-        setText(doc, COLORS.ink);
-        pageText(doc, "Comercial VOLXEN: " + managerName, M + 4, 118.5);
+        doc.setFontSize(continuation ? 15 : 20);
+        setText(doc, COLORS.green);
+        pageText(doc, fitText(doc, title, PAGE_W - M * 2 - (continuation ? 0 : 13), continuation ? 15 : 20, "bold"), titleX, 48);
         setFont(doc, "normal");
         doc.setFontSize(8);
         setText(doc, COLORS.muted);
-        pageText(doc, "Generado el " + generatedLabel(), M, 132);
+        pageText(doc, section.products.length + (section.products.length === 1 ? " producto" : " productos"), titleX, 54);
+        setDraw(doc, COLORS.gold);
+        doc.setLineWidth(0.8);
+        doc.line(M, 58, M + 30, 58);
+
+        var cardW = (PAGE_W - M * 2 - 6) / 2;
+        var cardH = 105;
+        var start = pageIndex * 4;
+        var pageProducts = section.products.slice(start, start + 4);
+        for (var index = 0; index < pageProducts.length; index += 1) {
+            var left = M + (index % 2) * (cardW + 6);
+            var top = 64 + Math.floor(index / 2) * (cardH + 6);
+            await drawCatalogCard(doc, pageProducts[index], left, top, cardW, cardH, iconCache);
+        }
+        if (pageIndex === 0) addOutline(doc, section.title, section.startPage);
+    }
+
+    async function drawCatalogHowToPage(doc, contacts, logo, iconCache, pageNumber) {
+        drawHeader(doc, logo, "Guía de compra");
+        setFont(doc, "bold");
+        doc.setFontSize(30);
+        setText(doc, COLORS.green);
+        pageText(doc, "Cómo comprar", M, 62);
+        setFont(doc, "normal");
+        doc.setFontSize(10);
+        setText(doc, COLORS.muted);
+        pageText(doc, "Entrega, pago, garantía y horario", M, 72);
+        setDraw(doc, COLORS.gold);
+        doc.setLineWidth(0.8);
+        doc.line(M, 78, M + 30, 78);
+
+        var blocks = [
+            { icon: "entrega", title: "Entrega", text: "Entrega coordinada en La Habana. La entrega y el horario se acuerdan con su asesor." },
+            { icon: "pago", title: "Pago", text: "Pago contra entrega. USD, EUR, CUP o Zelle." },
+            { icon: "garantia", title: "Garantía", text: "Garantía por escrito, documentada en cada equipo." },
+            { icon: "calendario", title: "Horario", text: "El horario de entrega se coordina con su asesor." }
+        ];
+        var blockW = (PAGE_W - M * 2 - 6) / 2;
+        var blockH = 52;
+        for (var index = 0; index < blocks.length; index += 1) {
+            var block = blocks[index];
+            var left = M + (index % 2) * (blockW + 6);
+            var top = 88 + Math.floor(index / 2) * (blockH + 6);
+            setFill(doc, COLORS.white);
+            setDraw(doc, COLORS.line);
+            doc.setLineWidth(0.2);
+            doc.roundedRect(left, top, blockW, blockH, 3, 3, "FD");
+            setFill(doc, COLORS.green);
+            doc.circle(left + 11, top + 12, 6, "F");
+            var icon = await catalogIcon(iconCache, block.icon, COLORS.white);
+            if (icon) {
+                try { doc.addImage(icon, "PNG", left + 8.5, top + 9.5, 5, 5); } catch (error) {}
+            }
+            setFont(doc, "bold");
+            doc.setFontSize(10);
+            setText(doc, COLORS.green);
+            pageText(doc, block.title, left + 21, top + 11.5);
+            setFont(doc, "normal");
+            doc.setFontSize(7.5);
+            setText(doc, COLORS.ink);
+            paragraph(doc, block.text, left + 8, top + 24, blockW - 16, 7.5, 4.2, COLORS.ink);
+        }
+
+        var contactY = 210;
+        setFill(doc, COLORS.green);
+        doc.roundedRect(M, contactY, PAGE_W - M * 2, 58, 3, 3, "F");
+        setFont(doc, "bold");
+        doc.setFontSize(6.5);
+        setText(doc, COLORS.gold);
+        pageText(doc, "Contacto", M + 6, contactY + 12);
+        setFont(doc, "bold");
+        doc.setFontSize(15);
+        setText(doc, COLORS.white);
+        pageText(doc, "WhatsApp", M + 6, contactY + 22);
+        if (contacts.length) {
+            contacts.slice(0, 4).forEach(function (contact, index) {
+                var line = (contact.name ? contact.name + " · " : "") + contact.phone;
+                setFont(doc, index === 0 ? "bold" : "normal");
+                doc.setFontSize(9);
+                setText(doc, COLORS.white);
+                pageText(doc, fitText(doc, line, PAGE_W - M * 2 - 12, 9, index === 0 ? "bold" : "normal"), M + 6, contactY + 32 + index * 7);
+            });
+        } else {
+            setFont(doc, "normal");
+            doc.setFontSize(8);
+            setText(doc, COLORS.white);
+            pageText(doc, "Consulte con su asesor.", M + 6, contactY + 32);
+        }
+        addOutline(doc, "Cómo comprar", pageNumber);
+    }
+
+    function drawCatalogCover(doc, logo, managerName, sections, howToPage) {
+        setFill(doc, COLORS.green);
+        doc.rect(0, 0, PAGE_W, 6, "F");
+        drawHeader(doc, logo, "Catálogo de productos");
+
+        setFont(doc, "bold");
+        doc.setFontSize(46);
+        setText(doc, COLORS.green);
+        pageText(doc, "Catálogo", M, 72);
+        setFont(doc, "normal");
+        doc.setFontSize(11);
+        setText(doc, COLORS.muted);
+        pageText(doc, "Productos y precios en USD", M, 84);
+        setDraw(doc, COLORS.gold);
+        doc.setLineWidth(1);
+        doc.line(M, 90, M + 34, 90);
+
+        setFill(doc, COLORS.green);
+        doc.roundedRect(M, 100, 120, 16, 3, 3, "F");
+        setFont(doc, "bold");
+        doc.setFontSize(6.5);
+        setText(doc, COLORS.gold);
+        pageText(doc, "COMERCIAL VOLXEN", M + 4, 106.5);
+        setFont(doc, "bold");
+        doc.setFontSize(10);
+        setText(doc, COLORS.white);
+        pageText(doc, fitText(doc, managerName || "VOLXEN", 112, 10, "bold"), M + 4, 113);
+
+        setFont(doc, "bold");
+        doc.setFontSize(13);
+        setText(doc, COLORS.green);
+        pageText(doc, "Contenido", M, 132);
+        setDraw(doc, COLORS.gold);
+        doc.setLineWidth(0.8);
+        doc.line(M, 136, M + 20, 136);
+
+        var rowY = 144;
+        var rowH = 10.5;
+        if (!sections.length) {
+            setFont(doc, "normal");
+            doc.setFontSize(8);
+            setText(doc, COLORS.muted);
+            pageText(doc, "No hay productos disponibles en este momento.", M, rowY + 4);
+        } else {
+            sections.forEach(function (section) {
+                setFill(doc, COLORS.gold);
+                doc.rect(M, rowY + 2.5, 1.5, 1.5, "F");
+                setFont(doc, "bold");
+                doc.setFontSize(10);
+                setText(doc, COLORS.ink);
+                pageText(doc, fitText(doc, section.title, 130, 10, "bold"), M + 4, rowY + 4);
+                setFont(doc, "normal");
+                doc.setFontSize(6.5);
+                setText(doc, COLORS.muted);
+                pageText(doc, section.products.length + (section.products.length === 1 ? " producto" : " productos"), M + 4, rowY + 8.5);
+                setFont(doc, "bold");
+                doc.setFontSize(10);
+                setText(doc, COLORS.green);
+                pageText(doc, String(section.startPage), PAGE_W - M, rowY + 5, { align: "right" });
+                setDraw(doc, COLORS.line);
+                doc.setLineWidth(0.2);
+                doc.line(M, rowY + 9.5, PAGE_W - M, rowY + 9.5);
+                addLink(doc, M, rowY, PAGE_W - M * 2, 9.5, section.startPage);
+                rowY += rowH;
+            });
+        }
+
+        rowY += 4;
+        setFill(doc, COLORS.gold);
+        doc.rect(M, rowY + 2.5, 1.5, 1.5, "F");
+        setFont(doc, "bold");
+        doc.setFontSize(10);
+        setText(doc, COLORS.green);
+        pageText(doc, "Cómo comprar", M + 4, rowY + 4);
+        setFont(doc, "normal");
+        doc.setFontSize(6.5);
+        setText(doc, COLORS.muted);
+        pageText(doc, "Entrega, pago, garantía y horario", M + 4, rowY + 8.5);
+        setFont(doc, "bold");
+        doc.setFontSize(10);
+        setText(doc, COLORS.green);
+        pageText(doc, String(howToPage), PAGE_W - M, rowY + 5, { align: "right" });
+        setDraw(doc, COLORS.line);
+        doc.setLineWidth(0.2);
+        doc.line(M, rowY + 9.5, PAGE_W - M, rowY + 9.5);
+        addLink(doc, M, rowY, PAGE_W - M * 2, 9.5, howToPage);
+    }
+
+    function drawCatalogFooter(doc, managerName, priceDate) {
+        var total = doc.getNumberOfPages();
+        for (var page = 1; page <= total; page += 1) {
+            doc.setPage(page);
+            setDraw(doc, COLORS.line);
+            doc.setLineWidth(0.2);
+            doc.line(M, PAGE_H - 11, PAGE_W - M, PAGE_H - 11);
+            setFont(doc, "normal");
+            doc.setFontSize(6.5);
+            setText(doc, COLORS.muted);
+            pageText(doc, fitText(doc, "Comercial VOLXEN: " + (managerName || "VOLXEN"), 50, 6.5, "normal"), M, PAGE_H - 6.5);
+            pageText(doc, fitText(doc, "Precios en USD vigentes al " + priceDate, 70, 6.5, "normal"), PAGE_W / 2, PAGE_H - 6.5, { align: "center" });
+            pageText(doc, "Página " + page + " de " + total, PAGE_W - M, PAGE_H - 6.5, { align: "right" });
+        }
+    }
+
+    async function downloadCatalog(payload) {
+        var data = payload || {};
+        var products = (Array.isArray(data.products) ? data.products : []).map(catalogProduct).filter(function (product) {
+            return product.name;
+        });
+        var sections = catalogSections(products, data.categories);
+        var managerName = clean(data.managerName || "").trim();
+        var contacts = catalogContacts(data);
+        var doc = newDoc();
+        await registerFonts(doc);
+        var logo = await loadImageData(logoUrl(), 220, 220, 0.9);
+        paintPage(doc);
+
+        var pageCursor = 1;
+        sections.forEach(function (section) {
+            section.startPage = pageCursor + 1;
+            pageCursor += section.pageCount;
+        });
+        var howToPage = pageCursor + 1;
+        addOutline(doc, "Contenido", 1);
+
+        var iconCache = {};
+        for (var sectionIndex = 0; sectionIndex < sections.length; sectionIndex += 1) {
+            var section = sections[sectionIndex];
+            for (var pageIndex = 0; pageIndex < section.pageCount; pageIndex += 1) {
+                doc.addPage();
+                paintPage(doc);
+                await drawCatalogCategoryPage(doc, section, pageIndex, sectionIndex, logo, iconCache);
+            }
+        }
 
         doc.addPage();
-        y = drawHeader(doc, logo, "Catálogo de productos");
-        var columns = 2;
-        var gap = 6;
-        var cardW = (PAGE_W - M * 2 - gap) / columns;
-        var cardH = 72;
-        var rowsPerPage = 3;
-        var perPage = columns * rowsPerPage;
+        paintPage(doc);
+        await drawCatalogHowToPage(doc, contacts, logo, iconCache, howToPage);
 
-        for (var index = 0; index < products.length; index += 1) {
-            if (index > 0 && index % perPage === 0) {
-                doc.addPage();
-                y = drawHeader(doc, logo, "Catálogo de productos");
-            }
-            var product = products[index] || {};
-            var pageIndex = index % perPage;
-            var col = pageIndex % columns;
-            var row = Math.floor(pageIndex / columns);
-            var left = M + col * (cardW + gap);
-            var top = y + row * (cardH + gap);
-            setFill(doc, COLORS.surface);
-            doc.roundedRect(left, top, cardW, cardH, 3, 3, "F");
-            var image = product.image ? await loadImageData(product.image, 600, 400, 0.82) : "";
-            if (image) {
-                var imageWidth = 60;
-                try { doc.addImage(image, "JPEG", left + (cardW - imageWidth) / 2, top + 2, imageWidth, 40); } catch (error) {}
-            } else {
-                doc.setFillColor(COLORS.white[0], COLORS.white[1], COLORS.white[2]);
-                doc.rect(left + 2, top + 2, cardW - 4, 40, "F");
-                setFont(doc, "normal");
-                doc.setFontSize(7);
-                setText(doc, COLORS.muted);
-                pageText(doc, "Imagen no disponible", left + cardW / 2, top + 23, { align: "center" });
-            }
-            setFont(doc, "normal");
-            doc.setFontSize(6);
-            setText(doc, COLORS.muted);
-            pageText(doc, product.category || "Producto", left + 4, top + 48);
-            setFont(doc, "bold");
-            doc.setFontSize(8);
-            setText(doc, COLORS.ink);
-            var nameLines = doc.splitTextToSize(clean(product.name || "Producto"), cardW - 8);
-            nameLines.slice(0, 2).forEach(function (line, lineIndex) {
-                pageText(doc, line, left + 4, top + 54 + lineIndex * 4);
-            });
-            setFont(doc, "bold");
-            doc.setFontSize(11);
-            setText(doc, COLORS.green);
-            pageText(doc, money(product.price), left + 4, top + 67);
-        }
+        doc.setPage(1);
+        drawCatalogCover(doc, logo, managerName, sections, howToPage);
+        drawCatalogFooter(doc, managerName, generatedLabel());
 
-        if (!products.length) {
-            setFont(doc, "normal");
-            doc.setFontSize(9);
-            setText(doc, COLORS.muted);
-            pageText(doc, "No hay productos disponibles en este momento.", M, y + 10);
-        }
-
-        drawFooter(doc, managerName);
-        var filename = "catalogo-volxen-" + stamp() + ".pdf";
+        var slug = data.scopeLabel ? safeFilename(data.scopeLabel) + "-" : "";
+        var filename = "catalogo-volxen-" + slug + stamp() + ".pdf";
         doc.save(filename);
         return filename;
     }
