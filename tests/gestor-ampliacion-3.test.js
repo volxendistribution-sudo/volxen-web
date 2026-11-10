@@ -79,7 +79,7 @@ test("Fase B: panel de precio y etiqueta sobre el adorno, sin tapar el cristal",
     const js = read("js/pages/gestor.js");
 
     assert.match(docs, /drawPricePanel\(ctx, 840, 16, 400, 170\)/);
-    assert.match(docs, /drawGoldTag\(ctx, 1250, 40, 185, 110\)/);
+    assert.match(docs, /drawGoldTag\(ctx, 1240, 40, 195, 110\)/);
     assert.match(docs, /photoX = 655/);
     assert.match(docs, /photoY = 331/);
     assert.match(docs, /photoW = 718/);
@@ -113,9 +113,10 @@ test("el diseño izquierdo sigue el modelo de la plantilla", () => {
     assert.match(docs, /featureRegionTop/);
     assert.match(docs, /function featureGeometry/);
     assert.match(docs, /FEATURE_RADIUS_COMPACT = 32/);
-    assert.match(docs, /FEATURE_DETAIL_SIZE_COMPACT = 17/);
+    assert.match(docs, /FEATURE_DETAIL_SIZE_COMPACT = 26/);
+    assert.match(docs, /FEATURE_SUBTITLE_GAP = 36/);
     assert.match(docs, /bottom = compact \? 880 : 878/);
-    assert.match(docs, /fitSingleLineSize\(ctx, titleText, 410, 24, 16, "800", "DM Sans"\)/);
+    assert.match(docs, /fitSingleLineSize\(ctx, titleText, 410, 26, 18, "800", "DM Sans"\)/);
     assert.match(docs, /'800 ' \+ layout\.titleSize/);
     assert.match(docs, /document\.fonts\.load\('800 24px "DM Sans"'\)/);
     assert.match(docs, /#1E1D1B/);
@@ -123,7 +124,7 @@ test("el diseño izquierdo sigue el modelo de la plantilla", () => {
     assert.match(docs, /window\.selectShareIcon\(item\.title, item\.detail, usedIcons\)/);
     assert.match(docs, /#1E4A3F/);
     assert.match(docs, /#C8A165/);
-    assert.match(docs, /radius \* 1\.2/);
+    assert.match(docs, /var size = 32/);
     assert.match(docs, /No se pudieron dibujar estos iconos del kit/);
     assert.match(docs, /¡CALIDAD/);
     assert.match(docs, /GARANTIZADA!/);
@@ -162,7 +163,7 @@ test("las características limpian viñetas y se limitan a 5 o 4 + resumen", () 
     assert.equal(empty.moreLabel, "");
 });
 
-test("la geometría conserva 1-3 filas y usa r=32 en 4-5 sin tocar el adorno", () => {
+test("la geometría deja 36 px bajo el subtítulo y usa círculos de 32 px", () => {
     const sandbox = {
         window: {},
         URL,
@@ -177,30 +178,30 @@ test("la geometría conserva 1-3 filas y usa r=32 en 4-5 sin tocar el adorno", (
 
     const one = docs.featureGeometry(["A"], 500);
     assert.equal(one.compact, false);
-    assert.equal(one.top, 524);
+    assert.equal(one.top, 536);
     assert.equal(one.bottom, 878);
-    assert.equal(one.radius, 38);
-    assert.deepEqual(one.centers, [701]);
+    assert.equal(one.radius, 32);
+    assert.deepEqual(one.centers, [568]);
 
     const three = docs.featureGeometry(["A", "B", "C"], 500);
     assert.equal(three.compact, false);
-    assert.deepEqual(three.centers, [612.5, 701, 789.5]);
+    assert.deepEqual(three.centers, [568, 705, 842]);
 
     const four = docs.featureGeometry(["A", "B", "C", "D"], 500);
     assert.equal(four.compact, true);
-    assert.equal(four.top, 508);
+    assert.equal(four.top, 536);
     assert.equal(four.bottom, 880);
     assert.equal(four.radius, 32);
-    assert.deepEqual(four.centers.map((value) => Math.round(value * 100) / 100), [540, 642.67, 745.33, 848]);
+    assert.deepEqual(four.centers.map((value) => Math.round(value * 100) / 100), [568, 660, 752, 844]);
 
     const five = docs.featureGeometry(["A", "B", "C", "D", "E"], 500);
     assert.equal(five.radius, 32);
-    assert.deepEqual(five.centers, [540, 617, 694, 771, 848]);
+    assert.deepEqual(five.centers, [568, 637, 706, 775, 844]);
     assert.ok(five.step >= five.radius * 2);
 
     const six = docs.featureGeometry(["A", "B", "C", "D", "E", "F"], 500);
     assert.equal(six.plan.moreLabel, "Y 2 CARACTERÍSTICAS MÁS");
-    assert.deepEqual(six.centers, [540, 622, 704, 786]);
+    assert.deepEqual(six.centers, [568, 643, 718, 793]);
     assert.equal(six.moreCenter, 868);
     assert.ok(six.moreCenter + six.summaryHalf <= six.bottom);
     assert.ok(six.step >= six.radius * 2);
@@ -237,16 +238,18 @@ test("el texto de características no se recorta en silencio", () => {
     assert.match(docs, /Estos datos no caben completos en la imagen/);
 });
 
-test("la foto llena el cristal con cover y usa fondo desenfocado si hay que contener", () => {
+test("la foto se recorta para llenar el cristal y el fondo oscuro no asoma", () => {
     const docs = read("js/pages/gestor-docs.js");
     const js = read("js/pages/gestor.js");
 
     assert.match(docs, /function drawCover/);
     assert.match(docs, /function drawProductPhoto/);
     assert.match(docs, /drawProductPhoto\(ctx, image, photoX, photoY, photoW, photoH\)/);
-    assert.match(docs, /loss > 0\.18/);
-    assert.match(docs, /ctx\.filter = "blur\(26px\)"/);
-    assert.match(docs, /drawContain\(ctx, image, x, y, width, height\)/);
+    assert.match(docs, /drawCover\(ctx, image, x, y, width, height, 1\.12\)/);
+    assert.match(docs, /ctx\.fillStyle = "#F3EDE3"/);
+    assert.doesNotMatch(docs, /loss > 0\.18/);
+    assert.doesNotMatch(docs, /ctx\.filter = "blur\(26px\)"/);
+    assert.doesNotMatch(docs, /drawContain\(ctx, image, x, y, width, height\);/);
     assert.doesNotMatch(docs, /truncateText\(/);
     assert.match(docs, /CORS o crossOrigin/);
     assert.match(docs, /Estos datos no caben completos en la imagen/);

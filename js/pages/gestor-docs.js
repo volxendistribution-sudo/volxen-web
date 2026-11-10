@@ -365,26 +365,16 @@
         ctx.drawImage(image, x + (width - drawWidth) / 2, y + (height - drawHeight) / 2, drawWidth, drawHeight);
     }
 
-    function drawCover(ctx, image, x, y, width, height) {
-        var scale = Math.max(width / image.naturalWidth, height / image.naturalHeight);
+    function drawCover(ctx, image, x, y, width, height, zoom) {
+        var factor = Number(zoom) > 0 ? Number(zoom) : 1;
+        var scale = Math.max(width / image.naturalWidth, height / image.naturalHeight) * factor;
         var drawWidth = image.naturalWidth * scale;
         var drawHeight = image.naturalHeight * scale;
         ctx.drawImage(image, x + (width - drawWidth) / 2, y + (height - drawHeight) / 2, drawWidth, drawHeight);
     }
 
     function drawProductPhoto(ctx, image, x, y, width, height) {
-        var imageAspect = image.naturalWidth / image.naturalHeight;
-        var frameAspect = width / height;
-        var loss = 1 - Math.min(frameAspect / imageAspect, imageAspect / frameAspect);
-        if (loss > 0.18) {
-            ctx.save();
-            ctx.filter = "blur(26px)";
-            drawCover(ctx, image, x - 40, y - 40, width + 80, height + 80);
-            ctx.restore();
-            drawContain(ctx, image, x, y, width, height);
-            return "contain";
-        }
-        drawCover(ctx, image, x, y, width, height);
+        drawCover(ctx, image, x, y, width, height, 1.12);
         return "cover";
     }
 
@@ -620,37 +610,39 @@
         };
     }
 
-    var FEATURE_RADIUS_NORMAL = 38;
+    var FEATURE_RADIUS_NORMAL = 32;
     var FEATURE_RADIUS_COMPACT = 32;
-    var FEATURE_DETAIL_SIZE_NORMAL = 19;
-    var FEATURE_DETAIL_SIZE_COMPACT = 17;
+    var FEATURE_DETAIL_SIZE_NORMAL = 26;
+    var FEATURE_DETAIL_SIZE_COMPACT = 26;
     var FEATURE_DETAIL_LINE_NORMAL = 28;
-    var FEATURE_DETAIL_LINE_COMPACT = 22;
+    var FEATURE_DETAIL_LINE_COMPACT = 28;
     var FEATURE_SUMMARY_SIZE = 18;
     var FEATURE_SUMMARY_HALF = 12;
+    var FEATURE_SUBTITLE_GAP = 36;
+    var FEATURE_TEXT_HALF = 36;
 
     function featureGeometry(values, subtitleBottom) {
         var plan = featurePlan(values);
         var rows = plan.visible.length + (plan.moreLabel ? 1 : 0);
         var compact = rows >= 4;
-        var top = subtitleBottom + (compact ? 8 : 24);
+        var top = subtitleBottom + FEATURE_SUBTITLE_GAP;
         var bottom = compact ? 880 : 878;
         var radius = compact ? FEATURE_RADIUS_COMPACT : FEATURE_RADIUS_NORMAL;
         var centers = [];
         var step = 0;
         var moreCenter = null;
-        if (!compact) {
-            centers = plan.visible.map(function (item, index) {
-                return top + (bottom - top) * (index + 1) / (plan.visible.length + 1);
-            });
-        } else {
+        if (rows > 1) {
             var first = top + radius;
-            var last = bottom - (plan.moreLabel ? FEATURE_SUMMARY_HALF : radius);
-            step = (last - first) / Math.max(1, rows - 1);
+            var last = bottom - (plan.moreLabel ? FEATURE_SUMMARY_HALF : FEATURE_TEXT_HALF);
+            step = (last - first) / (rows - 1);
             centers = plan.visible.map(function (item, index) {
                 return first + step * index;
             });
             if (plan.moreLabel) moreCenter = last;
+        } else if (plan.visible.length) {
+            centers = plan.visible.map(function () {
+                return top + radius;
+            });
         }
         return {
             plan: plan,
@@ -768,17 +760,17 @@
         roundRect(ctx, x, y, width, height, 8);
         ctx.fillStyle = "#C8A165";
         ctx.fill();
-        drawTagGlyph(ctx, x + 14, y + 40, 24, 26);
-        var tagWidth = width - 56;
+        drawTagGlyph(ctx, x + 10, y + 40, 22, 26);
+        var tagWidth = width - 34;
         var tagSize = Math.min(
-            fitSingleLineSize(ctx, "¡CALIDAD", tagWidth, 18, 14, "700", "Inter Tight"),
-            fitSingleLineSize(ctx, "GARANTIZADA!", tagWidth, 18, 14, "700", "Inter Tight")
+            fitSingleLineSize(ctx, "¡CALIDAD", tagWidth, 21, 16, "700", "Inter Tight"),
+            fitSingleLineSize(ctx, "GARANTIZADA!", tagWidth, 21, 16, "700", "Inter Tight")
         );
         ctx.fillStyle = "#163A2D";
         ctx.textAlign = "left";
         ctx.font = '700 ' + tagSize + 'px "Inter Tight", sans-serif';
-        ctx.fillText("¡CALIDAD", x + 46, y + 52);
-        ctx.fillText("GARANTIZADA!", x + 46, y + 76);
+        ctx.fillText("¡CALIDAD", x + 34, y + 50);
+        ctx.fillText("GARANTIZADA!", x + 34, y + 77);
     }
 
     function drawFeatureCircle(ctx, cx, cy, radius, color) {
@@ -918,7 +910,7 @@
         if (!icon || !icon.naturalWidth) {
             throw new Error('No se pudo dibujar el icono "' + iconName + '" del kit.');
         }
-        var size = radius * 1.2;
+        var size = 32;
         ctx.save();
         ctx.translate(cx, cy);
         ctx.imageSmoothingEnabled = true;
@@ -952,6 +944,7 @@
             try { await document.fonts.load('800 85px "DM Sans"'); } catch (error) {}
             try { await document.fonts.load('800 104px "DM Sans"'); } catch (error) {}
             try { await document.fonts.load('800 24px "DM Sans"'); } catch (error) {}
+            try { await document.fonts.load('800 26px "DM Sans"'); } catch (error) {}
             try { await document.fonts.load('800 22px "DM Sans"'); } catch (error) {}
             try { await document.fonts.load('800 18px "DM Sans"'); } catch (error) {}
             try { await document.fonts.load('800 16px "DM Sans"'); } catch (error) {}
@@ -964,6 +957,7 @@
             try { await document.fonts.load('400 19px "Inter Tight"'); } catch (error) {}
             try { await document.fonts.load('400 17px "Inter Tight"'); } catch (error) {}
             try { await document.fonts.load('700 24px "Inter Tight"'); } catch (error) {}
+            try { await document.fonts.load('700 22px "Inter Tight"'); } catch (error) {}
             try { await document.fonts.load('700 18px "Inter Tight"'); } catch (error) {}
         }
         if (document.fonts && document.fonts.ready) await document.fonts.ready;
@@ -993,6 +987,8 @@
         ctx.save();
         roundRect(ctx, photoX, photoY, photoW, photoH, 28);
         ctx.clip();
+        ctx.fillStyle = "#F3EDE3";
+        ctx.fillRect(photoX, photoY, photoW, photoH);
         if (!product.image) {
             ctx.restore();
             throw new Error("El producto no tiene foto. Agrega una foto antes de compartir.");
@@ -1057,8 +1053,8 @@
             var titleText = item.title.toUpperCase();
             var hasDetail = Boolean(item.detail);
             var titleSize = hasDetail
-                ? fitSingleLineSize(ctx, titleText, 410, 24, 16, "800", "DM Sans")
-                : fitFontSize(ctx, titleText, 410, 2, 24, 16, '800', "DM Sans");
+                ? fitSingleLineSize(ctx, titleText, 410, 26, 18, "800", "DM Sans")
+                : fitFontSize(ctx, titleText, 410, 2, 26, 18, '800', "DM Sans");
             ctx.font = '800 ' + titleSize + 'px "DM Sans", sans-serif';
             var titleLines = measureLines(ctx, titleText, 410);
             var titleLineHeight = Math.round(titleSize * 1.2);
@@ -1084,27 +1080,18 @@
             var detailTitleBaseline = 0;
             var detailBaseline = 0;
             if (hasDetail) {
-                if (compactFeatures) {
-                    var detailCapHeight = detailSize * 0.7;
-                    var blockHeight = titleCapHeight + 4 + (detailLines.length - 1) * detailLineHeight + detailCapHeight;
-                    var blockTop = featureCenters[index] - blockHeight / 2;
-                    detailTitleBaseline = blockTop + titleCapHeight;
-                    detailBaseline = blockTop + titleCapHeight + 4 + detailCapHeight;
-                    blockHalf = blockHeight / 2;
-                } else {
-                    detailTitleBaseline = featureCenters[index] - 6;
-                    detailBaseline = detailTitleBaseline + 30;
-                }
+                var detailCapHeight = detailSize * 0.7;
+                var blockHeight = titleCapHeight + 4 + (detailLines.length - 1) * detailLineHeight + detailCapHeight;
+                var blockTop = featureCenters[index] - blockHeight / 2;
+                detailTitleBaseline = blockTop + titleCapHeight;
+                detailBaseline = blockTop + titleCapHeight + 4 + detailCapHeight;
+                blockHalf = blockHeight / 2;
             }
-            if (compactFeatures) {
-                if (featureCenters[index] - blockHalf < featureRegionTop - 0.5 ||
-                    featureCenters[index] + blockHalf > featureRegionBottom + 0.5 ||
-                    blockHalf > featureRadius + 0.5) {
-                    overflow.push('características (no caben sin solaparse)');
-                }
-            } else if (featureCenters[index] - 38 < featureRegionTop - 0.5 ||
-                featureCenters[index] + 38 > featureRegionBottom + 0.5) {
-                overflow.push('características (no caben entre el subtítulo y la franja)');
+            if (featureCenters[index] - blockHalf < subtitleBottom + 0.5 ||
+                featureCenters[index] + blockHalf > featureRegionBottom + 0.5) {
+                overflow.push(compactFeatures
+                    ? 'características (no caben sin solaparse)'
+                    : 'características (no caben entre el subtítulo y la franja)');
             }
             var iconName = window.selectShareIcon(item.title, item.detail, usedIcons);
             var discColor = index % 2 === 0 ? "#1E4A3F" : "#C8A165";
@@ -1121,14 +1108,21 @@
                 detailLineHeight: detailLineHeight,
                 detailTitleBaseline: detailTitleBaseline,
                 detailBaseline: detailBaseline,
+                blockHalf: blockHalf,
                 iconName: iconName,
                 discColor: discColor,
                 iconColor: iconColor,
                 center: featureCenters[index]
             };
         });
-        if (compactFeatures && featureLayoutPlan.step < featureRadius * 2 - 0.5) {
-            overflow.push('características (no caben sin solaparse)');
+        if (featureLayoutPlan.step > 0) {
+            var requiredStep = 0;
+            featureLayouts.forEach(function (layout) {
+                requiredStep = Math.max(requiredStep, layout.blockHalf * 2);
+            });
+            if (featureLayoutPlan.step < requiredStep - 0.5) {
+                overflow.push('características (no caben sin solaparse)');
+            }
         }
 
         var featureMoreSize = 0;
@@ -1241,7 +1235,7 @@
         ctx.fillText(priceText, 862, 150);
 
         if (guarantee) {
-            drawGoldTag(ctx, 1250, 40, 185, 110);
+            drawGoldTag(ctx, 1240, 40, 195, 110);
             var bandCenter = (902 + 1059) / 2;
             var guaranteeX = 120;
             ctx.fillStyle = "#C8A165";
