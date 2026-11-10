@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vista previa — tarjeta de catálogo VOLXEN</title>
+<style>
+  /* ============ VARIABLES CSS (paleta existente, sin cambios) ============ */
+  :root {
+    /* Tomadas de volxen.css / brand — no se modifica paleta ni tipografía */
+    --vx-bg: #F7F2E8;          /* fondo crema de la página */
+    --vx-surface: #EEE5D6;
+    --vx-card-bg: #ffffff;
+    --vx-card-border: #DFD3C0;
+    --vx-img-bg: #E8DFCD;      /* zona de imagen: un poco más oscuro que #F7F2E8 */
+    --vx-primary: #1F4036;     /* primario (verde oscuro) */
+    --vx-text: #171410;
+    --vx-muted: #5A5449;
+    --vx-gold: #C8A165;
+    --vx-font: 'Inter Tight', sans-serif;
+    --vx-font-bold: 'DM Sans', sans-serif;
+
+    /* Medidas del catálogo */
+    --vx-card-w: 92mm;
+    --vx-card-h: 126mm;
+    --vx-gap: 6mm;
+    --vx-img-zone: 200px;
+    --vx-btn-h: 40px;
+    --vx-btn-radius: 10px;
+    --vx-price-num: 28px;
+    --vx-price-usd: 11px;
+    --vx-pill-text: 11px;
+    --vx-card-radius: 4.5mm;
+    --vx-pad: 5mm;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--vx-bg);
+    font-family: var(--vx-font);
+    color: var(--vx-text);
+    padding: 20px;
+  }
+
+  /* ============ CABECERA DEL CATÁLOGO ============ */
+  .vx-catalog-header {
+    display: flex;
+    align-items: center;
+    gap: 5mm;
+    padding: 0 0 4mm 0;
+    margin-bottom: 4mm;
+    border-bottom: 0.15mm solid var(--vx-card-border);
+  }
+  .vx-logo-box {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--vx-bg);      /* recuadro color de fondo */
+    border-radius: 3mm;
+    padding: 2mm;
+  }
+  .vx-logo-box img {
+    display: block;
+    max-width: 34mm;
+    height: auto;
+  }
+  .vx-logo-confirm {
+    font-size: 7px;
+    color: var(--vx-muted);
+    font-style: italic;
+    margin-top: 1mm;
+    text-align: center;
+  }
+  .vx-catalog-title {
+    font-family: var(--vx-font-bold);
+    font-size: 13px;
+    text-transform: uppercase;
+    color: var(--vx-text);
+    letter-spacing: 0.4px;
+  }
+  .vx-catalog-sub {
+    font-size: 8.5px;
+    color: var(--vx-muted);
+    margin-top: 1mm;
+  }
+
+  /* ============ PÁGINA / GRÍD 2 COLUMNAS ============ */
+  .vx-page {
+    width: 210mm;
+    min-height: 297mm;
+    background: #fff;
+    margin: 0 auto 12mm auto;
+    padding: 14mm;
+    page-break-after: always;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.04);
+  }
+  .vx-page:last-child { page-break-after: auto; }
+
+  .vx-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--vx-gap);
+  }
+
+  /* ============ CABECERA DE CATEGORÍA ============ */
+  .vx-cat-header {
+    grid-column: 1 / -1;
+    page-break-after: avoid;
+    margin-bottom: 4mm;
+    padding-bottom: 2mm;
+    border-bottom: 0.15mm solid var(--vx-card-border);
+  }
+  .vx-cat-header h2 {
+    font-family: var(--vx-font-bold);
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--vx-text);
+    letter-spacing: 0.5px;
+  }
+  .vx-cat-header p {
+    font-size: 8.5px;
+    color: var(--vx-muted);
+    margin-top: 1mm;
+  }
+
+  /* ============ TARJETA ============ */
+  .vx-card {
+    width: 100%;
+    height: 100%;
+    background: var(--vx-card-bg);
+    border: 0.15mm solid var(--vx-card-border);
+    border-radius: var(--vx-card-radius);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Zona de imagen uniforme (tono más distinto del fondo de página) */
+  .vx-img-zone {
+    height: var(--vx-img-zone);
+    background: var(--vx-img-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-bottom: 0.1mm solid var(--vx-card-border);
+  }
+  .vx-img-zone img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+  .vx-img-zone .vx-no-img {
+    text-align: center;
+    font-family: var(--vx-font-bold);
+    font-size: 9px;
+    color: var(--vx-muted);
+    padding: 8px;
+  }
+
+  .vx-body {
+    padding: var(--vx-pad);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .vx-category {
+    font-family: var(--vx-font-bold);
+    font-size: 9px;
+    text-transform: uppercase;
+    color: var(--vx-text);
+    margin-bottom: 3mm;
+    letter-spacing: 0.5px;
+  }
+
+  .vx-name {
+    font-family: var(--vx-font-bold);
+    font-size: 10.5px;
+    line-height: 1.25;
+    margin: 0 0 3mm 0;
+    color: var(--vx-text);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Precio: número bold ~28px + "USD" ~11px pegado */
+  .vx-price {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 1.5px;
+    margin-bottom: 4mm;
+  }
+  .vx-price-number {
+    font-family: var(--vx-font-bold);
+    font-size: var(--vx-price-num);
+    font-weight: bold;
+    color: var(--vx-primary);
+  }
+  .vx-price-usd {
+    font-family: var(--vx-font-bold);
+    font-size: var(--vx-price-usd);
+    font-weight: bold;
+    color: var(--vx-primary);
+  }
+
+  /* Píldoras: disponible y garantía, texto mínimo 11px */
+  .vx-pills {
+    display: flex;
+    gap: 3mm;
+    margin-bottom: 3mm;
+    flex-wrap: wrap;
+  }
+  .vx-pill {
+    font-family: var(--vx-font-bold);
+    font-size: var(--vx-pill-text);
+    padding: 1.2mm 3mm;
+    border-radius: 2mm;
+    white-space: nowrap;
+    font-weight: bold;
+  }
+  .vx-pill-disp {
+    background: var(--vx-gold);
+    color: var(--vx-text);
+  }
+  .vx-pill-gar {
+    background: var(--vx-bg);
+    color: var(--vx-text);
+    border: 0.1mm solid var(--vx-card-border);
+  }
+
+  .vx-desc {
+    font-size: 11.5px;
+    line-height: 1.4;
+    color: var(--vx-muted);
+    margin: 0 0 3mm 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Botón WhatsApp: ancho completo, ~40px, radio ~10px, primario, blanco bold mayúsculas */
+  .vx-whatsapp {
+    width: 100%;
+    height: var(--vx-btn-h);
+    background: var(--vx-primary);
+    color: #ffffff;
+    border: none;
+    border-radius: var(--vx-btn-radius);
+    font-family: var(--vx-font-bold);
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    cursor: pointer;
+    margin-top: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+  .vx-whatsapp::before { content: "💬"; }
+  .vx-whatsapp:active { opacity: 0.92; }
+
+  /* ============ NOTA ============ */
+  .example-note {
+    margin-top: 10mm;
+    padding: 6mm;
+    background: var(--vx-surface);
+    border-radius: 4mm;
+    font-size: 9px;
+    color: var(--vx-muted);
+    line-height: 1.5;
+  }
+  .placeholder-tag {
+    font-size: 8px;
+    color: var(--vx-muted);
+    font-style: italic;
+    text-align: center;
+    margin-top: 2mm;
+  }
+</style>
+</head>
+<body>
+
+<!-- Cabecera del catálogo: logo a la izquierda + "VOLXEN / Catálogo de productos" al lado, línea fina debajo -->
+<div class="vx-catalog-header">
+  <div class="vx-logo-box">
+    <img src="logo.svg" alt="VOLXEN">
+    <div class="vx-logo-confirm">¿Es este el logo V v02b? Confirmar archivo.</div>
+  </div>
+  <div>
+    <div class="vx-catalog-title">VOLXEN / Catálogo de productos</div>
+    <div class="vx-catalog-sub">Precios en USD · Disponibilidad sujeta a stock · Datos desde la base de datos</div>
+  </div>
+</div>
+
+<div class="example-note">
+  <strong>Vista previa de UNA tarjeta (medidas reales del catálogo).</strong><br>
+  Cada tarjeta tiene <code>page-break-inside: avoid</code>. Las cabeceras de categoría van justo antes de sus
+  tarjetas con <code>page-break-after: avoid</code>.<br><br>
+  <em>Nota de vista previa: los datos abajo son placeholders de estructura. En el catálogo real
+  todos los datos provienen de la base de datos. No se usan datos de muestra.</em><br><br>
+  <strong>Pendiente:</strong> confirme cuál archivo de logo es el "símbolo V v02b" para usarlo sin modificarlo.
+</div>
+
+<div class="vx-page">
+  <div class="vx-cat-header">
+    <h2>Ventiladores</h2>
+    <p>Categoría desde la base de datos · Precios en USD</p>
+  </div>
+
+  <div class="vx-grid">
+    <article class="vx-card">
+      <div class="vx-img-zone">
+        <div class="vx-no-img">IMAGEN NO DISPONIBLE</div>
+      </div>
+      <div class="vx-body">
+        <p class="vx-category">Ventiladores</p>
+        <h3 class="vx-name">Nombre del producto (desde la DB)</h3>
+        <div class="vx-price">
+          <span class="vx-price-number">--</span>
+          <span class="vx-price-usd">USD</span>
+        </div>
+        <div class="vx-pills">
+          <span class="vx-pill vx-pill-disp">Disponible</span>
+          <span class="vx-pill vx-pill-gar">Garantía: X meses</span>
+        </div>
+        <p class="vx-desc">Descripción del producto limitada a 2-3 líneas, sin cortar frases a mitad. El texto completo proviene de la base de datos.</p>
+        <button class="vx-whatsapp">
+          CONSULTAR POR WHATSAPP
+        </button>
+      </div>
+    </article>
+
+    <article class="vx-card">
+      <div class="vx-img-zone">
+        <div class="vx-no-img">IMAGEN NO DISPONIBLE</div>
+      </div>
+      <div class="vx-body">
+        <p class="vx-category">Ventiladores</p>
+        <h3 class="vx-name">Segundo producto (desde la DB)</h3>
+        <div class="vx-price">
+          <span class="vx-price-number">--</span>
+          <span class="vx-price-usd">USD</span>
+        </div>
+        <div class="vx-pills">
+          <span class="vx-pill vx-pill-disp">Disponible</span>
+          <span class="vx-pill vx-pill-gar">Garantía: X meses</span>
+        </div>
+        <p class="vx-desc">Descripción del segundo producto, también limitada a 2-3 líneas sin cortar frases.</p>
+        <button class="vx-whatsapp">
+          CONSULTAR POR WHATSAPP
+        </button>
+      </div>
+    </article>
+  </div>
+
+  <div class="placeholder-tag">Estructura de tarjeta — datos reales desde Supabase al generar el PDF.</div>
+</div>
+
+</body>
+</html>
