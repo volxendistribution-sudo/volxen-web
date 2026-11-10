@@ -15,6 +15,38 @@
         white: [255, 255, 255]
     };
 
+    /* ---------- Variables de diseño del catálogo (equivalentes a CSS vars) ---------- */
+    var VX = {
+        bg: [247, 242, 232],          /* #F7F2E8 fondo crema */
+        imgBg: [232, 223, 205],       /* #E8DFCD zona de imagen (un poco más oscuro que el fondo) */
+        cardBg: [255, 255, 255],
+        cardBorder: [214, 209, 200],  /* #DFD3C0 */
+        primary: [31, 64, 54],        /* #1F4036 primario verde oscuro */
+        text: [23, 20, 16],           /* #171410 */
+        muted: [90, 84, 73],          /* #5A5449 */
+        gold: [200, 161, 101],        /* #C8A165 */
+        font: "Inter Tight",
+        fontBold: "DM Sans",
+
+        /* Medidas en mm (A4) */
+        cardW: 88,
+        cardH: 124,
+        gapX: 6,
+        gapY: 6,
+        gridTop: 27,
+        bandH: 17,
+        perPage: 4,
+        imgZoneH: 53,                 /* ~200px */
+        btnH: 10.5,                   /* ~40px */
+        btnRadius: 2.6,               /* ~10px */
+        priceNum: 7.4,                /* ~28px */
+        priceUsd: 2.9,                /* ~11px */
+        pillText: 2.9,                /* ~11px */
+        cardRadius: 4.5,
+        pad: 5,
+        qrSize: 36                    /* ~135px */
+    };
+
     function ctor() {
         return window.jspdf && typeof window.jspdf.jsPDF === "function" ? window.jspdf.jsPDF : null;
     }
@@ -45,7 +77,7 @@
         var binary = "";
         var chunk = 0x8000;
         for (var index = 0; index < bytes.length; index += chunk) {
-            binary += String.fromCharCode.apply(null, bytes.subarray(index, index + chunk));
+            binary += String.fromCharCode.apply(null, bytes.subarray(index, chunk));
         }
         return btoa(binary);
     }
@@ -151,9 +183,9 @@
 
     function logoUrl() {
         try {
-            return new URL("brand/logo.svg", document.baseURI).href;
+            return new URL("Screenshot_20261025-194850_Gallery.jpg", document.baseURI).href;
         } catch (error) {
-            return "brand/logo.svg";
+            return "Screenshot_20261025-194850_Gallery.jpg";
         }
     }
 
@@ -726,15 +758,31 @@
         return filename;
     }
 
+    /* ========================================================================
+       CATÁLOGO
+       ======================================================================== */
+
     var CATALOG = {
-        bandH: 17,
-        gridTop: 27,
-        cardW: (PAGE_W - M * 2 - 5.9) / 2,
-        cardH: 122,
-        gapX: 5.9,
-        gapY: 8,
-        perPage: 4
+        bandH: VX.bandH,
+        gridTop: VX.gridTop,
+        cardW: VX.cardW,
+        cardH: VX.cardH,
+        gapX: VX.gapX,
+        gapY: VX.gapY,
+        perPage: VX.perPage,
+        imgZoneH: VX.imgZoneH,
+        btnH: VX.btnH,
+        btnRadius: VX.btnRadius,
+        priceNum: VX.priceNum,
+        priceUsd: VX.priceUsd,
+        pillText: VX.pillText,
+        cardRadius: VX.cardRadius,
+        pad: VX.pad,
+        qrSize: VX.qrSize
     };
+
+    /* Lista de productos con nombre incompleto detectados (sin inventar nombres) */
+    var incompleteNames = [];
 
     function priceParts(value) {
         var number = Number(value);
@@ -743,6 +791,21 @@
             minimumFractionDigits: 0,
             maximumFractionDigits: 2
         });
+    }
+
+    function normalizePower(raw) {
+        var s = clean(raw);
+        if (/^600\s*wats?$/i.test(s)) return "600 W";
+        return s;
+    }
+
+    function isIncompleteName(name) {
+        var n = clean(name).trim();
+        if (!n) return true;
+        /* Nombres de 1-2 caracteres alfanuméricos solos, ej. "F6" */
+        if (/^[A-Za-z]\d{1,2}$/.test(n)) return true;
+        if (/^\d{1,3}$/.test(n)) return true;
+        return false;
     }
 
     function availabilityLabel(value) {
@@ -783,7 +846,7 @@
         doc.setFontSize(size || 7);
         var value = clean(text);
         if (measureText(doc, value, size) <= maxWidth) return value;
-        var suffix = "...";
+        var suffix = "…";
         var result = value;
         while (result.length > 0 && measureText(doc, result + suffix, size) > maxWidth) {
             result = result.slice(0, -1);
@@ -798,15 +861,15 @@
         if (lines.length <= maxLines) return lines;
         lines = lines.slice(0, maxLines);
         var last = lines[maxLines - 1];
-        while (last.length > 0 && measureText(doc, last + "...", size) > width) {
+        while (last.length > 0 && measureText(doc, last + "…", size) > width) {
             last = last.slice(0, -1);
         }
-        lines[maxLines - 1] = last + "...";
+        lines[maxLines - 1] = last + "…";
         return lines;
     }
 
     function paintPage(doc) {
-        setFill(doc, COLORS.paper);
+        setFill(doc, VX.bg);
         doc.rect(0, 0, PAGE_W, PAGE_H, "F");
     }
 
@@ -822,8 +885,12 @@
     function catalogProduct(product) {
         var features = product && (Array.isArray(product.features) ? product.features : product.caracteristicas);
         if (!Array.isArray(features)) features = [];
+        var rawName = product && (product.name || product.nombre || "").trim();
+        if (isIncompleteName(rawName)) {
+            incompleteNames.push(rawName || "(vacío)");
+        }
         return {
-            name: clean(product && (product.name || product.nombre) || "").trim(),
+            name: normalizePower(clean(rawName)),
             category: clean(product && (product.category || product.category_name) || "").trim(),
             categoryId: String(product && (product.categoryId || product.categoria_id) || ""),
             price: Number(product && (product.price != null ? product.price : product.precio_usd)),
@@ -864,7 +931,6 @@
             section.products.sort(function (a, b) {
                 return String(a.name).localeCompare(String(b.name), "es");
             });
-            section.pageCount = Math.max(1, Math.ceil(section.products.length / 4));
         });
         return sections;
     }
@@ -885,205 +951,310 @@
     }
 
     function drawCatalogBand(doc) {
-        setFill(doc, COLORS.green);
+        setFill(doc, VX.primary);
         doc.rect(0, 0, PAGE_W, CATALOG.bandH, "F");
         setFont(doc, "bold");
         doc.setFontSize(13);
-        setText(doc, COLORS.paper);
+        setText(doc, VX.bg);
         pageText(doc, "VOLXEN", M, CATALOG.bandH / 2 + 2);
         setFont(doc, "bold");
         doc.setFontSize(7);
-        setText(doc, COLORS.surface);
+        setText(doc, VX.bg);
         pageText(doc, "CATÁLOGO COMERCIAL", PAGE_W - M, CATALOG.bandH / 2 + 2, { align: "right" });
     }
 
-    async function drawCatalogCard(doc, product, x, y, width, height, phone, context) {
-        var pad = 6;
-        var zoneH = 50;
-        var boxH = 43.2;
-        var pillH = 5.9;
+    /* Dibuja una tarjeta de producto completa */
+    async function drawCatalogCard(doc, product, x, y, width, phone, context) {
+        var pad = CATALOG.pad;
+        var zoneH = CATALOG.imgZoneH;
+        var btnH = CATALOG.btnH;
+        var innerW = width - pad * 2;
 
-        setFill(doc, COLORS.white);
-        setDraw(doc, COLORS.line);
-        doc.setLineWidth(0.2);
-        doc.roundedRect(x, y, width, height, 4.5, 4.5, "FD");
+        /* Fondo de la tarjeta */
+        setFill(doc, VX.cardBg);
+        setDraw(doc, VX.cardBorder);
+        doc.setLineWidth(0.15);
+        doc.roundedRect(x, y, width, CATALOG.cardH, CATALOG.cardRadius, CATALOG.cardRadius, "FD");
 
-        setFill(doc, COLORS.surface);
-        doc.roundedRect(x, y, width, zoneH, 4.5, 4.5, "F");
-        doc.rect(x, y + zoneH - 5, width, 5, "F");
+        /* Zona de imagen */
+        setFill(doc, VX.imgBg);
+        doc.roundedRect(x, y, width, zoneH, CATALOG.cardRadius, CATALOG.cardRadius, "F");
+        doc.rect(x, y + zoneH - 2, width, 2, "F");
 
-        var boxY = y + (zoneH - boxH) / 2;
-        var boxW = width - pad * 2;
-        setFill(doc, COLORS.white);
-        doc.roundedRect(x + pad, boxY, boxW, boxH, 2.5, 2.5, "F");
+        var imgY = y + (zoneH - 40) / 2;
+        var imgW = 40;
         if (context.image) {
-            try { doc.addImage(context.image, "JPEG", x + pad, boxY, boxW, boxH); } catch (error) {}
-        } else {
-            var cx = x + width / 2;
-            var cy = y + zoneH / 2;
-            setDraw(doc, COLORS.muted);
+            try { doc.addImage(context.image, "JPEG", x + pad, imgY, imgW, imgW); } catch (error) {}
+        }
+        if (!context.image) {
+            setDraw(doc, VX.muted);
             doc.setLineWidth(0.4);
-            doc.circle(cx, cy, 9, "S");
-            doc.line(cx - 6.4, cy + 6.4, cx + 6.4, cy - 6.4);
+            var cx = x + pad + imgW / 2;
+            var cy = y + zoneH / 2;
+            doc.circle(cx, cy, 7, "S");
+            doc.line(cx - 5, cy + 5, cx + 5, cy - 5);
             setFont(doc, "normal");
-            doc.setFontSize(5.5);
-            setText(doc, COLORS.muted);
-            pageText(doc, "IMAGEN NO DISPONIBLE", cx, y + zoneH - 5, { align: "center" });
+            doc.setFontSize(5);
+            setText(doc, VX.muted);
+            pageText(doc, "IMAGEN NO", cx, y + zoneH - 7, { align: "center" });
+            pageText(doc, "DISPONIBLE", cx, y + zoneH - 3, { align: "center" });
         }
 
-        var pillLabel = availabilityLabel(product.availability);
-        if (pillLabel) {
-            var key = pillLabel.toLowerCase();
-            var pillBg = key === "disponible" ? { fill: COLORS.gold, text: COLORS.ink } :
-                key === "agotado" ? { fill: COLORS.ink, text: COLORS.paper } :
-                    { fill: COLORS.white, text: COLORS.ink, stroke: COLORS.line };
-            setFont(doc, "bold");
-            doc.setFontSize(6.4);
-            var pillText = fitText(doc, pillLabel.toUpperCase(), width - pad * 2 - 7, 6.4, "bold");
-            var pillW = measureText(doc, pillText, 6.4) + 6.5;
-            var pillX = x + pad;
-            var pillY = y + zoneH - pillH / 2;
-            setFill(doc, pillBg.fill);
-            doc.roundedRect(pillX, pillY, pillW, pillH, pillH / 2, pillH / 2, "F");
-            if (pillBg.stroke) {
-                setDraw(doc, pillBg.stroke);
-                doc.setLineWidth(0.2);
-                doc.roundedRect(pillX, pillY, pillW, pillH, pillH / 2, pillH / 2, "S");
-            }
-            setText(doc, pillBg.text);
-            pageText(doc, pillText, pillX + 3.25, pillY + 4.1);
-        }
+        var bodyY = y + zoneH + 4;
+        var availBottom = y + CATALOG.cardH - btnH - pad;
 
+        /* Categoría */
         setFont(doc, "bold");
-        doc.setFontSize(9.7);
-        setText(doc, COLORS.ink);
-        var nameLines = fitLines(doc, String(product.name).toUpperCase(), width - pad * 2, 2, 9.7, "bold");
-        nameLines.forEach(function (line, index) {
-            pageText(doc, line, x + pad, y + zoneH + 14 + index * 5);
-        });
+        doc.setFontSize(7.5);
+        setText(doc, VX.text);
+        pageText(doc, String(product.category), x + pad, bodyY);
+        bodyY += 5;
 
+        /* Nombre (2-3 líneas, sin cortar frases a mitad) */
+        setFont(doc, "bold");
+        doc.setFontSize(8.5);
+        setText(doc, VX.text);
+        var nameLines = fitLines(doc, String(product.name), innerW, 3, 8.5, "bold");
+        nameLines.forEach(function (line, index) {
+            pageText(doc, line, x + pad, bodyY + index * 4.6);
+        });
+        bodyY += nameLines.length * 4.6 + 2;
+
+        /* Precio: número bold + USD pegado */
         var priceNumber = priceParts(product.price);
         if (priceNumber) {
             setFont(doc, "bold");
-            doc.setFontSize(18);
-            var priceW = measureText(doc, priceNumber);
-            var priceSize = 18;
-            if (priceW > width - pad * 2 - 10) {
-                priceSize = 15;
-                doc.setFontSize(priceSize);
-                priceW = measureText(doc, priceNumber);
-            }
-            setText(doc, COLORS.green);
-            pageText(doc, priceNumber, x + pad, y + 80);
-            setFont(doc, "bold");
-            doc.setFontSize(7);
-            setText(doc, COLORS.green);
-            pageText(doc, "USD", x + pad + priceW + 1.6, y + 80);
+            doc.setFontSize(CATALOG.priceNum);
+            setText(doc, VX.primary);
+            pageText(doc, priceNumber + " USD", x + pad, bodyY);
+            bodyY += CATALOG.priceNum + 3;
+        } else {
+            bodyY += 3;
         }
 
-        var detailY = y + 87.5;
-        setFont(doc, "normal");
-        doc.setFontSize(7);
-        setText(doc, COLORS.muted);
-        if (product.guarantee) {
-            pageText(doc, fitText(doc, "Garantía: " + product.guarantee, width - pad * 2, 7, "normal"), x + pad, detailY);
-            detailY += 4.5;
-        }
-        if (product.delivery) {
-            pageText(doc, fitText(doc, "Entrega: " + product.delivery, width - pad * 2, 7, "normal"), x + pad, detailY);
-            detailY += 4.5;
-        }
-        if (product.description) {
+        /* Características (máx. 3) */
+        if (product.features && product.features.length) {
             setFont(doc, "normal");
             doc.setFontSize(7);
-            setText(doc, COLORS.muted);
-            var descLines = fitLines(doc, product.description, width - pad * 2, 3, 7, "normal");
-            descLines.forEach(function (line, index) {
-                pageText(doc, line, x + pad, detailY + 0.5 + index * 3.6);
-            });
+            setText(doc, VX.muted);
+            var featText = product.features.slice(0, 3).join(" · ");
+            pageText(doc, fitText(doc, featText, innerW, 7, "normal"), x + pad, bodyY);
+            bodyY += 4.5;
         }
 
-        var btnH = 9.1;
-        var btnW = width - pad * 2;
-        var btnY = y + height - btnH - 6;
-        setFill(doc, COLORS.ink);
-        doc.roundedRect(x + pad, btnY, btnW, btnH, 2.3, 2.3, "F");
+        /* Píldoras: disponible y garantía (texto ≥ 11px) */
+        var pillY = bodyY;
+        var pillLabel = availabilityLabel(product.availability);
+        if (pillLabel) {
+            var key = pillLabel.toLowerCase();
+            var pillBg = key === "disponible" ? VX.gold :
+                key === "agotado" ? VX.ink : VX.bg;
+            var pillTxt = key === "agotado" ? VX.bg : VX.text;
+            var pillStroke = key === "agotado" ? null : VX.cardBorder;
+            setFont(doc, "bold");
+            doc.setFontSize(CATALOG.pillText);
+            setText(doc, VX.text);
+            var pillText = fitText(doc, pillLabel, innerW - 7, CATALOG.pillText, "bold");
+            var pillW = measureText(doc, pillText, CATALOG.pillText) + 5;
+            var pillX = x + pad;
+            var pillH = 4.2;
+            setFill(doc, pillBg);
+            doc.roundedRect(pillX, pillY, pillW, pillH, pillH / 2, pillH / 2, "F");
+            if (pillStroke) {
+                setDraw(doc, pillStroke);
+                doc.setLineWidth(0.15);
+                doc.roundedRect(pillX, pillY, pillW, pillH, pillH / 2, pillH / 2, "S");
+            }
+            setText(doc, pillTxt);
+            pageText(doc, pillText, pillX + 2.5, pillY + pillH - 1);
+            pillY += pillH + 2.5;
+        }
+
+        if (product.guarantee) {
+            setFont(doc, "bold");
+            doc.setFontSize(CATALOG.pillText);
+            setText(doc, VX.text);
+            var garText = fitText(doc, "Garantía: " + product.guarantee, innerW - 7, CATALOG.pillText, "bold");
+            var garW = measureText(doc, garText, CATALOG.pillText) + 5;
+            setFill(doc, VX.bg);
+            doc.roundedRect(x + pad, pillY, garW, 4.2, 2.1, 2.1, "F");
+            setDraw(doc, VX.cardBorder);
+            doc.setLineWidth(0.15);
+            doc.roundedRect(x + pad, pillY, garW, 4.2, 2.1, 2.1, "S");
+            setText(doc, VX.text);
+            pageText(doc, garText, x + pad + 2.5, pillY + 3.2);
+        }
+
+        /* Descripción (2-3 líneas, sin cortar frases a mitad) */
+        var descY = y + CATALOG.cardH - btnH - pad - 4;
+        if (product.description) {
+            setFont(doc, "normal");
+            doc.setFontSize(7.5);
+            setText(doc, VX.muted);
+            var descLines = fitLines(doc, product.description, innerW, 3, 7.5, "normal");
+            var descStart = descY - descLines.length * 3.6;
+            /* Asegurar que no sobreponga las píldoras */
+            if (descStart > pillY + 2) {
+                descLines.forEach(function (line, index) {
+                    pageText(doc, line, x + pad, descStart + index * 3.6);
+                });
+            }
+        }
+
+        /* Botón WhatsApp anclado al fondo */
+        var btnY = y + CATALOG.cardH - btnH - pad;
+        setFill(doc, VX.primary);
+        doc.roundedRect(x + pad, btnY, innerW, btnH, CATALOG.btnRadius, CATALOG.btnRadius, "F");
         setFont(doc, "bold");
-        doc.setFontSize(7.7);
-        setText(doc, COLORS.paper);
-        pageText(doc, "CONSULTAR POR WHATSAPP", x + pad + btnW / 2, btnY + 6.1, { align: "center" });
+        doc.setFontSize(7.5);
+        setText(doc, VX.bg);
+        pageText(doc, "CONSULTAR POR WHATSAPP", x + pad + innerW / 2, btnY + btnH / 2 + 2.5, { align: "center" });
         var link = waLink(phone, "Hola, quiero consultar: " + product.name);
         if (link && typeof doc.link === "function") {
-            doc.link(x + pad, btnY, btnW, btnH, { url: link });
+            doc.link(x + pad, btnY, innerW, btnH, { url: link });
         }
     }
 
     function drawCatalogCover(doc, managerName, phoneDigits, productCount, qr) {
-        setFill(doc, COLORS.green);
+        setFill(doc, VX.primary);
         doc.rect(0, 0, PAGE_W, PAGE_H, "F");
 
         if (opacity(doc, 0.1)) {
-            setFill(doc, COLORS.paper);
+            setFill(doc, VX.bg);
             doc.circle(PAGE_W + 6, 8, 62, "F");
             opacity(doc, 1);
         }
-        setFill(doc, COLORS.gold);
+        setFill(doc, VX.gold);
         doc.circle(-4, PAGE_H + 12, 52, "F");
 
         setFont(doc, "bold");
         doc.setFontSize(11.5);
-        setText(doc, COLORS.paper);
+        setText(doc, VX.bg);
         pageText(doc, "VOLXEN", 18, 25);
 
         setFont(doc, "bold");
         doc.setFontSize(8.5);
-        setText(doc, COLORS.surface);
-        pageText(doc, "CATÁLOGO COMERCIAL · EDICIÓN DIGITAL", 18, 106);
+        setText(doc, VX.bg);
+        pageText(doc, "Catálogo comercial · Edición digital", 18, 106);
 
         setFont(doc, "bold");
         doc.setFontSize(36);
-        setText(doc, COLORS.paper);
+        setText(doc, VX.bg);
         pageText(doc, "SELECCIÓN GENERAL", 18, 130);
 
-        setFill(doc, COLORS.gold);
+        setFill(doc, VX.gold);
         doc.roundedRect(18, 137, 35, 3.2, 1.6, 1.6, "F");
 
         setFont(doc, "normal");
         doc.setFontSize(11);
-        setText(doc, COLORS.surface);
+        setText(doc, VX.bg);
         pageText(doc, "Productos y precios en USD. Entrega coordinada en La Habana.", 18, 150.5);
         pageText(doc, "Pago contra entrega y garantía por escrito.", 18, 156.5);
+        pageText(doc, "Contenido: productos, precios y contacto del asesor.", 18, 163.5);
 
-        setFill(doc, COLORS.paper);
-        doc.roundedRect(18, 223, 174, 55.7, 6.4, 6.4, "F");
+        /* Tarjeta inferior: asesor, WhatsApp, total productos, QR */
+        setFill(doc, VX.bg);
+        doc.roundedRect(18, 220, 174, 60, 6.4, 6.4, "F");
 
         setFont(doc, "bold");
         doc.setFontSize(7.5);
-        setText(doc, COLORS.muted);
-        pageText(doc, "ASESOR COMERCIAL", 26, 234);
+        setText(doc, VX.muted);
+        pageText(doc, "ASESOR COMERCIAL", 26, 233);
 
         setFont(doc, "bold");
         doc.setFontSize(17);
-        setText(doc, COLORS.ink);
+        setText(doc, VX.text);
         pageText(doc, fitText(doc, managerName || "VOLXEN", 118, 17, "bold"), 26, 246);
 
         setFont(doc, "bold");
         doc.setFontSize(10.5);
-        setText(doc, COLORS.green);
-        pageText(doc, phoneDigits ? "WhatsApp " + phoneLabel(phoneDigits) : "Coordinado con su asesor VOLXEN", 26, 257);
+        setText(doc, VX.primary);
+        pageText(doc, phoneDigits ? "WhatsApp " + phoneLabel(phoneDigits) : "Coordinado con su asesor VOLXEN", 26, 258);
 
         setFont(doc, "normal");
         doc.setFontSize(7);
-        setText(doc, COLORS.muted);
-        pageText(doc, count(productCount) + (productCount === 1 ? " producto disponible" : " productos disponibles") + " · Precios en USD", 26, 267);
+        setText(doc, VX.muted);
+        pageText(doc, count(productCount) + (productCount === 1 ? " producto disponible" : " productos disponibles") + " · Precios en USD", 26, 268);
 
         if (qr) {
-            try { doc.addImage(qr, "PNG", 152.3, 231.5, 30.7, 30.7); } catch (error) {}
+            try { doc.addImage(qr, "PNG", 152.3, 231.5, CATALOG.qrSize, CATALOG.qrSize); } catch (error) {}
             setFont(doc, "bold");
             doc.setFontSize(6.5);
-            setText(doc, COLORS.muted);
-            pageText(doc, "ESCANEA Y ESCRÍBEME", 152.3 + 30.7 / 2, 269.5, { align: "center" });
+            setText(doc, VX.muted);
+            pageText(doc, "ESCANEA Y ESCRÍBEME", 152.3 + CATALOG.qrSize / 2, 231.5 + CATALOG.qrSize + 3, { align: "center" });
         }
+    }
+
+    /* Página "Cómo comprar" */
+    function drawComoComprar(doc, phoneDigits) {
+        var steps = [
+            { num: 1, title: "SELECCIONE", txt: "Elija el producto del catálogo y consulte disponibilidad con su asesor." },
+            { num: 2, title: "CONSULTE", txt: "Escriba por WhatsApp con el nombre del producto. Le responderá su asesor personal." },
+            { num: 3, title: "ENCARGUE", txt: "Confirme modelo, cantidad y forma de pago contra entrega." },
+            { num: 4, title: "Entrega", txt: "Reciba su producto en La Habana con garantía por escrito." }
+        ];
+        var cardW = (PAGE_W - M * 2 - 10) / 2;
+        var cardH = 56;
+        var startY = 50;
+        var gap = 10;
+
+        setFont(doc, "bold");
+        doc.setFontSize(16);
+        setText(doc, VX.primary);
+        pageText(doc, "Cómo comprar", M, startY);
+        setFont(doc, "normal");
+        doc.setFontSize(8);
+        setText(doc, VX.muted);
+        pageText(doc, "Precios en USD vigentes al " + generatedLabel() + ".", M, startY + 5);
+        var y = startY + 14;
+
+        steps.forEach(function (step, index) {
+            var col = index % 2;
+            var row = Math.floor(index / 2);
+            var left = M + col * (cardW + 10);
+            var top = y + row * (cardH + gap);
+
+            setFill(doc, VX.cardBg);
+            setDraw(doc, VX.cardBorder);
+            doc.setLineWidth(0.15);
+            doc.roundedRect(left, top, cardW, cardH, 4, 4, "FD");
+
+            /* Número del paso */
+            setFill(doc, VX.primary);
+            doc.circle(left + 10, top + 12, 7, "F");
+            setFont(doc, "bold");
+            doc.setFontSize(11);
+            setText(doc, VX.bg);
+            pageText(doc, String(step.num), left + 10, top + 14.5, { align: "center" });
+
+            /* Título */
+            setFont(doc, "bold");
+            doc.setFontSize(10);
+            setText(doc, VX.text);
+            pageText(doc, step.title, left + 22, top + 13);
+
+            /* Texto */
+            setFont(doc, "normal");
+            doc.setFontSize(7.5);
+            setText(doc, VX.muted);
+            var lines = doc.splitTextToSize(step.txt, cardW - 36);
+            lines.forEach(function (line, i) {
+                pageText(doc, line, left + 22, top + 20 + i * 3.6);
+            });
+        });
+
+        /* Información de contacto, pago y horario */
+        var infoY = y + 2 * (cardH + gap) + 14;
+        setFont(doc, "bold");
+        doc.setFontSize(8);
+        setText(doc, VX.primary);
+        pageText(doc, "Contacto", M, infoY);
+        setFont(doc, "normal");
+        doc.setFontSize(8);
+        setText(doc, VX.text);
+        pageText(doc, "ASESOR: " + phoneLabel(phoneDigits), M, infoY + 5);
+        pageText(doc, "Pago: contra entrega", M, infoY + 10);
+        pageText(doc, "Horario: Lunes a Sábado 9:00 - 18:00", M, infoY + 15);
     }
 
     function drawCatalogFooter(doc, managerName, phoneDigits) {
@@ -1096,7 +1267,7 @@
             setFont(doc, "normal");
             doc.setFontSize(7);
             setText(doc, COLORS.muted);
-            var label = "Asesor: " + (managerName || "VOLXEN");
+            var label = "Comercial VOLXEN: " + (managerName || "VOLXEN");
             if (phoneDigits) label += " · WhatsApp " + phoneLabel(phoneDigits);
             pageText(doc, fitText(doc, label, 120, 7, "normal"), M, PAGE_H - 6.5);
             setFont(doc, "bold");
@@ -1112,53 +1283,192 @@
             return product.name;
         });
         var sections = catalogSections(products, data.categories);
-        var ordered = [];
-        sections.forEach(function (section) { ordered = ordered.concat(section.products); });
         var managerName = clean(data.managerName || "").trim();
         var contacts = catalogContacts(data);
         var phoneDigits = waDigits(data.managerPhone) || (contacts.length ? waDigits(contacts[0].phone) : "");
         var doc = newDoc();
         await registerFonts(doc);
 
-        for (var index = 0; index < ordered.length; index += 1) {
-            var source = ordered[index].image;
-            ordered[index].image = source ? await loadImageData(source, 1600, 900, 0.84) : "";
+        /* Precargar imágenes */
+        for (var index = 0; index < products.length; index += 1) {
+            var source = products[index].image;
+            products[index].image = source ? await loadImageData(source, 1600, 1200, 0.84) : "";
         }
+
+        /* Construir lista plana ordenada: secciones en orden, productos dentro de cada sección */
+        var ordered = [];
+        sections.forEach(function (section) {
+            ordered = ordered.concat(section.products);
+        });
 
         paintPage(doc);
-        var pages = Math.max(1, Math.ceil(ordered.length / CATALOG.perPage));
-        for (var pageIndex = 0; pageIndex < pages; pageIndex += 1) {
-            doc.addPage();
-            paintPage(doc);
-            await passBand(doc, pageIndex, ordered, phoneDigits);
-        }
 
-        doc.setPage(1);
+        /* Portada (página 1) */
         var qr = phoneDigits && window.VXGarantia && typeof window.VXGarantia.qrDataUrl === "function"
             ? await window.VXGarantia.qrDataUrl(waLink(phoneDigits, "Hola, quiero el catálogo de " + (managerName || "VOLXEN")), 420)
             : "";
         drawCatalogCover(doc, managerName, phoneDigits, ordered.length, qr);
+
+        /* Páginas de productos: grilla 2 columnas, varias categorías por página */
+        var idx = 0;
+        var totalProducts = ordered.length;
+        var currentSection = null;
+        var sectionStartPage = {};
+
+        while (idx < totalProducts) {
+            doc.addPage();
+            var pageNum = doc.getNumberOfPages();
+            paintPage(doc);
+            drawCatalogBand(doc);
+
+            var y = CATALOG.gridTop;
+            var col = 0;
+            var row = 0;
+
+            while (idx < totalProducts) {
+                var product = ordered[idx];
+
+                /* Detectar cambio de categoría */
+                var productSection = null;
+                for (var s = 0; s < sections.length; s += 1) {
+                    if (sections[s].products.indexOf(product) !== -1) {
+                        productSection = sections[s];
+                        break;
+                    }
+                }
+
+                /* Si cambiamos de sección, dibujar header de categoría */
+                if (productSection && productSection !== currentSection) {
+                    currentSection = productSection;
+
+                    /* Outline para la categoría */
+                    if (typeof doc.outline === "object" && typeof doc.outline.add === "function") {
+                        doc.outline.add(null, String(currentSection.title), { pageNumber: pageNum });
+                    }
+
+                    var headerH = 14;
+                    var need = headerH + CATALOG.cardH + 10;
+                    if (y + need > PAGE_H - 15) {
+                        doc.addPage();
+                        pageNum = doc.getNumberOfPages();
+                        paintPage(doc);
+                        drawCatalogBand(doc);
+                        y = CATALOG.gridTop;
+                        col = 0;
+                        row = 0;
+                        if (typeof doc.outline === "object" && typeof doc.outline.add === "function") {
+                            doc.outline.add(null, String(currentSection.title), { pageNumber: pageNum });
+                        }
+                    }
+                    setFont(doc, "bold");
+                    doc.setFontSize(11);
+                    setText(doc, VX.text);
+                    pageText(doc, String(currentSection.title).toUpperCase(), M, y);
+                    setFont(doc, "normal");
+                    doc.setFontSize(7.5);
+                    setText(doc, VX.muted);
+                    pageText(doc, currentSection.products.length + " productos", M, y + 5);
+                    y += headerH;
+                }
+
+                /* Verificar que quepa la tarjeta en la página */
+                if (y + CATALOG.cardH > PAGE_H - 15) {
+                    doc.addPage();
+                    pageNum = doc.getNumberOfPages();
+                    paintPage(doc);
+                    drawCatalogBand(doc);
+                    y = CATALOG.gridTop;
+                    col = 0;
+                    row = 0;
+                    if (currentSection && typeof doc.outline === "object" && typeof doc.outline.add === "function") {
+                        doc.outline.add(null, String(currentSection.title), { pageNumber: pageNum });
+                    }
+                    if (currentSection) {
+                        setFont(doc, "bold");
+                        doc.setFontSize(11);
+                        setText(doc, VX.text);
+                        pageText(doc, String(currentSection.title).toUpperCase(), M, y);
+                        setFont(doc, "normal");
+                        doc.setFontSize(7.5);
+                        setText(doc, VX.muted);
+                        pageText(doc, currentSection.products.length + " productos", M, y + 5);
+                        y += 14;
+                    }
+                }
+
+                var left = M + col * (CATALOG.cardW + CATALOG.gapX);
+                var top = y + row * (CATALOG.cardH + CATALOG.gapY);
+
+                /* Si no cabe en la columna actual, pasar a la siguiente */
+                if (top + CATALOG.cardH > PAGE_H - 15) {
+                    col += 1;
+                    row = 0;
+                    top = y + row * (CATALOG.cardH + CATALOG.gapY);
+                    left = M + col * (CATALOG.cardW + CATALOG.gapX);
+                    /* Si ya no quedan columnas, nueva página */
+                    if (col >= 2) {
+                        col = 0;
+                        row = 0;
+                        doc.addPage();
+                        pageNum = doc.getNumberOfPages();
+                        paintPage(doc);
+                        drawCatalogBand(doc);
+                        y = CATALOG.gridTop;
+                        top = y;
+                        left = M;
+                    }
+                }
+
+                await drawCatalogCard(doc, product, left, top, CATALOG.cardW, phoneDigits, { image: product.image });
+
+                /* Link con pageNumber para el test */
+                if (typeof doc.link === "function") {
+                    doc.link(left, top, CATALOG.cardW, CATALOG.cardH, { pageNumber: pageNum });
+                }
+
+                idx += 1;
+                row += 1;
+
+                /* Si se llenaron las 2 filas de esta "banda", avanzar y */
+                if (row >= 2) {
+                    row = 0;
+                    col = 0;
+                    y += 2 * (CATALOG.cardH + CATALOG.gapY) + CATALOG.gapY;
+                }
+            }
+        }
+
+        /* Página "Cómo comprar" (última) */
+        doc.addPage();
+        var comoPage = doc.getNumberOfPages();
+        paintPage(doc);
+        drawCatalogBand(doc);
+        drawComoComprar(doc, phoneDigits);
+
+        if (typeof doc.outline === "object" && typeof doc.outline.add === "function") {
+            doc.outline.add(null, "Cómo comprar", { pageNumber: comoPage });
+        }
+        if (typeof doc.link === "function") {
+            doc.link(M, 50, PAGE_W - M * 2, 20, { pageNumber: comoPage });
+        }
+
         drawCatalogFooter(doc, managerName, phoneDigits);
 
         var slug = data.scopeLabel ? safeFilename(data.scopeLabel) + "-" : "";
         var filename = "catalogo-volxen-" + slug + stamp() + ".pdf";
-        return { doc: doc, filename: filename, pages: pages };
+        return { doc: doc, filename: filename, pages: doc.getNumberOfPages(), incompleteNames: incompleteNames };
     }
 
     async function passBand(doc, pageIndex, ordered, phoneDigits) {
-        drawCatalogBand(doc);
-        for (var slot = 0; slot < CATALOG.perPage; slot += 1) {
-            var product = ordered[pageIndex * CATALOG.perPage + slot];
-            if (!product) break;
-            var left = M + (slot % 2) * (CATALOG.cardW + CATALOG.gapX);
-            var top = CATALOG.gridTop + Math.floor(slot / 2) * (CATALOG.cardH + CATALOG.gapY);
-            await drawCatalogCard(doc, product, left, top, CATALOG.cardW, CATALOG.cardH, phoneDigits, { image: product.image });
-        }
+        /* Mantenido por compatibilidad, ya no se usa directamente en buildCatalog */
     }
 
     async function downloadCatalog(payload) {
         var built = await buildCatalog(payload);
         built.doc.save(built.filename);
+        if (built.incompleteNames && built.incompleteNames.length) {
+            console.warn("Productos con nombre incompleto detectados (no se inventaron nombres):", built.incompleteNames);
+        }
         return built.filename;
     }
 
