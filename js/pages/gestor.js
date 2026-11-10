@@ -2661,6 +2661,8 @@
                     categoryId: product.categoria_id || "",
                     price: typeof api.pr === "function" ? api.pr(product) : product.precio_usd,
                     image: productImage(product, 900, 494),
+                    description: product.descripcion || "",
+                    delivery: product.transporte || "",
                     features: Array.isArray(product.caracteristicas) ? product.caracteristicas : [],
                     guarantee: product.garantia || "",
                     availability: product.disponibilidad || ""
@@ -2686,6 +2688,7 @@
                 products: products,
                 categories: categories,
                 managerName: managerName,
+                managerPhone: refs.gsManagerPhone ? refs.gsManagerPhone.value.trim() : "",
                 contacts: contacts,
                 scopeLabel: scopeCategory ? scopeCategory.nombre : ""
             });
