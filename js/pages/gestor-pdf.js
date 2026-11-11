@@ -963,18 +963,30 @@
         var btnH = CATALOG.btnH;
         var innerW = width - pad * 2;
 
-        /* Fondo de la tarjeta blanca */
+        /* Fondo de tarjeta beige claro (igual al PDF de referencia) */
         setFill(doc, VX.cardBg);
         setDraw(doc, VX.cardBorder);
         doc.setLineWidth(0.15);
         doc.roundedRect(x, y, width, CATALOG.cardH, CATALOG.cardRadius, CATALOG.cardRadius, "FD");
 
-        /* Zona de imagen grande, fondo beige */
+        /* Zona de imagen grande, fondo beige con textura de rayas diagonales */
         setFill(doc, VX.imgBg);
         doc.roundedRect(x, y, width, zoneH, CATALOG.cardRadius, CATALOG.cardRadius, "F");
         doc.rect(x, y + zoneH - 1, width, 1, "F");
 
-        /* Imagen centrada tipo contain (zona ~56 mm, foto ~62×44 mm) */
+        /* Textura de rayas diagonales sutiles en la zona de imagen */
+        setDraw(doc, VX.cardBorder);
+        doc.setLineWidth(0.05);
+        var stripeGap = 3;
+        var stripeCount = Math.ceil(width / stripeGap);
+        var opacityBefore = opacity(doc, 0.06);
+        for (var s = 0; s <= stripeCount; s += 1) {
+            var sx = x + s * stripeGap;
+            doc.line(sx, y, sx + stripeGap, y + zoneH);
+        }
+        if (opacityBefore) { opacity(doc, 1); }
+
+        /* Imagen centrada tipo contain (zona ~56 mm, foto grande) */
         var imgBoxH = zoneH - 10;
         var imgBoxW = innerW - 6;
         var imgW = imgBoxW;
@@ -989,16 +1001,16 @@
             try { doc.addImage(context.image, "PNG", imgX, imgY, imgW, imgH); } catch (error) {}
         }
         if (!context.image) {
-            /* Placeholder estilo del PDF de muestra */
-            setFill(doc, VX.gold);
-            doc.circle(x + pad + imgBoxW / 2 + 14, y + zoneH / 2 - 6, 9, "F");
+            /* Placeholder estilo PDF de muestra: círculo tachado + texto */
             setFill(doc, VX.btnBg);
-            doc.circle(x + pad + imgBoxW / 2 - 6, y + zoneH / 2 + 6, 6, "F");
-            setFont(doc, "bold");
+            doc.circle(x + pad + imgBoxW / 2, y + zoneH / 2, 10, "S");
+            doc.setLineWidth(1);
+            doc.line(x + pad + imgBoxW / 2 - 7, y + zoneH / 2 - 7, x + pad + imgBoxW / 2 + 7, y + zoneH / 2 + 7);
+            setFont(doc, "normal");
             doc.setFontSize(6);
             setText(doc, VX.muted);
-            pageText(doc, "IMAGEN NO", x + pad + imgBoxW / 2 + 4, y + zoneH - 6, { align: "center" });
-            pageText(doc, "DISPONIBLE", x + pad + imgBoxW / 2 + 4, y + zoneH - 2, { align: "center" });
+            pageText(doc, "IMAGEN NO", x + pad + imgBoxW / 2, y + zoneH - 8, { align: "center" });
+            pageText(doc, "DISPONIBLE", x + pad + imgBoxW / 2, y + zoneH - 4, { align: "center" });
         }
 
         var bodyY = y + zoneH + 6;
@@ -1056,7 +1068,7 @@
             bodyY += featLines.length * 3.8 + 2;
         }
 
-        /* Píldora de disponibilidad montada sobre el borde inferior de la franja */
+        /* Píldora de disponibilidad en esquina inferior izquierda de la zona de imagen */
         var pillLabel = availabilityLabel(product.availability);
         if (pillLabel) {
             var key = pillLabel.toLowerCase();
@@ -1070,7 +1082,8 @@
             var pillW = measureText(doc, pillText, CATALOG.pillText) + 5;
             var pillX = x + pad;
             var pillH = 4.2;
-            var pillY = y + zoneH - pillH / 2;
+            /* Pegada al borde inferior izquierdo de la zona de imagen (como el PDF de referencia) */
+            var pillY = y + zoneH - pillH - 2;
             setFill(doc, pillBg);
             doc.roundedRect(pillX, pillY, pillW, pillH, pillH / 2, pillH / 2, "F");
             if (pillStroke) {
