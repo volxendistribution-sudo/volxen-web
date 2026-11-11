@@ -183,9 +183,9 @@
 
     function logoUrl() {
         try {
-            return new URL("Screenshot_20261025-194850_Gallery.jpg", document.baseURI).href;
+            return new URL("logo.svg", document.baseURI).href;
         } catch (error) {
-            return "Screenshot_20261025-194850_Gallery.jpg";
+            return "logo.svg";
         }
     }
 
@@ -1115,7 +1115,7 @@
         }
     }
 
-    function drawCatalogCover(doc, managerName, phoneDigits, productCount, qr) {
+    function drawCatalogCover(doc, catalogLogo, managerName, phoneDigits, productCount, qr) {
         setFill(doc, VX.primary);
         doc.rect(0, 0, PAGE_W, PAGE_H, "F");
 
@@ -1127,10 +1127,15 @@
         setFill(doc, VX.gold);
         doc.circle(-4, PAGE_H + 12, 52, "F");
 
+        /* Logo oficial en la parte superior izquierda */
+        if (catalogLogo) {
+            try { doc.addImage(catalogLogo, "JPEG", 18, 20, 30, 30); } catch (error) {}
+        }
+
         setFont(doc, "bold");
         doc.setFontSize(11.5);
         setText(doc, VX.bg);
-        pageText(doc, "VOLXEN", 18, 25);
+        pageText(doc, "VOLXEN", 54, 34);
 
         setFont(doc, "bold");
         doc.setFontSize(8.5);
@@ -1295,6 +1300,9 @@
             products[index].image = source ? await loadImageData(source, 1600, 1200, 0.84) : "";
         }
 
+        /* Cargar logo oficial para la portada */
+        var catalogLogo = await loadImageData(logoUrl(), 600, 600, 0.9);
+
         /* Construir lista plana ordenada: secciones en orden, productos dentro de cada sección */
         var ordered = [];
         sections.forEach(function (section) {
@@ -1307,7 +1315,7 @@
         var qr = phoneDigits && window.VXGarantia && typeof window.VXGarantia.qrDataUrl === "function"
             ? await window.VXGarantia.qrDataUrl(waLink(phoneDigits, "Hola, quiero el catálogo de " + (managerName || "VOLXEN")), 420)
             : "";
-        drawCatalogCover(doc, managerName, phoneDigits, ordered.length, qr);
+        drawCatalogCover(doc, catalogLogo, managerName, phoneDigits, ordered.length, qr);
 
         /* Páginas de productos: grilla 2 columnas, varias categorías por página */
         var idx = 0;
