@@ -1300,8 +1300,13 @@
             products[index].image = source ? await loadImageData(source, 1600, 1200, 0.84) : "";
         }
 
-        /* Cargar logo oficial para la portada */
-        var catalogLogo = await loadImageData(logoUrl(), 600, 600, 0.9);
+        /* Cargar logo oficial para la portada (no bloquea si falla) */
+        var catalogLogo = "";
+        try {
+            catalogLogo = await loadImageData(logoUrl(), 600, 600, 0.9);
+        } catch (error) {
+            catalogLogo = "";
+        }
 
         /* Construir lista plana ordenada: secciones en orden, productos dentro de cada sección */
         var ordered = [];
