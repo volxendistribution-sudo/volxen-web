@@ -34,21 +34,21 @@
 
         /* Medidas en mm (A4) */
         cardW: 88,
-        cardH: 124,
+        cardH: 142,                /* tarjetas más altas para dar respiro */
         gapX: 6,
         gapY: 6,
-        gridTop: 27,
+        gridTop: 26,
         bandH: 17,
         perPage: 4,
-        imgZoneH: 56,                 /* zona de imagen grande */
-        btnH: 10.5,                   /* ~40px */
-        btnRadius: 2.6,               /* ~10px */
-        priceNum: 7.4,                /* ~28px */
-        priceUsd: 2.9,                /* ~11px */
-        pillText: 2.9,                /* ~11px */
-        cardRadius: 4.5,
-        pad: 5,
-        qrSize: 36                    /* ~135px */
+        imgZoneH: 58,              /* zona de imagen grande */
+        btnH: 12,                  /* botón más grande (~45px) */
+        btnRadius: 3,              /* más redondeado */
+        priceNum: 11,              /* precio muy grande (igual al reference) */
+        priceUsd: 3,               /* USD pequeño pegado */
+        pillText: 2.8,             /* píldora legible */
+        cardRadius: 5,             /* más redondeado */
+        pad: 6,
+        qrSize: 36                 /* ~135px */
     };
 
     function ctor() {
@@ -963,7 +963,7 @@
         var btnH = CATALOG.btnH;
         var innerW = width - pad * 2;
 
-        /* Fondo de tarjeta beige claro (igual al PDF de referencia) */
+        /* Fondo de tarjeta blanco puro (como el PDF de referencia) */
         setFill(doc, VX.cardBg);
         setDraw(doc, VX.cardBorder);
         doc.setLineWidth(0.15);
@@ -1013,7 +1013,7 @@
             pageText(doc, "DISPONIBLE", x + pad + imgBoxW / 2, y + zoneH - 4, { align: "center" });
         }
 
-        var bodyY = y + zoneH + 6;
+        var bodyY = y + zoneH + 7;
 
         /* Nombre del producto en mayúsculas negrita */
         setFont(doc, "bold");
@@ -1021,9 +1021,9 @@
         setText(doc, VX.text);
         var nameLines = fitLines(doc, String(product.name).toUpperCase(), innerW, 3, 9.5, "bold");
         nameLines.forEach(function (line, index) {
-            pageText(doc, line, x + pad, bodyY + index * 5);
+            pageText(doc, line, x + pad, bodyY + index * 5.2);
         });
-        bodyY += nameLines.length * 5 + 3;
+        bodyY += nameLines.length * 5.2 + 4;
 
         /* Precio: número grande verde oscuro + "USD" pequeño pegado */
         var priceNumber = priceParts(product.price);
@@ -1037,22 +1037,22 @@
             doc.setFontSize(CATALOG.priceUsd);
             setText(doc, VX.primary);
             pageText(doc, " USD", x + pad + numW + 2, bodyY);
-            bodyY += CATALOG.priceNum + 5;
+            bodyY += CATALOG.priceNum + 6;
         } else {
-            bodyY += 4;
+            bodyY += 5;
         }
 
-        /* Detalles: Garantía y Entrega */
+        /* Detalles: Garantía y Entrega (texto pequeño, gris) */
         setFont(doc, "normal");
         doc.setFontSize(7);
         setText(doc, VX.muted);
         if (product.guarantee) {
             pageText(doc, "Garantía: " + product.guarantee, x + pad, bodyY);
-            bodyY += 3.5;
+            bodyY += 3.8;
         }
         if (product.delivery) {
             pageText(doc, "Entrega: " + product.delivery, x + pad, bodyY);
-            bodyY += 3.5;
+            bodyY += 3.8;
         }
 
         /* Características del producto (visibles y legibles) */
@@ -1065,7 +1065,7 @@
             featLines.forEach(function (line, index) {
                 pageText(doc, line, x + pad, bodyY + index * 3.8);
             });
-            bodyY += featLines.length * 3.8 + 2;
+            bodyY += featLines.length * 3.8 + 3;
         }
 
         /* Píldora de disponibilidad en esquina inferior izquierda de la zona de imagen */
