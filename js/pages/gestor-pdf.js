@@ -969,24 +969,10 @@
         doc.setLineWidth(0.15);
         doc.roundedRect(x, y, width, CATALOG.cardH, CATALOG.cardRadius, CATALOG.cardRadius, "FD");
 
-        /* Zona de imagen grande, fondo beige con textura de rayas diagonales */
-        setFill(doc, VX.imgBg);
-        doc.roundedRect(x, y, width, zoneH, CATALOG.cardRadius, CATALOG.cardRadius, "F");
+        /* Zona de imagen limpia sobre fondo blanco de la tarjeta (sin fondo beige ni rayas) */
         doc.rect(x, y + zoneH - 1, width, 1, "F");
 
-        /* Textura de rayas diagonales sutiles en la zona de imagen */
-        setDraw(doc, VX.cardBorder);
-        doc.setLineWidth(0.05);
-        var stripeGap = 3;
-        var stripeCount = Math.ceil(width / stripeGap);
-        var opacityBefore = opacity(doc, 0.06);
-        for (var s = 0; s <= stripeCount; s += 1) {
-            var sx = x + s * stripeGap;
-            doc.line(sx, y, sx + stripeGap, y + zoneH);
-        }
-        if (opacityBefore) { opacity(doc, 1); }
-
-        /* Imagen centrada tipo contain (zona ~56 mm, foto grande) */
+        /* Imagen centrada tipo contain (foto grande, sobre fondo blanco) */
         var imgBoxH = zoneH - 10;
         var imgBoxW = innerW - 6;
         var imgW = imgBoxW;
