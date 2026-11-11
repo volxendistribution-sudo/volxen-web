@@ -34,7 +34,7 @@
 
         /* Medidas en mm (A4) */
         cardW: 88,
-        cardH: 142,                /* tarjetas más altas para dar respiro */
+        cardH: 126,                /* tarjetas más altas que el original, caben 4 por página */
         gapX: 6,
         gapY: 6,
         gridTop: 26,
@@ -1017,13 +1017,13 @@
 
         /* Nombre del producto en mayúsculas negrita */
         setFont(doc, "bold");
-        doc.setFontSize(9.5);
+        doc.setFontSize(10);
         setText(doc, VX.text);
-        var nameLines = fitLines(doc, String(product.name).toUpperCase(), innerW, 3, 9.5, "bold");
+        var nameLines = fitLines(doc, String(product.name).toUpperCase(), innerW, 3, 10, "bold");
         nameLines.forEach(function (line, index) {
-            pageText(doc, line, x + pad, bodyY + index * 5.2);
+            pageText(doc, line, x + pad, bodyY + index * 5.6);
         });
-        bodyY += nameLines.length * 5.2 + 4;
+        bodyY += nameLines.length * 5.6 + 4;
 
         /* Precio: número grande verde oscuro + "USD" pequeño pegado */
         var priceNumber = priceParts(product.price);
@@ -1098,13 +1098,13 @@
         /* Descripción (2-3 líneas, sin cortar frases a mitad) */
         if (product.description) {
             setFont(doc, "normal");
-            doc.setFontSize(7.5);
+            doc.setFontSize(8);
             setText(doc, VX.muted);
-            var descLines = fitLines(doc, product.description, innerW, 3, 7.5, "normal");
+            var descLines = fitLines(doc, product.description, innerW, 3, 8, "normal");
             var descStart = y + CATALOG.cardH - btnH - pad - 8;
             if (descStart > bodyY + 2) {
                 descLines.forEach(function (line, index) {
-                    pageText(doc, line, x + pad, descStart + index * 3.8);
+                    pageText(doc, line, x + pad, descStart + index * 4.2);
                 });
             }
         }
