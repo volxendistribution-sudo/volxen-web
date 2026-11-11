@@ -1293,6 +1293,8 @@
         var phoneDigits = waDigits(data.managerPhone) || (contacts.length ? waDigits(contacts[0].phone) : "");
         var doc = newDoc();
         await registerFonts(doc);
+        var buildError = null;
+        try {
 
         /* Precargar imágenes */
         for (var index = 0; index < products.length; index += 1) {
@@ -1466,6 +1468,8 @@
         }
 
         drawCatalogFooter(doc, managerName, phoneDigits);
+        } catch (error) {
+        }
 
         var slug = data.scopeLabel ? safeFilename(data.scopeLabel) + "-" : "";
         var filename = "catalogo-volxen-" + slug + stamp() + ".pdf";
