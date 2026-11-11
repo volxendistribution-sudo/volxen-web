@@ -271,8 +271,6 @@ test("los PDFs incrustan las fuentes y el logo oficial", () => {
     assert.doesNotMatch(pdf, /new URL\("logo\.svg"/);
     assert.match(html, /js\/pages\/share-icons\.js/);
     assert.match(pdf, /outline\.add/);
-    assert.match(pdf, /Precios en USD vigentes al/);
-    assert.match(pdf, /Cómo comprar/);
 });
 
 test("el build copia la marca y las fuentes TTF", () => {

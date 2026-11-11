@@ -40,7 +40,7 @@
         gridTop: 27,
         bandH: 17,
         perPage: 4,
-        imgZoneH: 46,                 /* zona de imagen grande */
+        imgZoneH: 56,                 /* zona de imagen grande */
         btnH: 10.5,                   /* ~40px */
         btnRadius: 2.6,               /* ~10px */
         priceNum: 7.4,                /* ~28px */
@@ -187,9 +187,17 @@
 
     function logoUrl() {
         try {
-            return new URL("logo.svg", document.baseURI).href;
+            return new URL("brand/logo.svg", document.baseURI).href;
         } catch (error) {
-            return "logo.svg";
+            return "brand/logo.svg";
+        }
+    }
+
+    function logoNegativoUrl() {
+        try {
+            return new URL("brand/logo-negativo.svg", document.baseURI).href;
+        } catch (error) {
+            return "brand/logo-negativo.svg";
         }
     }
 
@@ -960,15 +968,15 @@
         doc.rect(0, 0, PAGE_W, CATALOG.bandH, "F");
         setFont(doc, "bold");
         doc.setFontSize(13);
-        setText(doc, VX.bg);
+        setText(doc, VX.white);
         pageText(doc, "VOLXEN", M, CATALOG.bandH / 2 + 2);
         setFont(doc, "bold");
         doc.setFontSize(7);
-        setText(doc, VX.bg);
+        setText(doc, VX.white);
         pageText(doc, "CATÁLOGO COMERCIAL", PAGE_W - M, CATALOG.bandH / 2 + 2, { align: "right" });
     }
 
-    /* Dibuja una tarjeta de producto completa */
+    /* Dibuja una tarjeta de producto completa (estética del PDF de referencia) */
     async function drawCatalogCard(doc, product, x, y, width, phone, context) {
         var pad = CATALOG.pad;
         var zoneH = CATALOG.imgZoneH;
@@ -981,37 +989,39 @@
         doc.setLineWidth(0.15);
         doc.roundedRect(x, y, width, CATALOG.cardH, CATALOG.cardRadius, CATALOG.cardRadius, "FD");
 
-        /* Zona de imagen grande con fondo claro dorado */
-        setFill(doc, VX.goldLight);
+        /* Zona de imagen grande, fondo beige */
+        setFill(doc, VX.imgBg);
         doc.roundedRect(x, y, width, zoneH, CATALOG.cardRadius, CATALOG.cardRadius, "F");
         doc.rect(x, y + zoneH - 1, width, 1, "F");
 
-        var imgY = y + (zoneH - 34) / 2;
-        var imgW = 34;
+        /* Imagen centrada tipo contain (zona ~56 mm, foto ~62×44 mm) */
+        var imgBoxH = zoneH - 10;
+        var imgBoxW = innerW - 6;
+        var imgW = imgBoxW;
+        var imgH = imgW * 0.75;
+        if (imgH > imgBoxH) {
+            imgH = imgBoxH;
+            imgW = imgH / 0.75;
+        }
+        var imgX = x + pad + (imgBoxW - imgW) / 2;
+        var imgY = y + (zoneH - imgH) / 2;
         if (context.image) {
-            try { doc.addImage(context.image, "JPEG", x + pad, imgY, imgW, imgW); } catch (error) {}
+            try { doc.addImage(context.image, "PNG", imgX, imgY, imgW, imgH); } catch (error) {}
         }
         if (!context.image) {
-            /* Placeholder estilo del PDF de muestra: círculo dorado + círculo negro */
+            /* Placeholder estilo del PDF de muestra */
             setFill(doc, VX.gold);
-            doc.circle(x + pad + imgW / 2 + 14, y + zoneH / 2 - 6, 9, "F");
+            doc.circle(x + pad + imgBoxW / 2 + 14, y + zoneH / 2 - 6, 9, "F");
             setFill(doc, VX.btnBg);
-            doc.circle(x + pad + imgW / 2 - 6, y + zoneH / 2 + 6, 6, "F");
+            doc.circle(x + pad + imgBoxW / 2 - 6, y + zoneH / 2 + 6, 6, "F");
             setFont(doc, "bold");
             doc.setFontSize(6);
             setText(doc, VX.muted);
-            pageText(doc, "IMAGEN NO", x + pad + imgW / 2 + 4, y + zoneH - 6, { align: "center" });
-            pageText(doc, "DISPONIBLE", x + pad + imgW / 2 + 4, y + zoneH - 2, { align: "center" });
+            pageText(doc, "IMAGEN NO", x + pad + imgBoxW / 2 + 4, y + zoneH - 6, { align: "center" });
+            pageText(doc, "DISPONIBLE", x + pad + imgBoxW / 2 + 4, y + zoneH - 2, { align: "center" });
         }
 
-        var bodyY = y + zoneH + 5;
-
-        /* Categoría */
-        setFont(doc, "bold");
-        doc.setFontSize(7);
-        setText(doc, VX.muted);
-        pageText(doc, String(product.category).toUpperCase(), x + pad, bodyY);
-        bodyY += 5;
+        var bodyY = y + zoneH + 6;
 
         /* Nombre del producto en mayúsculas negrita */
         setFont(doc, "bold");
@@ -1023,14 +1033,19 @@
         });
         bodyY += nameLines.length * 5 + 3;
 
-        /* Precio: número grande verde oscuro + USD pequeño al lado */
+        /* Precio: número grande verde oscuro + "USD" pequeño pegado */
         var priceNumber = priceParts(product.price);
         if (priceNumber) {
             setFont(doc, "bold");
             doc.setFontSize(CATALOG.priceNum);
             setText(doc, VX.primary);
-            pageText(doc, priceNumber + " USD", x + pad, bodyY);
-            bodyY += CATALOG.priceNum + 4;
+            var numW = measureText(doc, priceNumber, CATALOG.priceNum);
+            pageText(doc, priceNumber, x + pad, bodyY);
+            setFont(doc, "normal");
+            doc.setFontSize(CATALOG.priceUsd);
+            setText(doc, VX.primary);
+            pageText(doc, " USD", x + pad + numW + 2, bodyY);
+            bodyY += CATALOG.priceNum + 5;
         } else {
             bodyY += 4;
         }
@@ -1048,7 +1063,7 @@
             bodyY += 3.5;
         }
 
-        /* Píldora de disponibilidad */
+        /* Píldora de disponibilidad montada sobre el borde inferior de la franja */
         var pillLabel = availabilityLabel(product.availability);
         if (pillLabel) {
             var key = pillLabel.toLowerCase();
@@ -1062,15 +1077,16 @@
             var pillW = measureText(doc, pillText, CATALOG.pillText) + 5;
             var pillX = x + pad;
             var pillH = 4.2;
+            var pillY = y + zoneH - pillH / 2;
             setFill(doc, pillBg);
-            doc.roundedRect(pillX, bodyY, pillW, pillH, pillH / 2, pillH / 2, "F");
+            doc.roundedRect(pillX, pillY, pillW, pillH, pillH / 2, pillH / 2, "F");
             if (pillStroke) {
                 setDraw(doc, pillStroke);
                 doc.setLineWidth(0.15);
-                doc.roundedRect(pillX, bodyY, pillW, pillH, pillH / 2, pillH / 2, "S");
+                doc.roundedRect(pillX, pillY, pillW, pillH, pillH / 2, pillH / 2, "S");
             }
             setText(doc, pillTxt);
-            pageText(doc, pillText, pillX + 2.5, bodyY + pillH - 1);
+            pageText(doc, pillText, pillX + 2.5, pillY + pillH - 1);
         }
 
         /* Descripción (2-3 líneas, sin cortar frases a mitad) */
@@ -1095,7 +1111,7 @@
         doc.setFontSize(7.5);
         setText(doc, VX.btnText);
         pageText(doc, "CONSULTAR POR WHATSAPP", x + pad + innerW / 2, btnY + btnH / 2 + 2.5, { align: "center" });
-        var link = waLink(phone, "Hola, quiero consultar: " + product.name);
+        var link = waLink(phone, "Hola, quiero información sobre " + product.name + " del catálogo VOLXEN.");
         if (link && typeof doc.link === "function") {
             doc.link(x + pad, btnY, innerW, btnH, { url: link });
         }
@@ -1113,20 +1129,21 @@
         setFill(doc, VX.gold);
         doc.circle(-4, PAGE_H + 12, 52, "F");
 
-        /* Logo oficial en la parte superior izquierda */
-        if (catalogLogo) {
-            try { doc.addImage(catalogLogo, "JPEG", 18, 20, 30, 30); } catch (error) {}
-        }
-
+        /* Lockup de marca arriba izquierda: VOLXEN + COMERCIALIZADORA */
         setFont(doc, "bold");
-        doc.setFontSize(11.5);
+        doc.setFontSize(12);
         setText(doc, VX.bg);
-        pageText(doc, "VOLXEN", 54, 34);
+        pageText(doc, "VOLXEN", 18, 34);
+
+        setFont(doc, "normal");
+        doc.setFontSize(7.5);
+        setText(doc, VX.bg);
+        pageText(doc, "COMERCIALIZADORA", 18, 43.5);
 
         setFont(doc, "bold");
         doc.setFontSize(8.5);
         setText(doc, VX.bg);
-        pageText(doc, "Catálogo comercial · Edición digital", 18, 106);
+        pageText(doc, "CATÁLOGO COMERCIAL · EDICIÓN DIGITAL", 18, 106);
 
         setFont(doc, "bold");
         doc.setFontSize(36);
@@ -1137,15 +1154,14 @@
         doc.roundedRect(18, 137, 35, 3.2, 1.6, 1.6, "F");
 
         setFont(doc, "normal");
-        doc.setFontSize(11);
+        doc.setFontSize(10);
         setText(doc, VX.bg);
-        pageText(doc, "Productos y precios en USD. Entrega coordinada en La Habana.", 18, 150.5);
+        pageText(doc, "Precios en USD y entrega coordinada en La Habana.", 18, 150.5);
         pageText(doc, "Pago contra entrega y garantía por escrito.", 18, 156.5);
-        pageText(doc, "Contenido: productos, precios y contacto del asesor.", 18, 163.5);
 
-        /* Tarjeta inferior: asesor, WhatsApp, total productos, QR */
-        setFill(doc, VX.bg);
-        doc.roundedRect(18, 220, 174, 60, 6.4, 6.4, "F");
+        /* Tarjeta inferior blanca: asesor, WhatsApp, total productos, QR */
+        setFill(doc, VX.cardBg);
+        doc.roundedRect(18, 220, 174, 62, 6.4, 6.4, "F");
 
         setFont(doc, "bold");
         doc.setFontSize(7.5);
@@ -1155,17 +1171,17 @@
         setFont(doc, "bold");
         doc.setFontSize(17);
         setText(doc, VX.text);
-        pageText(doc, fitText(doc, managerName || "VOLXEN", 118, 17, "bold"), 26, 246);
+        pageText(doc, fitText(doc, managerName || "VOLXEN COMERCIALIZADORA", 118, 17, "bold"), 26, 247);
 
         setFont(doc, "bold");
         doc.setFontSize(10.5);
         setText(doc, VX.primary);
-        pageText(doc, phoneDigits ? "WhatsApp " + phoneLabel(phoneDigits) : "Coordinado con su asesor VOLXEN", 26, 258);
+        pageText(doc, phoneDigits ? "WhatsApp " + phoneLabel(phoneDigits) : "Coordinado con su asesor VOLXEN", 26, 259);
 
         setFont(doc, "normal");
         doc.setFontSize(7);
         setText(doc, VX.muted);
-        pageText(doc, count(productCount) + (productCount === 1 ? " producto disponible" : " productos disponibles") + " · Precios en USD", 26, 268);
+        pageText(doc, count(productCount) + " productos en catálogo · Precios en USD", 26, 269);
 
         if (qr) {
             try { doc.addImage(qr, "PNG", 152.3, 231.5, CATALOG.qrSize, CATALOG.qrSize); } catch (error) {}
@@ -1174,78 +1190,6 @@
             setText(doc, VX.muted);
             pageText(doc, "ESCANEA Y ESCRÍBEME", 152.3 + CATALOG.qrSize / 2, 231.5 + CATALOG.qrSize + 3, { align: "center" });
         }
-    }
-
-    /* Página "Cómo comprar" */
-    function drawComoComprar(doc, phoneDigits) {
-        var steps = [
-            { num: 1, title: "SELECCIONE", txt: "Elija el producto del catálogo y consulte disponibilidad con su asesor." },
-            { num: 2, title: "CONSULTE", txt: "Escriba por WhatsApp con el nombre del producto. Le responderá su asesor personal." },
-            { num: 3, title: "ENCARGUE", txt: "Confirme modelo, cantidad y forma de pago contra entrega." },
-            { num: 4, title: "Entrega", txt: "Reciba su producto en La Habana con garantía por escrito." }
-        ];
-        var cardW = (PAGE_W - M * 2 - 10) / 2;
-        var cardH = 56;
-        var startY = 50;
-        var gap = 10;
-
-        setFont(doc, "bold");
-        doc.setFontSize(16);
-        setText(doc, VX.primary);
-        pageText(doc, "Cómo comprar", M, startY);
-        setFont(doc, "normal");
-        doc.setFontSize(8);
-        setText(doc, VX.muted);
-        pageText(doc, "Precios en USD vigentes al " + generatedLabel() + ".", M, startY + 5);
-        var y = startY + 14;
-
-        steps.forEach(function (step, index) {
-            var col = index % 2;
-            var row = Math.floor(index / 2);
-            var left = M + col * (cardW + 10);
-            var top = y + row * (cardH + gap);
-
-            setFill(doc, VX.cardBg);
-            setDraw(doc, VX.cardBorder);
-            doc.setLineWidth(0.15);
-            doc.roundedRect(left, top, cardW, cardH, 4, 4, "FD");
-
-            /* Número del paso */
-            setFill(doc, VX.primary);
-            doc.circle(left + 10, top + 12, 7, "F");
-            setFont(doc, "bold");
-            doc.setFontSize(11);
-            setText(doc, VX.bg);
-            pageText(doc, String(step.num), left + 10, top + 14.5, { align: "center" });
-
-            /* Título */
-            setFont(doc, "bold");
-            doc.setFontSize(10);
-            setText(doc, VX.text);
-            pageText(doc, step.title, left + 22, top + 13);
-
-            /* Texto */
-            setFont(doc, "normal");
-            doc.setFontSize(7.5);
-            setText(doc, VX.muted);
-            var lines = doc.splitTextToSize(step.txt, cardW - 36);
-            lines.forEach(function (line, i) {
-                pageText(doc, line, left + 22, top + 20 + i * 3.6);
-            });
-        });
-
-        /* Información de contacto, pago y horario */
-        var infoY = y + 2 * (cardH + gap) + 14;
-        setFont(doc, "bold");
-        doc.setFontSize(8);
-        setText(doc, VX.primary);
-        pageText(doc, "Contacto", M, infoY);
-        setFont(doc, "normal");
-        doc.setFontSize(8);
-        setText(doc, VX.text);
-        pageText(doc, "ASESOR: " + phoneLabel(phoneDigits), M, infoY + 5);
-        pageText(doc, "Pago: contra entrega", M, infoY + 10);
-        pageText(doc, "Horario: Lunes a Sábado 9:00 - 18:00", M, infoY + 15);
     }
 
     function drawCatalogFooter(doc, managerName, phoneDigits) {
@@ -1258,9 +1202,9 @@
             setFont(doc, "normal");
             doc.setFontSize(7);
             setText(doc, COLORS.muted);
-            var label = "Comercial VOLXEN: " + (managerName || "VOLXEN");
+            var label = "Asesor: " + (managerName || "VOLXEN COMERCIALIZADORA");
             if (phoneDigits) label += " · WhatsApp " + phoneLabel(phoneDigits);
-            pageText(doc, fitText(doc, label, 120, 7, "normal"), M, PAGE_H - 6.5);
+            pageText(doc, fitText(doc, label, 130, 7, "normal"), M, PAGE_H - 6.5);
             setFont(doc, "bold");
             doc.setFontSize(7.5);
             setText(doc, COLORS.muted);
@@ -1268,73 +1212,67 @@
         }
     }
 
-    async function buildCatalog(payload) {
-        var data = payload || {};
-        var products = (Array.isArray(data.products) ? data.products : []).map(catalogProduct).filter(function (product) {
-            return product.name;
-        });
-        var sections = catalogSections(products, data.categories);
-        var managerName = clean(data.managerName || "").trim();
-        var contacts = catalogContacts(data);
-        var phoneDigits = waDigits(data.managerPhone) || (contacts.length ? waDigits(contacts[0].phone) : "");
-        var doc = newDoc();
+async function buildCatalog(payload) {
+    var data = payload || {};
+    var products = (Array.isArray(data.products) ? data.products : []).map(catalogProduct).filter(function (product) {
+        return product.name;
+    });
+    var sections = catalogSections(products, data.categories);
+    var managerName = clean(data.managerName || "").trim();
+    var contacts = catalogContacts(data);
+    var phoneDigits = waDigits(data.managerPhone) || (contacts.length ? waDigits(contacts[0].phone) : "");
+    var doc = newDoc();
 
-        /* Cargar fuentes (no bloquea si falla) */
-        try { await registerFonts(doc); } catch (error) {}
+    /* Cargar fuentes (no bloquea si falla) */
+    try { await registerFonts(doc); } catch (error) {}
 
-        /* Precargar imágenes (no bloquea si falla) */
-        for (var index = 0; index < products.length; index += 1) {
-            try {
-                var source = products[index].image;
-                products[index].image = source ? await loadImageData(source, 1600, 1200, 0.84) : "";
-            } catch (error) {
-                products[index].image = "";
-            }
-        }
-
-        /* Cargar logo oficial para la portada (no bloquea si falla) */
-        var catalogLogo = "";
+    /* Precargar imágenes (no bloquea si falla) */
+    for (var index = 0; index < products.length; index += 1) {
         try {
-            catalogLogo = await loadImageData(logoUrl(), 600, 600, 0.9);
+            var source = products[index].image;
+            products[index].image = source ? await loadImageData(source, 1600, 1200, 0.84, "image/png", { transparent: true }) : "";
         } catch (error) {
-            catalogLogo = "";
+            products[index].image = "";
         }
+    }
 
-        /* Construir lista plana ordenada: secciones en orden, productos dentro de cada sección */
-        var ordered = [];
-        sections.forEach(function (section) {
-            ordered = ordered.concat(section.products);
-        });
+    /* Construir lista plana ordenada: secciones en orden, productos dentro de cada sección */
+    var ordered = [];
+    sections.forEach(function (section) {
+        ordered = ordered.concat(section.products);
+    });
 
+    try { paintPage(doc); } catch (error) {}
+
+    /* Portada (página 1) */
+    var qr = "";
+    try {
+        qr = phoneDigits && window.VXGarantia && typeof window.VXGarantia.qrDataUrl === "function"
+            ? await window.VXGarantia.qrDataUrl(waLink(phoneDigits, "Hola, quiero el catálogo de " + (managerName || "VOLXEN COMERCIALIZADORA")), 420)
+            : "";
+    } catch (error) { qr = ""; }
+    try { drawCatalogCover(doc, "", managerName, phoneDigits, ordered.length, qr); } catch (error) {}
+
+    /* Páginas de productos: grilla 2x2, varias categorías por página (sin encabezados de categoría visibles) */
+    var idx = 0;
+    var totalProducts = ordered.length;
+    var currentSection = null;
+
+    while (idx < totalProducts) {
+        try { doc.addPage(); } catch (error) { break; }
+        var pageNum = doc.getNumberOfPages();
         try { paintPage(doc); } catch (error) {}
+        try { drawCatalogBand(doc); } catch (error) {}
 
-        /* Portada (página 1) */
-        var qr = "";
-        try {
-            qr = phoneDigits && window.VXGarantia && typeof window.VXGarantia.qrDataUrl === "function"
-                ? await window.VXGarantia.qrDataUrl(waLink(phoneDigits, "Hola, quiero el catálogo de " + (managerName || "VOLXEN")), 420)
-                : "";
-        } catch (error) { qr = ""; }
-        try { drawCatalogCover(doc, catalogLogo, managerName, phoneDigits, ordered.length, qr); } catch (error) {}
+        var row = 0;
+        var yRow = CATALOG.gridTop;
 
-        /* Páginas de productos: grilla 2 columnas, varias categorías por página */
-        var idx = 0;
-        var totalProducts = ordered.length;
-        var currentSection = null;
-
-        while (idx < totalProducts) {
-            try { doc.addPage(); } catch (error) { break; }
-            var pageNum = doc.getNumberOfPages();
-            try { paintPage(doc); } catch (error) {}
-            try { drawCatalogBand(doc); } catch (error) {}
-
-            var y = CATALOG.gridTop;
+        while (idx < totalProducts && row < 2) {
             var col = 0;
-            var row = 0;
-
-            while (idx < totalProducts) {
+            while (idx < totalProducts && col < 2) {
                 var product = ordered[idx];
 
+                /* Outline por categoría (metadatos del índice, sin encabezado visible) */
                 var productSection = null;
                 for (var s = 0; s < sections.length; s += 1) {
                     if (sections[s].products.indexOf(product) !== -1) {
@@ -1342,93 +1280,17 @@
                         break;
                     }
                 }
-
                 if (productSection && productSection !== currentSection) {
                     currentSection = productSection;
-
                     try {
                         if (typeof doc.outline === "object" && typeof doc.outline.add === "function") {
                             doc.outline.add(null, String(currentSection.title), { pageNumber: pageNum });
                         }
                     } catch (error) {}
-
-                    var headerH = 14;
-                    var need = headerH + CATALOG.cardH + 10;
-                    if (y + need > PAGE_H - 15) {
-                        try { doc.addPage(); } catch (error) { break; }
-                        pageNum = doc.getNumberOfPages();
-                        try { paintPage(doc); } catch (error) {}
-                        try { drawCatalogBand(doc); } catch (error) {}
-                        y = CATALOG.gridTop;
-                        col = 0;
-                        row = 0;
-                        try {
-                            if (typeof doc.outline === "object" && typeof doc.outline.add === "function") {
-                                doc.outline.add(null, String(currentSection.title), { pageNumber: pageNum });
-                            }
-                        } catch (error) {}
-                    }
-                    try {
-                        setFont(doc, "bold");
-                        doc.setFontSize(11);
-                        setText(doc, VX.text);
-                        pageText(doc, String(currentSection.title).toUpperCase(), M, y);
-                        setFont(doc, "normal");
-                        doc.setFontSize(7.5);
-                        setText(doc, VX.muted);
-                        pageText(doc, currentSection.products.length + " productos", M, y + 5);
-                    } catch (error) {}
-                    y += headerH;
-                }
-
-                if (y + CATALOG.cardH > PAGE_H - 15) {
-                    try { doc.addPage(); } catch (error) { break; }
-                    pageNum = doc.getNumberOfPages();
-                    try { paintPage(doc); } catch (error) {}
-                    try { drawCatalogBand(doc); } catch (error) {}
-                    y = CATALOG.gridTop;
-                    col = 0;
-                    row = 0;
-                    try {
-                        if (currentSection && typeof doc.outline === "object" && typeof doc.outline.add === "function") {
-                            doc.outline.add(null, String(currentSection.title), { pageNumber: pageNum });
-                        }
-                    } catch (error) {}
-                    try {
-                        if (currentSection) {
-                            setFont(doc, "bold");
-                            doc.setFontSize(11);
-                            setText(doc, VX.text);
-                            pageText(doc, String(currentSection.title).toUpperCase(), M, y);
-                            setFont(doc, "normal");
-                            doc.setFontSize(7.5);
-                            setText(doc, VX.muted);
-                            pageText(doc, currentSection.products.length + " productos", M, y + 5);
-                        }
-                    } catch (error) {}
-                    y += 14;
                 }
 
                 var left = M + col * (CATALOG.cardW + CATALOG.gapX);
-                var top = y + row * (CATALOG.cardH + CATALOG.gapY);
-
-                if (top + CATALOG.cardH > PAGE_H - 15) {
-                    col += 1;
-                    row = 0;
-                    top = y + row * (CATALOG.cardH + CATALOG.gapY);
-                    left = M + col * (CATALOG.cardW + CATALOG.gapX);
-                    if (col >= 2) {
-                        col = 0;
-                        row = 0;
-                        try { doc.addPage(); } catch (error) { break; }
-                        pageNum = doc.getNumberOfPages();
-                        try { paintPage(doc); } catch (error) {}
-                        try { drawCatalogBand(doc); } catch (error) {}
-                        y = CATALOG.gridTop;
-                        top = y;
-                        left = M;
-                    }
-                }
+                var top = yRow;
 
                 try {
                     await drawCatalogCard(doc, product, left, top, CATALOG.cardW, phoneDigits, { image: product.image });
@@ -1441,40 +1303,19 @@
                 } catch (error) {}
 
                 idx += 1;
-                row += 1;
-
-                if (row >= 2) {
-                    row = 0;
-                    col = 0;
-                    y += 2 * (CATALOG.cardH + CATALOG.gapY) + CATALOG.gapY;
-                }
+                col += 1;
             }
+            row += 1;
+            yRow += CATALOG.cardH + CATALOG.gapY;
         }
-
-        /* Página "Cómo comprar" (última) */
-        try { doc.addPage(); } catch (error) {}
-        var comoPage = doc.getNumberOfPages();
-        try { paintPage(doc); } catch (error) {}
-        try { drawCatalogBand(doc); } catch (error) {}
-        try { drawComoComprar(doc, phoneDigits); } catch (error) {}
-
-        try {
-            if (typeof doc.outline === "object" && typeof doc.outline.add === "function") {
-                doc.outline.add(null, "Cómo comprar", { pageNumber: comoPage });
-            }
-        } catch (error) {}
-        try {
-            if (typeof doc.link === "function") {
-                doc.link(M, 50, PAGE_W - M * 2, 20, { pageNumber: comoPage });
-            }
-        } catch (error) {}
-
-        try { drawCatalogFooter(doc, managerName, phoneDigits); } catch (error) {}
-
-        var slug = data.scopeLabel ? safeFilename(data.scopeLabel) + "-" : "";
-        var filename = "catalogo-volxen-" + slug + stamp() + ".pdf";
-        return { doc: doc, filename: filename, pages: doc.getNumberOfPages(), incompleteNames: incompleteNames };
     }
+
+    try { drawCatalogFooter(doc, managerName, phoneDigits); } catch (error) {}
+
+    var slug = data.scopeLabel ? safeFilename(data.scopeLabel) + "-" : "";
+    var filename = "catalogo-volxen-" + slug + stamp() + ".pdf";
+    return { doc: doc, filename: filename, pages: doc.getNumberOfPages(), incompleteNames: incompleteNames };
+}
 
     async function passBand(doc, pageIndex, ordered, phoneDigits) {
         /* Mantenido por compatibilidad, ya no se usa directamente en buildCatalog */

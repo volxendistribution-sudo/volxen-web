@@ -196,16 +196,15 @@ test("el catálogo agrupa por categoría y respeta datos públicos", async () =>
     assert.match(filename, /^catalogo-volxen-\d{4}-\d{2}-\d{2}\.pdf$/);
     assert.equal(loaded.instance.saved, filename);
     const text = loaded.instance.texts.join("\n");
-    assert.match(text, /Catálogo/);
-    assert.match(text, /Comercial VOLXEN: Ana/);
-    assert.match(text, /Nevera/);
-    assert.match(text, /120 USD/);
-    assert.match(text, /Contenido/);
-    assert.match(text, /Línea blanca/);
-    assert.match(text, /Cómo comprar/);
-    assert.match(text, /Precios en USD vigentes al/);
+    assert.match(text, /CATÁLOGO/);
+    assert.match(text, /Asesor: Ana/);
+    assert.match(text, /NEVERA/);
+    assert.match(text, /^120$/m);
+    assert.match(text, /^ USD$/m);
+    assert.match(text, /CONSULTAR POR WHATSAPP/);
+    assert.ok(loaded.instance.outline.entries.some((entry) => entry.title === "Línea blanca" && entry.pageNumber === 2));
     assert.doesNotMatch(text, /comisión|ganancia/i);
-    assert.equal(loaded.instance.page, 3);
+    assert.equal(loaded.instance.page, 2);
 });
 
 test("el catálogo enlaza el índice, marca categorías y comparte una sola categoría", async () => {
@@ -229,20 +228,15 @@ test("el catálogo enlaza el índice, marca categorías y comparte una sola cate
 
     assert.match(filename, /^catalogo-volxen-climatizacion-\d{4}-\d{2}-\d{2}\.pdf$/);
     const text = loaded.instance.texts.join("\n");
-    assert.match(text, /160 USD/);
-    assert.match(text, /600W/);
+    assert.match(text, /AIRE SPLIT/);
+    assert.match(text, /^160$/m);
+    assert.match(text, /^ USD$/m);
     assert.match(text, /Garantía: 1 mes/);
-    assert.match(text, /Disponible/);
-    assert.match(text, /Entrega/);
-    assert.match(text, /Pago/);
-    assert.match(text, /Horario/);
-    assert.match(text, /Contacto/);
+    assert.match(text, /DISPONIBLE/);
     assert.match(text, /\+53 50760258/);
     assert.ok(loaded.instance.outline.entries.some((entry) => entry.title === "Climatización" && entry.pageNumber === 2));
-    assert.ok(loaded.instance.outline.entries.some((entry) => entry.title === "Cómo comprar" && entry.pageNumber === 3));
     assert.ok(loaded.instance.links.some((link) => link.pageNumber === 2));
-    assert.ok(loaded.instance.links.some((link) => link.pageNumber === 3));
-    assert.equal(loaded.instance.page, 3);
+    assert.equal(loaded.instance.page, 2);
 });
 
 test("el comprobante PDF es directo y no filtra datos privados", async () => {
