@@ -512,11 +512,12 @@
         return new Promise(function (resolve) {
             var image = new Image();
             var done = false;
-            var timer = setTimeout(function () { finish(""); }, 7000);
+            var timer = setTimeout(function () { finish(""); }, 3000);
             function finish(data) {
                 if (done) return;
                 done = true;
                 clearTimeout(timer);
+                try { image.src = ""; image.onload = null; image.onerror = null; } catch (e) {}
                 resolve(data);
             }
             if (!/^data:/i.test(url)) image.crossOrigin = "anonymous";
@@ -1466,12 +1467,17 @@
     }
 
     async function downloadCatalog(payload) {
-        var built = await buildCatalog(payload);
-        built.doc.save(built.filename);
-        if (built.incompleteNames && built.incompleteNames.length) {
-            console.warn("Productos con nombre incompleto detectados (no se inventaron nombres):", built.incompleteNames);
+        try {
+            var built = await buildCatalog(payload);
+            built.doc.save(built.filename);
+            if (built.incompleteNames && built.incompleteNames.length) {
+                console.warn("Productos con nombre incompleto detectados (no se inventaron nombres):", built.incompleteNames);
+            }
+            return built.filename;
+        } catch (error) {
+            console.error("Error generando catálogo PDF:", error);
+            throw new Error("No se pudo generar el catálogo PDF. Inténtalo de nuevo.");
         }
-        return built.filename;
     }
 
     window.VXGESTOR_PDF = {
