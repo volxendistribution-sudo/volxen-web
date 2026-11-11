@@ -88,34 +88,14 @@
 
     async function registerFonts(doc) {
         if (doc.__vxFonts !== undefined) return;
-        var base = fontBase();
-        var files = [
-            ["DM-Sans-Regular.ttf", "DMSans", "normal"],
-            ["DM-Sans-Bold.ttf", "DMSans", "bold"],
-            ["InterTight-Regular.ttf", "InterTight", "normal"],
-            ["InterTight-SemiBold.ttf", "InterTight", "bold"]
-        ];
-        try {
-            for (var index = 0; index < files.length; index += 1) {
-                var response = await fetch(base + files[index][0]);
-                if (!response.ok) throw new Error("No se pudo cargar la fuente " + files[index][0]);
-                var buffer = await response.arrayBuffer();
-                doc.addFileToVFS(files[index][0], arrayBufferToBase64(buffer));
-                doc.addFont(files[index][0], files[index][1], files[index][2]);
-            }
-            doc.__vxFonts = true;
-        } catch (error) {
-            doc.__vxFonts = false;
-        }
+        /* Fuentes integradas de jsPDF: sin problemas de bidi ni letras borrosas */
+        doc.__vxFonts = false;
     }
 
     function setFont(doc, style) {
         var bold = style === "bold";
-        if (doc.__vxFonts) {
-            doc.setFont(bold ? "DMSans" : "InterTight", bold ? "bold" : "normal");
-        } else {
-            doc.setFont("helvetica", bold ? "bold" : "normal");
-        }
+        /* Fuentes integradas: renderizan ñ, tildes y comillas sin problemas de bidi */
+        doc.setFont("helvetica", bold ? "bold" : "normal");
     }
 
     function clean(value) {
@@ -1061,6 +1041,19 @@
         if (product.delivery) {
             pageText(doc, "Entrega: " + product.delivery, x + pad, bodyY);
             bodyY += 3.5;
+        }
+
+        /* Características del producto (visibles y legibles) */
+        if (product.features && product.features.length) {
+            setFont(doc, "normal");
+            doc.setFontSize(6.5);
+            setText(doc, VX.text);
+            var featText = product.features.join(" · ");
+            var featLines = fitLines(doc, featText, innerW, 2, 6.5, "normal");
+            featLines.forEach(function (line, index) {
+                pageText(doc, line, x + pad, bodyY + index * 3.8);
+            });
+            bodyY += featLines.length * 3.8 + 2;
         }
 
         /* Píldora de disponibilidad montada sobre el borde inferior de la franja */
