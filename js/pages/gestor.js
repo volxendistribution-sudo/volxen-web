@@ -2636,7 +2636,8 @@
 
         setCatalogShareBusy(true);
         setNotice("");
-        try {
+
+        var catalogPromise = (async function () {
             await ensureCatalog();
             if (!state.catalogReady) {
                 setNotice("No se pudo cargar el catálogo. Inténtalo de nuevo.", true);
@@ -2693,8 +2694,20 @@
                 scopeLabel: scopeCategory ? scopeCategory.nombre : ""
             });
             setNotice("Catálogo PDF descargado.");
+        })();
+
+        var timeout = new Promise(function (_, reject) {
+            setTimeout(function () { reject(new Error("timeout")); }, 25000);
+        });
+
+        try {
+            await Promise.race([catalogPromise, timeout]);
         } catch (error) {
-            setNotice("No se pudo generar el catálogo PDF. Inténtalo de nuevo.", true);
+            if (error.message === "timeout") {
+                setNotice("El catálogo tardó demasiado en generarse. Inténtalo de nuevo.", true);
+            } else {
+                setNotice("No se pudo generar el catálogo PDF. Inténtalo de nuevo.", true);
+            }
         } finally {
             setCatalogShareBusy(false);
         }
