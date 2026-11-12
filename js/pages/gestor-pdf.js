@@ -34,16 +34,16 @@
 
         /* Medidas en mm (A4) */
         cardW: 88,
-        cardH: 126,                /* tarjetas más altas que el original, caben 4 por página */
+        cardH: 126,                /* tarjetas altas, caben 4 por página */
         gapX: 6,
         gapY: 6,
         gridTop: 26,
         bandH: 17,
         perPage: 4,
-        imgZoneH: 58,              /* zona de imagen grande */
+        imgZoneH: 62,              /* zona de imagen muy grande */
         btnH: 12,                  /* botón más grande (~45px) */
         btnRadius: 3,              /* más redondeado */
-        priceNum: 11,              /* precio muy grande (igual al reference) */
+        priceNum: 13,              /* precio muy grande */
         priceUsd: 3,               /* USD pequeño pegado */
         pillText: 2.8,             /* píldora legible */
         cardRadius: 5,             /* más redondeado */
@@ -976,8 +976,8 @@
         doc.roundedRect(x + 0.6, y + 0.6, width - 1.2, zoneH - 1.2, CATALOG.cardRadius - 0.6, CATALOG.cardRadius - 0.6, "F");
         doc.rect(x, y + zoneH - 1, width, 1, "F");
 
-        /* Imagen centrada tipo contain (foto grande, sobre fondo blanco) */
-        var imgBoxH = zoneH - 10;
+        /* Imagen centrada tipo contain (foto muy grande, sobre fondo blanco) */
+        var imgBoxH = zoneH - 8;
         var imgBoxW = innerW - 6;
         var imgW = imgBoxW;
         var imgH = imgW * 0.75;
@@ -1007,7 +1007,7 @@
 
         /* Nombre del producto en título caso (primera letra mayúscula, resto minúscula) */
         setFont(doc, "bold");
-        doc.setFontSize(10);
+        doc.setFontSize(10.5);
         setText(doc, VX.text);
         var nameRaw = String(product.name);
         var nameTitle = nameRaw
@@ -1017,11 +1017,11 @@
                 return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
             })
             .join(" ");
-        var nameLines = fitLines(doc, nameTitle, innerW, 3, 10, "bold");
+        var nameLines = fitLines(doc, nameTitle, innerW, 2, 10.5, "bold");
         nameLines.forEach(function (line, index) {
-            pageText(doc, line, x + pad, bodyY + index * 5.6);
+            pageText(doc, line, x + pad, bodyY + index * 6);
         });
-        bodyY += nameLines.length * 5.6 + 4;
+        bodyY += nameLines.length * 6 + 4;
 
         /* Precio: número grande verde oscuro + "USD" pequeño pegado */
         var priceNumber = priceParts(product.price);
@@ -1056,26 +1056,27 @@
         /* Características del producto (visibles y legibles) */
         if (product.features && product.features.length) {
             setFont(doc, "normal");
-            doc.setFontSize(6.5);
+            doc.setFontSize(7);
             setText(doc, VX.text);
             var featText = product.features.join(" · ");
-            var featLines = fitLines(doc, featText, innerW, 2, 6.5, "normal");
+            var featLines = fitLines(doc, featText, innerW, 1, 6, "normal");
             featLines.forEach(function (line, index) {
-                pageText(doc, line, x + pad, bodyY + index * 3.8);
+                pageText(doc, line, x + pad, bodyY + index * 4);
             });
-            bodyY += featLines.length * 3.8 + 2;
+            bodyY += featLines.length * 4 + 2;
         }
 
-        /* Descripción (2-3 líneas, sin cortar frases a mitad) */
+        /* Descripción (2-3 líneas, fluye tras características y cabe sobre el botón) */
         if (product.description) {
             setFont(doc, "normal");
-            doc.setFontSize(8);
+            doc.setFontSize(7.5);
             setText(doc, VX.muted);
-            var descLines = fitLines(doc, product.description, innerW, 3, 8, "normal");
-            var descStart = y + CATALOG.cardH - btnH - pad - 8;
-            if (descStart > bodyY + 2) {
+            var descLines = fitLines(doc, product.description, innerW, 3, 7.5, "normal");
+            var descStart = bodyY + 4;
+            var descBottom = descStart + descLines.length * 3.8;
+            if (descBottom < y + CATALOG.cardH - btnH - pad - 2) {
                 descLines.forEach(function (line, index) {
-                    pageText(doc, line, x + pad, descStart + index * 4.2);
+                    pageText(doc, line, x + pad, descStart + index * 3.8);
                 });
             }
         }
@@ -1108,14 +1109,14 @@
 
         /* Lockup de marca arriba izquierda: VOLXEN + COMERCIALIZADORA */
         setFont(doc, "bold");
-        doc.setFontSize(12);
+        doc.setFontSize(14);
         setText(doc, VX.bg);
-        pageText(doc, "VOLXEN", 18, 34);
+        pageText(doc, "VOLXEN", 18, 36);
 
         setFont(doc, "normal");
-        doc.setFontSize(7.5);
+        doc.setFontSize(8.5);
         setText(doc, VX.bg);
-        pageText(doc, "COMERCIALIZADORA", 18, 43.5);
+        pageText(doc, "COMERCIALIZADORA", 18, 45);
 
         setFont(doc, "bold");
         doc.setFontSize(8.5);
