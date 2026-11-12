@@ -710,9 +710,10 @@
     }
 
     /* ===== Detalle de producto (producto.html) ===== */
+    /* Vista móvil: compacta, respirando, sin amontonar */
     .pdp-card {
-        max-width: 46rem;
-        margin: 0 auto;
+        max-width: 100%;
+        margin: 0 auto var(--space-6);
         background: var(--s2);
         border: 1px solid var(--bd);
         border-radius: var(--radius-card);
@@ -727,7 +728,7 @@
         display: block;
         width: 100%;
         height: auto;
-        max-height: 70vh;
+        max-height: 52vh;
         object-fit: contain;
         background: var(--s2);
         cursor: zoom-in;
@@ -780,7 +781,10 @@
         border-radius: var(--radius-sm);
     }
     .pdp-body {
-        padding: var(--space-4);
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-4);
+        padding: var(--space-3);
     }
     .pdp-head {
         display: flex;
@@ -2536,8 +2540,9 @@
 }
 
 /* ===== Sugerencias debajo de la ficha (producto.html) ===== */
+/* Vista móvil: carrusel horizontal compacto, nada amontonado */
 .pdp-suggestions {
-    padding: var(--space-4) var(--space-6) var(--space-8);
+    padding: var(--space-4) var(--space-4) var(--space-8);
     border-top: 1px solid var(--bd);
     background: var(--s2);
 }
@@ -2559,12 +2564,12 @@
     gap: var(--space-4);
     overflow-x: auto;
     scroll-snap-type: x mandatory;
-    padding-bottom: var(--space-2);
+    padding-bottom: var(--space-3);
     scrollbar-width: thin;
 }
 .pdp-suggest-card {
     flex: 0 0 auto;
-    width: 160px;
+    width: 140px;
     scroll-snap-align: start;
     display: flex;
     flex-direction: column;
@@ -2574,7 +2579,7 @@
 }
 .pdp-suggest-img {
     width: 100%;
-    height: 120px;
+    height: 104px;
     border-radius: var(--radius-card);
     background: var(--s1);
     border: 1px solid var(--bd);
@@ -2623,10 +2628,22 @@
     border-radius: var(--radius-sm);
 }
 
+/* Vista PC: grid espacioso bajo la ficha al hacer scroll */
 @media (min-width: 768px) {
+    .pdp-card {
+        max-width: 46rem;
+        margin: 0 auto var(--space-8);
+    }
+    .pdp-img {
+        max-height: 70vh;
+    }
+    .pdp-body {
+        padding: var(--space-6);
+        gap: var(--space-6);
+    }
     .pdp-suggest-track {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
         gap: var(--space-5);
         overflow-x: visible;
         padding-bottom: 0;
@@ -2636,6 +2653,6 @@
         width: auto;
     }
     .pdp-suggest-img {
-        height: 150px;
+        height: 180px;
     }
 }
