@@ -198,7 +198,7 @@ test("el catálogo agrupa por categoría y respeta datos públicos", async () =>
     const text = loaded.instance.texts.join("\n");
     assert.match(text, /CATÁLOGO/);
     assert.match(text, /Asesor: Ana/);
-    assert.match(text, /NEVERA/);
+    assert.match(text, /Nevera/);
     assert.match(text, /^120$/m);
     assert.match(text, /^ USD$/m);
     assert.match(text, /CONSULTAR POR WHATSAPP/);
@@ -228,7 +228,7 @@ test("el catálogo enlaza el índice, marca categorías y comparte una sola cate
 
     assert.match(filename, /^catalogo-volxen-climatizacion-\d{4}-\d{2}-\d{2}\.pdf$/);
     const text = loaded.instance.texts.join("\n");
-    assert.match(text, /AIRE SPLIT/);
+    assert.match(text, /Aire Split/);
     assert.match(text, /^160$/m);
     assert.match(text, /^ USD$/m);
     assert.match(text, /Garantía: 1 mes/);

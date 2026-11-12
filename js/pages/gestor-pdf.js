@@ -969,7 +969,11 @@
         doc.setLineWidth(0.15);
         doc.roundedRect(x, y, width, CATALOG.cardH, CATALOG.cardRadius, CATALOG.cardRadius, "FD");
 
-        /* Zona de imagen limpia sobre fondo blanco de la tarjeta (sin fondo beige ni rayas) */
+        /* Zona de imagen con borde sutil sobre fondo de tarjeta */
+        setFill(doc, VX.imgBg);
+        doc.roundedRect(x, y, width, zoneH, CATALOG.cardRadius, CATALOG.cardRadius, "F");
+        setFill(doc, VX.cardBg);
+        doc.roundedRect(x + 0.6, y + 0.6, width - 1.2, zoneH - 1.2, CATALOG.cardRadius - 0.6, CATALOG.cardRadius - 0.6, "F");
         doc.rect(x, y + zoneH - 1, width, 1, "F");
 
         /* Imagen centrada tipo contain (foto grande, sobre fondo blanco) */
@@ -1001,11 +1005,19 @@
 
         var bodyY = y + zoneH + 7;
 
-        /* Nombre del producto en mayúsculas negrita */
+        /* Nombre del producto en título caso (primera letra mayúscula, resto minúscula) */
         setFont(doc, "bold");
         doc.setFontSize(10);
         setText(doc, VX.text);
-        var nameLines = fitLines(doc, String(product.name).toUpperCase(), innerW, 3, 10, "bold");
+        var nameRaw = String(product.name);
+        var nameTitle = nameRaw
+            .split(" ")
+            .map(function (w) {
+                if (!w) return w;
+                return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+            })
+            .join(" ");
+        var nameLines = fitLines(doc, nameTitle, innerW, 3, 10, "bold");
         nameLines.forEach(function (line, index) {
             pageText(doc, line, x + pad, bodyY + index * 5.6);
         });
