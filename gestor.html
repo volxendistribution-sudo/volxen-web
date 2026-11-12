@@ -757,38 +757,40 @@
             <button id="gsProductClose" class="gs-product-close" type="button" aria-label="Cerrar ficha del producto">
                 <i class="fa-solid fa-xmark" aria-hidden="true"></i>
             </button>
-            <div class="gs-product-dialog-media" id="gsProductMedia"></div>
-            <div class="gs-product-dialog-body">
-                <span class="gs-chip-muted" id="gsProductCategory">Producto</span>
-                <h2 id="gsProductTitle">Producto</h2>
-                <p id="gsProductDescription"></p>
-                <div class="gs-product-dialog-meta">
-                    <strong id="gsProductPrice">$0.00</strong>
-                    <span id="gsProductStock"></span>
+            <div class="gs-product-dialog-main">
+                <div class="gs-product-dialog-media" id="gsProductMedia"></div>
+                <div class="gs-product-dialog-body">
+                    <span class="gs-chip-muted" id="gsProductCategory">Producto</span>
+                    <h2 id="gsProductTitle">Producto</h2>
+                    <p id="gsProductDescription"></p>
+                    <div class="gs-product-dialog-meta">
+                        <strong id="gsProductPrice">$0.00</strong>
+                        <span id="gsProductStock"></span>
+                    </div>
+                    <div id="gsProductCommission" class="gs-product-commission"></div>
+                    <p id="gsProductModeNote" class="gs-product-mode-note"></p>
+                    <div id="gsProductSaleWrap" class="gs-product-sale" hidden>
+                        <label for="gsProductSalePrice">Tu precio de venta (USD) *</label>
+                        <input id="gsProductSalePrice" type="number" min="0" step="0.01" inputmode="decimal">
+                        <small id="gsProductMaxNote"></small>
+                        <p id="gsProductLimitWarning" class="gs-product-limit-warning" role="alert" aria-live="assertive" hidden></p>
+                    </div>
+                    <div id="gsProductFeatures" class="gs-product-features"></div>
+                    <div class="gs-product-dialog-actions">
+                        <button id="gsProductAdd" class="gs-button gs-button-primary" type="button">
+                            <i class="fa-solid fa-bag-shopping" aria-hidden="true"></i> Añadir al carrito
+                        </button>
+                        <button id="gsProductBuy" class="gs-button" type="button">
+                            <i class="fa-solid fa-bolt" aria-hidden="true"></i> Comprar ahora
+                        </button>
+                        <button id="gsProductShare" class="gs-button" type="button">
+                            <i class="fa-solid fa-share-nodes" aria-hidden="true"></i> Compartir imagen
+                        </button>
+                        <button id="gsProductCart" class="gs-button" type="button">Ver carrito</button>
+                    </div>
                 </div>
-                <div id="gsProductCommission" class="gs-product-commission"></div>
-                <p id="gsProductModeNote" class="gs-product-mode-note"></p>
-                <div id="gsProductSaleWrap" class="gs-product-sale" hidden>
-                    <label for="gsProductSalePrice">Tu precio de venta (USD) *</label>
-                    <input id="gsProductSalePrice" type="number" min="0" step="0.01" inputmode="decimal">
-                    <small id="gsProductMaxNote"></small>
-                    <p id="gsProductLimitWarning" class="gs-product-limit-warning" role="alert" aria-live="assertive" hidden></p>
-                </div>
-                <div id="gsProductFeatures" class="gs-product-features"></div>
-                <div class="gs-product-dialog-actions">
-                    <button id="gsProductAdd" class="gs-button gs-button-primary" type="button">
-                        <i class="fa-solid fa-bag-shopping" aria-hidden="true"></i> Añadir al carrito
-                    </button>
-                    <button id="gsProductBuy" class="gs-button" type="button">
-                        <i class="fa-solid fa-bolt" aria-hidden="true"></i> Comprar ahora
-                    </button>
-                    <button id="gsProductShare" class="gs-button" type="button">
-                        <i class="fa-solid fa-share-nodes" aria-hidden="true"></i> Compartir imagen
-                    </button>
-                    <button id="gsProductCart" class="gs-button" type="button">Ver carrito</button>
-                </div>
-                <div class="gs-suggestions" id="gsProductSuggestions" hidden></div>
             </div>
+            <div class="gs-suggestions" id="gsProductSuggestions" hidden></div>
         </div>
     </dialog>
 

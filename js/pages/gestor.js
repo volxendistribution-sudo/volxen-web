@@ -2341,6 +2341,8 @@
         } else {
             refs.gsProductDialog.setAttribute("open", "");
         }
+        const card = refs.gsProductDialog.querySelector(".gs-product-dialog-card");
+        if (card) card.scrollTop = 0;
         if (refs.gsProductClose) refs.gsProductClose.focus({ preventScroll: true });
         if (refs.gsProductSuggestions) renderProductSuggestions(product);
     }
