@@ -26,6 +26,16 @@
     --gs-ease: cubic-bezier(.22, 1, .36, 1);
     --gs-display: "DM Sans", sans-serif;
     --gs-text: "Inter Tight", sans-serif;
+
+    /* Liquid Glass — marcado tipo Apple (chrome de panel) */
+    --gs-glass-bg: rgba(255, 255, 255, .78);
+    --gs-glass-bg-strong: rgba(255, 255, 255, .92);
+    --gs-glass-rim: rgba(255, 255, 255, .55);
+    --gs-glass-rim-strong: rgba(255, 255, 255, .75);
+    --gs-glass-shadow: rgba(30, 29, 27, .10);
+    --gs-glass-tint-light: rgba(200, 161, 101, .08);
+    --gs-glass-blur: 22px;
+    --gs-glass-blur-strong: 30px;
 }
 
 * {
@@ -242,19 +252,22 @@ body.gs-body::before {
     justify-content: center;
     gap: 8px;
     padding: 0 16px;
-    border: 1px solid var(--gs-line-strong);
+    border: 1px solid var(--gs-glass-rim);
     border-radius: 11px;
-    background: var(--gs-paper-solid);
+    background: var(--gs-glass-bg);
     color: var(--gs-ink);
     font-size: 12px;
     font-weight: 700;
     cursor: pointer;
     transition: background .2s var(--gs-ease), border-color .2s var(--gs-ease), transform .2s var(--gs-ease);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .5), 0 8px 24px var(--gs-glass-shadow);
+    backdrop-filter: blur(var(--gs-glass-blur)) saturate(1.1);
+    -webkit-backdrop-filter: blur(var(--gs-glass-blur)) saturate(1.1);
 }
 
 .gs-button:hover {
-    border-color: rgba(30, 29, 27, .22);
-    background: #fff;
+    border-color: var(--gs-glass-rim-strong);
+    background: var(--gs-glass-bg-strong);
 }
 
 .gs-button:active {
@@ -262,14 +275,16 @@ body.gs-body::before {
 }
 
 .gs-button-primary {
-    border-color: var(--gs-green);
+    border: 1px solid var(--gs-green);
     background: var(--gs-green);
     color: #fff;
+    box-shadow: 0 8px 20px rgba(46, 74, 63, .35);
 }
 
 .gs-button-primary:hover {
     border-color: #233c32;
     background: #233c32;
+    box-shadow: 0 10px 24px rgba(46, 74, 63, .45);
 }
 
 .gs-loading {
@@ -336,8 +351,9 @@ body[data-gs-view="gsDashboard"] .gs-header {
     position: fixed;
     inset: 0;
     z-index: 55;
-    background: rgba(30, 29, 27, .34);
-    backdrop-filter: blur(5px);
+    background: rgba(30, 29, 27, .45);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 .gs-sidebar {
@@ -347,6 +363,15 @@ body[data-gs-view="gsDashboard"] .gs-header {
     max-height: calc(100vh - 32px);
     flex-direction: column;
     padding: 4px 2px 0;
+    border: 1px solid var(--gs-glass-rim);
+    border-radius: 22px;
+    background: var(--gs-glass-bg);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .55),
+        inset 0 -1px 0 rgba(30, 29, 27, .06),
+        0 10px 30px var(--gs-glass-shadow);
+    backdrop-filter: blur(var(--gs-glass-blur)) saturate(1.15);
+    -webkit-backdrop-filter: blur(var(--gs-glass-blur)) saturate(1.15);
 }
 
 .gs-sidebar-top {
@@ -584,11 +609,15 @@ body[data-gs-view="gsDashboard"] .gs-header {
     justify-content: space-between;
     gap: 16px;
     padding: 10px 18px;
-    border: 1px solid rgba(255, 255, 255, .86);
+    border: 1px solid var(--gs-glass-rim-strong);
     border-radius: 20px;
-    background: rgba(252, 251, 248, .86);
-    box-shadow: var(--gs-shadow-soft);
-    backdrop-filter: blur(16px);
+    background: var(--gs-glass-bg-strong);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .85),
+        inset 0 -1px 0 rgba(30, 29, 27, .12),
+        0 18px 46px var(--gs-glass-shadow);
+    backdrop-filter: blur(var(--gs-glass-blur-strong)) saturate(1.25);
+    -webkit-backdrop-filter: blur(var(--gs-glass-blur-strong)) saturate(1.25);
 }
 
 .gs-topbar-main {
@@ -647,11 +676,14 @@ body[data-gs-view="gsDashboard"] .gs-header {
     align-items: center;
     gap: 8px;
     padding: 0 12px;
-    border: 1px solid var(--gs-line);
+    border: 1px solid var(--gs-glass-rim);
     border-radius: 12px;
-    background: rgba(255, 255, 255, .56);
+    background: rgba(255, 255, 255, .5);
     color: var(--gs-muted);
     transition: background .2s ease, border-color .2s ease, box-shadow .2s ease;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .5);
+    backdrop-filter: blur(var(--gs-glass-blur)) saturate(1.1);
+    -webkit-backdrop-filter: blur(var(--gs-glass-blur)) saturate(1.1);
 }
 
 .gs-search:focus-within {
@@ -685,13 +717,16 @@ body[data-gs-view="gsDashboard"] .gs-header {
     height: 38px;
     flex: 0 0 auto;
     place-items: center;
-    border: 1px solid var(--gs-line);
+    border: 1px solid var(--gs-glass-rim);
     border-radius: 11px;
-    background: rgba(255, 255, 255, .5);
+    background: var(--gs-glass-bg);
     color: #625E57;
     font-size: 13px;
     cursor: pointer;
     transition: background .2s ease, border-color .2s ease, color .2s ease;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .4);
+    backdrop-filter: blur(var(--gs-glass-blur)) saturate(1.1);
+    -webkit-backdrop-filter: blur(var(--gs-glass-blur)) saturate(1.1);
 }
 
 .gs-icon-button:hover {
@@ -734,18 +769,24 @@ body[data-gs-view="gsDashboard"] .gs-header {
 .gs-notice {
     margin-top: 10px;
     padding: 10px 14px;
-    border: 1px solid rgba(46, 74, 63, .18);
+    border: 1px solid var(--gs-glass-rim);
     border-radius: 12px;
-    background: var(--gs-green-soft);
-    color: var(--gs-green);
+    background: var(--gs-glass-bg);
+    color: var(--gs-ink);
     font-size: 11px;
     font-weight: 600;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .5), 0 8px 24px var(--gs-glass-shadow);
+    backdrop-filter: blur(var(--gs-glass-blur)) saturate(1.05);
+    -webkit-backdrop-filter: blur(var(--gs-glass-blur)) saturate(1.05);
 }
 
 .gs-notice.is-error {
     border-color: rgba(166, 75, 48, .2);
     background: var(--gs-red-soft);
     color: var(--gs-red);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .4), 0 8px 24px var(--gs-glass-shadow);
+    backdrop-filter: blur(var(--gs-glass-blur)) saturate(1.05);
+    -webkit-backdrop-filter: blur(var(--gs-glass-blur)) saturate(1.05);
 }
 
 .gs-dashboard-scroll {
@@ -778,10 +819,15 @@ body[data-gs-view="gsDashboard"] .gs-header {
     flex-direction: column;
     justify-content: space-between;
     padding: 15px 16px;
-    border: 1px solid rgba(255, 255, 255, .86);
+    border: 1px solid var(--gs-glass-rim);
     border-radius: 20px;
-    background: var(--gs-paper);
-    box-shadow: var(--gs-shadow-soft);
+    background: var(--gs-glass-bg);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .55),
+        inset 0 -1px 0 rgba(30, 29, 27, .06),
+        0 10px 30px var(--gs-glass-shadow);
+    backdrop-filter: blur(var(--gs-glass-blur)) saturate(1.15);
+    -webkit-backdrop-filter: blur(var(--gs-glass-blur)) saturate(1.15);
 }
 
 .gs-kpi-top {
@@ -1366,6 +1412,10 @@ body[data-gs-view="gsDashboard"] .gs-header {
     font-weight: 700;
     line-height: 1.2;
     white-space: nowrap;
+    border: 1px solid var(--gs-glass-rim);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 2px 8px var(--gs-glass-shadow);
+    backdrop-filter: blur(var(--gs-glass-blur)) saturate(1.05);
+    -webkit-backdrop-filter: blur(var(--gs-glass-blur)) saturate(1.05);
 }
 
 .gs-badge-pending,
@@ -2214,14 +2264,17 @@ body[data-gs-view="gsDashboard"] .gs-header {
 .gs-cat-chip {
     min-height: 32px;
     padding: 0 12px;
-    border: 1px solid var(--gs-line);
+    border: 1px solid var(--gs-glass-rim);
     border-radius: 99px;
-    background: rgba(255, 255, 255, .42);
+    background: var(--gs-glass-bg);
     color: var(--gs-muted);
     font-size: 10px;
     font-weight: 600;
     cursor: pointer;
     transition: background .2s ease, border-color .2s ease, color .2s ease;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .4);
+    backdrop-filter: blur(var(--gs-glass-blur)) saturate(1.1);
+    -webkit-backdrop-filter: blur(var(--gs-glass-blur)) saturate(1.1);
 }
 
 .gs-cat-chip:hover {
@@ -2371,8 +2424,8 @@ body[data-gs-view="gsDashboard"] .gs-header {
 }
 
 .gs-product-dialog::backdrop {
-    background: rgba(30, 29, 27, .4);
-    backdrop-filter: blur(6px);
+    background: var(--gs-glass-bg-strong);
+    backdrop-filter: blur(var(--gs-glass-blur-strong)) saturate(1.25);
 }
 
 .gs-product-dialog-card {
@@ -2381,10 +2434,15 @@ body[data-gs-view="gsDashboard"] .gs-header {
     width: 100%;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, .8);
+    border: 1.5px solid var(--gs-glass-rim-strong);
     border-radius: 24px;
-    background: var(--gs-paper-solid);
-    box-shadow: 0 30px 80px rgba(30, 29, 27, .22);
+    background: var(--gs-glass-bg-strong);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .85),
+        inset 0 -1px 0 rgba(30, 29, 27, .12),
+        0 30px 80px var(--gs-glass-shadow);
+    backdrop-filter: blur(var(--gs-glass-blur-strong)) saturate(1.25);
+    -webkit-backdrop-filter: blur(var(--gs-glass-blur-strong)) saturate(1.25);
 }
 
 .gs-product-close {
@@ -4501,15 +4559,22 @@ body.gs-body {
 .gs-button-ghost {
     min-height: 30px;
     padding: 0 10px;
-    border: 1px solid var(--gs-line-strong);
-    background: transparent;
+    border: 1px solid var(--gs-glass-rim);
+    border-radius: 99px;
+    background: var(--gs-glass-bg);
     color: var(--gs-green);
     font-size: 10px;
+    cursor: pointer;
+    transition: background .2s ease, border-color .2s ease, color .2s ease;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .4);
+    backdrop-filter: blur(var(--gs-glass-blur)) saturate(1.1);
+    -webkit-backdrop-filter: blur(var(--gs-glass-blur)) saturate(1.1);
 }
 
 .gs-button-ghost:hover {
     border-color: var(--gs-green);
     background: var(--gs-green-soft);
+    color: var(--gs-ink);
 }
 
 .gs-changes {
@@ -4854,6 +4919,43 @@ body.gs-body {
     --gs-amber-soft: rgba(227, 182, 110, .15);
     --gs-shadow: 0 22px 60px rgba(0, 0, 0, .45);
     --gs-shadow-soft: 0 10px 28px rgba(0, 0, 0, .28);
+
+    /* Liquid Glass oscuro */
+    --gs-glass-bg: rgba(31, 28, 24, .85);
+    --gs-glass-bg-strong: rgba(31, 28, 24, .95);
+    --gs-glass-rim: rgba(244, 239, 229, .35);
+    --gs-glass-rim-strong: rgba(244, 239, 229, .55);
+    --gs-glass-shadow: rgba(0, 0, 0, .55);
+    --gs-glass-tint-light: rgba(201, 164, 103, .12);
+    --gs-glass-blur: 26px;
+    --gs-glass-blur-strong: 34px;
+}
+
+/* Liquid Glass — utilidades de material */
+.gs-glass {
+    position: relative;
+    border: 1px solid var(--gs-glass-rim);
+    border-top-color: rgba(255, 255, 255, .85);
+    border-radius: 18px;
+    background: var(--gs-glass-bg);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .6),
+        inset 0 -1px 0 rgba(30, 29, 27, .08),
+        0 10px 30px var(--gs-glass-shadow);
+    backdrop-filter: blur(var(--gs-glass-blur)) saturate(1.15);
+    -webkit-backdrop-filter: blur(var(--gs-glass-blur)) saturate(1.15);
+}
+.gs-glass-strong {
+    border-width: 1.5px;
+    border-top-color: rgba(255, 255, 255, 1);
+    border-radius: 24px;
+    background: var(--gs-glass-bg-strong);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .85),
+        inset 0 -1px 0 rgba(30, 29, 27, .12),
+        0 18px 46px var(--gs-glass-shadow);
+    backdrop-filter: blur(var(--gs-glass-blur-strong)) saturate(1.25);
+    -webkit-backdrop-filter: blur(var(--gs-glass-blur-strong)) saturate(1.25);
 }
 
 [data-gs-theme="dark"] body.gs-body {
@@ -4878,8 +4980,14 @@ body.gs-body {
 }
 
 [data-gs-theme="dark"] .gs-sidebar {
-    border-color: var(--gs-line);
-    background: #171512;
+    border-color: var(--gs-glass-rim);
+    background: var(--gs-glass-bg);
+    box-shadow:
+        inset 0 1px 0 rgba(244, 239, 229, .25),
+        inset 0 -1px 0 rgba(0, 0, 0, .4),
+        0 10px 30px var(--gs-glass-shadow);
+    backdrop-filter: blur(var(--gs-glass-blur)) saturate(1.15);
+    -webkit-backdrop-filter: blur(var(--gs-glass-blur)) saturate(1.15);
 }
 
 [data-gs-theme="dark"] .gs-sidebar-toggle,
@@ -4887,7 +4995,11 @@ body.gs-body {
 [data-gs-theme="dark"] .gs-icon-button,
 [data-gs-theme="dark"] .gs-cat-chip,
 [data-gs-theme="dark"] .gs-cart-qty {
-    background: rgba(255, 255, 255, .05);
+    background: var(--gs-glass-bg);
+    border-color: var(--gs-glass-rim);
+    box-shadow: inset 0 1px 0 rgba(244, 239, 229, .25);
+    backdrop-filter: blur(var(--gs-glass-blur)) saturate(1.15);
+    -webkit-backdrop-filter: blur(var(--gs-glass-blur)) saturate(1.15);
 }
 
 [data-gs-theme="dark"] .gs-side-link {
@@ -4914,8 +5026,14 @@ body.gs-body {
 }
 
 [data-gs-theme="dark"] .gs-topbar {
-    border-color: var(--gs-line);
-    background: rgba(24, 22, 19, .88);
+    border-color: var(--gs-glass-rim-strong);
+    background: var(--gs-glass-bg-strong);
+    box-shadow:
+        inset 0 1px 0 rgba(244, 239, 229, .35),
+        inset 0 -1px 0 rgba(0, 0, 0, .45),
+        0 18px 46px var(--gs-glass-shadow);
+    backdrop-filter: blur(var(--gs-glass-blur-strong)) saturate(1.25);
+    -webkit-backdrop-filter: blur(var(--gs-glass-blur-strong)) saturate(1.25);
 }
 
 [data-gs-theme="dark"] .gs-search input::placeholder {
@@ -4945,6 +5063,11 @@ body.gs-body {
 [data-gs-theme="dark"] .gs-button-primary:hover {
     border-color: #5C8F7A;
     background: #5C8F7A;
+}
+
+[data-gs-theme="dark"] .gs-button:hover {
+    border-color: var(--gs-glass-rim-strong);
+    background: var(--gs-glass-bg-strong);
 }
 
 [data-gs-theme="dark"] .gs-kpi,
