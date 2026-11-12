@@ -40,6 +40,7 @@ export function initHome() {
 
     function doSearch() {
         currentQuery = (searchInput || {}).value || "";
+        if (VX.rec) VX.rec.record(currentQuery, "client");
         render();
     }
 

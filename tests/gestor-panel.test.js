@@ -224,6 +224,12 @@ test("el panel muestra solo comisión y permite compra directa con vale seleccio
     assert.match(css, /\.gs-card-actions/);
     assert.match(css, /\.gs-cart-limit-warning/);
     assert.match(css, /\.gs-cart-check/);
+    assert.match(html, /id="gsProductSuggestions"/);
+    assert.match(js, /renderProductSuggestions/);
+    assert.match(js, /data-suggest-product/);
+    assert.match(css, /\.gs-suggestions/);
+    assert.match(css, /\.gs-suggest-track/);
+    assert.match(css, /\.gs-suggest-card/);
 });
 
 test("el admin muestra el gestor y la comisión por producto", () => {

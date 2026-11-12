@@ -4873,35 +4873,36 @@ body.gs-body {
     }
 
     .gs-product-dialog-media {
-        min-height: 150px;
-        max-height: 24dvh;
-        padding: 12px;
+        min-height: 260px;
+        max-height: 40dvh;
+        padding: 16px;
+        background: var(--gs-bg-alt);
     }
 
     .gs-product-dialog-body {
-        padding: 16px 16px calc(72px + env(safe-area-inset-bottom));
-        gap: 6px;
+        padding: 20px;
+        padding-bottom: calc(64px + env(safe-area-inset-bottom));
+        gap: 16px;
     }
 
     .gs-product-dialog-body > p {
-        -webkit-line-clamp: 3;
+        -webkit-line-clamp: 4;
     }
 
-    .gs-product-dialog-actions,
     .gs-product-dialog-actions {
         position: sticky;
         bottom: calc(-1 * env(safe-area-inset-bottom));
         z-index: 3;
         margin-right: 0;
         margin-left: 0;
-        padding: 10px 2px calc(12px + env(safe-area-inset-bottom));
+        padding: 14px 2px calc(16px + env(safe-area-inset-bottom));
         background: var(--gs-glass-bg-strong);
         border-top: 1px solid var(--gs-glass-rim);
         box-shadow: 0 -10px 20px -10px var(--gs-glass-shadow);
     }
 
     .gs-product-dialog-actions .gs-button {
-        min-height: 38px;
+        min-height: 48px;
     }
 
     .gs-receipt-preview {
@@ -5516,4 +5517,140 @@ body.gs-body {
 .gs-timeline-step.is-current .gs-timeline-state {
     color: var(--gs-green);
     font-weight: 700;
+}
+
+/* ===== Sugerencias dentro de la ficha (gestor) ===== */
+.gs-suggestions {
+    padding: 20px 20px 28px;
+    border-top: 1px solid var(--gs-glass-rim);
+    background: var(--gs-glass-bg-strong);
+    backdrop-filter: blur(var(--gs-glass-blur-strong));
+    -webkit-backdrop-filter: blur(var(--gs-glass-blur-strong));
+}
+.gs-suggest-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+.gs-suggest-head-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--gs-ink);
+    margin: 0;
+    letter-spacing: -0.01em;
+    font-family: var(--gs-display);
+}
+.gs-suggest-track {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 10px;
+    scrollbar-width: thin;
+}
+.gs-suggest-card {
+    flex: 0 0 auto;
+    width: 150px;
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-decoration: none;
+    color: inherit;
+    background: var(--gs-paper);
+    border: 1px solid var(--gs-glass-rim);
+    border-radius: var(--gs-radius);
+    overflow: hidden;
+}
+.gs-suggest-img {
+    width: 100%;
+    height: 112px;
+    background: var(--gs-surface);
+    border-bottom: 1px solid var(--gs-glass-rim);
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+}
+.gs-suggest-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    background: var(--gs-surface);
+}
+.gs-suggest-body {
+    padding: 10px 14px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.gs-suggest-cat {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--gs-muted);
+    font-weight: 700;
+    font-family: var(--gs-text);
+}
+.gs-suggest-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--gs-ink);
+    line-height: 1.35;
+    margin: 0;
+    font-family: var(--gs-display);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.gs-suggest-price {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--gs-green);
+}
+.gs-suggest-card:focus-visible {
+    outline: 2px solid var(--gs-glass-rim-strong);
+    outline-offset: 2px;
+    border-radius: 8px;
+}
+
+@media (min-width: 768px) {
+    .gs-suggest-track {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 20px;
+        overflow-x: visible;
+        padding-bottom: 0;
+        scroll-snap-type: none;
+    }
+    .gs-suggest-card {
+        width: auto;
+    }
+    .gs-suggest-img {
+        height: 140px;
+    }
+}
+
+[data-gs-theme="dark"] .gs-suggestions {
+    border-top-color: rgba(255,255,255,.08);
+    background: rgba(15,17,14,.55);
+}
+[data-gs-theme="dark"] .gs-suggest-card {
+    background: rgba(20,22,19,.6);
+    border-color: rgba(255,255,255,.06);
+}
+[data-gs-theme="dark"] .gs-suggest-img {
+    background: rgba(255,255,255,.04);
+}
+[data-gs-theme="dark"] .gs-suggest-head-title,
+[data-gs-theme="dark"] .gs-suggest-title {
+    color: var(--gs-fg);
+}
+[data-gs-theme="dark"] .gs-suggest-cat {
+    color: var(--gs-mu);
+}
+[data-gs-theme="dark"] .gs-suggest-price {
+    color: var(--gs-gold);
 }

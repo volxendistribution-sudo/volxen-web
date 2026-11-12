@@ -156,6 +156,84 @@ const pr = p => Number(O[p.id] || p.precio_usd) || 0;
 const ag = p => p.disponibilidad === "agotado";
 const cn = id => (Cs.find(c => c.id === id) || {}).nombre || "Volxen";
 const price = p => ag(p) ? "Consultar disponibilidad" : (O[p.id] ? "<s>" + fm(p.precio_usd) + "</s><b>" + fm(O[p.id]) + "</b>" : fm(p.precio_usd));
+const STOP = new Set(["de","la","el","los","las","y","para","con","por","un","una","en","del","al","que","es","mi","tu","su","mas","más"]);
+function _norm(s) {
+    return String(s == null ? "" : s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9\s]/g, " ");
+}
+const HIST_KEY = function (scope) { return "vx_hist_" + (scope || "client"); };
+const HIST_MAX = 12;
+
+function recRecord(term, scope) {
+    if (!term) return;
+    var t = String(term).trim();
+    if (t.length < 2) return;
+    try {
+        var key = HIST_KEY(scope);
+        var arr = JSON.parse(localStorage.getItem(key) || "[]");
+        if (!Array.isArray(arr)) arr = [];
+        var nt = _norm(t);
+        arr = arr.filter(function (e) { return e && e.q && _norm(e.q) !== nt; });
+        arr.unshift({ q: t, at: Date.now() });
+        if (arr.length > HIST_MAX) arr.length = HIST_MAX;
+        localStorage.setItem(key, JSON.stringify(arr));
+    } catch (e) {}
+}
+
+function recRecent(scope) {
+    try {
+        var arr = JSON.parse(localStorage.getItem(HIST_KEY(scope)) || "[]");
+        if (!Array.isArray(arr)) return [];
+        return arr.map(function (e) { return e && e.q ? String(e.q) : ""; }).filter(Boolean);
+    } catch (e) {
+        return [];
+    }
+}
+
+function _shuffle(a) {
+    for (var i = a.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+}
+
+function recForProduct(product, scope, limit) {
+    var all = P || [];
+    var cur = product || {};
+    var lim = limit || 6;
+    var terms = recRecent(scope);
+    var words = [];
+    terms.forEach(function (t) {
+        _norm(t).split(/\s+/).forEach(function (w) {
+            if (w.length >= 3 && !STOP.has(w) && words.indexOf(w) === -1) words.push(w);
+        });
+    });
+    var pool = all.filter(function (p) {
+        return p && String(p.id) !== String(cur.id) && p.disponibilidad !== "agotado";
+    });
+    var catId = cur.categoria_id;
+    var ranked = pool.map(function (p) {
+        var score = 0;
+        if (p.categoria_id === catId) score += 3;
+        var hay = _norm([p.nombre, p.descripcion, (p.caracteristicas || []).join(" "), cn(p.categoria_id)].join(" "));
+        words.forEach(function (w, i) {
+            if (hay.indexOf(w) !== -1) score += 10 - Math.min(i, 8);
+            var catn = _norm(cn(p.categoria_id));
+            if (catn.indexOf(w) !== -1) score += 6 - Math.min(i, 4);
+        });
+        return { p: p, score: score };
+    });
+    var out;
+    if (words.length === 0) {
+        var same = ranked.filter(function (x) { return x.p.categoria_id === catId; });
+        var rest = ranked.filter(function (x) { return x.p.categoria_id !== catId; });
+        out = _shuffle(same.map(function (x) { return x.p; })).concat(_shuffle(rest.map(function (x) { return x.p; })));
+    } else {
+        ranked.sort(function (a, b) { return b.score - a.score; });
+        out = ranked.map(function (x) { return x.p; });
+    }
+    return out.slice(0, lim);
+}
 const PAGE = document.body ? (document.body.dataset.page || "") : "";
 
 function toast(t, type = "info") {
@@ -812,4 +890,4 @@ async function start(pageInit) {
     obs();
 }
 
-window.VX = { $, q, esc, wa, fm, ft, imgUrl, pr, ag, cn, price, toast, bd, sv, syncCart, obs, pcard, show, hide, go, add, setQty, cart, cartItems, cartTotal, load, renderNav, setCat, trackDet, consultarPedido, estadoLargo, operadoras, opIcon, hydrateOpIcons, hydrateAccount, avatarHtml, start, loadOperadoras, renderOperadoras, gcAdd, gcSetQty, gcSetPrice, gcRemove, gcClear, gcCount, gcItems, gcBadge: gb, getOps: () => OPS, getP: () => P, getCs: () => Cs, getO: () => O, getK: () => K, getG: () => G, categoryImage, PAGE };
+window.VX = { $, q, esc, wa, fm, ft, imgUrl, pr, ag, cn, price, toast, bd, sv, syncCart, obs, pcard, show, hide, go, add, setQty, cart, cartItems, cartTotal, load, renderNav, setCat, trackDet, consultarPedido, estadoLargo, operadoras, opIcon, hydrateOpIcons, hydrateAccount, avatarHtml, start, loadOperadoras, renderOperadoras, gcAdd, gcSetQty, gcSetPrice, gcRemove, gcClear, gcCount, gcItems, gcBadge: gb, getOps: () => OPS, getP: () => P, getCs: () => Cs, getO: () => O, getK: () => K, getG: () => G, rec: { record: recRecord, recent: recRecent, forProduct: recForProduct }, categoryImage, PAGE };

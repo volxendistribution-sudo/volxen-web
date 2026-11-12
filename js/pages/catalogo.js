@@ -95,6 +95,7 @@ export async function initCatalogo() {
     window.vxOnSearch = function (v) {
         qv = v || "";
         if (q1) q1.value = qv;
+        if (VX.rec) VX.rec.record(qv, "client");
         url(); mk();
     };
 

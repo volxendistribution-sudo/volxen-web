@@ -51,8 +51,9 @@
         sort: "recent",
         panelView: "dashboard",
         catalogCategory: "",
-        catalogQuery: "",
-        catalogQueryInput: "",
+       catalogQuery: "",
+       catalogQueryInput: "",
+       lastRecordedSearch: "",
         catalogSort: "featured",
         catalogPdfScope: "",
         catalogReady: false,
@@ -1337,6 +1338,14 @@
             }).slice(0, 5)
             : [];
 
+        if (!state.searchBusy && products.length && api && typeof api.rec === "object") {
+            var term = input.trim();
+            if (term && term !== state.lastRecordedSearch) {
+                state.lastRecordedSearch = term;
+                api.rec.record(term, "gestor");
+            }
+        }
+
         if (!orders.length && !products.length) {
             refs.gsSearchResults.innerHTML = '<p class="gs-search-state">Sin resultados para "' + escapeHtml(input.trim()) + '".</p>';
             return;
@@ -2231,6 +2240,28 @@
         return !invalid;
     }
 
+    function renderProductSuggestions(product) {
+        const api = catalogApi();
+        if (!refs.gsProductSuggestions || !api || typeof api.rec !== "object") return;
+        const recs = api.rec.forProduct(product, "gestor", 6);
+        if (!recs.length) {
+            refs.gsProductSuggestions.hidden = true;
+            return;
+        }
+        const items = recs.map(function (rp) {
+            const im = (rp.imagenes && rp.imagenes.length) ? rp.imagenes[0] : (rp.imagen_principal || "");
+            const src = im ? api.imgUrl(im, { w: 220, h: 170, format: "webp", quality: 80 }) : "";
+            const price = typeof api.pr === "function" ? api.pr(rp) : rp.precio_usd;
+            const category = typeof api.cn === "function" ? api.cn(rp.categoria_id) : "Producto";
+            return '<button class="gs-suggest-card" type="button" data-suggest-product="' + String(rp.id) + '">' +
+                '<div class="gs-suggest-img">' + (src ? '<img src="' + escapeHtml(src) + '" alt="' + escapeHtml(rp.nombre) + '" loading="lazy">' : '<i class="fa-solid fa-box" aria-hidden="true"></i>') + '</div>' +
+                '<div class="gs-suggest-body"><span class="gs-suggest-cat">' + escapeHtml(category) + '</span><div class="gs-suggest-title">' + escapeHtml(rp.nombre) + '</div><div class="gs-suggest-price"><strong>' + escapeHtml(money(price)) + "</strong></div></div>" +
+                '</button>';
+        }).join("");
+        refs.gsProductSuggestions.innerHTML = '<div class="gs-suggest-head"><h3 class="gs-suggest-head-title">También te puede interesar</h3></div><div class="gs-suggest-track" role="list" aria-label="Productos sugeridos">' + items + '</div>';
+        refs.gsProductSuggestions.hidden = false;
+    }
+
     function openProductDialog(productId) {
         const api = catalogApi();
         const product = findCatalogProduct(productId);
@@ -2311,6 +2342,7 @@
             refs.gsProductDialog.setAttribute("open", "");
         }
         if (refs.gsProductClose) refs.gsProductClose.focus({ preventScroll: true });
+        if (refs.gsProductSuggestions) renderProductSuggestions(product);
     }
 
     function closeProductDialog() {
@@ -3440,6 +3472,16 @@
             refs.gsProductDialog.addEventListener("click", function (event) {
                 if (event.target === refs.gsProductDialog) closeProductDialog();
             });
+
+            if (refs.gsProductSuggestions) {
+                refs.gsProductSuggestions.addEventListener("click", function (event) {
+                    const btn = event.target.closest("[data-suggest-product]");
+                    if (btn) {
+                        event.preventDefault();
+                        openProductDialog(btn.getAttribute("data-suggest-product"));
+                    }
+                });
+            }
             refs.gsProductDialog.addEventListener("close", function () {
                 state.catalogProductId = "";
             });
@@ -3684,7 +3726,7 @@
             "gsGaugeBadge", "gsGaugeNote", "gsStatusTrack", "gsStatusBadge",
             "gsCatalogView", "gsCatalogCategories", "gsCatalogGrid", "gsCatalogEmpty",
             "gsCatalogCount", "gsCatalogSort", "gsCatalogPdfScope", "gsCatalogReset", "gsCatalogShare", "gsProductDialog",
-            "gsProductClose", "gsProductMedia", "gsProductCategory", "gsProductTitle",
+            "gsProductClose", "gsProductMedia", "gsProductSuggestions", "gsProductCategory", "gsProductTitle",
             "gsProductDescription", "gsProductPrice", "gsProductStock", "gsProductAdd",
             "gsProductCart", "gsProductBuy", "gsProductShare", "gsProductCommission", "gsProductModeNote", "gsProductSaleWrap",
             "gsProductSalePrice", "gsProductMaxNote", "gsProductLimitWarning", "gsProductFeatures",

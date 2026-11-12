@@ -163,6 +163,22 @@ export async function initProducto() {
 
         injectProductJsonLd(p, ims[0]);
         VX.obs();
+
+        if (VX.rec) {
+            var recs = VX.rec.forProduct(p, "client", 6);
+            if (recs.length) {
+                var items = recs.map(function (rp) {
+                    var im = VX.ft(rp)[0];
+                    var src = im ? VX.imgUrl(im, { w: 260, h: 200, format: "webp", quality: 80 }) : "";
+                    var price = VX.pr(rp);
+                    return '<a class="pdp-suggest-card" href="producto.html?id=' + encodeURIComponent(rp.id) + '">' +
+                        '<div class="pdp-suggest-img">' + (src ? '<img src="' + VX.esc(src) + '" alt="' + VX.esc(rp.nombre) + '" loading="lazy">' : '<i class="fa-solid fa-box" aria-hidden="true"></i>') + '</div>' +
+                        '<div class="pdp-suggest-body"><span class="pdp-suggest-cat">' + VX.cn(rp.categoria_id) + '</span><h3 class="pdp-suggest-title">' + VX.esc(rp.nombre) + '</h3><div class="pdp-suggest-price"><b>' + VX.fm(price) + '</b></div></div>' +
+                        '</a>';
+                }).join("");
+                host.insertAdjacentHTML("afterend", '<section class="pdp-suggestions" aria-labelledby="pdpSuggestTitle"><div class="pdp-suggest-head"><h2 id="pdpSuggestTitle">También te puede interesar</h2></div><div class="pdp-suggest-track" role="list" aria-label="Productos sugeridos">' + items + '</div></section>');
+            }
+        }
     }
 
     render();

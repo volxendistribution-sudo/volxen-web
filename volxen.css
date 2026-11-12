@@ -2534,3 +2534,108 @@
         display: inline;
     }
 }
+
+/* ===== Sugerencias debajo de la ficha (producto.html) ===== */
+.pdp-suggestions {
+    padding: var(--space-4) var(--space-6) var(--space-8);
+    border-top: 1px solid var(--bd);
+    background: var(--s2);
+}
+.pdp-suggest-head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+}
+.pdp-suggest-head h2 {
+    font-size: var(--fs-title);
+    font-weight: 700;
+    color: var(--fg);
+    margin: 0;
+    letter-spacing: -0.01em;
+}
+.pdp-suggest-track {
+    display: flex;
+    gap: var(--space-4);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: var(--space-2);
+    scrollbar-width: thin;
+}
+.pdp-suggest-card {
+    flex: 0 0 auto;
+    width: 160px;
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    text-decoration: none;
+    color: inherit;
+}
+.pdp-suggest-img {
+    width: 100%;
+    height: 120px;
+    border-radius: var(--radius-card);
+    background: var(--s1);
+    border: 1px solid var(--bd);
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+}
+.pdp-suggest-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    background: var(--s1);
+}
+.pdp-suggest-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+.pdp-suggest-cat {
+    font-size: var(--fs-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--mu);
+    font-weight: 600;
+}
+.pdp-suggest-title {
+    font-size: var(--fs-sm);
+    font-weight: 700;
+    color: var(--fg);
+    line-height: 1.35;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.pdp-suggest-price {
+    font-size: var(--fs-base);
+    font-weight: 800;
+    color: var(--gi);
+}
+.pdp-suggest-card:focus-visible {
+    outline: 2px solid var(--gi);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+}
+
+@media (min-width: 768px) {
+    .pdp-suggest-track {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: var(--space-5);
+        overflow-x: visible;
+        padding-bottom: 0;
+        scroll-snap-type: none;
+    }
+    .pdp-suggest-card {
+        width: auto;
+    }
+    .pdp-suggest-img {
+        height: 150px;
+    }
+}
