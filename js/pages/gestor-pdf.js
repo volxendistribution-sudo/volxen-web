@@ -1035,9 +1035,9 @@
             doc.setFontSize(CATALOG.priceUsd);
             setText(doc, VX.primary);
             pageText(doc, " USD", x + pad + numW + 2, bodyY);
-            bodyY += CATALOG.priceNum + 2;
+            bodyY += CATALOG.priceNum + 1;
         } else {
-            bodyY += 4;
+            bodyY += 2;
         }
 
         /* Detalles: Garantía y Entrega (texto pequeño, gris) */
@@ -1046,11 +1046,11 @@
         setText(doc, VX.muted);
         if (product.guarantee) {
             pageText(doc, "Garantía: " + product.guarantee, x + pad, bodyY);
-            bodyY += 3.2;
+            bodyY += 2.5;
         }
         if (product.delivery) {
             pageText(doc, "Entrega: " + product.delivery, x + pad, bodyY);
-            bodyY += 3.2;
+            bodyY += 2.5;
         }
 
         /* Características del producto (visibles y legibles) */
@@ -1063,7 +1063,7 @@
             featLines.forEach(function (line, index) {
                 pageText(doc, line, x + pad, bodyY + index * 4);
             });
-            bodyY += featLines.length * 4 + 2;
+            bodyY += featLines.length * 4 + 1;
         }
 
         /* Descripción (2-3 líneas, fluye tras características y cabe sobre el botón) */
@@ -1088,7 +1088,7 @@
         setFont(doc, "bold");
         doc.setFontSize(7.5);
         setText(doc, VX.btnText);
-        pageText(doc, "CONSULTAR POR WHATSAPP", x + pad + innerW / 2, btnY + btnH / 2 + 2.5, { align: "center" });
+        pageText(doc, "CONSULTAR POR WHATSAPP", x + pad + innerW / 2, btnY + btnH / 2 + 1, { align: "center" });
         var link = waLink(phone, "Hola, quiero información sobre " + product.name + " del catálogo VOLXEN.");
         if (link && typeof doc.link === "function") {
             doc.link(x + pad, btnY, innerW, btnH, { url: link });
