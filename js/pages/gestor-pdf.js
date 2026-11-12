@@ -1035,9 +1035,9 @@
             doc.setFontSize(CATALOG.priceUsd);
             setText(doc, VX.primary);
             pageText(doc, " USD", x + pad + numW + 2, bodyY);
-            bodyY += CATALOG.priceNum + 6;
+            bodyY += CATALOG.priceNum + 2;
         } else {
-            bodyY += 5;
+            bodyY += 4;
         }
 
         /* Detalles: Garantía y Entrega (texto pequeño, gris) */
@@ -1046,11 +1046,11 @@
         setText(doc, VX.muted);
         if (product.guarantee) {
             pageText(doc, "Garantía: " + product.guarantee, x + pad, bodyY);
-            bodyY += 3.8;
+            bodyY += 3.2;
         }
         if (product.delivery) {
             pageText(doc, "Entrega: " + product.delivery, x + pad, bodyY);
-            bodyY += 3.8;
+            bodyY += 3.2;
         }
 
         /* Características del producto (visibles y legibles) */
@@ -1063,34 +1063,7 @@
             featLines.forEach(function (line, index) {
                 pageText(doc, line, x + pad, bodyY + index * 3.8);
             });
-            bodyY += featLines.length * 3.8 + 3;
-        }
-
-        /* Píldora de disponibilidad en esquina inferior izquierda de la zona de imagen */
-        var pillLabel = availabilityLabel(product.availability);
-        if (pillLabel) {
-            var key = pillLabel.toLowerCase();
-            var pillBg = key === "disponible" ? VX.gold :
-                key === "agotado" ? VX.btnBg : VX.cardBg;
-            var pillTxt = key === "agotado" ? VX.cardBg : VX.text;
-            var pillStroke = key === "disponible" || key === "bajo_pedido" ? VX.cardBorder : null;
-            setFont(doc, "bold");
-            doc.setFontSize(CATALOG.pillText);
-            var pillText = fitText(doc, pillLabel.toUpperCase(), innerW - 7, CATALOG.pillText, "bold");
-            var pillW = measureText(doc, pillText, CATALOG.pillText) + 5;
-            var pillX = x + pad;
-            var pillH = 4.2;
-            /* Pegada al borde inferior izquierdo de la zona de imagen (como el PDF de referencia) */
-            var pillY = y + zoneH - pillH - 2;
-            setFill(doc, pillBg);
-            doc.roundedRect(pillX, pillY, pillW, pillH, pillH / 2, pillH / 2, "F");
-            if (pillStroke) {
-                setDraw(doc, pillStroke);
-                doc.setLineWidth(0.15);
-                doc.roundedRect(pillX, pillY, pillW, pillH, pillH / 2, pillH / 2, "S");
-            }
-            setText(doc, pillTxt);
-            pageText(doc, pillText, pillX + 2.5, pillY + pillH - 1);
+            bodyY += featLines.length * 3.8 + 2;
         }
 
         /* Descripción (2-3 líneas, sin cortar frases a mitad) */
