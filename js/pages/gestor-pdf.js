@@ -976,10 +976,6 @@
         doc.roundedRect(x + 0.6, y + 0.6, width - 1.2, zoneH - 1.2, CATALOG.cardRadius - 0.6, CATALOG.cardRadius - 0.6, "F");
         doc.rect(x, y + zoneH - 1, width, 1, "F");
 
-        /* Sombra suave bajo la imagen para dar profundidad */
-        setFill(doc, [232, 223, 205]);
-        doc.roundedRect(imgX + 0.8, imgY + imgH + 0.8, imgW - 1.6, 1.5, 0.7, 0.7, "F");
-
         /* Imagen centrada tipo contain (foto muy grande, sobre fondo blanco) */
         var imgBoxH = zoneH - 8;
         var imgBoxW = innerW - 6;
@@ -991,6 +987,11 @@
         }
         var imgX = x + pad + (imgBoxW - imgW) / 2;
         var imgY = y + (zoneH - imgH) / 2;
+
+        /* Sombra suave bajo la imagen para dar profundidad */
+        setFill(doc, [232, 223, 205]);
+        doc.roundedRect(imgX + 0.8, imgY + imgH + 0.8, imgW - 1.6, 1.5, 0.7, 0.7, "F");
+
         if (context.image) {
             try { doc.addImage(context.image, "PNG", imgX, imgY, imgW, imgH); } catch (error) {}
         }
