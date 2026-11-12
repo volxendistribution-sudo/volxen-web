@@ -46,8 +46,8 @@
         priceNum: 13,              /* precio muy grande */
         priceUsd: 3,               /* USD pequeño pegado */
         pillText: 2.8,             /* píldora legible */
-        cardRadius: 5,             /* más redondeado */
-        pad: 6,
+        cardRadius: 6,             /* tarjetas más redondeadas */
+        pad: 7,                    /* más aire interno */
         qrSize: 36                 /* ~135px */
     };
 
@@ -976,6 +976,10 @@
         doc.roundedRect(x + 0.6, y + 0.6, width - 1.2, zoneH - 1.2, CATALOG.cardRadius - 0.6, CATALOG.cardRadius - 0.6, "F");
         doc.rect(x, y + zoneH - 1, width, 1, "F");
 
+        /* Sombra suave bajo la imagen para dar profundidad */
+        setFill(doc, [232, 223, 205]);
+        doc.roundedRect(imgX + 0.8, imgY + imgH + 0.8, imgW - 1.6, 1.5, 0.7, 0.7, "F");
+
         /* Imagen centrada tipo contain (foto muy grande, sobre fondo blanco) */
         var imgBoxH = zoneH - 8;
         var imgBoxW = innerW - 6;
@@ -1005,10 +1009,10 @@
 
         var bodyY = y + zoneH + 7;
 
-        /* Nombre del producto en título caso (primera letra mayúscula, resto minúscula) */
+        /* Nombre del producto en título caso (color de marca) */
         setFont(doc, "bold");
         doc.setFontSize(10.5);
-        setText(doc, VX.text);
+        setText(doc, VX.primary);
         var nameRaw = String(product.name);
         var nameTitle = nameRaw
             .split(" ")
@@ -1088,8 +1092,8 @@
         setFont(doc, "bold");
         doc.setFontSize(7.5);
         setText(doc, VX.btnText);
-        pageText(doc, "CONSULTAR POR WHATSAPP", x + pad + innerW / 2, btnY + btnH / 2 + 1, { align: "center" });
-        var link = waLink(phone, "Hola, quiero información sobre " + product.name + " del catálogo VOLXEN.");
+        pageText(doc, "PEDIR POR WHATSAPP", x + pad + innerW / 2, btnY + btnH / 2 + 1, { align: "center" });
+        var link = waLink(phone, "Hola, me interesa el producto " + product.name + " del catálogo VOLXEN. ¿Está disponible y cuál es el precio?");
         if (link && typeof doc.link === "function") {
             doc.link(x + pad, btnY, innerW, btnH, { url: link });
         }

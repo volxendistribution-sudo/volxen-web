@@ -201,7 +201,7 @@ test("el catálogo agrupa por categoría y respeta datos públicos", async () =>
     assert.match(text, /Nevera/);
     assert.match(text, /^120$/m);
     assert.match(text, /^ USD$/m);
-    assert.match(text, /CONSULTAR POR WHATSAPP/);
+    assert.match(text, /PEDIR POR WHATSAPP/);
     assert.ok(loaded.instance.outline.entries.some((entry) => entry.title === "Línea blanca" && entry.pageNumber === 2));
     assert.doesNotMatch(text, /comisión|ganancia/i);
     assert.equal(loaded.instance.page, 2);
