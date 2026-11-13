@@ -86,6 +86,7 @@
 
     const refs = {};
     let cartClearTimer = 0;
+    let productZoomTimer = 0;
 
     function id(value) {
         return document.getElementById(value);
@@ -2279,7 +2280,9 @@
         const marginPercent = Number.isFinite(margin) ? Math.max(0, Math.min(MAX_MARGIN_PERCENT, margin)) : MAX_MARGIN_PERCENT;
 
         refs.gsProductMedia.innerHTML = image
-            ? '<img src="' + escapeHtml(image) + '" alt="' + escapeHtml(product.nombre || "Producto") + '">'
+            ? '<button type="button" class="gs-product-media-zoom" data-product-zoom aria-haspopup="dialog" aria-label="Ampliar imagen de ' + escapeHtml(product.nombre || "Producto") + '">' +
+                '<img src="' + escapeHtml(image) + '" alt="' + escapeHtml(product.nombre || "Producto") + '">' +
+              '</button>'
             : '<span class="gs-product-dialog-placeholder" aria-hidden="true"><i class="fa-solid fa-box"></i></span>';
         refs.gsProductCategory.textContent = category;
         refs.gsProductTitle.textContent = product.nombre || "Producto";
@@ -2348,6 +2351,9 @@
     }
 
     function closeProductDialog() {
+        if (refs.gsProductZoom && (refs.gsProductZoom.open || refs.gsProductZoom.hasAttribute("open"))) {
+            closeProductZoom(true);
+        }
         if (!refs.gsProductDialog) return;
         if (typeof refs.gsProductDialog.close === "function" && refs.gsProductDialog.open) {
             refs.gsProductDialog.close();
@@ -2355,6 +2361,54 @@
             refs.gsProductDialog.removeAttribute("open");
         }
         state.catalogProductId = "";
+    }
+
+    function openProductZoom(src, alt) {
+        if (!refs.gsProductZoom || !refs.gsProductZoomImg || !src) return;
+
+        window.clearTimeout(productZoomTimer);
+        refs.gsProductZoomImg.src = src;
+        refs.gsProductZoomImg.alt = alt || "";
+
+        if (typeof refs.gsProductZoom.showModal === "function") {
+            if (!refs.gsProductZoom.open) refs.gsProductZoom.showModal();
+        } else {
+            refs.gsProductZoom.setAttribute("open", "");
+        }
+
+        window.requestAnimationFrame(function () {
+            window.requestAnimationFrame(function () {
+                refs.gsProductZoom.classList.add("is-open");
+            });
+        });
+
+        if (refs.gsProductZoomClose) {
+            refs.gsProductZoomClose.focus({ preventScroll: true });
+        }
+    }
+
+    function closeProductZoom(immediate) {
+        if (!refs.gsProductZoom) return;
+
+        window.clearTimeout(productZoomTimer);
+        refs.gsProductZoom.classList.remove("is-open");
+
+        const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+        const finish = function () {
+            if (typeof refs.gsProductZoom.close === "function" && refs.gsProductZoom.open) {
+                refs.gsProductZoom.close();
+            } else {
+                refs.gsProductZoom.removeAttribute("open");
+            }
+            if (refs.gsProductZoomImg) {
+                refs.gsProductZoomImg.removeAttribute("src");
+                refs.gsProductZoomImg.alt = "";
+            }
+        };
+
+        if (immediate || reduce) finish();
+        else productZoomTimer = window.setTimeout(finish, 240);
     }
 
     function findOrderById(orderId) {
@@ -3428,6 +3482,37 @@
             refs.gsProductClose.addEventListener("click", closeProductDialog);
         }
 
+        if (refs.gsProductMedia) {
+            refs.gsProductMedia.addEventListener("click", function (event) {
+                const trigger = event.target.closest("[data-product-zoom]");
+                if (!trigger) return;
+                const img = trigger.querySelector("img");
+                if (!img) return;
+                openProductZoom(img.currentSrc || img.src, img.alt);
+            });
+        }
+
+        if (refs.gsProductZoomClose) {
+            refs.gsProductZoomClose.addEventListener("click", function () {
+                closeProductZoom();
+            });
+        }
+
+        if (refs.gsProductZoom) {
+            refs.gsProductZoom.addEventListener("click", function (event) {
+                if (event.target === refs.gsProductZoom) closeProductZoom();
+            });
+
+            refs.gsProductZoom.addEventListener("cancel", function (event) {
+                event.preventDefault();
+                closeProductZoom();
+            });
+
+            refs.gsProductZoom.addEventListener("close", function () {
+                refs.gsProductZoom.classList.remove("is-open");
+            });
+        }
+
         if (refs.gsProductAdd) {
             refs.gsProductAdd.addEventListener("click", function () {
                 const productId = refs.gsProductAdd.getAttribute("data-product-id");
@@ -3728,7 +3813,7 @@
             "gsGaugeBadge", "gsGaugeNote", "gsStatusTrack", "gsStatusBadge",
             "gsCatalogView", "gsCatalogCategories", "gsCatalogGrid", "gsCatalogEmpty",
             "gsCatalogCount", "gsCatalogSort", "gsCatalogPdfScope", "gsCatalogReset", "gsCatalogShare", "gsProductDialog",
-            "gsProductClose", "gsProductMedia", "gsProductSuggestions", "gsProductCategory", "gsProductTitle",
+            "gsProductClose", "gsProductMedia", "gsProductZoom", "gsProductZoomImg", "gsProductZoomClose", "gsProductSuggestions", "gsProductCategory", "gsProductTitle",
             "gsProductDescription", "gsProductPrice", "gsProductStock", "gsProductAdd",
             "gsProductCart", "gsProductBuy", "gsProductShare", "gsProductCommission", "gsProductModeNote", "gsProductSaleWrap",
             "gsProductSalePrice", "gsProductMaxNote", "gsProductLimitWarning", "gsProductFeatures",
