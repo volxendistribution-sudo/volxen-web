@@ -4938,9 +4938,10 @@ body.gs-body {
 
     .gs-product-dialog-media {
         position: static;
+        height: min(40dvh, 360px);
         min-height: 260px;
-        max-height: 40dvh;
         padding: 16px;
+        overflow: hidden;
         background: var(--gs-bg-alt);
     }
 
