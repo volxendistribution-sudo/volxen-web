@@ -751,7 +751,7 @@ body[data-gs-view="gsDashboard"] .gs-header {
     font-size: 13px;
     line-height: 1;
     cursor: pointer;
-    transition: background-color .3s var(--gs-ease), border-color .3s var(--gs-ease);
+    transition: background-color .45s var(--gs-ease), border-color .45s var(--gs-ease);
 }
 
 .gs-theme-toggle:hover {
@@ -772,9 +772,9 @@ body[data-gs-view="gsDashboard"] .gs-header {
         inset 0 1px 0 rgba(255, 255, 255, .35);
     pointer-events: none;
     transition:
-        transform .3s var(--gs-ease),
-        background-color .3s var(--gs-ease),
-        border-color .3s var(--gs-ease);
+        transform .45s var(--gs-ease),
+        background-color .45s var(--gs-ease),
+        border-color .45s var(--gs-ease);
 }
 
 .gs-theme-toggle[aria-checked="true"] .gs-theme-toggle-thumb {
@@ -788,7 +788,7 @@ body[data-gs-view="gsDashboard"] .gs-header {
     width: 14px;
     height: 14px;
     place-items: center;
-    transition: color .3s var(--gs-ease);
+    transition: color .45s var(--gs-ease);
 }
 
 .gs-theme-toggle-sun {
