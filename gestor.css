@@ -1906,28 +1906,93 @@ body[data-gs-view="gsDashboard"] .gs-header {
     background: var(--gs-red);
 }
 
+.gs-donut-figure {
+    display: grid;
+    place-items: center;
+    padding: 2px 0 14px;
+}
+
+.gs-donut-svg {
+    display: block;
+    width: 174px;
+    max-width: 72%;
+    height: auto;
+}
+
+.gs-donut-track {
+    stroke: var(--gs-line-strong);
+}
+
+.gs-donut-total {
+    fill: var(--gs-ink);
+    font-family: var(--gs-display);
+    font-size: 23px;
+    font-weight: 700;
+}
+
+.gs-donut-label {
+    fill: var(--gs-muted);
+    font-family: var(--gs-text);
+    font-size: 8px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.gs-donut-empty {
+    margin: 18px 0 4px;
+    padding: 22px 16px;
+    border: 1px dashed var(--gs-line-strong);
+    border-radius: 14px;
+    color: var(--gs-muted);
+    font-size: 10px;
+    text-align: center;
+}
+
 .gs-status-legend {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px 12px;
+    gap: 7px;
     margin: 0;
     padding: 0;
     list-style: none;
 }
 
 .gs-status-legend li {
-    display: flex;
+    display: grid;
+    grid-template-columns: 8px minmax(0, 1fr) auto auto;
     align-items: center;
-    justify-content: space-between;
     gap: 8px;
     color: var(--gs-muted);
     font-size: 9px;
+}
+
+.gs-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.gs-status-name {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--gs-muted);
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .gs-status-legend strong {
     color: var(--gs-ink);
     font-family: var(--gs-display);
     font-size: 11px;
+    font-variant-numeric: tabular-nums;
+}
+
+.gs-status-pct {
+    min-width: 32px;
+    color: var(--gs-muted);
+    font-size: 9px;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
 }
 
 .gs-wide-card {

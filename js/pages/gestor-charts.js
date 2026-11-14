@@ -340,6 +340,50 @@
         '</svg>';
     }
 
+    function donutChartSvg(options) {
+        var opts = options || {};
+        var items = (Array.isArray(opts.items) ? opts.items : []).map(function (item) {
+            return {
+                label: String(item && item.label || ""),
+                value: Math.max(0, amount(item && item.value)),
+                color: item && item.color ? String(item.color) : "var(--gs-green)",
+                opacity: item && item.opacity != null ? Number(item.opacity) : 1,
+                percent: item && item.percent != null ? Number(item.percent) : null
+            };
+        }).filter(function (item) {
+            return item.value > 0;
+        });
+        var total = items.reduce(function (sum, item) { return sum + item.value; }, 0);
+        var format = opts.format || count;
+
+        if (!total) {
+            return '<p class="gs-donut-empty">' + escapeHtml(opts.empty || "Sin pedidos para mostrar.") + "</p>";
+        }
+
+        var radius = 46;
+        var circumference = 2 * Math.PI * radius;
+        var gap = items.length > 1 ? 2 : 0;
+        var offset = 0;
+        var segments = items.map(function (item) {
+            var length = (item.value / total) * circumference;
+            var visible = Math.max(0.5, length - gap);
+            var tip = item.label + ": " + format(item.value) + (item.percent != null ? " (" + item.percent + "%)" : "");
+            var style = "stroke:" + escapeHtml(item.color) + ";" + (item.opacity < 1 ? "opacity:" + item.opacity + ";" : "");
+            var circle = '<circle class="gs-donut-seg" cx="60" cy="60" r="' + radius + '" fill="none" stroke-width="14" stroke-dasharray="' +
+                visible.toFixed(2) + " " + (circumference - visible).toFixed(2) + '" stroke-dashoffset="' + (-offset).toFixed(2) +
+                '" style="' + style + '"><title>' + escapeHtml(tip) + "</title></circle>";
+            offset += length;
+            return circle;
+        }).join("");
+
+        return '<svg class="gs-donut-svg" viewBox="0 0 120 120" aria-hidden="true" focusable="false">' +
+            '<circle class="gs-donut-track" cx="60" cy="60" r="' + radius + '" fill="none" stroke-width="14"/>' +
+            '<g transform="rotate(-90 60 60)">' + segments + '</g>' +
+            '<text class="gs-donut-total" x="60" y="58" text-anchor="middle">' + escapeHtml(format(total)) + '</text>' +
+            '<text class="gs-donut-label" x="60" y="73" text-anchor="middle">' + (total === 1 ? "pedido" : "pedidos") + '</text>' +
+        '</svg>';
+    }
+
     function bindTooltips(root) {
         if (!root || root.getAttribute("data-chart-tooltips") === "1") return;
         root.setAttribute("data-chart-tooltips", "1");
@@ -388,6 +432,7 @@
         barChartSvg: barChartSvg,
         lineChartSvg: lineChartSvg,
         horizontalBarSvg: horizontalBarSvg,
+        donutChartSvg: donutChartSvg,
         emptySvg: emptySvg,
         bindTooltips: bindTooltips
     };
