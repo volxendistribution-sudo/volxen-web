@@ -82,6 +82,7 @@ test("las gráficas son SVG sin animación y con tooltip de clic", () => {
     assert.match(charts, /function statusBreakdown/);
     assert.match(charts, /function topProducts/);
     assert.match(charts, /function evolution/);
+    assert.match(charts, /function sparklineSvg/);
     assert.match(charts, /data-chart-tip/);
     assert.match(charts, /bindTooltips/);
     assert.doesNotMatch(charts, /requestAnimationFrame|transition|animation/);
@@ -123,6 +124,7 @@ test("las gráficas calculan series reales y generan SVG accesible", () => {
     const bar = charts.barChartSvg({ title: "Comisión", items: charts.monthlyCommission(orders, 12), format: (value) => "$" + value });
     const line = charts.lineChartSvg({ title: "Evolución", items: charts.evolution(orders, 30), format: String });
     const horizontal = charts.horizontalBarSvg({ title: "Estados", items: charts.statusBreakdown(orders), format: String });
+    const sparkline = charts.sparklineSvg({ values: [1, 2, 3], color: "var(--gs-green)" });
 
     [bar, line, horizontal].forEach((svg) => {
         assert.match(svg, /^<svg/);
@@ -131,6 +133,25 @@ test("las gráficas calculan series reales y generan SVG accesible", () => {
         assert.doesNotMatch(svg, /animation|transition/);
     });
     assert.match(horizontal, /data-chart-tip=/);
+    assert.match(sparkline, /^<svg/);
+    assert.match(sparkline, /aria-hidden="true"/);
+    assert.match(sparkline, /var\(--gs-green\)/);
+    assert.doesNotMatch(sparkline, /animation|transition/);
+    assert.equal(charts.sparklineSvg({ values: [1] }), "");
+});
+
+test("las mini-líneas de KPI usan series reales y no se dibujan sin datos", () => {
+    const html = read("gestor.html");
+    const js = read("js/pages/gestor.js");
+    const css = read("gestor.css");
+
+    assert.match(html, /id="gsSalesSpark"/);
+    assert.match(html, /id="gsOrdersSpark"/);
+    assert.doesNotMatch(html, /id="gsCommissionAvailableSpark"/);
+    assert.match(js, /function renderSparklines/);
+    assert.match(js, /monthlyCommission\(state\.orders, 12\)/);
+    assert.match(js, /charts\.evolution\(state\.orders, days\)/);
+    assert.match(css, /\.gs-kpi-spark:empty/);
 });
 
 test("los documentos imprimibles respetan los datos permitidos", () => {
