@@ -21,11 +21,8 @@
     function updateButton(theme) {
         if (!button) return;
         var dark = theme === "dark";
-        button.setAttribute("aria-pressed", dark ? "true" : "false");
-        button.setAttribute("aria-label", dark ? "Activar fondo claro" : "Activar fondo oscuro");
-        button.setAttribute("title", dark ? "Fondo claro" : "Fondo oscuro");
-        var icon = button.querySelector("i");
-        if (icon) icon.className = dark ? "fa-solid fa-sun" : "fa-solid fa-moon";
+        button.setAttribute("aria-checked", dark ? "true" : "false");
+        button.setAttribute("title", dark ? "Tema oscuro" : "Tema claro");
     }
 
     function applyTheme(theme, persist) {

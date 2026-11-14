@@ -170,8 +170,14 @@
                     </div>
 
                     <div class="gs-topbar-actions">
-                        <button id="gsThemeToggle" class="gs-icon-button gs-theme-toggle" type="button" aria-label="Activar fondo claro" title="Fondo claro" aria-pressed="true">
-                            <i class="fa-solid fa-sun" aria-hidden="true"></i>
+                        <button id="gsThemeToggle" class="gs-theme-toggle" type="button" role="switch" aria-checked="true" aria-label="Tema oscuro" title="Tema oscuro">
+                            <span class="gs-theme-toggle-icon gs-theme-toggle-sun" aria-hidden="true">
+                                <i class="fa-solid fa-sun"></i>
+                            </span>
+                            <span class="gs-theme-toggle-icon gs-theme-toggle-moon" aria-hidden="true">
+                                <i class="fa-solid fa-moon"></i>
+                            </span>
+                            <span class="gs-theme-toggle-thumb" aria-hidden="true"></span>
                         </button>
                         <div class="gs-search-wrap">
                             <label class="gs-search gs-topbar-search">

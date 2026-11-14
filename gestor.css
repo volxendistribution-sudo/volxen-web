@@ -735,6 +735,78 @@ body[data-gs-view="gsDashboard"] .gs-header {
     color: var(--gs-ink);
 }
 
+.gs-theme-toggle {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 76px;
+    height: 44px;
+    flex: 0 0 auto;
+    padding: 0 9px;
+    border: 1px solid var(--gs-line-strong);
+    border-radius: 999px;
+    background: var(--gs-surface);
+    color: var(--gs-muted);
+    font-size: 13px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color .3s var(--gs-ease), border-color .3s var(--gs-ease);
+}
+
+.gs-theme-toggle:hover {
+    border-color: var(--gs-line-strong);
+}
+
+.gs-theme-toggle-thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--gs-line);
+    border-radius: 50%;
+    background: var(--gs-surface-soft);
+    box-shadow:
+        0 2px 6px var(--gs-glass-shadow),
+        inset 0 1px 0 rgba(255, 255, 255, .35);
+    pointer-events: none;
+    transition:
+        transform .3s var(--gs-ease),
+        background-color .3s var(--gs-ease),
+        border-color .3s var(--gs-ease);
+}
+
+.gs-theme-toggle[aria-checked="true"] .gs-theme-toggle-thumb {
+    transform: translateX(32px);
+}
+
+.gs-theme-toggle-icon {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    width: 14px;
+    height: 14px;
+    place-items: center;
+    transition: color .3s var(--gs-ease);
+}
+
+.gs-theme-toggle-sun {
+    color: var(--gs-gold-dark);
+}
+
+.gs-theme-toggle-moon {
+    color: var(--gs-muted);
+}
+
+.gs-theme-toggle[aria-checked="true"] .gs-theme-toggle-sun {
+    color: var(--gs-muted);
+}
+
+.gs-theme-toggle[aria-checked="true"] .gs-theme-toggle-moon {
+    color: var(--gs-gold);
+}
+
 .gs-icon-badge {
     position: absolute;
     top: -4px;
@@ -4044,6 +4116,12 @@ body[data-gs-view="gsDashboard"] .gs-header {
 @media (prefers-reduced-motion: reduce) {
     html {
         scroll-behavior: auto;
+    }
+
+    .gs-theme-toggle-thumb,
+    .gs-theme-toggle,
+    .gs-theme-toggle-icon {
+        transition: none;
     }
 
     *,
