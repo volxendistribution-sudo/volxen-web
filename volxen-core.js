@@ -575,10 +575,10 @@ function menuOverlay() {
         { href: "gestor.html", icon: "fa-chart-line", text: "Panel de promotor", promotor: true }
     ];
     return '<div class="ov" id="mnv"><div class="bx sh lf"><button class="xb" data-a="close" aria-label="Cerrar">×</button>' +
-        '<div id="menuAccount" class="menu-account-slot"></div>' +
         '<span class="ey menu-ey">Navegar</span><nav class="mn" aria-label="Menú principal">' +
         links.map((link, i) => '<a href="' + link.href + '"' + (link.promotor ? ' data-promotor-only hidden' : '') + ' style="--mn-i:' + i + '"><i class="fa-solid ' + link.icon + ' mn-ico" aria-hidden="true"></i><span>' + link.text + '</span></a>').join("") +
         '</nav>' +
+        '<div id="menuAccount" class="menu-account-slot"></div>' +
         '</div></div>';
 }
 
