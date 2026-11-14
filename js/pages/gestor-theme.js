@@ -4,6 +4,7 @@
     var STORAGE_KEY = "volxen-gs-theme";
     var root = document.documentElement;
     var button = null;
+    var transitionTimer = 0;
 
     function savedTheme() {
         try {
@@ -26,6 +27,14 @@
     }
 
     function applyTheme(theme, persist) {
+        if (persist) {
+            root.classList.add("gs-theme-transition");
+            window.clearTimeout(transitionTimer);
+            transitionTimer = window.setTimeout(function () {
+                root.classList.remove("gs-theme-transition");
+            }, 500);
+        }
+
         if (theme === "dark") root.setAttribute("data-gs-theme", "dark");
         else root.removeAttribute("data-gs-theme");
 
