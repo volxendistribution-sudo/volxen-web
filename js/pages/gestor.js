@@ -1146,7 +1146,7 @@
                 format: compactMoney,
                 yLabel: "USD",
                 xLabel: "Mes",
-                color: "#C8A165",
+                color: "var(--gs-gold)",
                 empty: "Sin comisión en los últimos 12 meses."
             })
             : '<p class="gs-muted">No se pudo cargar la gráfica.</p>';
@@ -1175,7 +1175,7 @@
                 format: count,
                 yLabel: "Pedidos",
                 xLabel: "Fecha",
-                color: "#2E4A3F",
+                color: "var(--gs-green)",
                 empty: "Sin pedidos en este periodo."
             })
             : '<p class="gs-muted">No se pudo cargar la gráfica.</p>';
@@ -1205,7 +1205,7 @@
                 items: top,
                 format: count,
                 xLabel: "Unidades",
-                color: "#C8A165",
+                color: "var(--gs-gold)",
                 empty: "Sin productos atribuidos en este periodo."
             })
             : '<p class="gs-muted">No se pudo cargar la gráfica.</p>';

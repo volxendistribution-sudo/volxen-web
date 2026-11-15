@@ -23,6 +23,7 @@
         if (!button) return;
         var dark = theme === "dark";
         button.setAttribute("aria-checked", dark ? "true" : "false");
+        button.setAttribute("aria-label", dark ? "Cambiar a tema claro" : "Cambiar a tema oscuro");
         button.setAttribute("title", dark ? "Tema oscuro" : "Tema claro");
     }
 
@@ -32,7 +33,7 @@
             window.clearTimeout(transitionTimer);
             transitionTimer = window.setTimeout(function () {
                 root.classList.remove("gs-theme-transition");
-            }, 500);
+            }, 320);
         }
 
         if (theme === "dark") root.setAttribute("data-gs-theme", "dark");

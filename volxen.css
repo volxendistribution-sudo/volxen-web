@@ -69,6 +69,7 @@
 
     /* ===== Tipografía y base visual VOLXEN ===== */
     :root {
+        color-scheme: light;
         --fs-title: 1.5rem;
         --fs-subtitle: 1rem;
         --fs-body: 0.875rem;

@@ -167,7 +167,7 @@
     function emptySvg(title, message) {
         return '<svg class="gs-chart-svg" viewBox="0 0 680 280" role="img" aria-label="' + escapeHtml(title + ". " + message) + '">' +
             '<title>' + escapeHtml(title) + '</title>' +
-            '<text x="340" y="132" text-anchor="middle" font-family="Inter Tight, sans-serif" font-size="14" font-weight="600" fill="#1E1D1B">' + escapeHtml(message) + '</text>' +
+            '<text class="gs-chart-svg-value" x="340" y="132" text-anchor="middle" font-family="Inter Tight, sans-serif" font-size="14" font-weight="600">' + escapeHtml(message) + '</text>' +
         '</svg>';
     }
 
@@ -182,7 +182,7 @@
         var plotH = height - top - bottom;
         var max = niceMax(params.max || 1);
         var items = params.items || [];
-        var color = params.color || "#C8A165";
+        var color = params.color || "var(--gs-gold)";
         var format = params.format || compact;
         var grid = "";
         var labels = "";
@@ -193,8 +193,8 @@
         for (var tick = 0; tick <= 4; tick += 1) {
             var ratio = tick / 4;
             var y = top + plotH - ratio * plotH;
-            grid += '<line x1="' + left + '" y1="' + y.toFixed(1) + '" x2="' + (left + plotW) + '" y2="' + y.toFixed(1) + '" stroke="rgba(30,29,27,.12)" stroke-width="1" stroke-dasharray="3 4"/>';
-            labels += '<text x="' + (left - 8) + '" y="' + (y + 3).toFixed(1) + '" text-anchor="end" font-family="Inter Tight, sans-serif" font-size="9" fill="#77736C">' + escapeHtml(format(max * ratio)) + '</text>';
+            grid += '<line class="gs-chart-svg-grid" x1="' + left + '" y1="' + y.toFixed(1) + '" x2="' + (left + plotW) + '" y2="' + y.toFixed(1) + '" stroke-width="1" stroke-dasharray="3 4"/>';
+            labels += '<text class="gs-chart-svg-label" x="' + (left - 8) + '" y="' + (y + 3).toFixed(1) + '" text-anchor="end" font-family="Inter Tight, sans-serif" font-size="9">' + escapeHtml(format(max * ratio)) + '</text>';
         }
 
         items.forEach(function (item, index) {
@@ -205,19 +205,19 @@
             var tip = item.label + ": " + format(value);
             marks += '<g class="gs-svg-mark" data-chart-tip="' + escapeHtml(tip) + '" tabindex="0" role="listitem" aria-label="' + escapeHtml(tip) + '">' +
                 '<title>' + escapeHtml(tip) + '</title>' +
-                '<rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + barW.toFixed(1) + '" height="' + Math.max(1, h).toFixed(1) + '" rx="5" fill="' + color + '"/>' +
-                (value > 0 ? '<text x="' + (x + barW / 2).toFixed(1) + '" y="' + Math.max(12, y - 6).toFixed(1) + '" text-anchor="middle" font-family="Inter Tight, sans-serif" font-size="9" font-weight="600" fill="#1E1D1B">' + escapeHtml(format(value)) + '</text>' : "") +
+                '<rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + barW.toFixed(1) + '" height="' + Math.max(1, h).toFixed(1) + '" rx="5" style="fill:' + escapeHtml(color) + '"/>' +
+                (value > 0 ? '<text class="gs-chart-svg-value" x="' + (x + barW / 2).toFixed(1) + '" y="' + Math.max(12, y - 6).toFixed(1) + '" text-anchor="middle" font-family="Inter Tight, sans-serif" font-size="9" font-weight="600">' + escapeHtml(format(value)) + '</text>' : "") +
             '</g>';
-            labels += '<text x="' + (left + index * step + step / 2).toFixed(1) + '" y="' + (height - 20) + '" text-anchor="middle" font-family="Inter Tight, sans-serif" font-size="9" fill="#77736C">' + escapeHtml(item.label) + '</text>';
+            labels += '<text class="gs-chart-svg-label" x="' + (left + index * step + step / 2).toFixed(1) + '" y="' + (height - 20) + '" text-anchor="middle" font-family="Inter Tight, sans-serif" font-size="9">' + escapeHtml(item.label) + '</text>';
         });
 
         return '<svg class="gs-chart-svg" viewBox="0 0 ' + width + " " + height + '" role="img" aria-label="' + escapeHtml(params.title || "Gráfico") + '">' +
             '<title>' + escapeHtml(params.title || "Gráfico") + '</title>' +
             (params.description ? '<desc>' + escapeHtml(params.description) + '</desc>' : "") +
             grid + labels +
-            '<line x1="' + left + '" y1="' + (top + plotH) + '" x2="' + (left + plotW) + '" y2="' + (top + plotH) + '" stroke="rgba(30,29,27,.28)" stroke-width="1"/>' +
-            '<text x="' + left + '" y="' + (height - 4) + '" font-family="Inter Tight, sans-serif" font-size="9" fill="#77736C">' + escapeHtml(params.xLabel || "") + '</text>' +
-            '<text x="' + left + '" y="14" font-family="Inter Tight, sans-serif" font-size="9" fill="#77736C">' + escapeHtml(params.yLabel || "") + '</text>' +
+            '<line class="gs-chart-svg-axis" x1="' + left + '" y1="' + (top + plotH) + '" x2="' + (left + plotW) + '" y2="' + (top + plotH) + '" stroke-width="1"/>' +
+            '<text class="gs-chart-svg-label" x="' + left + '" y="' + (height - 4) + '" font-family="Inter Tight, sans-serif" font-size="9">' + escapeHtml(params.xLabel || "") + '</text>' +
+            '<text class="gs-chart-svg-label" x="' + left + '" y="14" font-family="Inter Tight, sans-serif" font-size="9">' + escapeHtml(params.yLabel || "") + '</text>' +
             marks +
         '</svg>';
     }
@@ -232,7 +232,7 @@
             title: opts.title,
             description: opts.description,
             items: items,
-            color: opts.color || "#C8A165",
+            color: opts.color || "var(--gs-gold)",
             format: opts.format || compact,
             yLabel: opts.yLabel || "USD",
             xLabel: opts.xLabel || "Periodo"
@@ -256,7 +256,7 @@
         var plotH = height - top - bottom;
         var max = niceMax(Math.max.apply(null, items.map(function (item) { return amount(item.value); })) || 1);
         var format = opts.format || count;
-        var color = opts.color || "#2E4A3F";
+        var color = opts.color || "var(--gs-green)";
         var step = plotW / Math.max(1, items.length - 1);
         var grid = "";
         var labels = "";
@@ -265,8 +265,8 @@
         for (var tick = 0; tick <= 4; tick += 1) {
             var ratio = tick / 4;
             var y = top + plotH - ratio * plotH;
-            grid += '<line x1="' + left + '" y1="' + y.toFixed(1) + '" x2="' + (left + plotW) + '" y2="' + y.toFixed(1) + '" stroke="rgba(30,29,27,.12)" stroke-width="1" stroke-dasharray="3 4"/>';
-            labels += '<text x="' + (left - 8) + '" y="' + (y + 3).toFixed(1) + '" text-anchor="end" font-family="Inter Tight, sans-serif" font-size="9" fill="#77736C">' + escapeHtml(format(max * ratio)) + '</text>';
+            grid += '<line class="gs-chart-svg-grid" x1="' + left + '" y1="' + y.toFixed(1) + '" x2="' + (left + plotW) + '" y2="' + y.toFixed(1) + '" stroke-width="1" stroke-dasharray="3 4"/>';
+            labels += '<text class="gs-chart-svg-label" x="' + (left - 8) + '" y="' + (y + 3).toFixed(1) + '" text-anchor="end" font-family="Inter Tight, sans-serif" font-size="9">' + escapeHtml(format(max * ratio)) + '</text>';
         }
 
         items.forEach(function (item, index) {
@@ -274,7 +274,7 @@
             var x = left + index * step;
             var y = top + plotH - (max > 0 ? (value / max) * plotH : 0);
             points.push({ x: x, y: y, item: item, value: value });
-            labels += '<text x="' + x.toFixed(1) + '" y="' + (height - 20) + '" text-anchor="middle" font-family="Inter Tight, sans-serif" font-size="9" fill="#77736C">' + escapeHtml(item.label) + '</text>';
+            labels += '<text class="gs-chart-svg-label" x="' + x.toFixed(1) + '" y="' + (height - 20) + '" text-anchor="middle" font-family="Inter Tight, sans-serif" font-size="9">' + escapeHtml(item.label) + '</text>';
         });
 
         var line = points.map(function (point) { return point.x.toFixed(1) + "," + point.y.toFixed(1); }).join(" ");
@@ -282,8 +282,8 @@
             var tip = point.item.label + ": " + format(point.value);
             return '<g class="gs-svg-mark" data-chart-tip="' + escapeHtml(tip) + '" tabindex="0" role="listitem" aria-label="' + escapeHtml(tip) + '">' +
                 '<title>' + escapeHtml(tip) + '</title>' +
-                '<circle cx="' + point.x.toFixed(1) + '" cy="' + point.y.toFixed(1) + '" r="4" fill="#F8F7F4" stroke="' + color + '" stroke-width="2"/>' +
-                (point.value > 0 ? '<text x="' + point.x.toFixed(1) + '" y="' + Math.max(12, point.y - 9).toFixed(1) + '" text-anchor="middle" font-family="Inter Tight, sans-serif" font-size="9" font-weight="600" fill="#1E1D1B">' + escapeHtml(format(point.value)) + '</text>' : "") +
+                '<circle class="gs-chart-svg-point" cx="' + point.x.toFixed(1) + '" cy="' + point.y.toFixed(1) + '" r="4" style="stroke:' + escapeHtml(color) + '" stroke-width="2"/>' +
+                (point.value > 0 ? '<text class="gs-chart-svg-value" x="' + point.x.toFixed(1) + '" y="' + Math.max(12, point.y - 9).toFixed(1) + '" text-anchor="middle" font-family="Inter Tight, sans-serif" font-size="9" font-weight="600">' + escapeHtml(format(point.value)) + '</text>' : "") +
             '</g>';
         }).join("");
 
@@ -291,10 +291,10 @@
             '<title>' + escapeHtml(opts.title || "Gráfico") + '</title>' +
             (opts.description ? '<desc>' + escapeHtml(opts.description) + '</desc>' : "") +
             grid + labels +
-            '<line x1="' + left + '" y1="' + (top + plotH) + '" x2="' + (left + plotW) + '" y2="' + (top + plotH) + '" stroke="rgba(30,29,27,.28)" stroke-width="1"/>' +
-            '<polyline points="' + line + '" fill="none" stroke="' + color + '" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>' +
-            '<text x="' + left + '" y="' + (height - 4) + '" font-family="Inter Tight, sans-serif" font-size="9" fill="#77736C">' + escapeHtml(opts.xLabel || "") + '</text>' +
-            '<text x="' + left + '" y="14" font-family="Inter Tight, sans-serif" font-size="9" fill="#77736C">' + escapeHtml(opts.yLabel || "") + '</text>' +
+            '<line class="gs-chart-svg-axis" x1="' + left + '" y1="' + (top + plotH) + '" x2="' + (left + plotW) + '" y2="' + (top + plotH) + '" stroke-width="1"/>' +
+            '<polyline class="gs-chart-svg-line" points="' + line + '" style="stroke:' + escapeHtml(color) + '"/>' +
+            '<text class="gs-chart-svg-label" x="' + left + '" y="' + (height - 4) + '" font-family="Inter Tight, sans-serif" font-size="9">' + escapeHtml(opts.xLabel || "") + '</text>' +
+            '<text class="gs-chart-svg-label" x="' + left + '" y="14" font-family="Inter Tight, sans-serif" font-size="9">' + escapeHtml(opts.yLabel || "") + '</text>' +
             marks +
         '</svg>';
     }
@@ -315,7 +315,7 @@
         var height = top + items.length * row + 22;
         var max = niceMax(Math.max.apply(null, items.map(function (item) { return amount(item.value); })) || 1);
         var format = opts.format || count;
-        var color = opts.color || "#2E4A3F";
+        var color = opts.color || "var(--gs-green)";
         var rows = "";
 
         items.forEach(function (item, index) {
@@ -325,17 +325,17 @@
             var tip = item.label + ": " + format(value);
             rows += '<g class="gs-svg-mark" data-chart-tip="' + escapeHtml(tip) + '" tabindex="0" role="listitem" aria-label="' + escapeHtml(tip) + '">' +
                 '<title>' + escapeHtml(tip) + '</title>' +
-                '<text x="0" y="' + (y + 14) + '" font-family="Inter Tight, sans-serif" font-size="10" fill="#1E1D1B">' + escapeHtml(item.label) + '</text>' +
-                '<rect x="' + left + '" y="' + (y + 4) + '" width="' + plotW + '" height="14" rx="7" fill="rgba(30,29,27,.07)"/>' +
-                '<rect x="' + left + '" y="' + (y + 4) + '" width="' + Math.max(1, w).toFixed(1) + '" height="14" rx="7" fill="' + (item.color || color) + '"/>' +
-                '<text x="' + (left + plotW + 8) + '" y="' + (y + 15) + '" font-family="Inter Tight, sans-serif" font-size="10" font-weight="600" fill="#1E1D1B">' + escapeHtml(format(value)) + '</text>' +
+                '<text class="gs-chart-svg-value" x="0" y="' + (y + 14) + '" font-family="Inter Tight, sans-serif" font-size="10">' + escapeHtml(item.label) + '</text>' +
+                '<rect class="gs-chart-svg-track" x="' + left + '" y="' + (y + 4) + '" width="' + plotW + '" height="14" rx="7"/>' +
+                '<rect x="' + left + '" y="' + (y + 4) + '" width="' + Math.max(1, w).toFixed(1) + '" height="14" rx="7" style="fill:' + escapeHtml(item.color || color) + '"/>' +
+                '<text class="gs-chart-svg-value" x="' + (left + plotW + 8) + '" y="' + (y + 15) + '" font-family="Inter Tight, sans-serif" font-size="10" font-weight="600">' + escapeHtml(format(value)) + '</text>' +
             '</g>';
         });
 
         return '<svg class="gs-chart-svg" viewBox="0 0 ' + width + " " + height + '" role="img" aria-label="' + escapeHtml(opts.title || "Gráfico") + '">' +
             '<title>' + escapeHtml(opts.title || "Gráfico") + '</title>' +
             (opts.description ? '<desc>' + escapeHtml(opts.description) + '</desc>' : "") +
-            '<text x="0" y="12" font-family="Inter Tight, sans-serif" font-size="9" fill="#77736C">' + escapeHtml(opts.xLabel || "") + '</text>' +
+            '<text class="gs-chart-svg-label" x="0" y="12" font-family="Inter Tight, sans-serif" font-size="9">' + escapeHtml(opts.xLabel || "") + '</text>' +
             rows +
         '</svg>';
     }
