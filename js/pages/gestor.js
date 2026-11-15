@@ -26,13 +26,13 @@
 
     const MAX_MARGIN_PERCENT = 20;
 
-    const STATUS_CHART_COLORS = {
-        "Pedido recibido": "#8E8981",
-        "Confirmando pedido": "#C8A165",
-        "Preparando pedido": "#D8B87C",
-        "En camino": "#5F7A6C",
-        "Entregado": "#2E4A3F",
-        "Cancelado": "#A64B30"
+    const STATUS_DONUT_COLORS = {
+        "Pedido recibido": { color: "var(--gs-muted)", opacity: 1 },
+        "Confirmando pedido": { color: "var(--gs-gold)", opacity: 1 },
+        "Preparando pedido": { color: "var(--gs-gold-dark)", opacity: 1 },
+        "En camino": { color: "var(--gs-green)", opacity: 0.6 },
+        "Entregado": { color: "var(--gs-green)", opacity: 1 },
+        "Cancelado": { color: "var(--gs-red)", opacity: 1 }
     };
 
     const state = {
@@ -1226,41 +1226,85 @@
             : "Tasa de entrega del " + Math.round(rate) + " por ciento");
     }
 
+    function wholePercentages(items, total) {
+        const exact = items.map(function (item) {
+            return (Number(item.value) / total) * 100;
+        });
+        const values = exact.map(Math.floor);
+        const remainder = 100 - values.reduce(function (sum, value) { return sum + value; }, 0);
+
+        exact.map(function (value, index) {
+            return { index: index, fraction: value - Math.floor(value) };
+        }).sort(function (a, b) {
+            return b.fraction - a.fraction;
+        }).forEach(function (entry, index) {
+            if (index < remainder) values[entry.index] += 1;
+        });
+
+        return values;
+    }
+
     function renderStatus() {
         if (!refs.gsStatusTrack) return;
 
-        const charts = chartsApi();
-        const breakdown = charts ? charts.statusBreakdown(state.orders) : [];
-        const items = breakdown.map(function (item) {
-            return {
-                label: item.label,
-                value: item.value,
-                color: STATUS_CHART_COLORS[item.status] || "#2E4A3F"
-            };
-        });
-        const total = breakdown.reduce(function (sum, item) { return sum + Number(item.value || 0); }, 0);
-
-        refs.gsStatusTrack.innerHTML = charts
-            ? charts.horizontalBarSvg({
-                title: "Pedidos por estado",
-                description: "Pedidos atribuidos por estado.",
-                items: items,
-                format: count,
-                xLabel: "Pedidos",
-                color: "#2E4A3F",
-                empty: "Sin pedidos para mostrar."
+        const summary = state.summary || {};
+        const byState = summary.pedidos_por_estado && typeof summary.pedidos_por_estado === "object"
+            ? summary.pedidos_por_estado
+            : null;
+        const items = byState
+            ? ORDER_STATUS_ORDER.map(function (status) {
+                const style = STATUS_DONUT_COLORS[status] || { color: "var(--gs-green)", opacity: 1 };
+                return {
+                    label: status,
+                    value: Number(byState[status] || 0),
+                    color: style.color,
+                    opacity: style.opacity
+                };
+            }).filter(function (item) {
+                return item.value > 0;
             })
-            : '<p class="gs-muted">No se pudo cargar la gráfica.</p>';
+            : [];
+        const total = items.reduce(function (sum, item) { return sum + item.value; }, 0);
 
-        if (charts) charts.bindTooltips(refs.gsStatusTrack);
-        refs.gsStatusTrack.setAttribute("aria-label", total
-            ? "Pedidos por estado: " + breakdown.map(function (item) {
-                return item.label + ", " + item.value;
-            }).join("; ")
-            : "Sin pedidos por estado");
+        if (!total) {
+            refs.gsStatusTrack.innerHTML = '<p class="gs-donut-empty">Aún no hay pedidos para mostrar.</p>';
+            refs.gsStatusTrack.setAttribute("aria-label", "Sin pedidos por estado");
+            if (refs.gsStatusBadge) refs.gsStatusBadge.textContent = "Sin datos";
+            return;
+        }
+
+        const percents = wholePercentages(items, total);
+        items.forEach(function (item, index) {
+            item.percent = percents[index];
+        });
+
+        const legend = '<ul class="gs-status-legend" aria-label="Detalle de pedidos por estado">' + items.map(function (item) {
+            return '<li>' +
+                '<span class="gs-status-dot" style="background:' + escapeHtml(item.color) +
+                    (item.opacity < 1 ? ";opacity:" + item.opacity : "") + '" aria-hidden="true"></span>' +
+                '<span class="gs-status-name">' + escapeHtml(item.label) + '</span>' +
+                '<strong>' + escapeHtml(count(item.value)) + '</strong>' +
+                '<span class="gs-status-pct">' + item.percent + '%</span>' +
+            '</li>';
+        }).join("") + '</ul>';
+
+        const charts = chartsApi();
+        refs.gsStatusTrack.innerHTML =
+            '<div class="gs-donut-figure">' +
+                (charts
+                    ? charts.donutChartSvg({
+                        items: items,
+                        format: count,
+                        empty: "Sin pedidos para mostrar."
+                    })
+                    : '<p class="gs-muted">No se pudo cargar la gráfica.</p>') +
+            '</div>' + legend;
+        refs.gsStatusTrack.setAttribute("aria-label", "Pedidos por estado: " + items.map(function (item) {
+            return item.label + ", " + item.value + " (" + item.percent + "%)";
+        }).join("; "));
 
         if (refs.gsStatusBadge) {
-            refs.gsStatusBadge.textContent = total ? count(total) + (total === 1 ? " pedido" : " pedidos") : "Sin datos";
+            refs.gsStatusBadge.textContent = count(total) + (total === 1 ? " pedido" : " pedidos");
         }
     }
 

@@ -82,6 +82,7 @@ test("las gráficas son SVG sin animación y con tooltip de clic", () => {
     assert.match(charts, /function statusBreakdown/);
     assert.match(charts, /function topProducts/);
     assert.match(charts, /function evolution/);
+    assert.match(charts, /function donutChartSvg/);
     assert.match(charts, /data-chart-tip/);
     assert.match(charts, /bindTooltips/);
     assert.doesNotMatch(charts, /requestAnimationFrame|transition|animation/);
@@ -123,6 +124,7 @@ test("las gráficas calculan series reales y generan SVG accesible", () => {
     const bar = charts.barChartSvg({ title: "Comisión", items: charts.monthlyCommission(orders, 12), format: (value) => "$" + value });
     const line = charts.lineChartSvg({ title: "Evolución", items: charts.evolution(orders, 30), format: String });
     const horizontal = charts.horizontalBarSvg({ title: "Estados", items: charts.statusBreakdown(orders), format: String });
+    const donut = charts.donutChartSvg({ items: charts.statusBreakdown(orders), format: String });
 
     [bar, line, horizontal].forEach((svg) => {
         assert.match(svg, /^<svg/);
@@ -131,6 +133,27 @@ test("las gráficas calculan series reales y generan SVG accesible", () => {
         assert.doesNotMatch(svg, /animation|transition/);
     });
     assert.match(horizontal, /data-chart-tip=/);
+    assert.match(donut, /^<svg/);
+    assert.match(donut, /class="gs-donut-total"/);
+    assert.match(donut, /Entregado: 1/);
+    assert.doesNotMatch(donut, /animation|transition/);
+    assert.match(charts.donutChartSvg({ items: [] }), /gs-donut-empty/);
+});
+
+test("la dona de estados usa solo el resumen y tiene estado vacío", () => {
+    const js = read("js/pages/gestor.js");
+    const html = read("gestor.html");
+    const css = read("gestor.css");
+    const match = js.match(/function renderStatus\(\)[\s\S]*?\n    \}/);
+
+    assert.ok(match);
+    assert.match(match[0], /summary\.pedidos_por_estado/);
+    assert.doesNotMatch(match[0], /state\.orders/);
+    assert.match(match[0], /gs-donut-empty/);
+    assert.match(match[0], /item\.percent/);
+    assert.match(html, /id="gsStatusTrack" role="group"/);
+    assert.match(css, /\.gs-donut-svg/);
+    assert.match(css, /\.gs-status-pct/);
 });
 
 test("los documentos imprimibles respetan los datos permitidos", () => {
