@@ -1168,9 +1168,12 @@
 
     /* ===== Panel lateral del carrito ===== */
     .sh {
+        display: flex;
+        flex-direction: column;
         margin: 0 0 0 auto;
         min-height: 100%;
         width: min(92vw, 26rem);
+        padding-bottom: max(var(--space-6), env(safe-area-inset-bottom));
         border: 0;
         border-left: 1px solid var(--gl);
         transform: translateX(30px);
@@ -1428,7 +1431,8 @@
     }
 
     .menu-account-slot {
-        margin-top: .5rem;
+        margin-top: auto;
+        padding-top: 1.25rem;
     }
 
     .menu-account {
