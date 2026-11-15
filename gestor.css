@@ -959,6 +959,32 @@ body[data-gs-view="gsDashboard"] .gs-header {
     line-height: 1.08;
 }
 
+.gs-kpi-spark {
+    display: block;
+    height: 28px;
+    margin: 4px 0 2px;
+}
+
+.gs-kpi-spark:empty {
+    display: none;
+}
+
+.gs-sparkline {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+.gs-sparkline-path {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+}
+
 .gs-kpi-delta {
     display: inline-flex;
     width: fit-content;

@@ -384,6 +384,39 @@
         '</svg>';
     }
 
+    function sparklineSvg(options) {
+        var opts = options || {};
+        var values = (Array.isArray(opts.values) ? opts.values : []).map(function (value) {
+            return amount(value);
+        });
+
+        if (values.length < 2) return "";
+
+        var width = 120;
+        var height = 28;
+        var left = 1;
+        var right = 1;
+        var top = 3;
+        var bottom = 3;
+        var min = Math.min.apply(null, values);
+        var max = Math.max.apply(null, values);
+        var range = max - min;
+        var flat = max === 0 ? 0 : 0.5;
+        var step = (width - left - right) / (values.length - 1);
+        var points = values.map(function (value, index) {
+            var ratio = range > 0 ? (value - min) / range : flat;
+            var x = left + index * step;
+            var y = top + (height - top - bottom) * (1 - ratio);
+            return x.toFixed(1) + "," + y.toFixed(1);
+        }).join(" ");
+        var color = opts.color || "var(--gs-green)";
+
+        return '<svg class="gs-sparkline" viewBox="0 0 ' + width + " " + height +
+            '" preserveAspectRatio="none" aria-hidden="true" focusable="false" style="color:' + escapeHtml(color) + '">' +
+            '<polyline class="gs-sparkline-path" points="' + points + '"/>' +
+        '</svg>';
+    }
+
     function bindTooltips(root) {
         if (!root || root.getAttribute("data-chart-tooltips") === "1") return;
         root.setAttribute("data-chart-tooltips", "1");
@@ -433,6 +466,7 @@
         lineChartSvg: lineChartSvg,
         horizontalBarSvg: horizontalBarSvg,
         donutChartSvg: donutChartSvg,
+        sparklineSvg: sparklineSvg,
         emptySvg: emptySvg,
         bindTooltips: bindTooltips
     };

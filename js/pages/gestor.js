@@ -803,6 +803,28 @@
         refs.gsCommissionDone.textContent = money(summary.comision_pagada_usd);
     }
 
+    function renderSparklines() {
+        const charts = chartsApi();
+        if (!charts) return;
+
+        if (refs.gsSalesSpark) {
+            const monthly = charts.monthlyCommission(state.orders, 12);
+            refs.gsSalesSpark.innerHTML = charts.sparklineSvg({
+                values: monthly.map(function (item) { return item.value; }),
+                color: "var(--gs-gold)"
+            });
+        }
+
+        if (refs.gsOrdersSpark) {
+            const days = Number(state.reportPeriod) || 30;
+            const buckets = charts.evolution(state.orders, days);
+            refs.gsOrdersSpark.innerHTML = charts.sparklineSvg({
+                values: buckets.map(function (item) { return item.value; }),
+                color: "var(--gs-green)"
+            });
+        }
+    }
+
     function renderProfile() {
         const user = state.session && state.session.user ? state.session.user : {};
         const role = user.role || (state.roleRow && state.roleRow.role) || "";
@@ -3026,6 +3048,7 @@
         renderClients();
         renderReport();
         renderEvolution();
+        renderSparklines();
         renderBubbles();
         renderGauge();
         renderStatus();
@@ -3130,6 +3153,7 @@
             renderOrders();
             renderReport();
             renderEvolution();
+            renderSparklines();
             renderBubbles();
             renderStatus();
             return state.orders;
@@ -3174,6 +3198,7 @@
             renderOrders();
             renderReport();
             renderEvolution();
+            renderSparklines();
             renderBubbles();
             renderStatus();
         } catch (error) {
@@ -3394,6 +3419,7 @@
                 state.reportPeriod = event.target.value;
                 renderReport();
                 renderEvolution();
+                renderSparklines();
             });
         }
 
@@ -3843,7 +3869,7 @@
         [
             "gsGuest", "gsDenied", "gsLoading", "gsError", "gsDashboard", "gsDashboardView",
             "gsTitle", "gsNotice", "gsGreeting", "gsTopAvatar",
-            "gsSales", "gsOrdersCount", "gsClientsCount", "gsCommissionAvailable",
+            "gsSales", "gsSalesSpark", "gsOrdersCount", "gsOrdersSpark", "gsClientsCount", "gsCommissionAvailable",
             "gsCommissionPaid", "gsCommissionPending", "gsCommissionReady", "gsCommissionDone",
             "gsProfileInitial", "gsProfileName", "gsProfileEmail", "gsProfileRole",
             "gsProfileCommission", "gsProfileState", "gsProfileSince", "gsActivity",

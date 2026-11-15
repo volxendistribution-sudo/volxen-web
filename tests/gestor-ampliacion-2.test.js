@@ -83,6 +83,7 @@ test("las gráficas son SVG sin animación y con tooltip de clic", () => {
     assert.match(charts, /function topProducts/);
     assert.match(charts, /function evolution/);
     assert.match(charts, /function donutChartSvg/);
+    assert.match(charts, /function sparklineSvg/);
     assert.match(charts, /data-chart-tip/);
     assert.match(charts, /bindTooltips/);
     assert.doesNotMatch(charts, /requestAnimationFrame|transition|animation/);
@@ -125,6 +126,7 @@ test("las gráficas calculan series reales y generan SVG accesible", () => {
     const line = charts.lineChartSvg({ title: "Evolución", items: charts.evolution(orders, 30), format: String });
     const horizontal = charts.horizontalBarSvg({ title: "Estados", items: charts.statusBreakdown(orders), format: String });
     const donut = charts.donutChartSvg({ items: charts.statusBreakdown(orders), format: String });
+    const sparkline = charts.sparklineSvg({ values: [1, 2, 3], color: "var(--gs-green)" });
 
     [bar, line, horizontal].forEach((svg) => {
         assert.match(svg, /^<svg/);
@@ -138,6 +140,11 @@ test("las gráficas calculan series reales y generan SVG accesible", () => {
     assert.match(donut, /Entregado: 1/);
     assert.doesNotMatch(donut, /animation|transition/);
     assert.match(charts.donutChartSvg({ items: [] }), /gs-donut-empty/);
+    assert.match(sparkline, /^<svg/);
+    assert.match(sparkline, /aria-hidden="true"/);
+    assert.match(sparkline, /var\(--gs-green\)/);
+    assert.doesNotMatch(sparkline, /animation|transition/);
+    assert.equal(charts.sparklineSvg({ values: [1] }), "");
 });
 
 test("la dona de estados usa solo el resumen y tiene estado vacío", () => {
@@ -154,6 +161,20 @@ test("la dona de estados usa solo el resumen y tiene estado vacío", () => {
     assert.match(html, /id="gsStatusTrack" role="group"/);
     assert.match(css, /\.gs-donut-svg/);
     assert.match(css, /\.gs-status-pct/);
+});
+
+test("las mini-líneas de KPI usan series reales y no se dibujan sin datos", () => {
+    const html = read("gestor.html");
+    const js = read("js/pages/gestor.js");
+    const css = read("gestor.css");
+
+    assert.match(html, /id="gsSalesSpark"/);
+    assert.match(html, /id="gsOrdersSpark"/);
+    assert.doesNotMatch(html, /id="gsCommissionAvailableSpark"/);
+    assert.match(js, /function renderSparklines/);
+    assert.match(js, /monthlyCommission\(state\.orders, 12\)/);
+    assert.match(js, /charts\.evolution\(state\.orders, days\)/);
+    assert.match(css, /\.gs-kpi-spark:empty/);
 });
 
 test("los documentos imprimibles respetan los datos permitidos", () => {
