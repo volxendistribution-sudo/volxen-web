@@ -1,5 +1,7 @@
 :root {
     --gs-bg: #F8F7F4;
+    --gs-bg-light: #F8F7F4;
+    --gs-bg-dark: #12110F;
     --gs-surface: #EAE6DE;
     --gs-surface-soft: #F2EEE6;
     --gs-paper: rgba(255, 253, 249, .72);
@@ -371,6 +373,9 @@ body[data-gs-view="gsDashboard"] .gs-header {
     max-height: calc(100vh - 32px);
     flex-direction: column;
     padding: 4px 2px 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
     border: 1px solid var(--gs-glass-rim);
     border-radius: 22px;
     background: var(--gs-glass-bg);
@@ -496,6 +501,15 @@ body[data-gs-view="gsDashboard"] .gs-header {
     gap: 2px;
     margin-top: auto;
     padding-top: 18px;
+}
+
+.gs-sidebar-foot {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    margin-top: 12px;
+    padding: 10px 0 max(6px, env(safe-area-inset-bottom));
+    border-top: 1px solid var(--gs-line);
 }
 
 .gs-side-account {
@@ -753,22 +767,35 @@ body[data-gs-view="gsDashboard"] .gs-header {
     align-items: center;
     justify-content: space-between;
     width: 56px;
-    height: 28px;
+    height: 44px;
     flex: 0 0 auto;
-    justify-self: end;
-    margin: 6px 0;
+    margin: 0;
     padding: 0 7px;
-    border: 1px solid var(--gs-line-strong);
+    border: 0;
     border-radius: 999px;
-    background: var(--gs-surface);
+    background: transparent;
     color: var(--gs-muted);
     font-size: 10px;
     line-height: 1;
     cursor: pointer;
-    transition: background-color .28s var(--gs-ease), border-color .28s var(--gs-ease);
+    -webkit-tap-highlight-color: transparent;
 }
 
-.gs-theme-toggle:hover {
+.gs-theme-toggle::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 0;
+    left: 0;
+    height: 28px;
+    transform: translateY(-50%);
+    border: 1px solid var(--gs-line-strong);
+    border-radius: 999px;
+    background: var(--gs-surface);
+    transition: background-color .22s var(--gs-ease), border-color .22s var(--gs-ease);
+}
+
+.gs-theme-toggle:hover::before {
     border-color: var(--gs-line-strong);
 }
 
@@ -779,10 +806,11 @@ body[data-gs-view="gsDashboard"] .gs-header {
 
 .gs-theme-toggle-thumb {
     position: absolute;
-    top: 2px;
+    top: 50%;
     left: 2px;
     width: 22px;
     height: 22px;
+    margin-top: -11px;
     border: 1px solid var(--gs-line);
     border-radius: 50%;
     background: var(--gs-surface-soft);
@@ -790,10 +818,11 @@ body[data-gs-view="gsDashboard"] .gs-header {
         0 2px 6px var(--gs-glass-shadow),
         inset 0 1px 0 rgba(255, 255, 255, .35);
     pointer-events: none;
+    transform: translateX(0);
     transition:
-        transform .28s var(--gs-ease),
-        background-color .28s var(--gs-ease),
-        border-color .28s var(--gs-ease);
+        transform .24s var(--gs-ease),
+        background-color .24s var(--gs-ease),
+        border-color .24s var(--gs-ease);
 }
 
 .gs-theme-toggle[aria-checked="true"] .gs-theme-toggle-thumb {
@@ -808,23 +837,34 @@ body[data-gs-view="gsDashboard"] .gs-header {
     height: 12px;
     place-items: center;
     font-size: 10px;
-    transition: color .28s var(--gs-ease);
+    transition:
+        opacity .22s var(--gs-ease),
+        transform .22s var(--gs-ease),
+        color .22s var(--gs-ease);
 }
 
 .gs-theme-toggle-sun {
     color: var(--gs-gold-dark);
+    opacity: 1;
+    transform: scale(1);
 }
 
 .gs-theme-toggle-moon {
     color: var(--gs-muted);
+    opacity: .45;
+    transform: scale(.85);
 }
 
 .gs-theme-toggle[aria-checked="true"] .gs-theme-toggle-sun {
     color: var(--gs-muted);
+    opacity: .45;
+    transform: scale(.85);
 }
 
 .gs-theme-toggle[aria-checked="true"] .gs-theme-toggle-moon {
     color: var(--gs-gold);
+    opacity: 1;
+    transform: scale(1);
 }
 
 .gs-icon-badge {
@@ -4225,18 +4265,55 @@ body[data-gs-view="gsDashboard"] .gs-header {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-    html.gs-theme-transition,
-    html.gs-theme-transition *,
-    html.gs-theme-transition *::before,
-    html.gs-theme-transition *::after {
-        transition-property: background-color, border-color, color, fill, stroke !important;
-        transition-duration: .28s !important;
-        transition-timing-function: ease !important;
+    html.gs-theme-vt::view-transition-old(root),
+    html.gs-theme-vt::view-transition-new(root) {
+        mix-blend-mode: normal;
     }
 
-    html.gs-theme-transition .gs-theme-toggle-thumb {
-        transition-property: background-color, border-color, transform !important;
+    html.gs-theme-vt::view-transition-old(root) {
+        animation: none;
+        opacity: 1;
     }
+
+    html.gs-theme-vt::view-transition-new(root) {
+        animation: gs-theme-reveal .52s var(--gs-ease) both;
+    }
+
+    html.gs-theme-switching .gs-theme-toggle-thumb,
+    html.gs-theme-switching .gs-theme-toggle-icon {
+        will-change: transform, opacity;
+    }
+
+    html.gs-theme-fallback .gs-sidebar,
+    html.gs-theme-fallback .gs-topbar,
+    html.gs-theme-fallback .gs-scrim,
+    html.gs-theme-fallback .gs-search,
+    html.gs-theme-fallback .gs-icon-button,
+    html.gs-theme-fallback .gs-sidebar-toggle,
+    html.gs-theme-fallback .gs-cat-chip,
+    html.gs-theme-fallback .gs-cart-qty {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+}
+
+@keyframes gs-theme-reveal {
+    from {
+        clip-path: circle(0px at var(--vx-theme-x, 50%) var(--vx-theme-y, 50%));
+    }
+    to {
+        clip-path: circle(var(--vx-theme-r, 150vmax) at var(--vx-theme-x, 50%) var(--vx-theme-y, 50%));
+    }
+}
+
+.gs-theme-fade {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483647;
+    pointer-events: none;
+    opacity: 0;
+    background-color: var(--gs-bg-light);
+    will-change: opacity;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -4244,10 +4321,11 @@ body[data-gs-view="gsDashboard"] .gs-header {
         scroll-behavior: auto;
     }
 
-    .gs-theme-toggle-thumb,
     .gs-theme-toggle,
+    .gs-theme-toggle::before,
+    .gs-theme-toggle-thumb,
     .gs-theme-toggle-icon {
-        transition: none;
+        transition: none !important;
     }
 
     *,
