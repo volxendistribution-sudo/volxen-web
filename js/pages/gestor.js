@@ -2505,14 +2505,16 @@
                     refs.gsProductSharePriceError.textContent = "";
                 }
                 try {
-                    await managerPriceSave(String(product.id), refs.gsProductSharePrice.value);
-                    const entry = await managerPriceLoad(String(product.id));
-                    if (refs.gsProductSharePriceError && entry && entry.precioGuardado != null && !entry.valido) {
-                        refs.gsProductSharePriceError.hidden = false;
-                        refs.gsProductSharePriceError.textContent = entry.motivo || "El precio guardado no es válido.";
-                    } else {
-                        setNotice("Precio guardado.");
+                    const entry = await managerPriceSave(String(product.id), refs.gsProductSharePrice.value);
+                    const precioMostrar = entry && entry.precioGuardado != null
+                        ? entry.precioGuardado
+                        : (entry && entry.precioBase != null ? entry.precioBase : base);
+                    refs.gsProductSharePrice.value = precioMostrar != null ? precioMostrar.toFixed(2) : "";
+                    if (refs.gsProductSharePriceError) {
+                        refs.gsProductSharePriceError.hidden = true;
+                        refs.gsProductSharePriceError.textContent = "";
                     }
+                    setNotice(entry && entry.precioGuardado != null ? "Precio guardado." : "Precio restaurado al base.");
                 } catch (error) {
                     if (refs.gsProductSharePriceError) {
                         refs.gsProductSharePriceError.hidden = false;
