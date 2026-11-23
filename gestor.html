@@ -597,8 +597,8 @@
                                 </div>
                                 <dl class="gs-cart-totals">
                                     <div><dt>Total que paga el cliente</dt><dd id="gsCartTotal">$0.00</dd></div>
-                                    <div><dt>Comisión base</dt><dd id="gsCartCommission">$0.00</dd></div>
-                                    <div><dt>Tu subida</dt><dd id="gsCartMarkup">$0.00</dd></div>
+                                    <div><dt>Comisión fija</dt><dd id="gsCartCommission">$0.00</dd></div>
+                                    <div><dt>Comisión por subida</dt><dd id="gsCartMarkup">$0.00</dd></div>
                                     <div class="is-total"><dt>Tu comisión</dt><dd id="gsCartGain">$0.00</dd></div>
                                 </dl>
                                 <p id="gsCartHint" class="gs-cart-hint">Solo se incluirán los productos marcados en este vale.</p>
@@ -733,8 +733,8 @@
                                 <div id="gsCheckoutItems" class="gs-checkout-items"></div>
                                 <dl class="gs-cart-totals">
                                     <div><dt>Total que paga el cliente</dt><dd id="gsCheckoutTotal">$0.00</dd></div>
-                                    <div><dt>Comisión base</dt><dd id="gsCheckoutCommission">$0.00</dd></div>
-                                    <div><dt>Tu subida</dt><dd id="gsCheckoutMarkup">$0.00</dd></div>
+                                    <div><dt>Comisión fija</dt><dd id="gsCheckoutCommission">$0.00</dd></div>
+                                    <div><dt>Comisión por subida</dt><dd id="gsCheckoutMarkup">$0.00</dd></div>
                                     <div class="is-total"><dt>Tu comisión</dt><dd id="gsCheckoutGain">$0.00</dd></div>
                                 </dl>
                                 <p class="gs-cart-hint">El servidor recalcula precios, comisiones y disponibilidad al confirmar.</p>
@@ -781,10 +781,9 @@
                     <div id="gsProductCommission" class="gs-product-commission"></div>
                     <p id="gsProductModeNote" class="gs-product-mode-note"></p>
                     <div id="gsProductSaleWrap" class="gs-product-sale" hidden>
-                        <label for="gsProductSalePrice">Tu precio (USD) *</label>
-                        <input id="gsProductSalePrice" type="number" min="0" step="0.01" inputmode="decimal" aria-describedby="gsProductMaxNote gsProductShareNotice">
+                        <label for="gsProductSalePrice">Tu precio de venta (USD) *</label>
+                        <input id="gsProductSalePrice" type="number" min="0" step="0.01" inputmode="decimal">
                         <small id="gsProductMaxNote"></small>
-                        <p id="gsProductShareNotice" class="gs-product-share-notice" role="status" aria-live="polite" hidden>Si no subes el precio, no tendrás comisión en esta venta.</p>
                         <p id="gsProductLimitWarning" class="gs-product-limit-warning" role="alert" aria-live="assertive" hidden></p>
                     </div>
                     <div id="gsProductFeatures" class="gs-product-features"></div>

@@ -2917,18 +2917,7 @@ body[data-gs-view="gsDashboard"] .gs-header {
 
 .gs-product-sale small {
     color: var(--gs-muted);
-    font-size: 9.5px;
-}
-
-.gs-product-share-notice {
-    margin: 2px 0 0;
-    padding: 8px 10px;
-    border: 1px solid color-mix(in srgb, var(--gs-gold) 38%, transparent);
-    border-radius: 10px;
-    background: color-mix(in srgb, var(--gs-gold) 12%, transparent);
-    color: var(--gs-gold-dark);
-    font-size: 10.5px;
-    line-height: 1.45;
+    font-size: 8.5px;
 }
 
 .gs-product-sale input.is-invalid,
@@ -2946,7 +2935,7 @@ body[data-gs-view="gsDashboard"] .gs-header {
 .gs-product-limit-warning,
 .gs-cart-limit-warning {
     color: var(--gs-red);
-    font-size: 10px;
+    font-size: 9px;
     line-height: 1.45;
 }
 
@@ -3122,7 +3111,6 @@ body[data-gs-view="gsDashboard"] .gs-header {
 .gs-cart-summary[hidden],
 .gs-stepper[hidden],
 .gs-product-sale[hidden],
-.gs-product-share-notice[hidden],
 .gs-order-success[hidden],
 .gs-form-error[hidden] {
     display: none !important;
@@ -5727,12 +5715,6 @@ body.gs-body {
     background:
         radial-gradient(circle at 50% 40%, rgba(255, 255, 255, .06), transparent 70%),
         var(--gs-surface);
-}
-
-[data-gs-theme="dark"] .gs-product-share-notice {
-    border-color: color-mix(in srgb, var(--gs-gold) 40%, transparent);
-    background: color-mix(in srgb, var(--gs-gold) 16%, transparent);
-    color: var(--gs-gold);
 }
 
 [data-gs-theme="dark"] .gs-product-sale input,

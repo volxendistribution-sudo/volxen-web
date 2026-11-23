@@ -21,8 +21,8 @@ test("la comisión vacía normaliza el producto a precio flexible sin comisión"
 test("el admin guarda la comisión vacía como sin comisión fija", () => {
     assert.match(admin, /priceMode = "sin_comision"/);
     assert.match(admin, /Comisión que verá el gestor por unidad/);
-    assert.match(admin, /Con comisión base \(fija o porcentual\)/);
-    assert.match(admin, /Para comisión base cero, escribe 0/);
+    assert.match(admin, /Fijo \(requiere comisión; no puede subir\)/);
+    assert.match(admin, /Para precio fijo sin comisión, escribe 0/);
     assert.doesNotMatch(admin, /comisión automática/i);
     assert.doesNotMatch(gestor, /comisión automática/i);
 });

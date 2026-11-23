@@ -889,7 +889,7 @@ async function gestores(){
 $("v").innerHTML =
 '<h3>Promotores</h3>'+
 '<p>Asigna el rol comercial. Las cuentas actuales y las nuevas cuentas promotoras son equivalentes.</p>'+
-'<p>Activa “Puede subir el precio” por gestor. El modo de precio, la comisión base y el margen máximo (0–100 %, por defecto 20 %) se configuran por producto en la pestaña Productos.</p>'+
+'<p>El modo de precio y la comisión fija se configuran por producto en la pestaña Productos. El máximo de subida es 20 %.</p>'+
 '<div class="r">Cargando usuarios...</div>';
 
 try{
@@ -908,7 +908,7 @@ return;
 
 $("v").innerHTML =
 '<h3>Promotores</h3>'+
-'<p>El porcentaje actual se aplica a los pedidos nuevos que asignes. La comisión base y el margen se configuran por producto. El permiso de subida se activa aquí por gestor.</p>'+
+'<p>El porcentaje actual se aplica a los pedidos nuevos que asignes. La comisión por producto se configura en la pestaña Productos.</p>'+
 U.map(u => {
 
 const rol = usuarioRol(u);
@@ -932,10 +932,6 @@ return '<div class="r">'+
 '<option value="promotor"'+(rol === "promotor" ? " selected" : "")+'>Promotor · cuenta nueva</option>'+
 '</select>'+
 '<input id="gp-'+esc(u.user_id)+'" type="number" min="0" max="100" step="0.01" placeholder="Comisión %" value="'+esc(porcentaje)+'">'+
-'<label style="display:flex;align-items:center;gap:8px;margin-top:8px">'+
-'<input id="gpp-'+esc(u.user_id)+'" type="checkbox"'+(u.puede_subir_precio ? ' checked' : '')+'>'+
-'<span>Puede subir el precio</span>'+
-'</label>'+
 '<button onclick="guardarPromotor(\''+esc(u.user_id)+'\')">GUARDAR</button>'+
 '</div>';
 
@@ -956,13 +952,11 @@ async function guardarPromotor(userId){
 
 const select = $("gr-"+userId);
 const input = $("gp-"+userId);
-const permission = $("gpp-"+userId);
 
 if(!select || !input) return;
 
 const rol = select.value;
 const porcentaje = Number(input.value);
-const puedeSubir = !!(permission && permission.checked);
 
 if(!Number.isFinite(porcentaje) || porcentaje < 0 || porcentaje > 100){
 
@@ -986,12 +980,11 @@ await api(
 "rpc/admin_guardar_promotor",
 "POST",
 {
- p_user_id:userId,
- p_rol:rol,
- p_comision_porcentaje:porcentaje,
- p_activo:true,
- p_puede_subir_precio:puedeSubir
- }
+p_user_id:userId,
+p_rol:rol,
+p_comision_porcentaje:porcentaje,
+p_activo:true
+}
 );
 
 await cargarUsuarios();
@@ -2033,17 +2026,13 @@ esc(i.producto_nombre)+
 esc(i.cantidad)+
 '</strong>'+
 
-'<small>Precio base (VOLXEN): '+
+'<small>Precio VOLXEN: '+
 adminMoney(i.precio_volxen)+
 ' · Precio de venta: '+
 adminMoney(i.precio_unitario)+
-' · Diferencia: '+
-(i.precio_volxen == null || i.precio_unitario == null
-  ? "—"
-  : adminMoney(Number(i.precio_unitario) - Number(i.precio_volxen)))+
 '</small>'+
 
-'<small>Comisión: '+
+'<small>Comisión de la línea: '+
 adminMoney(i.ganancia_total_usd)+
 ' · Total: '+
 adminMoney(i.subtotal)+
@@ -2431,7 +2420,7 @@ function syncPriceMode(){
   if(!mode || !fixed || !flexible) return;
   const isFixed = mode.value === "comision_fija";
   fixed.style.display = isFixed ? "" : "none";
-  flexible.style.display = "";
+  flexible.style.display = isFixed ? "none" : "";
 }
 
 
@@ -2531,7 +2520,7 @@ esc(p.precio_usd)+
 '<select id="pm" onchange="syncPriceMode()">'+
 '<option value="comision_fija"'+
 (mode === "comision_fija" ? " selected" : "")+
-'>Con comisión base (fija o porcentual)</option>'+
+'>Fijo (requiere comisión; no puede subir)</option>'+
 '<option value="sin_comision"'+
 (mode === "sin_comision" ? " selected" : "")+
 '>Sin comisión fija (el gestor gana la subida)</option>'+
@@ -2543,14 +2532,16 @@ esc(p.precio_usd)+
 '<input id="pcf" type="number" min="0" step="0.01" placeholder="Automática según porcentaje" value="'+
 esc(fixedCommission)+
 '">'+
-'<small style="display:block;margin-top:4px">Si se deja vacío, el producto pasa a «Sin comisión fija». Para comisión base cero, escribe 0. El permiso para subir se activa por gestor.</small>'+
+'<small style="display:block;margin-top:4px">Si se deja vacío, el producto pasa a «Sin comisión fija» y el gestor puede subir el precio. Para precio fijo sin comisión, escribe 0.</small>'+
 '</div>'+
-'<div id="pmmw">'+
+'<div id="pmmw"'+
+(mode === "sin_comision" ? "" : ' style="display:none"')+
+'>'+
 '<label for="pmm" style="display:block;margin-top:8px;font-weight:600">Margen máximo de subida (%)</label>'+
-'<input id="pmm" type="number" min="0" max="100" step="1" value="'+
+'<input id="pmm" type="number" min="0" max="20" step="1" value="'+
 esc(maxMarkup)+
 '">'+
-'<small style="display:block;margin-top:4px">El gestor puede subir hasta este máximo si tiene permiso. La diferencia se suma a la comisión base; si no hay comisión base, es toda su ganancia.</small>'+
+'<small style="display:block;margin-top:4px">No se paga comisión fija. El gestor puede subir hasta este máximo y la diferencia es su ganancia.</small>'+
 '</div>'+
 
 '<label for="st" style="display:block;margin-top:8px;font-weight:600">Envío</label>'+
@@ -2859,7 +2850,7 @@ comision_fija_usd:
 fixedCommission,
 
 margen_max_porcentaje:
-$("pmm") ? Math.max(0, Math.min(100, $("pmm").value === "" ? 20 : Number($("pmm").value))) : null,
+$("pmm") ? Math.max(0, Math.min(20, $("pmm").value === "" ? 20 : Number($("pmm").value))) : null,
 
 disponibilidad:
 $("d").value,
