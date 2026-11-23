@@ -81,7 +81,9 @@
         managerNameOverride: "",
         productChanges: [],
         productChangesLoading: false,
-        savedPriceAdjustments: []
+        savedPriceAdjustments: [],
+        managerPriceByProduct: {},
+        managerPriceBusy: false
     };
 
     const refs = {};
@@ -136,6 +138,70 @@
             ? Math.max(0, Math.min(MAX_MARGIN_PERCENT, margin))
             : MAX_MARGIN_PERCENT;
         return roundMoney(productBasePrice(product) * (1 + percent / 100));
+    }
+
+    function managerPriceForShare(product) {
+        const saved = state.managerPriceByProduct && state.managerPriceByProduct[String(product && product.id)];
+        if (saved && saved.valido && Number.isFinite(saved.precioVentaUtilizable)) {
+            return roundMoney(saved.precioVentaUtilizable);
+        }
+        return productBasePrice(product);
+    }
+
+    async function managerPriceLoad(productId) {
+        const key = String(productId);
+        if (!window.VXAUTH || typeof window.VXAUTH.rest !== "function") {
+            state.managerPriceByProduct[key] = null;
+            return null;
+        }
+        state.managerPriceBusy = true;
+        try {
+            const data = await window.VXAUTH.rest("/rpc/gestor_precio_leer", {
+                method: "POST",
+                body: { p_producto_id: key }
+            });
+            const entry = {
+                permiso: Boolean(data && data.permiso),
+                precioGuardado: data && data.precio_guardado != null ? Number(data.precio_guardado) : null,
+                precioBase: data && data.precio_base != null ? Number(data.precio_base) : 0,
+                precioMaximo: data && data.precio_maximo != null ? Number(data.precio_maximo) : 0,
+                precioVentaUtilizable: data && data.precio_venta_utilizable != null ? Number(data.precio_venta_utilizable) : 0,
+                valido: Boolean(data && data.valido),
+                motivo: data && data.motivo ? String(data.motivo) : ""
+            };
+            state.managerPriceByProduct[key] = entry;
+            return entry;
+        } catch (error) {
+            state.managerPriceByProduct[key] = null;
+            return null;
+        } finally {
+            state.managerPriceBusy = false;
+        }
+    }
+
+    async function managerPriceSave(productId, price) {
+        const key = String(productId);
+        if (!window.VXAUTH || typeof window.VXAUTH.rest !== "function") throw new Error("No se pudo conectar con el servidor.");
+        const amount = price == null || price === "" ? null : Number(price);
+        if (amount !== null && (!Number.isFinite(amount) || amount < 0)) throw new Error("El precio no es válido.");
+        state.managerPriceBusy = true;
+        try {
+            const data = await window.VXAUTH.rest("/rpc/gestor_precio_guardar", {
+                method: "POST",
+                body: { p_producto_id: key, p_precio_usd: amount }
+            });
+            const entry = state.managerPriceByProduct[key] || {};
+            entry.precioGuardado = data && data.guardado != null ? Number(data.guardado) : null;
+            entry.precioVentaUtilizable = entry.precioGuardado != null ? entry.precioGuardado : entry.precioBase;
+            entry.valido = entry.precioGuardado != null;
+            entry.precioBase = data && data.precio_base != null ? Number(data.precio_base) : entry.precioBase;
+            state.managerPriceByProduct[key] = entry;
+            return entry;
+        } catch (error) {
+            throw error;
+        } finally {
+            state.managerPriceBusy = false;
+        }
     }
 
     function adjustSavedPrices() {
@@ -2054,7 +2120,11 @@
                     producto_id: line.product.id,
                     cantidad: line.qty
                 };
-                if (line.mode === "sin_comision") item.precio_unitario = line.salePrice.toFixed(2);
+                if (line.mode === "sin_comision") {
+                    // Precio personalizado del gestor para el vale/PDF (sin tocar el generador PDF).
+                    const managerPrice = managerPriceForShare(line.product);
+                    item.precio_unitario = managerPrice.toFixed(2);
+                }
                 return item;
             }),
             p_gestor_nombre: refs.gsManagerName.value.trim(),
@@ -2329,7 +2399,7 @@
         refs.gsProductSuggestions.hidden = false;
     }
 
-    function openProductDialog(productId) {
+    async function openProductDialog(productId) {
         const api = catalogApi();
         const product = findCatalogProduct(productId);
         if (!api || !product || !refs.gsProductDialog) return;
@@ -2404,6 +2474,53 @@
         }
         if (refs.gsProductCart) refs.gsProductCart.disabled = false;
         validateProductPriceInput();
+
+        // Precio personalizado del gestor para compartir (se muestra en modo sin_comision).
+        if (refs.gsProductSharePriceWrap) {
+            let entry = null;
+            try {
+                entry = await managerPriceLoad(String(product.id));
+            } catch {
+                entry = null;
+            }
+            const tieneGuardado = Boolean(entry && entry.precioGuardado != null);
+            refs.gsProductSharePriceWrap.hidden = mode !== "sin_comision";
+            if (refs.gsProductSharePriceWrap.hidden === false) {
+                const mostrar = tieneGuardado ? entry.precioGuardado : entry && entry.precioBase != null ? entry.precioBase : base;
+                refs.gsProductSharePrice.value = mostrar != null ? mostrar.toFixed(2) : "";
+                if (refs.gsProductSharePriceError) {
+                    refs.gsProductSharePriceError.hidden = true;
+                    refs.gsProductSharePriceError.textContent = "";
+                }
+                if (tieneGuardado && entry && !entry.valido && refs.gsProductSharePriceError) {
+                    refs.gsProductSharePriceError.hidden = false;
+                    refs.gsProductSharePriceError.textContent = entry.motivo || "El precio guardado no es válido.";
+                }
+            }
+        }
+        if (refs.gsProductSharePriceSave) {
+            refs.gsProductSharePriceSave.onclick = async function () {
+                if (refs.gsProductSharePriceError) {
+                    refs.gsProductSharePriceError.hidden = true;
+                    refs.gsProductSharePriceError.textContent = "";
+                }
+                try {
+                    await managerPriceSave(String(product.id), refs.gsProductSharePrice.value);
+                    const entry = await managerPriceLoad(String(product.id));
+                    if (refs.gsProductSharePriceError && entry && entry.precioGuardado != null && !entry.valido) {
+                        refs.gsProductSharePriceError.hidden = false;
+                        refs.gsProductSharePriceError.textContent = entry.motivo || "El precio guardado no es válido.";
+                    } else {
+                        setNotice("Precio guardado.");
+                    }
+                } catch (error) {
+                    if (refs.gsProductSharePriceError) {
+                        refs.gsProductSharePriceError.hidden = false;
+                        refs.gsProductSharePriceError.textContent = error && error.message ? error.message : "No se pudo guardar el precio.";
+                    }
+                }
+            };
+        }
 
         if (typeof refs.gsProductDialog.showModal === "function") {
             refs.gsProductDialog.showModal();
@@ -2814,7 +2931,7 @@
                     name: product.nombre || "",
                     category: categoryNames[String(product.categoria_id || "")] || "",
                     categoryId: product.categoria_id || "",
-                    price: typeof api.pr === "function" ? api.pr(product) : product.precio_usd,
+                price: managerPriceForShare(product),
                     image: productImage(product, 900, 494),
                     description: product.descripcion || "",
                     delivery: product.transporte || "",
@@ -2886,7 +3003,7 @@
             const result = await docs.productImageBlob({
                 name: product.nombre || "",
                 category: typeof api.cn === "function" ? api.cn(product.categoria_id) : "Producto",
-                price: typeof api.pr === "function" ? api.pr(product) : product.precio_usd,
+                price: managerPriceForShare(product),
                 description: product.descripcion || "",
                 features: Array.isArray(product.caracteristicas) ? product.caracteristicas : [],
                 guarantee: product.garantia || "",
@@ -3885,8 +4002,8 @@
             "gsCatalogCount", "gsCatalogSort", "gsCatalogPdfScope", "gsCatalogReset", "gsCatalogShare", "gsProductDialog",
             "gsProductClose", "gsProductMedia", "gsProductZoom", "gsProductZoomImg", "gsProductZoomClose", "gsProductSuggestions", "gsProductCategory", "gsProductTitle",
             "gsProductDescription", "gsProductPrice", "gsProductStock", "gsProductAdd",
-            "gsProductCart", "gsProductBuy", "gsProductShare", "gsProductCommission", "gsProductModeNote", "gsProductSaleWrap",
-            "gsProductSalePrice", "gsProductMaxNote", "gsProductLimitWarning", "gsProductFeatures",
+            "gsProductCart", "gsProductBuy", "gsProductShare", "gsProductCommission", "gsProductModeNote",             "gsProductSaleWrap",
+            "gsProductSalePrice", "gsProductMaxNote", "gsProductLimitWarning", "gsProductSharePriceWrap", "gsProductSharePrice", "gsProductSharePriceSave", "gsProductSharePriceError", "gsProductFeatures",
             "gsCartButton", "gsCartCount", "gsSideCartCount", "gsCartView", "gsCartItems",
             "gsCartEmpty", "gsCartBrowse", "gsCartContinue", "gsCartClear", "gsCartUnits",
             "gsCartSelectAll", "gsCartTotal", "gsCartCommission", "gsCartMarkup", "gsCartGain", "gsCartHint",

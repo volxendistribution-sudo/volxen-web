@@ -26,8 +26,8 @@
     --gs-sidebar-width: 235px;
     --gs-aside-width: 350px;
     --gs-ease: cubic-bezier(.22, 1, .36, 1);
-    --gs-display: "DM Sans", sans-serif;
-    --gs-text: "Inter Tight", sans-serif;
+    --gs-display: var(--d);
+    --gs-text: var(--s);
 
     /* Liquid Glass — marcado tipo Apple (chrome de panel) */
     --gs-glass-bg: rgba(255, 255, 255, .78);
@@ -66,7 +66,7 @@ body.gs-body {
         var(--gs-bg);
     color: var(--gs-ink);
     font-family: var(--gs-text);
-    font-size: 14px;
+    font-size: 0.875rem;
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
@@ -2950,6 +2950,55 @@ body[data-gs-view="gsDashboard"] .gs-header {
     text-decoration: underline;
 }
 
+.gs-product-share-price {
+    display: grid;
+    gap: 4px;
+    width: 100%;
+}
+
+.gs-product-share-price label {
+    color: var(--gs-ink);
+    font-size: 10.5px;
+    font-weight: 700;
+}
+
+.gs-product-share-price input {
+    width: 100%;
+    min-height: 44px;
+    padding: 0 11px;
+    border: 1px solid var(--gs-line-strong);
+    border-radius: 10px;
+    background: #fff;
+    color: var(--gs-ink);
+    font: inherit;
+    font-size: 13px;
+}
+
+.gs-product-share-price button {
+    min-height: 44px;
+    padding: 0 14px;
+    border: 1px solid var(--gs-line-strong);
+    border-radius: 10px;
+    background: #fff;
+    color: var(--gs-ink);
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.gs-product-share-price input.is-invalid,
+.gs-product-share-price input.is-invalid:focus {
+    border-color: rgba(166, 75, 48, .55);
+    background: rgba(166, 75, 48, .04);
+}
+
+.gs-product-share-price-error {
+    color: var(--gs-red);
+    font-size: 9px;
+    line-height: 1.45;
+    margin: 2px 0 0;
+}
+
 .gs-product-features {
     display: grid;
     gap: 10px;
@@ -5719,6 +5768,7 @@ body.gs-body {
 
 [data-gs-theme="dark"] .gs-product-sale input,
 [data-gs-theme="dark"] .gs-cart-price-field input,
+[data-gs-theme="dark"] .gs-product-share-price input,
 [data-gs-theme="dark"] .gs-field input,
 [data-gs-theme="dark"] .gs-field select,
 [data-gs-theme="dark"] .gs-field textarea {
@@ -6137,4 +6187,47 @@ body.gs-body {
 }
 [data-gs-theme="dark"] .gs-suggest-price {
     color: var(--gs-gold);
+}
+
+/* Preferencias del panel */
+.gs-prefs-dialog {
+    position: fixed;
+    width: min(94vw, 44rem);
+    max-height: min(88dvh, 52rem);
+    margin: auto;
+    padding: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    color: var(--gs-ink);
+    background: var(--gs-paper-solid);
+    border: 1px solid var(--gs-line-strong);
+    border-radius: 1.25rem;
+    box-shadow: var(--gs-shadow);
+}
+
+.gs-prefs-dialog::backdrop {
+    background: rgba(0, 0, 0, .55);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.gs-prefs-dialog .vx-prefs {
+    padding: 1.25rem;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+}
+
+.gs-prefs-dialog .vx-prefs-head {
+    padding-right: 2.75rem;
+}
+
+@media (max-width: 640px) {
+    .gs-prefs-dialog {
+        width: 100%;
+        max-width: none;
+        max-height: 92dvh;
+        margin: auto 0 0;
+        border-radius: 1.25rem 1.25rem 0 0;
+    }
 }

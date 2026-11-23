@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" data-gs-theme="dark">
+<html lang="es" data-surface="gestor" data-gs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -7,6 +7,7 @@
     <meta name="theme-color" content="#12110F">
     <meta name="description" content="Panel privado del gestor comercial de VOLXEN: resultados, pedidos, clientes, rendimiento y comisiones.">
     <title>Panel del gestor · VOLXEN</title>
+    <script src="js/pages/prefs.js"></script>
     <script src="js/pages/gestor-theme.js"></script>
 
     <link rel="preload" as="font" type="font/woff2" crossorigin href="dist/fonts/DM-Sans-Regular.woff2">
@@ -143,6 +144,10 @@
                         <span class="gs-side-icon"><i class="fa-solid fa-user" aria-hidden="true"></i></span>
                         <span class="gs-side-label">Mi cuenta</span>
                     </a>
+                    <button id="gsPreferencesOpen" class="gs-side-link" type="button" aria-label="Configuración" title="Configuración">
+                        <span class="gs-side-icon"><i class="fa-solid fa-sliders" aria-hidden="true"></i></span>
+                        <span class="gs-side-label">Configuración</span>
+                    </button>
                     <button id="gsLogout" class="gs-side-link gs-side-logout" type="button" aria-label="Cerrar sesión" title="Cerrar sesión">
                         <span class="gs-side-icon"><i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i></span>
                         <span class="gs-side-label">Cerrar sesión</span>
@@ -786,6 +791,12 @@
                         <small id="gsProductMaxNote"></small>
                         <p id="gsProductLimitWarning" class="gs-product-limit-warning" role="alert" aria-live="assertive" hidden></p>
                     </div>
+                    <div id="gsProductSharePriceWrap" class="gs-product-share-price" hidden>
+                        <label for="gsProductSharePrice">Tu precio para compartir (USD)</label>
+                        <input id="gsProductSharePrice" type="number" min="0" step="0.01" inputmode="decimal">
+                        <button id="gsProductSharePriceSave" type="button">Guardar</button>
+                        <p id="gsProductSharePriceError" class="gs-product-share-price-error" role="alert" aria-live="assertive" hidden></p>
+                    </div>
                     <div id="gsProductFeatures" class="gs-product-features"></div>
                     <div class="gs-product-dialog-actions">
                         <button id="gsProductAdd" class="gs-button gs-button-primary" type="button">
@@ -854,6 +865,13 @@
             <div id="gsOperatorList" class="gs-operator-list" aria-live="polite"></div>
             <p class="gs-doc-hint">Se abrirá WhatsApp con el mensaje listo. No se envía nada automáticamente.</p>
         </div>
+    </dialog>
+
+    <dialog id="gsPreferencesDialog" class="gs-prefs-dialog" aria-labelledby="vxPrefsTitle">
+        <button id="gsPreferencesClose" class="gs-product-close" type="button" aria-label="Cerrar configuración">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+        <div id="gsPreferencesMount" data-vx-prefs></div>
     </dialog>
 
     <div id="ts"></div>
