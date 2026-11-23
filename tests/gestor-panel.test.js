@@ -76,7 +76,7 @@ test("el gestor puede comprar desde su panel con carrito y vale", () => {
     assert.match(html, /id="gsProductSalePrice"/);
     assert.match(js, /\/rpc\/crear_pedido_gestor/);
     assert.match(js, /precio_unitario/);
-    assert.match(js, /No trae comisión/i);
+    assert.match(js, /Comisión base:/);
     assert.match(js, /function renderCart/);
     assert.match(js, /function submitOrder/);
     assert.match(js, /function setCheckoutStep/);
@@ -212,7 +212,8 @@ test("el panel muestra solo comisión y permite compra directa con vale seleccio
     assert.match(html, /Por cobrar/);
     assert.match(html, /Total que paga el cliente/);
     assert.match(html, /Tu comisión/);
-    assert.match(js, /MAX_MARGIN_PERCENT = 20/);
+    assert.match(js, /DEFAULT_MARGIN_PERCENT = 20/);
+    assert.match(js, /MAX_MARGIN_PERCENT = 100/);
     assert.match(js, /function directBuyProduct/);
     assert.match(js, /function startDirectCheckout/);
     assert.match(js, /function startDirectFromCart/);
