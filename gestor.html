@@ -782,7 +782,14 @@
                     <p id="gsProductModeNote" class="gs-product-mode-note"></p>
                     <div id="gsProductSaleWrap" class="gs-product-sale" hidden>
                         <label for="gsProductSalePrice">Tu precio de venta (USD) *</label>
-                        <input id="gsProductSalePrice" type="number" min="0" step="0.01" inputmode="decimal">
+                        <div class="gs-product-price-row">
+                            <input id="gsProductSalePrice" type="number" min="0" step="0.01" inputmode="decimal">
+                            <button id="gsProductPriceSave" class="gs-product-price-button is-primary" type="button">Guardar</button>
+                        </div>
+                        <div class="gs-product-price-actions">
+                            <button id="gsProductPriceBase" class="gs-product-price-button" type="button">Usar precio base</button>
+                            <span id="gsProductPriceStatus" class="gs-product-price-status" role="status" aria-live="polite"></span>
+                        </div>
                         <small id="gsProductMaxNote"></small>
                         <p id="gsProductLimitWarning" class="gs-product-limit-warning" role="alert" aria-live="assertive" hidden></p>
                     </div>

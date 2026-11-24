@@ -276,9 +276,12 @@ function pcard(p, options) {
     const opts = options || {};
     const im = ft(p)[0], a = ag(p);
     const imgSrc = im ? imgUrl(im, { w: 400, h: 300, format: "webp", quality: 80 }) : "";
+    const hasPrice = opts.price != null && Number.isFinite(Number(opts.price));
+    const displayPrice = hasPrice ? Number(opts.price) : p.precio_usd;
     const pri = a ? '<span class="text-sm font-bold text-fg">Consultar disponibilidad</span>' :
-        (O[p.id] ? '<s class="text-xs text-mu mr-1">' + fm(p.precio_usd) + '</s><span class="text-base font-black text-fg">' + fm(O[p.id]) + '</span>' :
-            '<span class="text-base font-black text-fg">' + fm(p.precio_usd) + '</span>');
+        (hasPrice ? '<span class="text-base font-black text-fg">' + fm(displayPrice) + '</span>' :
+            (O[p.id] ? '<s class="text-xs text-mu mr-1">' + fm(p.precio_usd) + '</s><span class="text-base font-black text-fg">' + fm(O[p.id]) + '</span>' :
+                '<span class="text-base font-black text-fg">' + fm(p.precio_usd) + '</span>'));
     const add = '<button data-a="add1" data-id="' + esc(p.id) + '" class="btn-primary px-4 py-2.5 font-bold text-sm transition shadow flex items-center space-x-2"><i class="fa-solid fa-cart-plus"></i><span>Añadir</span></button>';
     const buy = opts.buy
         ? '<button data-a="buy1" data-id="' + esc(p.id) + '" class="btn-secondary gs-card-buy px-4 py-2.5 font-bold text-sm transition shadow flex items-center space-x-2"' + (a ? ' disabled' : '') + '><i class="fa-solid fa-bolt"></i><span>Comprar</span></button>'

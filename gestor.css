@@ -2915,6 +2915,86 @@ body[data-gs-view="gsDashboard"] .gs-header {
     font-size: 13px;
 }
 
+.gs-product-price-row {
+    display: flex;
+    align-items: stretch;
+    gap: 7px;
+}
+
+.gs-product-price-row input {
+    flex: 1;
+    min-width: 0;
+}
+
+.gs-product-price-button {
+    min-height: 44px;
+    padding: 0 12px;
+    border: 1px solid var(--gs-line-strong);
+    border-radius: 10px;
+    background: var(--gs-paper-solid);
+    color: var(--gs-ink);
+    font: inherit;
+    font-size: 10.5px;
+    font-weight: 700;
+    line-height: 1.1;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.gs-product-price-button.is-primary {
+    border-color: var(--gs-green);
+    background: var(--gs-green);
+    color: #fff;
+}
+
+.gs-product-price-button:hover:not(:disabled) {
+    border-color: var(--gs-green);
+}
+
+.gs-product-price-button.is-primary:hover:not(:disabled) {
+    border-color: #233c32;
+    background: #233c32;
+}
+
+.gs-product-price-button:disabled {
+    border-color: var(--gs-line);
+    background: var(--gs-surface);
+    color: var(--gs-muted);
+    cursor: not-allowed;
+}
+
+.gs-product-price-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 5px 10px;
+}
+
+.gs-product-price-actions .gs-product-price-button {
+    min-height: 32px;
+    padding: 0 10px;
+    font-size: 9.5px;
+}
+
+.gs-product-price-status {
+    color: var(--gs-muted);
+    font-size: 9px;
+    line-height: 1.4;
+}
+
+.gs-product-price-status.is-saved {
+    color: var(--gs-green);
+    font-weight: 700;
+}
+
+.gs-product-price-status.is-warning {
+    color: var(--gs-amber);
+}
+
+.gs-product-price-status.is-error {
+    color: var(--gs-red);
+}
+
 .gs-product-sale small {
     color: var(--gs-muted);
     font-size: 8.5px;
@@ -5724,6 +5804,22 @@ body.gs-body {
 [data-gs-theme="dark"] .gs-field textarea {
     background: rgba(255, 255, 255, .055);
     color: var(--gs-ink);
+}
+
+[data-gs-theme="dark"] .gs-product-price-button {
+    background: rgba(255, 255, 255, .055);
+    color: var(--gs-ink);
+}
+
+[data-gs-theme="dark"] .gs-product-price-button.is-primary {
+    border-color: var(--gs-green);
+    background: var(--gs-green);
+    color: #fff;
+}
+
+[data-gs-theme="dark"] .gs-product-price-button:disabled {
+    background: var(--gs-surface);
+    color: var(--gs-muted);
 }
 
 [data-gs-theme="dark"] .gs-cart-thumb {

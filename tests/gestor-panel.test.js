@@ -220,7 +220,7 @@ test("el panel muestra solo comisión y permite compra directa con vale seleccio
     assert.match(js, /data-cart-select=/);
     assert.match(js, /data-cart-solo=/);
     assert.match(js, /operadoras\.html/);
-    assert.match(js, /api\.pcard\(product,\s*\{\s*buy:\s*true\s*\}\)/);
+    assert.match(js, /api\.pcard\(product,\s*\{\s*buy:\s*true[^}]*\}\)/);
     assert.match(css, /\.gs-card-actions/);
     assert.match(css, /\.gs-cart-limit-warning/);
     assert.match(css, /\.gs-cart-check/);
