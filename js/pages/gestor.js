@@ -81,6 +81,10 @@
         managerNameOverride: "",
         productChanges: [],
         productChangesLoading: false,
+        dismissedChangeIds: [],
+        offers: [],
+        offerProducts: {},
+        offersLoading: false,
         savedPriceAdjustments: [],
         managerPrices: {},
         managerPricesLoading: false,
@@ -1043,22 +1047,104 @@
         return Number.isFinite(amount) ? amount.toLocaleString("es-ES", { maximumFractionDigits: 1 }) + "%" : "—";
     }
 
+    function changeDirection(change) {
+        const before = change && change.precio_anterior != null ? Number(change.precio_anterior) : null;
+        const after = change && change.precio_nuevo != null ? Number(change.precio_nuevo) : null;
+        if (before == null || after == null || !Number.isFinite(before) || !Number.isFinite(after) || before === after) {
+            return { key: "same", label: "", icon: "fa-tag" };
+        }
+        return after > before
+            ? { key: "up", label: "Subida", icon: "fa-arrow-trend-up" }
+            : { key: "down", label: "Rebaja", icon: "fa-arrow-trend-down" };
+    }
+
+    function limitDirection(change) {
+        const before = change && change.margen_anterior != null ? Number(change.margen_anterior) : null;
+        const after = change && change.margen_nuevo != null ? Number(change.margen_nuevo) : null;
+        if (before == null || after == null || !Number.isFinite(before) || !Number.isFinite(after) || before === after) return "";
+        return after > before ? "Límite subido" : "Límite bajado";
+    }
+
     function productChangeSummary(change) {
         const parts = [];
         if (change.precio_anterior != null || change.precio_nuevo != null) {
             parts.push("Precio: <b>" + escapeHtml(changeAmount(change.precio_anterior)) + " → " + escapeHtml(changeAmount(change.precio_nuevo)) + "</b>");
         }
         if (change.margen_anterior != null || change.margen_nuevo != null) {
-            parts.push("Límite de subida: <b>" + escapeHtml(changePercent(change.margen_anterior)) + " → " + escapeHtml(changePercent(change.margen_nuevo)) + "</b>");
+            const limit = limitDirection(change);
+            parts.push((limit ? limit + ": " : "Límite de subida: ") + "<b>" + escapeHtml(changePercent(change.margen_anterior)) + " → " + escapeHtml(changePercent(change.margen_nuevo)) + "</b>");
         }
         if (!parts.length) parts.push("El producto se actualizó.");
         return parts.join(" · ");
     }
 
+    function notifStore() {
+        return window.VXGESTOR_NOTIFS && typeof window.VXGESTOR_NOTIFS.read === "function"
+            ? window.VXGESTOR_NOTIFS
+            : null;
+    }
+
+    function notifUserId() {
+        return state.session && state.session.user ? state.session.user.id : "";
+    }
+
+    function loadDismissedChanges() {
+        const store = notifStore();
+        state.dismissedChangeIds = store ? store.read(notifUserId()) : [];
+    }
+
+    function saveDismissedChanges(ids) {
+        state.dismissedChangeIds = (Array.isArray(ids) ? ids : []).map(String);
+        const store = notifStore();
+        if (store && typeof store.write === "function") {
+            store.write(notifUserId(), state.dismissedChangeIds);
+        }
+    }
+
+    function isChangeDismissed(change) {
+        return Boolean(change && state.dismissedChangeIds.indexOf(String(change.id)) !== -1);
+    }
+
+    function visibleProductChanges() {
+        return (Array.isArray(state.productChanges) ? state.productChanges : []).filter(function (change) {
+            return !isChangeDismissed(change);
+        });
+    }
+
+    function offerDismissKey(offer) {
+        return "offer:" + String(offer && offer.id) + ":" + String(offer && offer.precio_oferta_usd);
+    }
+
+    function visibleOffers() {
+        return (Array.isArray(state.offers) ? state.offers : []).filter(function (offer) {
+            return state.dismissedChangeIds.indexOf(offerDismissKey(offer)) === -1;
+        });
+    }
+
+    function productChangeRow(change, mode) {
+        const unread = !change.leida;
+        const direction = changeDirection(change);
+        const tag = direction.label
+            ? '<span class="gs-change-tag is-' + direction.key + '">' + escapeHtml(direction.label) + "</span>"
+            : "";
+        const action = mode === "dismiss"
+            ? '<button class="gs-change-read" type="button" data-change-dismiss="' + escapeHtml(change.id) + '" aria-label="Quitar notificación">Quitar</button>'
+            : (unread
+                ? '<button class="gs-change-read" type="button" data-change-read="' + escapeHtml(change.id) + '">Leer</button>'
+                : "<time>" + escapeHtml(dateLabel(change.created_at)) + "</time>");
+
+        return '<article class="gs-change' + (unread ? " is-unread" : "") + (direction.key !== "same" ? " is-" + direction.key : "") + '">' +
+            '<span class="gs-change-icon" aria-hidden="true"><i class="fa-solid ' + direction.icon + '"></i></span>' +
+            '<span class="gs-change-copy"><strong>' + escapeHtml(change.producto_nombre || "Producto actualizado") + (unread ? ' · <span class="gs-chip-muted">Nuevo</span>' : "") + " " + tag + "</strong>" +
+                '<small>' + productChangeSummary(change) + "</small></span>" +
+            action +
+        "</article>";
+    }
+
     function renderProductChanges() {
         if (!refs.gsProductChanges) return;
 
-        const changes = Array.isArray(state.productChanges) ? state.productChanges.slice(0, 8) : [];
+        const changes = visibleProductChanges().slice(0, 8);
         const adjustments = Array.isArray(state.savedPriceAdjustments) ? state.savedPriceAdjustments.slice(0, 4) : [];
         const rows = [];
 
@@ -1073,15 +1159,7 @@
         });
 
         changes.forEach(function (change) {
-            const unread = !change.leida;
-            rows.push(
-                '<article class="gs-change' + (unread ? " is-unread" : "") + '">' +
-                    '<span class="gs-change-icon" aria-hidden="true"><i class="fa-solid fa-tag"></i></span>' +
-                    '<span class="gs-change-copy"><strong>' + escapeHtml(change.producto_nombre || "Producto actualizado") + (unread ? ' · <span class="gs-chip-muted">Nuevo</span>' : "") + "</strong>" +
-                        '<small>' + productChangeSummary(change) + "</small></span>" +
-                    (unread ? '<button class="gs-change-read" type="button" data-change-read="' + escapeHtml(change.id) + '">Leer</button>' : "<time>" + escapeHtml(dateLabel(change.created_at)) + "</time>") +
-                "</article>"
-            );
+            rows.push(productChangeRow(change, "read"));
         });
 
         refs.gsProductChanges.innerHTML = rows.length
@@ -1089,15 +1167,85 @@
             : '<p class="gs-empty"><strong>Sin cambios de producto.</strong>Si administración actualiza un precio o el límite de subida, aparecerá aquí.</p>';
     }
 
+    function commissionEvents() {
+        return state.orders.map(commissionEvent)
+            .filter(function (event) { return Boolean(event.date); })
+            .sort(function (a, b) { return new Date(b.date) - new Date(a.date); });
+    }
+
+    function notificationEventRow(event) {
+        return '<article class="gs-notification ' + event.tone + '">' +
+            '<span class="gs-notification-icon" aria-hidden="true"><i class="fa-solid ' + event.icon + '"></i></span>' +
+            '<span class="gs-notification-copy"><strong>' + escapeHtml(event.title) + "</strong><small>" + escapeHtml(event.body) + "</small></span>" +
+            "<time datetime=\"" + escapeHtml(event.date) + "\">" + escapeHtml(dateLabel(event.date)) + "</time>" +
+        "</article>";
+    }
+
+    function offerRow(offer) {
+        const product = state.offerProducts[String(offer.producto_id)] || null;
+        const name = product && product.nombre ? product.nombre : "Producto";
+        const offerPrice = Number(offer.precio_oferta_usd);
+        const basePrice = product && product.precio_usd != null ? Number(product.precio_usd) : null;
+        const discount = Number.isFinite(basePrice) && Number.isFinite(offerPrice) && basePrice > offerPrice
+            ? Math.round((1 - offerPrice / basePrice) * 100)
+            : 0;
+
+        return '<article class="gs-change is-offer">' +
+            '<span class="gs-change-icon" aria-hidden="true"><i class="fa-solid fa-tags"></i></span>' +
+            '<span class="gs-change-copy"><strong>' + escapeHtml(name) + "</strong>" +
+                '<small><b>' + escapeHtml(money(offerPrice)) + "</b>" +
+                (Number.isFinite(basePrice) ? " <s>" + escapeHtml(money(basePrice)) + "</s>" : "") +
+                (discount ? ' · <span class="gs-change-tag is-down">-' + escapeHtml(discount) + "%</span>" : "") +
+                "</small></span>" +
+            '<button class="gs-change-read" type="button" data-offer-dismiss="' + escapeHtml(offerDismissKey(offer)) + '" aria-label="Quitar oferta">Quitar</button>' +
+        "</article>";
+    }
+
+    function renderNotifDrawer() {
+        const changes = visibleProductChanges();
+        const unread = changes.filter(function (change) { return !change.leida; }).length;
+        const events = commissionEvents();
+        const offers = visibleOffers();
+
+        if (refs.gsNotifDrawerCount) {
+            const summary = [];
+            if (unread) summary.push(count(unread) + " cambio" + (unread === 1 ? "" : "s") + " sin leer");
+            if (offers.length) summary.push(count(offers.length) + " oferta" + (offers.length === 1 ? "" : "s"));
+            if (events.length) summary.push(count(events.length) + " novedad" + (events.length === 1 ? "" : "es"));
+            refs.gsNotifDrawerCount.textContent = summary.length ? summary.join(" · ") : "Sin novedades";
+        }
+
+        if (refs.gsNotifClearAll) {
+            refs.gsNotifClearAll.hidden = !changes.length && !offers.length;
+        }
+
+        if (refs.gsNotifDrawerChanges) {
+            refs.gsNotifDrawerChanges.innerHTML = changes.length
+                ? changes.slice(0, 20).map(function (change) { return productChangeRow(change, "dismiss"); }).join("")
+                : '<p class="gs-empty"><strong>Sin cambios de precio.</strong>Cuando administración suba o rebaje un precio o cambie el límite, aparecerá aquí.</p>';
+        }
+
+        if (refs.gsNotifDrawerOffers) {
+            refs.gsNotifDrawerOffers.innerHTML = offers.length
+                ? offers.slice(0, 12).map(offerRow).join("")
+                : (state.offers.length
+                    ? '<p class="gs-empty"><strong>Sin ofertas pendientes.</strong>Quitaste las ofertas de tu vista.</p>'
+                    : '<p class="gs-empty"><strong>Sin ofertas activas.</strong>Las rebajas publicadas por administración aparecerán aquí.</p>');
+        }
+
+        if (refs.gsNotifDrawerEvents) {
+            refs.gsNotifDrawerEvents.innerHTML = events.length
+                ? events.slice(0, 8).map(notificationEventRow).join("")
+                : '<p class="gs-empty">Sin novedades de pedidos ni comisiones.</p>';
+        }
+    }
+
     function renderNotifications() {
         if (!refs.gsNotifications) return;
 
-        const changes = Array.isArray(state.productChanges) ? state.productChanges : [];
+        const changes = visibleProductChanges();
         const unreadChanges = changes.filter(function (change) { return !change.leida; }).length;
-        const events = state.orders.map(commissionEvent)
-            .filter(function (event) { return Boolean(event.date); })
-            .sort(function (a, b) { return new Date(b.date) - new Date(a.date); })
-            .slice(0, 6);
+        const events = commissionEvents().slice(0, 6);
         const ready = state.orders.filter(function (order) {
             return (order.comision_estado || "pendiente") === "disponible";
         }).length;
@@ -1124,15 +1272,97 @@
         renderProductChanges();
 
         refs.gsNotifications.innerHTML = events.length
-            ? events.map(function (event) {
-                return '<article class="gs-notification ' + event.tone + '">' +
-                    '<span class="gs-notification-icon" aria-hidden="true"><i class="fa-solid ' + event.icon + '"></i></span>' +
-                    '<span class="gs-notification-copy"><strong>' + escapeHtml(event.title) + "</strong><small>" + escapeHtml(event.body) + "</small></span>" +
-                    "<time datetime=\"" + escapeHtml(event.date) + "\">" + escapeHtml(dateLabel(event.date)) + "</time>" +
-                "</article>";
-            }).join("")
+            ? events.map(notificationEventRow).join("")
             : '<p class="gs-empty"><strong>Sin notificaciones por ahora.</strong>Las novedades de tus pedidos y comisiones aparecerán aquí.</p>';
+
+        renderNotifDrawer();
     }
+
+    async function loadOffers() {
+        if (!window.VXAUTH || typeof VXAUTH.rest !== "function" || state.offersLoading) return;
+        state.offersLoading = true;
+        try {
+            const rows = await VXAUTH.rest(
+                "/ofertas?select=id,producto_id,precio_oferta_usd,created_at&activa=eq.true&order=created_at.desc&limit=20"
+            );
+            state.offers = Array.isArray(rows) ? rows : [];
+            const ids = state.offers.map(function (offer) { return offer.producto_id; }).filter(Boolean);
+            state.offerProducts = {};
+            if (ids.length) {
+                try {
+                    const list = ids.map(function (value) { return encodeURIComponent(value); }).join(",");
+                    const products = await VXAUTH.rest("/productos?select=id,nombre,precio_usd&id=in.(" + list + ")");
+                    (Array.isArray(products) ? products : []).forEach(function (product) {
+                        state.offerProducts[String(product.id)] = product;
+                    });
+                } catch (error) {
+                    state.offerProducts = {};
+                }
+            }
+        } catch (error) {
+            state.offers = [];
+            state.offerProducts = {};
+        } finally {
+            state.offersLoading = false;
+            renderNotifDrawer();
+        }
+    }
+
+    function openNotifDrawer() {
+        if (!refs.gsNotifDrawer) return;
+        refs.gsNotifDrawer.hidden = false;
+        if (refs.gsNotifScrim) refs.gsNotifScrim.hidden = false;
+        document.body.classList.add("gs-notif-open");
+        renderNotifDrawer();
+        loadOffers();
+        if (refs.gsNotifClose) refs.gsNotifClose.focus();
+    }
+
+    function closeNotifDrawer() {
+        const wasOpen = Boolean(refs.gsNotifDrawer && !refs.gsNotifDrawer.hidden);
+        if (refs.gsNotifDrawer) refs.gsNotifDrawer.hidden = true;
+        if (refs.gsNotifScrim) refs.gsNotifScrim.hidden = true;
+        document.body.classList.remove("gs-notif-open");
+        if (wasOpen && refs.gsBellButton) refs.gsBellButton.focus();
+    }
+
+    function toggleNotifDrawer() {
+        if (refs.gsNotifDrawer && !refs.gsNotifDrawer.hidden) {
+            closeNotifDrawer();
+        } else {
+            openNotifDrawer();
+        }
+    }
+
+    function dismissProductChange(changeId) {
+        if (!changeId) return;
+        const ids = state.dismissedChangeIds.slice();
+        if (ids.indexOf(String(changeId)) === -1) ids.push(String(changeId));
+        saveDismissedChanges(ids);
+        renderNotifications();
+    }
+
+    function dismissOffer(key) {
+        if (!key) return;
+        const ids = state.dismissedChangeIds.slice();
+        if (ids.indexOf(String(key)) === -1) ids.push(String(key));
+        saveDismissedChanges(ids);
+        renderNotifications();
+    }
+
+    async function dismissAllProductChanges() {
+        const ids = state.dismissedChangeIds.slice();
+        visibleProductChanges().forEach(function (change) {
+            if (change.id != null && ids.indexOf(String(change.id)) === -1) ids.push(String(change.id));
+        });
+        visibleOffers().forEach(function (offer) {
+            const key = offerDismissKey(offer);
+            if (ids.indexOf(key) === -1) ids.push(key);
+        });
+        saveDismissedChanges(ids);
+        renderNotifications();
+    }
+
 
     async function loadProductChanges() {
         if (!window.VXAUTH || typeof VXAUTH.rest !== "function" || state.productChangesLoading) return;
@@ -3438,6 +3668,45 @@
             });
         }
 
+        if (refs.gsBellButton) {
+            refs.gsBellButton.addEventListener("click", toggleNotifDrawer);
+        }
+
+        if (refs.gsNotifClose) {
+            refs.gsNotifClose.addEventListener("click", closeNotifDrawer);
+        }
+
+        if (refs.gsNotifScrim) {
+            refs.gsNotifScrim.addEventListener("click", closeNotifDrawer);
+        }
+
+        if (refs.gsNotifDrawerChanges) {
+            refs.gsNotifDrawerChanges.addEventListener("click", function (event) {
+                const button = event.target.closest("[data-change-dismiss]");
+                if (!button) return;
+                button.disabled = true;
+                dismissProductChange(button.getAttribute("data-change-dismiss"));
+            });
+        }
+
+        if (refs.gsNotifDrawerOffers) {
+            refs.gsNotifDrawerOffers.addEventListener("click", function (event) {
+                const button = event.target.closest("[data-offer-dismiss]");
+                if (!button) return;
+                button.disabled = true;
+                dismissOffer(button.getAttribute("data-offer-dismiss"));
+            });
+        }
+
+        if (refs.gsNotifClearAll) {
+            refs.gsNotifClearAll.addEventListener("click", function () {
+                refs.gsNotifClearAll.disabled = true;
+                dismissAllProductChanges().finally(function () {
+                    if (refs.gsNotifClearAll) refs.gsNotifClearAll.disabled = false;
+                });
+            });
+        }
+
         if (refs.gsMenuToggle) {
             refs.gsMenuToggle.addEventListener("click", function () {
                 if (refs.gsApp && refs.gsApp.classList.contains("is-nav-open")) {
@@ -3515,6 +3784,7 @@
         document.addEventListener("keydown", function (event) {
             if (event.key === "Escape") {
                 closeNav();
+                closeNotifDrawer();
                 hideSearchResults();
             }
         });
@@ -4100,6 +4370,8 @@
             "gsOrdersList", "gsClientsList", "gsSearch", "gsSearchLabel", "gsSearchResults", "gsStatusFilter", "gsMoreWrap", "gsMore",
             "gsLogout", "gsRetry", "gsErrorText", "gsApp", "gsSidebar", "gsSidebarToggle",
             "gsMenuToggle", "gsScrim", "gsDashboardScroll", "gsBellBadge", "gsSort", "gsPeriod",
+            "gsBellButton", "gsNotifScrim", "gsNotifDrawer", "gsNotifClose", "gsNotifDrawerCount",
+            "gsNotifClearAll", "gsNotifDrawerChanges", "gsNotifDrawerOffers", "gsNotifDrawerEvents",
             "gsReportPeriod", "gsReportTotal", "gsReportAverage", "gsReportCommission", "gsDownloadReport",
             "gsChart", "gsEvolutionChart", "gsEvolutionPeriod", "gsCategoryPeriod", "gsBubbleStage",
             "gsGauge", "gsGaugeProgress", "gsGaugeValue", "gsGaugeLabel",
@@ -4159,6 +4431,7 @@
         }
 
         state.session = session;
+        loadDismissedChanges();
         const role = session.user && session.user.role;
 
         if (role === "admin") {
@@ -4176,6 +4449,7 @@
         setView("gsLoading");
         await load();
         loadProductChanges();
+        loadOffers();
         ensureCatalog().catch(function () {});
         syncPanelFromLocation();
     }

@@ -194,10 +194,10 @@
                             <i class="fa-solid fa-cart-shopping" aria-hidden="true"></i>
                             <span id="gsCartCount" class="gs-icon-badge" hidden>0</span>
                         </a>
-                        <a class="gs-icon-button" href="#gsNotificationsSection" aria-label="Ver notificaciones" title="Notificaciones">
+                        <button id="gsBellButton" class="gs-icon-button" type="button" aria-label="Ver notificaciones" title="Notificaciones" aria-haspopup="dialog" aria-controls="gsNotifDrawer">
                             <i class="fa-solid fa-bell" aria-hidden="true"></i>
                             <span id="gsBellBadge" class="gs-icon-badge" hidden></span>
-                        </a>
+                        </button>
                         <a class="gs-icon-button" href="#gsClientsSection" aria-label="Ir a clientes" title="Clientes">
                             <i class="fa-solid fa-comment-dots" aria-hidden="true"></i>
                         </a>
@@ -863,6 +863,36 @@
         </div>
     </dialog>
 
+    <div id="gsNotifScrim" class="gs-notif-scrim" hidden></div>
+
+    <aside id="gsNotifDrawer" class="gs-notif-drawer" role="dialog" aria-modal="true" aria-labelledby="gsNotifDrawerTitle" hidden>
+        <div class="gs-notif-drawer-head">
+            <div>
+                <p class="gs-eyebrow">Seguimiento</p>
+                <h2 id="gsNotifDrawerTitle">Notificaciones</h2>
+            </div>
+            <button id="gsNotifClose" class="gs-product-close" type="button" aria-label="Cerrar notificaciones">
+                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+            </button>
+        </div>
+        <div class="gs-notif-drawer-actions">
+            <span id="gsNotifDrawerCount" class="gs-chip-muted">Sin novedades</span>
+            <button id="gsNotifClearAll" class="gs-button gs-button-ghost" type="button" hidden>Quitar todas</button>
+        </div>
+        <section class="gs-notif-group" aria-labelledby="gsNotifPriceTitle">
+            <h3 id="gsNotifPriceTitle" class="gs-subsection-title">Cambios de precio</h3>
+            <div id="gsNotifDrawerChanges" class="gs-changes" aria-live="polite"></div>
+        </section>
+        <section class="gs-notif-group" aria-labelledby="gsNotifOffersTitle">
+            <h3 id="gsNotifOffersTitle" class="gs-subsection-title">Ofertas activas</h3>
+            <div id="gsNotifDrawerOffers" class="gs-changes" aria-live="polite"></div>
+        </section>
+        <section class="gs-notif-group" aria-labelledby="gsNotifEventsTitle">
+            <h3 id="gsNotifEventsTitle" class="gs-subsection-title">Pedidos y comisiones</h3>
+            <div id="gsNotifDrawerEvents" class="gs-notifications" aria-live="polite"></div>
+        </section>
+    </aside>
+
     <div id="ts"></div>
 
     <script src="config.js"></script>
@@ -875,6 +905,7 @@
     <script src="js/pages/gestor-charts.js"></script>
     <script src="js/pages/gestor-docs.js"></script>
     <script src="js/pages/gestor-pdf.js"></script>
+    <script src="js/pages/gestor-notif-store.js"></script>
     <script src="js/pages/gestor.js"></script>
 </body>
 </html>

@@ -742,6 +742,7 @@ body[data-gs-view="gsDashboard"] .gs-header {
     width: 38px;
     height: 38px;
     flex: 0 0 auto;
+    padding: 0;
     place-items: center;
     border: 1px solid var(--gs-glass-rim);
     border-radius: 11px;
@@ -6233,4 +6234,155 @@ body.gs-body {
 }
 [data-gs-theme="dark"] .gs-suggest-price {
     color: var(--gs-gold);
+}
+
+/* ===== Notificaciones: vista independiente (drawer) ===== */
+.gs-notif-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    background: rgba(30, 29, 27, .45);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.gs-notif-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 71;
+    display: flex;
+    flex-direction: column;
+    width: min(430px, 100%);
+    padding: 22px 20px 28px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border-left: 1px solid var(--gs-line);
+    background: var(--gs-paper-solid);
+    box-shadow: -24px 0 70px rgba(30, 29, 27, .18);
+    animation: gs-notif-slide .28s var(--gs-ease);
+}
+
+.gs-notif-drawer[hidden],
+.gs-notif-scrim[hidden] {
+    display: none;
+}
+
+.gs-notif-drawer-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding-right: 42px;
+}
+
+.gs-notif-drawer-head h2 {
+    margin: 2px 0 0;
+    font-family: var(--gs-display);
+    font-size: 22px;
+    letter-spacing: -.03em;
+}
+
+.gs-notif-drawer .gs-product-close {
+    top: 16px;
+    right: 16px;
+}
+
+.gs-notif-drawer-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 12px 0 2px;
+}
+
+.gs-notif-group {
+    margin-top: 16px;
+}
+
+.gs-notif-group .gs-subsection-title {
+    margin-bottom: 6px;
+}
+
+.gs-notif-drawer .gs-change,
+.gs-notif-drawer .gs-notification {
+    padding: 11px 0;
+}
+
+.gs-change-tag {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 7px;
+    border-radius: 7px;
+    font-size: 8.5px;
+    font-weight: 700;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+    vertical-align: middle;
+}
+
+.gs-change-tag.is-up {
+    color: var(--gs-red);
+    background: var(--gs-red-soft);
+}
+
+.gs-change-tag.is-down {
+    color: var(--gs-green);
+    background: var(--gs-green-soft);
+}
+
+.gs-change.is-unread {
+    background: linear-gradient(90deg, var(--gs-gold-soft), transparent 70%);
+}
+
+.gs-change.is-up .gs-change-icon {
+    color: var(--gs-red);
+    background: var(--gs-red-soft);
+}
+
+.gs-change.is-down .gs-change-icon {
+    color: var(--gs-green);
+    background: var(--gs-green-soft);
+}
+
+.gs-change.is-offer .gs-change-icon {
+    color: var(--gs-gold-dark);
+    background: var(--gs-gold-soft);
+}
+
+.gs-change-copy s {
+    color: var(--gs-muted);
+}
+
+body.gs-notif-open {
+    overflow: hidden;
+}
+
+@keyframes gs-notif-slide {
+    from {
+        transform: translateX(24px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .gs-notif-drawer {
+        animation: none;
+    }
+}
+
+@media (max-width: 640px) {
+    .gs-notif-drawer {
+        width: 100%;
+        border-left: 0;
+    }
+}
+
+[data-gs-theme="dark"] .gs-notif-drawer {
+    box-shadow: -24px 0 70px rgba(0, 0, 0, .55);
 }
