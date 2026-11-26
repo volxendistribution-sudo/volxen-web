@@ -1095,10 +1095,16 @@
         position: absolute;
         top: 8px;
         right: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         width: 44px;
         height: 44px;
+        min-width: 44px;
+        min-height: 44px;
         font-size: 24px;
         color: var(--mu);
+        line-height: 1;
         text-align: center;
         z-index: 2;
     }
@@ -1356,9 +1362,29 @@
         transform: translateX(-30px);
     }
 
+    #mnv {
+        transition: opacity .35s var(--e);
+    }
+
+    #mnv .sh.lf {
+        transition: transform .45s var(--e);
+    }
+
     .mn {
         margin-top: 1.25rem;
-        border-top: 1px solid var(--gl);
+        border-top: 1px solid var(--sf);
+    }
+
+    .mn .mn-group-title {
+        margin: .9rem 0 .35rem;
+        color: var(--gi);
+        font: 600 var(--fs-help)/1.4 var(--s);
+        letter-spacing: .16em;
+        text-transform: uppercase;
+    }
+
+    .mn .mn-group-title:first-child {
+        margin-top: .35rem;
     }
 
     .mn a,
@@ -1368,38 +1394,64 @@
         gap: .85rem;
         width: 100%;
         min-height: 52px;
-        border-bottom: 1px solid var(--bd);
+        border-bottom: 1px solid var(--sf);
         color: var(--fg);
-        font: 600 var(--fs-help)/1.4 var(--s);
-        letter-spacing: .14em;
+        font: 500 var(--fs-help)/1.4 var(--s);
+        letter-spacing: .06em;
         text-transform: uppercase;
-        transition: color .25s ease, background-color .25s ease, transform .25s ease;
+        transition: color .22s var(--e), background-color .22s var(--e), transform .22s var(--e);
     }
 
     .mn .mn-ico {
-        width: 1.5rem;
-        flex: 0 0 1.5rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: var(--space-8);
+        height: var(--space-8);
+        flex: 0 0 var(--space-8);
+        border-radius: var(--radius-pill);
+        background-color: var(--sf);
         color: var(--mu);
+        font-size: var(--fs-body);
+        line-height: 1;
         text-align: center;
-        transition: color .25s ease, transform .25s ease;
+        transition: color .22s var(--e), background-color .22s var(--e), transform .22s var(--e);
     }
 
     .mn a:hover,
     .mn button:hover {
         color: var(--gi);
-        background-color: rgba(200, 161, 101, .08);
+        background-color: var(--sf);
         transform: translateX(2px);
     }
 
     .mn a:hover .mn-ico,
     .mn button:hover .mn-ico {
         color: var(--gi);
-        transform: scale(1.12) rotate(-4deg);
+        background-color: var(--s2);
+        transform: scale(1.06);
     }
 
     .mn a:active,
     .mn button:active {
+        background-color: var(--sf);
         transform: translateX(2px) scale(.985);
+    }
+
+    .mn a[aria-current="page"] {
+        color: var(--gi);
+        background-color: var(--sf);
+        outline: 2px solid var(--g);
+        outline-offset: -2px;
+    }
+
+    .mn a[aria-current="page"] .mn-ico {
+        color: var(--gi);
+        background-color: var(--s2);
+    }
+
+    .mn a[aria-current="page"]:focus-visible {
+        outline-offset: 2px;
     }
 
     .menu-ey {
@@ -1429,6 +1481,15 @@
             opacity: 1;
             transform: none;
         }
+
+        #mnv,
+        #mnv .sh.lf,
+        .mn a,
+        .mn button,
+        .mn .mn-ico {
+            transition: none;
+            animation: none;
+        }
     }
 
     .menu-account-slot {
@@ -1440,7 +1501,7 @@
         display: flex;
         align-items: center;
         gap: .8rem;
-        padding: .9rem;
+        padding: var(--space-3) var(--space-4) var(--space-4);
         background-color: var(--s2);
         border: 1px solid var(--bd);
         border-radius: 1rem;
@@ -1519,7 +1580,7 @@
 
     .menu-account-guest {
         display: block;
-        padding: 1rem;
+        padding: var(--space-3) var(--space-4) var(--space-4);
     }
 
     .menu-account-kicker {
@@ -1541,6 +1602,7 @@
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: .5rem;
+        align-items: stretch;
     }
 
     .menu-account-primary,
@@ -1548,7 +1610,7 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        min-height: 2.5rem;
+        min-height: var(--space-10);
         padding: .5rem .6rem;
         font-size: .75rem;
         font-weight: 700;

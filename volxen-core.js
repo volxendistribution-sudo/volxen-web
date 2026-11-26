@@ -567,19 +567,52 @@ function categoryImage(category) {
 }
 
 function menuOverlay() {
-    const links = [
-        { href: "catalogo.html", icon: "fa-store", text: "Catálogo" },
-        { href: "carrito.html", icon: "fa-cart-shopping", text: "Carrito" },
-        { href: "pedidos.html", icon: "fa-box", text: "Mis pedidos" },
-        { href: "consulta.html", icon: "fa-circle-question", text: "Consulta general" },
-        { href: "consulta.html?tipo=incidencia", icon: "fa-triangle-exclamation", text: "Reportar incidencia" },
-        { href: "consulta.html?tipo=queja", icon: "fa-comment-dots", text: "Queja u opinión" },
-        { href: "operadoras.html", icon: "fa-headset", text: "Operadoras" },
-        { href: "gestor.html", icon: "fa-chart-line", text: "Panel de promotor", promotor: true }
+    let current = { file: "", tipo: "" };
+    try {
+        const path = String(window.location.pathname || "").replace(/\/+$/, "");
+        current = {
+            file: path.split("/").pop() || "index.html",
+            tipo: new URLSearchParams(window.location.search || "").get("tipo") || "consulta"
+        };
+    } catch (e) {}
+    const isCurrent = link => {
+        const parts = link.href.split("?");
+        if (current.file !== parts[0]) return false;
+        if (parts[0] !== "consulta.html") return true;
+        return current.tipo === (new URLSearchParams(parts[1] || "").get("tipo") || "consulta");
+    };
+    const groups = [
+        {
+            label: "Compra",
+            links: [
+                { href: "index.html", icon: "fa-house", text: "Inicio" },
+                { href: "catalogo.html", icon: "fa-store", text: "Catálogo" },
+                { href: "carrito.html", icon: "fa-cart-shopping", text: "Carrito" },
+                { href: "pedidos.html", icon: "fa-box", text: "Mis pedidos" }
+            ]
+        },
+        {
+            label: "Ayuda",
+            links: [
+                { href: "consulta.html", icon: "fa-circle-question", text: "Consulta general" },
+                { href: "consulta.html?tipo=incidencia", icon: "fa-triangle-exclamation", text: "Reportar incidencia" },
+                { href: "consulta.html?tipo=queja", icon: "fa-comment-dots", text: "Queja u opinión" },
+                { href: "operadoras.html", icon: "fa-headset", text: "Operadoras" }
+            ]
+        }
     ];
+    let i = 0;
+    const nav = groups.map(group =>
+        '<h3 class="mn-group-title">' + group.label + '</h3>' +
+        group.links.map(link =>
+            '<a href="' + link.href + '"' + (isCurrent(link) ? ' aria-current="page"' : '') + ' style="--mn-i:' + i++ + '"><i class="fa-solid ' + link.icon + ' mn-ico" aria-hidden="true"></i><span>' + link.text + '</span></a>'
+        ).join("")
+    ).join("");
+    const promotor = { href: "gestor.html", icon: "fa-chart-line", text: "Panel de promotor" };
     return '<div class="ov" id="mnv"><div class="bx sh lf"><button class="xb" data-a="close" aria-label="Cerrar">×</button>' +
         '<span class="ey menu-ey">Navegar</span><nav class="mn" aria-label="Menú principal">' +
-        links.map((link, i) => '<a href="' + link.href + '"' + (link.promotor ? ' data-promotor-only hidden' : '') + ' style="--mn-i:' + i + '"><i class="fa-solid ' + link.icon + ' mn-ico" aria-hidden="true"></i><span>' + link.text + '</span></a>').join("") +
+        nav +
+        '<a href="' + promotor.href + '" data-promotor-only hidden style="--mn-i:' + i + '"><i class="fa-solid ' + promotor.icon + ' mn-ico" aria-hidden="true"></i><span>' + promotor.text + '</span></a>' +
         '</nav>' +
         '<div id="menuAccount" class="menu-account-slot"></div>' +
         '</div></div>';
