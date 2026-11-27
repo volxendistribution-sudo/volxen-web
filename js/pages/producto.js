@@ -209,7 +209,7 @@ export async function initProducto() {
         script.type = 'application/ld+json';
         var price = Number(VX.pr(product)) || Number(product.precio_usd) || 0;
         var inStock = product.disponibilidad !== "agotado";
-        var mainImg = image ? VX.imgUrl(image, { w: 1200, format: "webp", quality: 85 }) : "https://volxen.com/logo-light.svg";
+        var mainImg = image ? VX.imgUrl(image, { w: 1200, format: "webp", quality: 85 }) : "https://volxen.com/logo.svg";
         var jsonLd = {
             "@context": "https://schema.org",
             "@type": "Product",

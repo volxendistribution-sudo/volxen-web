@@ -517,7 +517,7 @@ function operadoras() {
     return '<div id="operadoras" class="pantalla fixed inset-0 z-50 overflow-y-auto">' +
         '<a href="#" aria-label="Cerrar" class="fixed inset-0 bg-fg/70 backdrop-blur-sm cursor-default"></a>' +
         '<div class="relative min-h-full flex items-center justify-center p-4 pointer-events-none"><div class="relative bg-s2 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl z-10 space-y-6 pointer-events-auto">' +
-        '<div class="flex items-center justify-between"><div class="flex items-center space-x-3"><img src="logo-light.svg" alt="" class="h-8 w-auto shrink-0"><h3 class="font-bold text-fg">Contacte con nuestras operadoras</h3></div><a href="#" aria-label="Cerrar" class="text-mu hover:text-fg"><i class="fa-solid fa-xmark text-lg"></i></a></div>' +
+        '<div class="flex items-center justify-between"><div class="flex items-center space-x-3"><img src="logo.svg" alt="" class="h-8 w-auto shrink-0"><h3 class="font-bold text-fg">Contacte con nuestras operadoras</h3></div><a href="#" aria-label="Cerrar" class="text-mu hover:text-fg"><i class="fa-solid fa-xmark text-lg"></i></a></div>' +
         '<p class="text-sm text-mu leading-relaxed">¿Necesita información sobre un producto o quiere consultar su pedido? Contacte con una de nuestras operadoras y reciba atención personalizada.</p>' +
         '<div id="operadorasLista" class="op-list">' + opLista(40) + '</div>' +
         '</div></div></div>';
@@ -621,7 +621,7 @@ function menuOverlay() {
 function minimalHeader() {
     return '<header id="hd" class="sticky top-0 z-50 bg-sf text-fg border-b border-bd shadow-sm">' +
         '<div class="max-w-3xl mx-auto px-4 sm:px-6"><div class="flex items-center justify-between h-16 gap-3">' +
-        '<a href="index.html" class="flex items-center gap-2 shrink-0" aria-label="VOLXEN, comercializadora de tecnología y energía en Cuba"><img src="logo-light.svg" alt="Logo VOLXEN" class="h-8 w-auto shrink-0"><span class="logo-wm" role="img" aria-label="VOLXEN"></span></a>' +
+        '<a href="index.html" class="flex items-center gap-2 shrink-0" aria-label="VOLXEN, comercializadora de tecnología y energía en Cuba"><img src="logo.svg" alt="Logo VOLXEN" class="h-8 w-auto shrink-0"><span class="logo-wm" role="img" aria-label="VOLXEN"></span></a>' +
         '<div class="flex items-center gap-2">' +
         '<button data-a="menu" aria-label="Abrir menú de la cuenta" class="bg-s2 hover:bg-sf border border-bd text-fg px-2.5 py-2 rounded-lg transition flex items-center gap-1.5"><i class="fa-solid fa-bars text-base"></i><span class="hidden sm:inline text-xs font-bold">Menú</span></button>' +
         '<a href="pedidos.html" id="accountLink" aria-label="Mi cuenta" class="bg-s2 hover:bg-sf border border-bd text-fg px-2.5 py-2 rounded-lg transition flex items-center gap-1.5"><span id="navAccountAvatar" class="nav-account-avatar vx-avatar" data-account-avatar aria-hidden="true"><i class="fa-regular fa-user" style="font-size:.85rem"></i></span><span class="nav-account-name text-xs font-bold" data-account-name>Mi cuenta</span></a>' +
@@ -640,7 +640,7 @@ function shell() {
     const header =
         '<header id="hd" class="sticky top-0 z-50 bg-sf text-fg border-b border-bd shadow-sm">' +
         '<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="flex items-center justify-between h-14 sm:h-16 gap-3">' +
-        '<a href="index.html" class="flex items-center gap-1.5 sm:gap-2 shrink-0" aria-label="VOLXEN, comercializadora de tecnología y energía en Cuba"><img src="logo-light.svg" alt="Logo VOLXEN" class="h-7 sm:h-8 w-auto shrink-0"><span class="block leading-none hidden sm:block"><span class="logo-wm" role="img" aria-label="VOLXEN"></span><span class="logo-tagline block mt-0.5 text-mu font-bold">Comercializadora</span></span></a>' +
+        '<a href="index.html" class="flex items-center gap-1.5 sm:gap-2 shrink-0" aria-label="VOLXEN, comercializadora de tecnología y energía en Cuba"><img src="logo.svg" alt="Logo VOLXEN" class="h-7 sm:h-8 w-auto shrink-0"><span class="block leading-none hidden sm:block"><span class="logo-wm" role="img" aria-label="VOLXEN"></span><span class="logo-tagline block mt-0.5 text-mu font-bold">Comercializadora</span></span></a>' +
         '<div class="flex items-center space-x-2">' +
         '<button data-a="menu" aria-label="Abrir menú" class="bg-s2 hover:bg-sf border border-bd text-fg px-2.5 py-2 rounded-lg transition flex items-center gap-1.5"><i class="fa-solid fa-bars text-base"></i><span class="hidden sm:inline text-xs font-bold">Menú</span></button>' +
         '<a href="pedidos.html" id="accountLink" aria-label="Mi cuenta" class="bg-s2 hover:bg-sf border border-bd text-fg px-2.5 py-2 rounded-lg transition flex items-center gap-1.5"><span id="navAccountAvatar" class="nav-account-avatar vx-avatar" data-account-avatar aria-hidden="true"><i class="fa-regular fa-user" style="font-size:.85rem"></i></span><span class="nav-account-name text-xs font-bold" data-account-name>Mi cuenta</span></a>' +
@@ -652,7 +652,7 @@ function shell() {
 
     const footer =
         '<footer class="bg-fg text-mu pt-16 pb-12 mt-16 border-t border-bd"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">' +
-        '<div class="space-y-4"><a href="index.html" class="flex items-center gap-3" aria-label="VOLXEN, comercializadora de tecnología y energía en Cuba"><img src="logo-light.svg" alt="Logo VOLXEN" class="h-10 w-auto shrink-0"><span class="block leading-none"><span class="logo-wm-claro h-5" role="img" aria-label="VOLXEN"></span><span class="logo-tagline block mt-1.5 text-mu font-bold">Comercializadora</span></span></a>' +
+        '<div class="space-y-4"><a href="index.html" class="flex items-center gap-3" aria-label="VOLXEN, comercializadora de tecnología y energía en Cuba"><img src="logo-negativo.svg" alt="Logo VOLXEN" class="h-10 w-auto shrink-0"><span class="block leading-none"><span class="logo-wm-claro h-5" role="img" aria-label="VOLXEN"></span><span class="logo-tagline block mt-1.5 text-mu font-bold">Comercializadora</span></span></a>' +
         '<p class="text-xs text-mu leading-relaxed">VOLXEN es una comercializadora de tecnología y energía en Cuba, con sede en La Habana. Transparencia y confianza en cada venta.</p>' +
         '<div class="flex space-x-3 pt-2"><a href="https://www.facebook.com/share/1M1HdetBFY/" target="_blank" rel="noopener noreferrer" aria-label="Facebook de VOLXEN" title="Facebook de VOLXEN" class="w-9 h-9 rounded-lg bg-s2 hover:bg-g hover:text-fg text-fg flex items-center justify-center transition"><i class="fa-brands fa-facebook-f"></i></a></div></div>' +
         '<div><h4 class="text-s2 font-semibold text-sm mb-4 uppercase tracking-wider">Departamentos</h4><ul id="fdp" class="space-y-2 text-xs"></ul></div>' +
