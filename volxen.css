@@ -254,11 +254,13 @@
     }
 
     .nav-chip {
+        position: relative;
         font-size: var(--fs-help);
         font-weight: 500;
         letter-spacing: 0.16em;
         text-transform: uppercase;
         font-family: var(--s);
+        transition: color .22s var(--e), background-color .22s var(--e), border-color .22s var(--e), transform .22s var(--e), box-shadow .22s var(--e);
     }
     .nav-chip-on {
         background-color: var(--fg);
@@ -273,6 +275,58 @@
     .nav-chip-off:hover {
         background-color: var(--bd);
         color: var(--fg);
+    }
+    .nav-chip::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        bottom: 4px;
+        width: 16px;
+        height: 2px;
+        border-radius: 999px;
+        background-color: var(--g);
+        transform: translateX(-50%) scaleX(0);
+        transition: transform .28s var(--e);
+    }
+    .nav-chip:hover {
+        transform: translateY(-1px);
+    }
+    .nav-chip:hover::after {
+        transform: translateX(-50%) scaleX(.65);
+    }
+    .nav-chip:active {
+        transform: translateY(0) scale(.97);
+    }
+    .nav-chip-on::after {
+        transform: translateX(-50%) scaleX(1);
+    }
+    #cn.nav-enter .nav-chip {
+        animation: navChipIn .4s var(--e) backwards;
+        animation-delay: calc(var(--chip-i, 0) * 28ms);
+    }
+    #hd {
+        animation: headerIn .5s var(--e) backwards;
+        transition: box-shadow .35s var(--e), border-color .35s var(--e);
+    }
+    #hd.sc {
+        box-shadow: 0 12px 30px -22px rgba(18,16,12,.55);
+        border-bottom-color: rgba(30,29,27,.18);
+    }
+    .badge-bump {
+        animation: badgeBump .38s var(--e);
+    }
+    @keyframes headerIn {
+        from { opacity: 0; transform: translateY(-8px); }
+        to { opacity: 1; transform: none; }
+    }
+    @keyframes navChipIn {
+        from { opacity: 0; transform: translateY(5px); }
+        to { opacity: 1; transform: none; }
+    }
+    @keyframes badgeBump {
+        0% { transform: scale(1); }
+        45% { transform: scale(1.35); }
+        100% { transform: scale(1); }
     }
 
     /* ===== Hero de marca ===== */

@@ -253,10 +253,16 @@ function bd() {
     const badges = ["bd", "bd-cart", "bd-form", "bd2"];
     badges.forEach(id => {
         const b = $(id);
-        if (b) {
-            b.textContent = n;
-            b.style.display = n ? "flex" : "none";
+        if (!b) return;
+        const prev = b.dataset.count;
+        b.textContent = n;
+        b.style.display = n ? "flex" : "none";
+        if (prev != null && Number(prev) !== n) {
+            b.classList.remove("badge-bump");
+            void b.offsetWidth;
+            b.classList.add("badge-bump");
         }
+        b.dataset.count = String(n);
     });
 }
 
@@ -399,9 +405,16 @@ function cart() {
 /* ===== Cabecera, pie y overlays compartidos ===== */
 function renderNav() {
     const nav = $("cn");
-    if (nav) nav.innerHTML = [{ id: "", nombre: "Catálogo" }].concat(Cs).map(c =>
-        '<a href="catalogo.html' + (c.id ? '?cat=' + encodeURIComponent(c.id) : '') + '" data-a="cat" data-id="' + esc(c.id) + '" class="nav-chip whitespace-nowrap px-3.5 py-1.5 rounded-lg transition ' + (c.id === cat ? "nav-chip-on" : "nav-chip-off") + '">' + esc(c.nombre) + '</a>'
-    ).join("");
+    if (nav) {
+        if (!nav.dataset.entered) {
+            nav.dataset.entered = "1";
+            nav.classList.add("nav-enter");
+            setTimeout(() => nav.classList.remove("nav-enter"), 900);
+        }
+        nav.innerHTML = [{ id: "", nombre: "Catálogo" }].concat(Cs).map((c, i) =>
+            '<a href="catalogo.html' + (c.id ? '?cat=' + encodeURIComponent(c.id) : '') + '" data-a="cat" data-id="' + esc(c.id) + '" style="--chip-i:' + i + '" class="nav-chip whitespace-nowrap px-3.5 py-1.5 rounded-lg transition ' + (c.id === cat ? "nav-chip-on" : "nav-chip-off") + '">' + esc(c.nombre) + '</a>'
+        ).join("");
+    }
     const fdp = $("fdp");
     if (fdp) fdp.innerHTML = Cs.map(c =>
         '<li><a href="catalogo.html?cat=' + encodeURIComponent(c.id) + '" class="hover:text-gi transition text-left">' + esc(c.nombre) + '</a></li>'
