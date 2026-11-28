@@ -631,11 +631,19 @@ function menuOverlay() {
         '</div></div>';
 }
 
+function themeToggle() {
+    return '<button id="gsThemeToggle" class="vx-theme-toggle" type="button" role="switch" aria-checked="false" aria-label="Cambiar a tema oscuro" title="Tema claro">' +
+        '<span class="vx-theme-toggle-icon vx-theme-toggle-sun" aria-hidden="true"><i class="fa-solid fa-sun"></i></span>' +
+        '<span class="vx-theme-toggle-icon vx-theme-toggle-moon" aria-hidden="true"><i class="fa-solid fa-moon"></i></span>' +
+        '<span class="vx-theme-toggle-thumb" aria-hidden="true"></span></button>';
+}
+
 function minimalHeader() {
     return '<header id="hd" class="sticky top-0 z-50 bg-sf text-fg border-b border-bd shadow-sm">' +
         '<div class="max-w-3xl mx-auto px-4 sm:px-6"><div class="flex items-center justify-between h-16 gap-3">' +
         '<a href="index.html" class="flex items-center gap-2 shrink-0" aria-label="VOLXEN, comercializadora de tecnología y energía en Cuba"><img src="logo.svg" alt="Logo VOLXEN" class="h-8 w-auto shrink-0"><span class="logo-wm" role="img" aria-label="VOLXEN"></span></a>' +
         '<div class="flex items-center gap-2">' +
+        themeToggle() +
         '<button data-a="menu" aria-label="Abrir menú de la cuenta" class="bg-s2 hover:bg-sf border border-bd text-fg px-2.5 py-2 rounded-lg transition flex items-center gap-1.5"><i class="fa-solid fa-bars text-base"></i><span class="hidden sm:inline text-xs font-bold">Menú</span></button>' +
         '<a href="pedidos.html" id="accountLink" aria-label="Mi cuenta" class="bg-s2 hover:bg-sf border border-bd text-fg px-2.5 py-2 rounded-lg transition flex items-center gap-1.5"><span id="navAccountAvatar" class="nav-account-avatar vx-avatar" data-account-avatar aria-hidden="true"><i class="fa-regular fa-user" style="font-size:.85rem"></i></span><span class="nav-account-name text-xs font-bold" data-account-name>Mi cuenta</span></a>' +
         '<a href="index.html" aria-label="Volver al inicio" class="hidden sm:flex btn-secondary hover:bg-sf px-3 py-2 text-xs font-bold transition items-center gap-1.5"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>Inicio</span></a>' +
@@ -655,6 +663,7 @@ function shell() {
         '<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div class="flex items-center justify-between h-14 sm:h-16 gap-3">' +
         '<a href="index.html" class="flex items-center gap-1.5 sm:gap-2 shrink-0" aria-label="VOLXEN, comercializadora de tecnología y energía en Cuba"><img src="logo.svg" alt="Logo VOLXEN" class="h-7 sm:h-8 w-auto shrink-0"><span class="block leading-none hidden sm:block"><span class="logo-wm" role="img" aria-label="VOLXEN"></span><span class="logo-tagline block mt-0.5 text-mu font-bold">Comercializadora</span></span></a>' +
         '<div class="flex items-center space-x-2">' +
+        themeToggle() +
         '<button data-a="menu" aria-label="Abrir menú" class="bg-s2 hover:bg-sf border border-bd text-fg px-2.5 py-2 rounded-lg transition flex items-center gap-1.5"><i class="fa-solid fa-bars text-base"></i><span class="hidden sm:inline text-xs font-bold">Menú</span></button>' +
         '<a href="pedidos.html" id="accountLink" aria-label="Mi cuenta" class="bg-s2 hover:bg-sf border border-bd text-fg px-2.5 py-2 rounded-lg transition flex items-center gap-1.5"><span id="navAccountAvatar" class="nav-account-avatar vx-avatar" data-account-avatar aria-hidden="true"><i class="fa-regular fa-user" style="font-size:.85rem"></i></span><span class="nav-account-name text-xs font-bold" data-account-name>Mi cuenta</span></a>' +
         '<a href="carrito.html" aria-label="Ver su pedido" class="relative btn-primary hover:bg-g-hover hover:text-fg font-bold px-2.5 py-2 rounded-lg flex items-center space-x-1.5 transition shadow-sm"><i class="fa-solid fa-cart-shopping text-base"></i><span class="hidden sm:inline text-xs">Carrito</span><span id="bd" class="absolute -top-1.5 -right-1.5 bg-fg text-g text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-sm">0</span></a>' +
